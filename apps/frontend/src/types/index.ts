@@ -22,7 +22,7 @@ export interface NavigationItem {
   current: boolean;
 }
 
-export interface FormState<T = any> {
+export interface FormState<T = Record<string, unknown>> {
   data: T;
   errors: Record<string, string>;
   isDirty: boolean;
