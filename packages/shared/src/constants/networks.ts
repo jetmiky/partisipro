@@ -46,9 +46,11 @@ export const NETWORK_NAMES = {
 } as const;
 
 export const isTestnet = (chainId: number): boolean => {
-  return Object.values(SUPPORTED_NETWORKS).find(
-    network => network.chainId === chainId
-  )?.testnet ?? false;
+  return (
+    Object.values(SUPPORTED_NETWORKS).find(
+      network => network.chainId === chainId
+    )?.testnet ?? false
+  );
 };
 
 export const getNetworkByChainId = (chainId: number) => {

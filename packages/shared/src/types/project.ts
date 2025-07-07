@@ -20,7 +20,7 @@ export enum ProjectStatus {
   OFFERING_COMPLETED = 'offering_completed',
   OPERATIONAL = 'operational',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 export interface ProjectToken {

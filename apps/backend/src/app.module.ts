@@ -11,7 +11,7 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
-    
+
     // TODO: Configure TypeORM with actual database
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -23,13 +23,15 @@ import { AppService } from './app.service';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    
+
     // Rate limiting
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 100, // 100 requests per minute
-    }]),
-    
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
+
     // TODO: Add feature modules
     // AuthModule,
     // UsersModule,

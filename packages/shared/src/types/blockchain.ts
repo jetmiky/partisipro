@@ -11,7 +11,7 @@ export interface TransactionResult {
 export enum TransactionStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 export interface ContractDeployment {

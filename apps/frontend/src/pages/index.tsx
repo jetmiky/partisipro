@@ -1,15 +1,18 @@
-import Head from 'next/head'
+import Head from 'next/head';
 
 export default function Home() {
   return (
     <>
       <Head>
         <title>Partisipro - Blockchain PPP Funding Platform</title>
-        <meta name="description" content="Blockchain-based Platform for Public Private Partnership Funding" />
+        <meta
+          name="description"
+          content="Blockchain-based Platform for Public Private Partnership Funding"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      
+
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
@@ -28,39 +31,48 @@ export default function Home() {
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">🏗️</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Tokenize PPP Projects</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">
+                    Tokenize PPP Projects
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Transform infrastructure projects into tradeable digital assets
+                    Transform infrastructure projects into tradeable digital
+                    assets
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">💰</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Democratize Investment</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">
+                    Democratize Investment
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Enable retail investors to participate in large-scale infrastructure
+                    Enable retail investors to participate in large-scale
+                    infrastructure
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">🔗</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Blockchain Transparency</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">
+                    Blockchain Transparency
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Transparent fund management and automated profit distribution
+                    Transparent fund management and automated profit
+                    distribution
                   </p>
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
               <h3 className="text-lg font-semibold text-yellow-800 mb-2">
                 🚧 Development Status
               </h3>
               <p className="text-yellow-700">
-                This platform is currently in prototype phase using Arbitrum Sepolia testnet.
-                Core functionalities are under development.
+                This platform is currently in prototype phase using Arbitrum
+                Sepolia testnet. Core functionalities are under development.
               </p>
             </div>
 
@@ -76,5 +88,5 @@ export default function Home() {
         </div>
       </div>
     </>
-  )
+  );
 }

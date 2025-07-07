@@ -13,13 +13,13 @@ export enum KYCStatus {
   IN_PROGRESS = 'in_progress',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 export enum UserRole {
   INVESTOR = 'investor',
   SPV = 'spv',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }
 
 export interface UserProfile {
@@ -45,11 +45,11 @@ export interface UserAddress {
 export enum InvestmentExperience {
   BEGINNER = 'beginner',
   INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced'
+  ADVANCED = 'advanced',
 }
 
 export enum RiskTolerance {
   LOW = 'low',
   MEDIUM = 'medium',
-  HIGH = 'high'
+  HIGH = 'high',
 }
