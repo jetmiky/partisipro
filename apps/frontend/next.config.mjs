@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   transpilePackages: ['@partisipro/shared', '@partisipro/ui'],
   images: {
     domains: ['localhost'],
@@ -8,6 +8,16 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_ENVIRONMENT: process.env.NODE_ENV,
   },
-}
+  experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+};
 
-module.exports = nextConfig
+export default nextConfig;
