@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ../../
+      dockerfile: tools/docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+      - NEXT_PUBLIC_BLOCKCHAIN_NETWORK=arbitrum-sepolia
+    volumes:
+      - ../../apps/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - partisipro-network
+
+  # Backend Service
+  backend:
+    build:
+      context: ../../
+      dockerfile: tools/docker/Dockerfile.backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_NAME=partisipro
+      - DB_USERNAME=root
+      - DB_PASSWORD=partisipro123
+      - JWT_SECRET=your-jwt-secret-here
+      - BLOCKCHAIN_NETWORK=arbitrum-sepolia
+    volumes:
+      - ../../apps/backend:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - database
+      - redis
+    networks:
+      - partisipro-network
+
+  # Database Service
+  database:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=partisipro123
+      - MYSQL_DATABASE=partisipro
+      - MYSQL_USER=partisipro
+      - MYSQL_PASSWORD=partisipro123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - partisipro-network
+
+  # Redis Service (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - partisipro-network
+
+  # Blockchain Node (Local Hardhat Network)
+  blockchain:
+    build:
+      context: ../../
+      dockerfile: tools/docker/Dockerfile.blockchain
+    ports:
+      - "8545:8545"
+    environment:
+      - NETWORK=hardhat
+    volumes:
+      - ../../packages/contracts:/app
+      - /app/node_modules
+      - /app/artifacts
+      - /app/cache
+    networks:
+      - partisipro-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  partisipro-network:
+    driver: bridge

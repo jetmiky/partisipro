@@ -1,0 +1,43 @@
+{
+  "name": "@partisipro/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Smart contracts for Partisipro platform",
+  "scripts": {
+    "dev": "hardhat node",
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy/deploy-local.ts --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy/deploy-sepolia.ts --network arbitrumSepolia",
+    "verify:sepolia": "hardhat run scripts/verify/verify-sepolia.ts --network arbitrumSepolia",
+    "clean": "hardhat clean",
+    "coverage": "hardhat coverage",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "@chainlink/contracts": "^1.4.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^1.0.0",
+    "@typechain/hardhat": "^8.0.0",
+    "@typechain/ethers-v6": "^0.4.0",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": ">=9.1.0",
+    "@types/node": ">=16.0.0",
+    "chai": "^4.2.0",
+    "ethers": "^6.4.0",
+    "hardhat": "^2.17.0",
+    "hardhat-gas-reporter": "^1.0.8",
+    "solhint": "^4.0.0",
+    "solidity-coverage": "^0.8.0",
+    "typechain": "^8.3.0",
+    "typescript": ">=4.5.0"
+  }
+}
