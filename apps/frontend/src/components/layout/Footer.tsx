@@ -13,28 +13,28 @@ const Footer = () => {
 
   const links = {
     platform: [
-      { name: 'How It Works', href: '#how-it-works' },
-      { name: 'Active Projects', href: '#projects' },
-      { name: 'Security', href: '#security' },
-      { name: 'Documentation', href: '/docs' },
+      { name: 'Cara Kerja', href: '#how-it-works' },
+      { name: 'Proyek Aktif', href: '#projects' },
+      { name: 'Keamanan', href: '#security' },
+      { name: 'Dokumentasi', href: '/docs' },
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Team', href: '/team' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Press', href: '/press' },
+      { name: 'Tentang Kami', href: '/about' },
+      { name: 'Tim', href: '/team' },
+      { name: 'Karir', href: '/careers' },
+      { name: 'Pers', href: '/press' },
     ],
     legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'Compliance', href: '/compliance' },
-      { name: 'Risk Disclosure', href: '/risk-disclosure' },
+      { name: 'Kebijakan Privasi', href: '/privacy' },
+      { name: 'Syarat Layanan', href: '/terms' },
+      { name: 'Kepatuhan', href: '/compliance' },
+      { name: 'Pengungkapan Risiko', href: '/risk-disclosure' },
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Contact Us', href: '/contact' },
-      { name: 'API Documentation', href: '/api-docs' },
-      { name: 'Status Page', href: '/status' },
+      { name: 'Pusat Bantuan', href: '/help' },
+      { name: 'Hubungi Kami', href: '/contact' },
+      { name: 'Dokumentasi API', href: '/api-docs' },
+      { name: 'Status Halaman', href: '/status' },
     ],
   };
 
@@ -64,10 +64,9 @@ const Footer = () => {
                 </div>
               </div>
             </div>
-            <p className="text-secondary-300 mb-6 max-w-sm">
-              Democratizing infrastructure investment in Indonesia through
-              blockchain technology and Project Garuda IDR Stablecoin
-              integration.
+            <p className="text-secondary-300 mb-6 max-w-sm text-indonesian">
+              Mendemokratisasi investasi infrastruktur di Indonesia melalui
+              teknologi blockchain dan integrasi Project Garuda IDR Stablecoin.
             </p>
 
             {/* Contact Info */}
@@ -89,7 +88,9 @@ const Footer = () => {
 
           {/* Platform Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Platform</h3>
+            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+              Platform
+            </h3>
             <ul className="space-y-2">
               {links.platform.map(link => (
                 <li key={link.name}>
@@ -106,7 +107,9 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Company</h3>
+            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+              Perusahaan
+            </h3>
             <ul className="space-y-2">
               {links.company.map(link => (
                 <li key={link.name}>
@@ -123,7 +126,9 @@ const Footer = () => {
 
           {/* Legal Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Legal</h3>
+            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+              Hukum
+            </h3>
             <ul className="space-y-2">
               {links.legal.map(link => (
                 <li key={link.name}>
@@ -140,7 +145,9 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Support</h3>
+            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+              Dukungan
+            </h3>
             <ul className="space-y-2">
               {links.support.map(link => (
                 <li key={link.name}>
@@ -159,14 +166,14 @@ const Footer = () => {
         {/* Compliance Notice */}
         <div className="border-t border-secondary-800 pt-8 mb-8">
           <div className="bg-secondary-800 rounded-lg p-4">
-            <h4 className="font-semibold text-success-400 mb-2">
-              Regulatory Compliance
+            <h4 className="font-semibold text-success-400 mb-2 text-indonesian-heading">
+              Kepatuhan Regulasi
             </h4>
-            <p className="text-sm text-secondary-300">
-              Partisipro operates in full compliance with Bank Indonesia
-              regulations and Indonesian financial services authority (OJK)
-              guidelines. All transactions are conducted using Project Garuda
-              IDR Stablecoin for regulatory compliance.
+            <p className="text-sm text-secondary-300 text-indonesian">
+              Partisipro beroperasi dengan mematuhi sepenuhnya regulasi Bank
+              Indonesia dan pedoman otoritas jasa keuangan Indonesia (OJK).
+              Semua transaksi dilakukan menggunakan Project Garuda IDR
+              Stablecoin untuk kepatuhan regulasi.
             </p>
           </div>
         </div>
@@ -175,9 +182,9 @@ const Footer = () => {
         <div className="border-t border-secondary-800 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <div className="text-sm text-secondary-400">
-              © {currentYear} Partisipro. All rights reserved. Built on
-              Arbitrum blockchain.
+            <div className="text-sm text-secondary-400 text-indonesian">
+              © {currentYear} Partisipro. Semua hak dilindungi. Dibangun di
+              atas blockchain Arbitrum.
             </div>
 
             {/* Social Links */}

@@ -26,9 +26,7 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/95 backdrop-blur-lg shadow-lg border-b border-secondary-200'
-          : 'bg-transparent'
+        isScrolled ? 'glass-header' : 'glass-subtle'
       }`}
     >
       <div className="container">
@@ -39,10 +37,14 @@ const Header = () => {
               <Layers className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-gradient">
+              <span
+                className={`text-xl md:text-2xl font-bold ${isScrolled ? 'text-gradient' : 'text-contrast-overlay'}`}
+              >
                 Partisipro
               </span>
-              <span className="text-xs text-muted-foreground hidden md:block">
+              <span
+                className={`text-xs hidden md:block ${isScrolled ? 'text-muted-foreground' : 'text-white/80 text-shadow'}`}
+              >
                 PPP Blockchain Platform
               </span>
             </div>
@@ -51,7 +53,11 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navigation.map(item => (
-              <a key={item.name} href={item.href} className="nav-link">
+              <a
+                key={item.name}
+                href={item.href}
+                className={`font-medium transition-colors duration-200 ${isScrolled ? 'text-secondary-600 hover:text-primary-600' : 'text-white/90 hover:text-white text-shadow'}`}
+              >
                 {item.name}
               </a>
             ))}
@@ -59,7 +65,11 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <button className="btn btn-ghost btn-sm">Sign In</button>
+            <button
+              className={`btn btn-sm transition-all duration-200 ${isScrolled ? 'btn-ghost' : 'glass-hero text-white/90 hover:text-white hover:glass-modern border-white/30'}`}
+            >
+              Sign In
+            </button>
             <button className="btn btn-primary btn-sm">
               <Shield className="w-4 h-4" />
               Get Started
@@ -68,7 +78,7 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-secondary-600 hover:text-primary-600 transition-colors"
+            className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-secondary-600 hover:text-primary-600' : 'text-white/90 hover:text-white text-shadow'}`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -83,20 +93,20 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden animate-slide-down">
-            <div className="bg-white border-t border-secondary-200 shadow-lg">
+            <div className="glass-modern border-t border-white/30">
               <nav className="px-4 py-6 space-y-4">
                 {navigation.map(item => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="block text-secondary-600 hover:text-primary-600 font-medium transition-colors"
+                    className="block text-contrast-glass hover:text-primary-600 font-medium transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
                   </a>
                 ))}
 
-                <div className="pt-4 border-t border-secondary-200">
+                <div className="pt-4 border-t border-gray-200/30">
                   <button className="btn btn-ghost w-full mb-2">Sign In</button>
                   <button className="btn btn-primary w-full">
                     <Shield className="w-4 h-4" />
@@ -111,9 +121,13 @@ const Header = () => {
 
       {/* Trust Indicators Bar */}
       {!isMenuOpen && (
-        <div className="border-t border-secondary-200/50 bg-secondary-50/50 backdrop-blur-sm">
+        <div
+          className={`border-t ${isScrolled ? 'border-secondary-200/50 bg-secondary-50/50' : 'border-white/20 glass-subtle'} backdrop-blur-sm`}
+        >
           <div className="container">
-            <div className="flex items-center justify-center md:justify-between py-2 text-xs md:text-sm text-muted-foreground">
+            <div
+              className={`flex items-center justify-center md:justify-between py-2 text-xs md:text-sm ${isScrolled ? 'text-muted-foreground' : 'text-white/80 text-shadow-sm'}`}
+            >
               <div className="hidden md:flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-success-500" />
