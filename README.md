@@ -38,12 +38,11 @@ project:
     uses the platform's secure dashboard to define the parameters of their
     project tokenization. The platform then deploys a unique set of smart
     contracts for this project. Retail investors purchase tokens during an
-    Initial Offering Period via Project Garuda IDR Stablecoin.
+    Initial Offering Period via a compliant fiat (IDR) on-ramp.
 3.  **Project Operation & Profit Distribution**: The SPV operates the
-    infrastructure project (e.g., a toll road). Profits are deposited (in
-    Project Garuda IDR Stablecoin) into the platform's system. The on-chain
-    Treasury contract then calculates and allocates profit shares to token
-    holders, who can claim their earnings.
+    infrastructure project (e.g., a toll road). Profits are deposited (in fiat)
+    into the platform's system. The on-chain Treasury contract then calculates
+    and allocates profit shares to token holders, who can claim their earnings.
 4.  **Secondary Market Trading**: Investors can trade their project tokens on an
     integrated, established Decentralized Exchange (DEX), which is outside of
     this platform scope.
@@ -70,7 +69,11 @@ interaction between all actors.
   with NestJS and Firebase. It manages user data, integrates with third-party
   services, and securely constructs transactions to be signed by users.
 - **Third-Party Integrations**:
-  - **KYC Providers**: For mandatory user identity verification.
+  - **KYC Providers**: For mandatory user identity verification (e.g., Verihubs,
+    Sumsub).
+  - **Payment Gateway**: For compliant fiat (IDR) on-ramp and off-ramp.
+  - **Semi-Custodial Wallet Providers**: For seamless user onboarding via
+    email/social logins (e.g., Web3Auth, Privy).
 
 ### 3.2. On-Chain Components (Smart Contracts)
 
@@ -95,7 +98,7 @@ project-specific contracts deployed via a factory pattern.
 
 ### 4.2. Project-Specific Contract Set (Deployed per Project)
 
-- `ProjectToken.sol`: The asset itself (ERC-20), representing fractional
+- `ProjectToken.sol`: The asset itself (ERC-20/ERC-721), representing fractional
   ownership of a specific project.
 - `Offering.sol`: Manages the Initial Project Token Offering (the primary market
   sale).
@@ -121,12 +124,9 @@ project-specific contracts deployed via a factory pattern.
   - **Ethers.js**: Library for blockchain interaction.
 - **Frontend**:
   - **TypeScript** (Programming Language)
-  - **NextJS**: UI framework.
+  - **Next.js**: UI framework.
   - **Tailwind**: UI CSS framework.
   - **Wagmi**: Hooks for wallet connectivity.
-- **Oracles & Automation**:
-  - **Chainlink Functions & Automation**: For reliable off-chain data and
-    scheduled on-chain transactions.
 - **AI & Machine Learning (Future Features)**:
   - **Python** (Programming Language)
   - **TensorFlow / PyTorch**: For sentiment analysis and anomaly detection
@@ -140,11 +140,13 @@ project-specific contracts deployed via a factory pattern.
 
 - **Modular & Upgradable Contracts**: Utilizes the factory and proxy patterns
   for security, isolation, and future-proof logic.
-- **Compliant CBDC Stablecoin Regulation**: All investments and payouts are
-  handled in Project Garuda IDR Stablecoin to comply with Indonesian currency
-  laws and innovation of the nation CBDC project.
+- **Compliant Fiat Gateway**: All investments and payouts are handled in fiat
+  (IDR) via licensed payment gateways to comply with Indonesian currency laws.
 - **Automated Distributions**: Profit distribution and final buyback mechanisms
   are calculated transparently on-chain and initiated by users via a "claim"
   model.
 - **Integrated KYC Enforcement**: A mandatory, off-chain KYC process is enforced
   at the application layer before any investment activity is permitted.
+- **Simplified User Onboarding**: Leverages semi-custodial wallets to allow
+  mainstream users to sign up and interact with the platform using familiar Web2
+  credentials like email or social accounts.
