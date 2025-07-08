@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * @dev ERC20 token representing fractional ownership of a PPP project
  * @notice This token represents shares in a specific infrastructure project
  */
-contract ProjectToken is 
+contract ProjectToken is
     Initializable,
     ERC20Upgradeable,
     ERC20PausableUpgradeable,
@@ -33,10 +33,10 @@ contract ProjectToken is
     address public treasury;
     address public offering;
     address public governance;
-    
-    uint256 public constant MAX_SUPPLY = 1_000_000 * 10**18; // 1M tokens max
+
+    uint256 public constant MAX_SUPPLY = 1_000_000 * 10 ** 18; // 1M tokens max
     bool public transfersEnabled;
-    
+
     mapping(address => bool) public authorizedMinters;
     mapping(address => uint256) public lastDividendClaim;
 
@@ -48,10 +48,7 @@ contract ProjectToken is
     event AuthorizedMinterRemoved(address indexed minter);
 
     modifier onlyAuthorized() {
-        require(
-            authorizedMinters[msg.sender] || msg.sender == owner(),
-            "Not authorized"
-        );
+        require(authorizedMinters[msg.sender] || msg.sender == owner(), "Not authorized");
         _;
     }
 
@@ -86,7 +83,7 @@ contract ProjectToken is
 
         // Mint initial supply to offering contract
         _mint(_offering, _totalSupply);
-        
+
         // Authorize offering contract to mint
         authorizedMinters[_offering] = true;
         emit AuthorizedMinterAdded(_offering);
@@ -161,7 +158,7 @@ contract ProjectToken is
             expectedAPY: _expectedAPY,
             metadataURI: _metadataURI
         });
-        
+
         emit ProjectInfoUpdated(_name, _description, _location);
     }
 
@@ -195,7 +192,7 @@ contract ProjectToken is
         if (from != address(0) && to != address(0)) {
             require(transfersEnabled, "Transfers disabled");
         }
-        
+
         super._update(from, to, value);
     }
 

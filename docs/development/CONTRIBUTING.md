@@ -1,6 +1,7 @@
 # Contributing to Partisipro
 
-Welcome to Partisipro! We're excited that you're interested in contributing to our blockchain-based PPP funding platform.
+Welcome to Partisipro! We're excited that you're interested in contributing to
+our blockchain-based PPP funding platform.
 
 ## Development Setup
 
@@ -13,17 +14,20 @@ Welcome to Partisipro! We're excited that you're interested in contributing to o
 ### Getting Started
 
 1. **Fork and clone the repository**:
+
    ```bash
    git clone https://github.com/your-username/partisipro.git
    cd partisipro
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 3. **Set up environment**:
+
    ```bash
    ./tools/scripts/setup-env.sh
    ```
@@ -50,21 +54,25 @@ We use several tools to maintain code quality:
 Our Git hooks will automatically run the following checks:
 
 #### Pre-commit:
+
 - ESLint with auto-fix
 - Prettier formatting
 - Type checking
 
 #### Commit message:
+
 - Conventional commit format validation
 
 #### Pre-push:
+
 - Full type checking
 - Test suite
 - Build verification
 
 ### Commit Message Format
 
-We use [Conventional Commits](https://www.conventionalcommits.org/) for our commit messages:
+We use [Conventional Commits](https://www.conventionalcommits.org/) for our
+commit messages:
 
 ```
 <type>[optional scope]: <description>
@@ -75,6 +83,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for our comm
 ```
 
 #### Types:
+
 - `feat`: A new feature
 - `fix`: A bug fix
 - `docs`: Documentation changes
@@ -89,6 +98,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) for our comm
 - `deploy`: Deployment related changes
 
 #### Examples:
+
 ```bash
 feat(frontend): add wallet connection component
 fix(backend): resolve authentication token validation
@@ -99,6 +109,7 @@ contract(token): implement profit distribution logic
 ### Using Commitizen (Optional)
 
 For interactive commit message creation:
+
 ```bash
 npm run commit
 ```
@@ -119,6 +130,7 @@ partisipro/
 ## Development Commands
 
 ### Root Level Commands:
+
 ```bash
 # Development
 npm run dev                # Start all services
@@ -134,6 +146,7 @@ npm run commit             # Interactive commit (Commitizen)
 ```
 
 ### Package-specific Commands:
+
 ```bash
 # Frontend
 cd apps/frontend
@@ -157,6 +170,7 @@ npm run deploy:local       # Deploy to local network
 ## Code Style Guidelines
 
 ### TypeScript/JavaScript:
+
 - Use TypeScript for all new code
 - Prefer `const` over `let`, avoid `var`
 - Use meaningful variable and function names
@@ -164,18 +178,22 @@ npm run deploy:local       # Deploy to local network
 - Follow the existing code style (enforced by Prettier)
 
 ### React/Frontend:
+
 - Use functional components with hooks
 - Prefer named exports over default exports
 - Keep components small and focused
 - Use proper TypeScript types for props
 
 ### Solidity:
-- Follow the [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html)
+
+- Follow the
+  [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html)
 - Use OpenZeppelin contracts when possible
 - Add comprehensive NatSpec documentation
 - Write thorough tests for all contracts
 
 ### Backend/NestJS:
+
 - Use dependency injection
 - Follow the module-based architecture
 - Add proper error handling
@@ -184,6 +202,7 @@ npm run deploy:local       # Deploy to local network
 ## Testing
 
 ### Running Tests:
+
 ```bash
 # All tests
 npm run test
@@ -194,6 +213,7 @@ npm run test --workspace=@partisipro/backend
 ```
 
 ### Test Guidelines:
+
 - Write tests for all new features
 - Maintain test coverage above 80%
 - Use descriptive test names
@@ -202,12 +222,14 @@ npm run test --workspace=@partisipro/backend
 ## Security
 
 ### Smart Contract Security:
+
 - Use OpenZeppelin contracts
 - Follow security best practices
 - Get security audits for production code
 - Never hardcode private keys or secrets
 
 ### Backend Security:
+
 - Validate all inputs
 - Use proper authentication and authorization
 - Follow OWASP guidelines
@@ -216,12 +238,14 @@ npm run test --workspace=@partisipro/backend
 ## Documentation
 
 ### Code Documentation:
+
 - Add JSDoc comments for public APIs
 - Update README files when adding features
 - Document configuration options
 - Include usage examples
 
 ### API Documentation:
+
 - Backend API is auto-documented with Swagger
 - Keep Swagger annotations up to date
 - Include request/response examples
@@ -229,11 +253,13 @@ npm run test --workspace=@partisipro/backend
 ## Deployment
 
 ### Development:
+
 - Use local environment for development
 - Test on Arbitrum Sepolia testnet
 - Never use mainnet for testing
 
 ### Staging:
+
 - Deploy to staging environment first
 - Test all features thoroughly
 - Get team approval before production
@@ -247,8 +273,10 @@ npm run test --workspace=@partisipro/backend
 
 ## License
 
-By contributing to Partisipro, you agree that your contributions will be licensed under the MIT License.
+By contributing to Partisipro, you agree that your contributions will be
+licensed under the MIT License.
 
 ## Thank You!
 
-Thank you for contributing to Partisipro! Your help in building the future of infrastructure funding is greatly appreciated.
+Thank you for contributing to Partisipro! Your help in building the future of
+infrastructure funding is greatly appreciated.

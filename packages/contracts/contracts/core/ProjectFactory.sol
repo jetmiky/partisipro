@@ -45,10 +45,7 @@ contract ProjectFactory is Ownable, ReentrancyGuard {
 
     event DeploymentFeeUpdated(uint256 oldFee, uint256 newFee);
 
-    constructor(
-        address _owner,
-        uint256 _deploymentFee
-    ) Ownable(_owner) {
+    constructor(address _owner, uint256 _deploymentFee) Ownable(_owner) {
         deploymentFee = _deploymentFee;
         nextProjectId = 1;
     }
@@ -68,18 +65,18 @@ contract ProjectFactory is Ownable, ReentrancyGuard {
         uint256 _offeringPrice
     ) external payable nonReentrant returns (uint256 projectId) {
         require(msg.value >= deploymentFee, "Insufficient deployment fee");
-        
+
         // TODO: Implement actual contract deployment logic
         // This is a placeholder structure
-        
+
         projectId = nextProjectId++;
-        
+
         // TODO: Deploy actual contracts using Clone factory pattern
         // address projectToken = projectTokenImplementation.clone();
         // address offering = offeringImplementation.clone();
         // address treasury = treasuryImplementation.clone();
         // address governance = governanceImplementation.clone();
-        
+
         // Placeholder addresses (should be replaced with actual deployments)
         address projectToken = address(0);
         address offering = address(0);
@@ -98,14 +95,7 @@ contract ProjectFactory is Ownable, ReentrancyGuard {
 
         creatorProjects[msg.sender].push(projectId);
 
-        emit ProjectCreated(
-            projectId,
-            msg.sender,
-            projectToken,
-            offering,
-            treasury,
-            governance
-        );
+        emit ProjectCreated(projectId, msg.sender, projectToken, offering, treasury, governance);
 
         // TODO: Initialize deployed contracts with provided parameters
         // _initializeProjectContracts(projectId, _projectName, _projectSymbol, _totalSupply, _offeringPrice);
@@ -146,8 +136,8 @@ contract ProjectFactory is Ownable, ReentrancyGuard {
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
-        
-        (bool success, ) = payable(owner()).call{value: balance}("");
+
+        (bool success, ) = payable(owner()).call{ value: balance }("");
         require(success, "Fee withdrawal failed");
     }
 }
