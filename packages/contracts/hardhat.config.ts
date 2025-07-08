@@ -1,9 +1,9 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-verify";
-import "solidity-coverage";
-import "hardhat-gas-reporter";
-import * as dotenv from "dotenv";
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-toolbox';
+import '@nomicfoundation/hardhat-verify';
+import 'solidity-coverage';
+import 'hardhat-gas-reporter';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.20",
+        version: '0.8.20',
         settings: {
           optimizer: {
             enabled: true,
@@ -20,7 +20,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        version: "0.8.22",
+        version: '0.8.22',
         settings: {
           optimizer: {
             enabled: true,
@@ -35,11 +35,13 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     localhost: {
-      url: "http://127.0.0.1:8545",
+      url: 'http://127.0.0.1:8545',
       chainId: 1337,
     },
     arbitrumSepolia: {
-      url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc",
+      url:
+        process.env.ARBITRUM_SEPOLIA_RPC_URL ||
+        'https://sepolia-rollup.arbitrum.io/rpc',
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 421614,
     },
@@ -52,36 +54,36 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
+    currency: 'USD',
   },
   etherscan: {
     apiKey: {
-      arbitrumSepolia: process.env.ARBISCAN_API_KEY || "",
-      arbitrumOne: process.env.ARBISCAN_API_KEY || "",
+      arbitrumSepolia: process.env.ARBISCAN_API_KEY || '',
+      arbitrumOne: process.env.ARBISCAN_API_KEY || '',
     },
     customChains: [
       {
-        network: "arbitrumSepolia",
+        network: 'arbitrumSepolia',
         chainId: 421614,
         urls: {
-          apiURL: "https://api-sepolia.arbiscan.io/api",
-          browserURL: "https://sepolia.arbiscan.io/",
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io/',
         },
       },
     ],
   },
   paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
   },
   mocha: {
     timeout: 40000,
   },
   typechain: {
-    outDir: "typechain-types",
-    target: "ethers-v6",
+    outDir: 'typechain-types',
+    target: 'ethers-v6',
   },
 };
 

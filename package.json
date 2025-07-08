@@ -3,7 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "description": "Blockchain-based Platform for Public Private Partnership Funding",
-  "keywords": ["blockchain", "ppp", "tokenization", "defi", "infrastructure"],
+  "keywords": [
+    "blockchain",
+    "ppp",
+    "tokenization",
+    "defi",
+    "infrastructure"
+  ],
   "author": "Partisipro Team",
   "license": "MIT",
   "workspaces": [
