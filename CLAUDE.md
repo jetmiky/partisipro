@@ -34,11 +34,13 @@ Stablecoin for regulatory compliance.
 
 **Factory Pattern**: Each project gets isolated contract deployment:
 
-- **Core Infrastructure**: `ProjectFactory.sol`, `PlatformRegistry.sol`,
-  `PlatformTreasury.sol`
-- **Per-Project**: `ProjectToken.sol` (ERC-20), `Offering.sol`, `Treasury.sol`,
-  `Governance.sol`
-- **Security**: OpenZeppelin + UUPS proxy pattern for upgradeability
+- **Core Infrastructure**: `PlatformRegistry.sol`, `PlatformTreasury.sol`,
+  `ProjectFactory.sol`
+- **Per-Project**: `ProjectToken.sol` (ERC-20), `ProjectOffering.sol`,
+  `ProjectTreasury.sol`, `ProjectGovernance.sol`
+- **Security**: OpenZeppelin + AccessControl for MVP, UUPS proxy pattern for
+  production
+- **MVP Focus**: 7 contracts total, simplified for 1-week prototype deployment
 
 ### Technology Stack
 
@@ -120,9 +122,15 @@ npm run commit                 # Interactive conventional commits
 
 ### Smart Contract Conventions
 
-- **Factory Deployment**: Use `ProjectFactory.createProject()` for new projects
-- **Proxy Pattern**: All project contracts are upgradeable via UUPS
-- **Access Control**: OpenZeppelin `Ownable` + custom role-based permissions
+- **Factory Deployment**: Use `ProjectFactory.createProject()` with listing fee
+  payment
+- **Access Control**: PlatformRegistry-based whitelist system for SPVs and
+  investors
+- **Fee Structure**: Dual-fee model (listing + management) with automatic
+  platform treasury collection
+- **Governance**: Token-weighted voting through ProjectGovernance.sol
+- **Upgradeability**: Simplified for MVP, UUPS proxy pattern planned for
+  production
 - **Gas Optimization**: Target Arbitrum network for low-cost transactions
 
 ### Frontend Patterns
@@ -166,15 +174,81 @@ npm run commit                 # Interactive conventional commits
 
 ### Key Business Logic
 
-- **Tokenization**: Each infrastructure project becomes an ERC-20 token
-  representing fractional ownership
-- **Profit Distribution**: Automated on-chain calculation and claiming mechanism
-- **Governance**: Token holder voting on project decisions
+- **Tokenization**: Each infrastructure project becomes an ERC-20 token with
+  voting capabilities
+- **Access Control**: Registry-based whitelist system for regulatory compliance
+- **Fee Management**: Automatic platform fee collection (listing + management
+  fees)
+- **Profit Distribution**: Automated on-chain calculation with platform fee
+  deduction
+- **Governance**: Token-weighted voting with proposal and execution mechanisms
 - **Liquidity**: Secondary market trading on external DEX platforms
 
 ### Security Considerations
 
-- Multi-signature wallets for admin functions
-- Upgradeable contracts for future-proofing
-- Comprehensive input validation on all user inputs
-- Rate limiting and DDoS protection on API endpoints
+- **Access Control**: Registry-based whitelist system with role-based
+  permissions
+- **Platform Treasury**: Secure fee collection with emergency withdrawal
+  capabilities
+- **Governance Security**: Token-weighted voting with proposal validation
+- **Input Validation**: Comprehensive validation on all user inputs and
+  transactions
+- **Upgrade Path**: Simplified contracts for MVP, UUPS proxy pattern for
+  production
+- **Multi-signature**: Planned for production deployment and admin functions
+- **Rate Limiting**: DDoS protection on API endpoints and transaction limits
+
+## MVP Implementation Plan
+
+### 7-Day Prototype Schedule
+
+**Day 1**: PlatformRegistry.sol + PlatformTreasury.sol
+
+- AccessControl setup and fee collection mechanism
+- Integration between registry and treasury
+
+**Day 2**: ProjectFactory.sol + ProjectToken.sol
+
+- Factory pattern with listing fee payment
+- ERC-20 token with voting capabilities
+
+**Day 3**: ProjectOffering.sol
+
+- Token sale with whitelist enforcement
+- ETH payment handling (fiat integration planned)
+
+**Day 4**: ProjectTreasury.sol
+
+- Profit distribution with automatic platform fee deduction
+- Claim mechanism with proportional distribution
+
+**Day 5**: ProjectGovernance.sol
+
+- Token-weighted voting with proposal mechanism
+- Integration with token voting power
+
+**Day 6**: Integration & Testing
+
+- End-to-end testing of all 7 contracts
+- Arbitrum Sepolia testnet deployment
+
+**Day 7**: Demo Preparation
+
+- Final testing and documentation
+- Complete user flow demonstration
+
+### MVP Contracts Overview
+
+1. **PlatformRegistry.sol** - Central access control and configuration
+2. **PlatformTreasury.sol** - Platform fee collection and management
+3. **ProjectFactory.sol** - Factory pattern for project deployment
+4. **ProjectToken.sol** - ERC-20 with voting capabilities
+5. **ProjectOffering.sol** - Token sale with whitelist enforcement
+6. **ProjectTreasury.sol** - Project-specific profit distribution
+7. **ProjectGovernance.sol** - Token-weighted voting mechanism
+
+### Post-MVP Roadmap
+
+- **Weeks 2-3**: UUPS upgradeability, enhanced governance, security improvements
+- **Weeks 4-5**: Fiat integration, advanced KYC/AML, multi-signature wallets
+- **Weeks 6-8**: Full production features, security audit, mainnet deployment
