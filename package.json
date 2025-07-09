@@ -31,7 +31,7 @@
     "precommit": "lint-staged"
   },
   "devDependencies": {
-    "@turbo/gen": "^1.10.12",
+    "@turbo/gen": "^2.5.4",
     "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -45,7 +45,7 @@
     "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-solidity": "^1.1.3",
-    "turbo": "^1.10.12",
+    "turbo": "^2.5.4",
     "typescript": "^5.2.2"
   },
   "engines": {
