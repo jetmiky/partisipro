@@ -90,9 +90,10 @@ contract ProjectToken is
     }
 
     /**
-     * @dev Enable token transfers (only owner)
+     * @dev Enable token transfers (only owner or offering contract)
      */
-    function enableTransfers() external onlyOwner {
+    function enableTransfers() external {
+        require(msg.sender == owner() || msg.sender == offering, "Not authorized");
         transfersEnabled = true;
         emit TransfersEnabled();
     }
