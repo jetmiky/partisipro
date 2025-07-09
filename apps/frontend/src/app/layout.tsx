@@ -1,3 +1,4 @@
+import { Poppins } from 'next/font/google';
 import '../styles/globals.css';
 
 export const metadata = {
@@ -22,13 +23,20 @@ export const viewport = {
   themeColor: '#4f46e5',
 };
 
+const poppins = Poppins({
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+  fallback: ['sans-serif'],
+  subsets: ['latin'],
+});
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="scroll-smooth">
+    <html lang="id" className={`scroll-smooth ${poppins.variable}`}>
       <body className="antialiased overflow-x-hidden">{children}</body>
     </html>
   );
