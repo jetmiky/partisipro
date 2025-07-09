@@ -8,14 +8,15 @@ code in this repository.
 Partisipro is a blockchain-based platform for Public Private Partnership (PPP)
 funding that tokenizes large-scale infrastructure projects in Indonesia,
 enabling retail investors to participate through fractional ownership. The
-platform uses a hybrid on-chain/off-chain architecture with Project Garuda IDR
-Stablecoin for regulatory compliance.
+platform uses a hybrid on-chain/off-chain architecture with Indonesian Rupiah
+(IDR) payments via licensed gateways for regulatory compliance.
 
 ### Core Business Model
 
 1. **Project Origination**: Government-approved SPVs undergo due diligence
 2. **Tokenization**: Factory pattern deploys isolated contract sets per project
-3. **Primary Offering**: Initial token sales via Project Garuda IDR Stablecoin
+3. **Primary Offering**: Initial token sales via Indonesian Rupiah (IDR)
+   payments
 4. **Operation**: Automated profit distribution through Treasury contracts
 5. **Secondary Market**: DEX trading of project tokens
 6. **Concession End**: Burn-to-claim mechanism for final buyback
@@ -25,7 +26,7 @@ Stablecoin for regulatory compliance.
 ### Monorepo Structure (Turborepo)
 
 - **`apps/frontend/`**: Next.js 14 + Tailwind + Wagmi/Viem for Web3
-- **`apps/backend/`**: NestJS + TypeORM + MySQL for API and user management
+- **`apps/backend/`**: NestJS + Firebase/Firestore for API and user management
 - **`packages/contracts/`**: Hardhat + Solidity 0.8.20 for smart contracts
 - **`packages/shared/`**: TypeScript utilities, types, and constants
 - **`tools/`**: Docker configurations and setup scripts
@@ -44,7 +45,7 @@ Stablecoin for regulatory compliance.
 
 - **Blockchain**: Arbitrum (Sepolia testnet, One mainnet)
 - **Frontend**: Next.js + TypeScript + Tailwind + Wagmi + Zustand
-- **Backend**: NestJS + TypeScript + MySQL + Redis + JWT
+- **Backend**: NestJS + TypeScript + Firebase/Firestore + Redis + JWT
 - **Contracts**: Solidity + Hardhat + OpenZeppelin + Chainlink
 
 ## Essential Commands
@@ -90,6 +91,8 @@ cd apps/backend
 npm run start:dev              # Backend with hot reload
 npm run test:e2e               # End-to-end API tests
 npm run test:cov               # Test coverage report
+firebase emulators:start       # Start Firebase emulators for local development
+firebase deploy                # Deploy to Firebase
 ```
 
 ### Git Workflow (Enforced by Husky)
@@ -136,18 +139,21 @@ npm run commit                 # Interactive conventional commits
 ### Backend Patterns
 
 - **Module Structure**: NestJS modules in `src/modules/` by feature
-- **Database**: TypeORM entities with MySQL, Redis for caching
+- **Database**: Firebase/Firestore NoSQL database with collection-based design
+- **Authentication**: Web3Auth integration with Firebase Auth and JWT tokens
 - **Security**: JWT auth, rate limiting, input validation with class-validator
 - **Blockchain Integration**: Ethers.js service layer for contract interactions
+- **Caching**: Redis for performance optimization and session management
 
 ## Environment Setup
 
 ### Required Environment Variables
 
-- **Database**: `DB_HOST`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
+- **Firebase**: `FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`,
+  `FIREBASE_CLIENT_EMAIL`
 - **Blockchain**: `ARBITRUM_SEPOLIA_RPC_URL`, `PRIVATE_KEY`, `ARBISCAN_API_KEY`
 - **Security**: `JWT_SECRET`
-- **Services**: KYC provider keys, email service, AWS S3 (future)
+- **Services**: KYC provider keys, email service, Web3Auth API keys
 
 ### Networks
 
@@ -159,10 +165,11 @@ npm run commit                 # Interactive conventional commits
 
 ### Indonesian Compliance Focus
 
-- All transactions use **Project Garuda IDR Stablecoin** for regulatory
-  compliance
+- All transactions use **Indonesian Rupiah (IDR)** via licensed payment gateways
+  for regulatory compliance
 - KYC verification mandatory before any investment activity
 - Platform designed for Indonesian PPP/KPBU infrastructure projects
+- Web3Auth integration for seamless user onboarding without crypto complexity
 
 ### Key Business Logic
 
