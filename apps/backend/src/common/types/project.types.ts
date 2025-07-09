@@ -3,11 +3,13 @@ export enum ProjectCategory {
   ENERGY = 'energy',
   WATER = 'water',
   TELECOMMUNICATIONS = 'telecommunications',
+  HEALTHCARE = 'healthcare',
+  EDUCATION = 'education',
 }
 
 export enum ProjectStatus {
   DRAFT = 'draft',
-  PENDING = 'pending',
+  PENDING_APPROVAL = 'pending_approval',
   APPROVED = 'approved',
   ACTIVE = 'active',
   COMPLETED = 'completed',
@@ -24,7 +26,7 @@ export enum OfferingStatus {
 export interface ProjectLocation {
   province: string;
   city: string;
-  coordinates: {
+  coordinates?: {
     latitude: number;
     longitude: number;
   };
@@ -80,7 +82,10 @@ export interface Project {
   tokenization: ProjectTokenization;
   offering: ProjectOffering;
   concession: ProjectConcession;
+  expectedAnnualReturn: number;
+  riskLevel: number;
   documents: ProjectDocument[];
+  additionalDetails?: string;
   status: ProjectStatus;
   createdAt: Date;
   updatedAt: Date;

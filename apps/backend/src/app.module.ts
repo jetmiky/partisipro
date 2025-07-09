@@ -7,6 +7,10 @@ import { appConfig, firebaseConfig, jwtConfig, redisConfig } from './config';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { InvestmentsModule } from './modules/investments/investments.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { KYCModule } from './modules/kyc/kyc.module';
 
 @Module({
   imports: [
@@ -31,12 +35,12 @@ import { UsersModule } from './modules/users/users.module';
     // Feature modules
     AuthModule,
     UsersModule,
+    ProjectsModule,
+    InvestmentsModule,
+    PaymentsModule,
+    KYCModule,
 
     // TODO: Add remaining feature modules
-    // ProjectsModule,
-    // InvestmentsModule,
-    // PaymentsModule,
-    // KycModule,
     // ProfitsModule,
     // BlockchainModule,
     // AdminModule,
