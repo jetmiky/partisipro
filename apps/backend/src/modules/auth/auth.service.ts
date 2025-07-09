@@ -38,9 +38,9 @@ export class AuthService {
 
       // Get or create user in Firestore
       const user = await this.usersService.findOrCreateUser({
-        email: web3AuthUser.email,
-        walletAddress: web3AuthUser.walletAddress,
-        web3AuthId: web3AuthUser.sub,
+        email: web3AuthUser.email as string,
+        walletAddress: web3AuthUser.walletAddress as string,
+        web3AuthId: web3AuthUser.sub as string,
       });
 
       // Generate JWT tokens
@@ -65,7 +65,7 @@ export class AuthService {
       const payload = await this.verifyRefreshToken(
         refreshTokenDto.refreshToken
       );
-      const user = await this.usersService.findById(payload.sub);
+      const user = await this.usersService.findById(payload.sub as string);
 
       if (!user) {
         throw new UnauthorizedException('User not found');
