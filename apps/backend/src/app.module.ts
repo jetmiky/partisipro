@@ -1,44 +1,46 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { appConfig, firebaseConfig, jwtConfig, redisConfig } from './config';
+import { CommonModule } from './common/common.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+    // Global configuration
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-    }),
-
-    // TODO: Configure TypeORM with actual database
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 3306,
-      username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'partisipro',
-      autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      load: [appConfig, firebaseConfig, jwtConfig, redisConfig],
     }),
 
     // Rate limiting
     ThrottlerModule.forRoot([
       {
-        ttl: 60000, // 1 minute
-        limit: 100, // 100 requests per minute
+        ttl: parseInt(process.env.RATE_LIMIT_TTL || '60000', 10),
+        limit: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
       },
     ]),
 
-    // TODO: Add feature modules
-    // AuthModule,
-    // UsersModule,
+    // Common module (Firebase, guards, etc.)
+    CommonModule,
+
+    // Feature modules
+    AuthModule,
+    UsersModule,
+
+    // TODO: Add remaining feature modules
     // ProjectsModule,
-    // TokensModule,
-    // TreasuryModule,
+    // InvestmentsModule,
+    // PaymentsModule,
     // KycModule,
+    // ProfitsModule,
+    // BlockchainModule,
+    // AdminModule,
+    // GovernanceModule,
     // NotificationsModule,
   ],
   controllers: [AppController],
