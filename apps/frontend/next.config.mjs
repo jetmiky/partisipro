@@ -8,13 +8,11 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_ENVIRONMENT: process.env.NODE_ENV,
   },
-  experimental: {
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },
