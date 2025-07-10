@@ -255,25 +255,29 @@ export default function DashboardPage() {
           title="Total Invested"
           value={formatCurrency(totalInvested)}
           icon={<DollarSign className="w-5 h-5" />}
-          trend={{ value: 15.2, isPositive: true }}
+          changeType="increase"
+          change={15.2}
         />
         <StatsCard
           title="Current Value"
           value={formatCurrency(totalCurrentValue)}
           icon={<TrendingUp className="w-5 h-5" />}
-          trend={{ value: 8.7, isPositive: true }}
+          changeType="increase"
+          change={8.7}
         />
         <StatsCard
           title="Total Returns"
           value={formatCurrency(totalReturns)}
           icon={<ArrowUpRight className="w-5 h-5" />}
-          trend={{ value: totalReturnPercentage, isPositive: totalReturns > 0 }}
+          changeType={totalReturns > 0 ? 'increase' : 'decrease'}
+          change={totalReturnPercentage}
         />
         <StatsCard
           title="Active Projects"
           value={activeProjects.toString()}
           icon={<PieChart className="w-5 h-5" />}
-          trend={{ value: 2, isPositive: true }}
+          changeType="increase"
+          change={2}
         />
       </div>
 

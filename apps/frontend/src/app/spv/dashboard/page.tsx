@@ -172,12 +172,16 @@ export default function SPVDashboardPage() {
 
   const handleViewProject = (projectId: string) => {
     // TODO: Navigate to project detail page
-    console.log('View project:', projectId);
+    // console.log('View project:', projectId);
+
+    projectId;
   };
 
   const handleEditProject = (projectId: string) => {
     // TODO: Navigate to project edit page
-    console.log('Edit project:', projectId);
+    // console.log('Edit project:', projectId);
+
+    projectId;
   };
 
   const projectColumns: Column[] = [

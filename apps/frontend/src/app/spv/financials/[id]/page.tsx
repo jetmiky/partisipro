@@ -7,27 +7,29 @@ import {
   TrendingUp,
   TrendingDown,
   Users,
-  Calendar,
   FileText,
   Download,
   Upload,
   Calculator,
-  PieChart,
-  BarChart3,
   Receipt,
   Wallet,
   AlertCircle,
-  CheckCircle,
-  Clock,
-  Filter,
   Search,
   Plus,
   Send,
   Eye,
   Edit3,
   Trash2,
+  Shield,
 } from 'lucide-react';
-import { Button, Card, DashboardLayout, StatsCard, Modal, Input } from '@/components/ui';
+import {
+  Button,
+  Card,
+  DashboardLayout,
+  StatsCard,
+  Modal,
+  Input,
+} from '@/components/ui';
 
 interface ProjectFinancials {
   projectId: string;
@@ -90,15 +92,15 @@ const mockFinancials: ProjectFinancials = {
   projectTitle: 'Jakarta-Bandung High-Speed Rail Extension',
   currentPeriod: {
     revenue: 1250000000, // 1.25 billion IDR
-    expenses: 450000000,  // 450 million IDR
+    expenses: 450000000, // 450 million IDR
     netProfit: 800000000, // 800 million IDR
     distributionAmount: 720000000, // 720 million IDR (90% of profit)
   },
   treasuryBalance: {
-    operational: 2500000000,  // 2.5 billion IDR
-    distribution: 720000000,  // 720 million IDR
-    reserve: 500000000,       // 500 million IDR
-    total: 3720000000,        // 3.72 billion IDR
+    operational: 2500000000, // 2.5 billion IDR
+    distribution: 720000000, // 720 million IDR
+    reserve: 500000000, // 500 million IDR
+    total: 3720000000, // 3.72 billion IDR
   },
   distributionHistory: [
     {
@@ -197,14 +199,24 @@ const mockFinancials: ProjectFinancials = {
 };
 
 const expenseCategories = [
-  'Maintenance', 'Operations', 'Marketing', 'Technology', 'Legal',
-  'Insurance', 'Utilities', 'Security', 'Training', 'Consulting'
+  'Maintenance',
+  'Operations',
+  'Marketing',
+  'Technology',
+  'Legal',
+  'Insurance',
+  'Utilities',
+  'Security',
+  'Training',
+  'Consulting',
 ];
 
 export default function SPVFinancialsPage() {
   const params = useParams();
   const projectId = params.id as string;
-  
+
+  projectId;
+
   const [activeTab, setActiveTab] = useState('overview');
   const [financials] = useState<ProjectFinancials>(mockFinancials);
   const [distributionModalOpen, setDistributionModalOpen] = useState(false);
@@ -213,7 +225,7 @@ export default function SPVFinancialsPage() {
   const [distributionAmount, setDistributionAmount] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  
+
   const [expenseForm, setExpenseForm] = useState<ExpenseForm>({
     category: '',
     amount: '',
@@ -282,14 +294,14 @@ export default function SPVFinancialsPage() {
 
   const handleDistribution = () => {
     // TODO: Implement Treasury contract integration for profit distribution
-    console.log('Distributing', distributionAmount, 'IDR to token holders');
+    // console.log('Distributing', distributionAmount, 'IDR to token holders');
     setDistributionModalOpen(false);
     setDistributionAmount('');
   };
 
   const handleExpenseSubmit = () => {
     // TODO: Implement expense submission with file upload
-    console.log('Submitting expense:', expenseForm);
+    // console.log('Submitting expense:', expenseForm);
     setExpenseModalOpen(false);
     setExpenseForm({
       category: '',
@@ -307,9 +319,11 @@ export default function SPVFinancialsPage() {
   };
 
   const filteredExpenses = financials.expenses.filter(expense => {
-    const matchesStatus = filterStatus === 'all' || expense.status === filterStatus;
-    const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         expense.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === 'all' || expense.status === filterStatus;
+    const matchesSearch =
+      expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      expense.category.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -329,25 +343,29 @@ export default function SPVFinancialsPage() {
           title="Current Period Revenue"
           value={formatCurrency(financials.currentPeriod.revenue)}
           icon={<DollarSign className="w-5 h-5" />}
-          trend={{ value: 15.2, isPositive: true }}
+          change={15.2}
+          changeType="increase"
         />
         <StatsCard
           title="Operating Expenses"
           value={formatCurrency(financials.currentPeriod.expenses)}
           icon={<TrendingDown className="w-5 h-5" />}
-          trend={{ value: 8.3, isPositive: false }}
+          change={8.3}
+          changeType="decrease"
         />
         <StatsCard
           title="Net Profit"
           value={formatCurrency(financials.currentPeriod.netProfit)}
           icon={<TrendingUp className="w-5 h-5" />}
-          trend={{ value: 22.7, isPositive: true }}
+          change={22.7}
+          changeType="increase"
         />
         <StatsCard
           title="Distribution Ready"
           value={formatCurrency(financials.currentPeriod.distributionAmount)}
           icon={<Users className="w-5 h-5" />}
-          trend={{ value: 18.5, isPositive: true }}
+          change={18.5}
+          changeType="increase"
         />
       </div>
 
@@ -391,7 +409,9 @@ export default function SPVFinancialsPage() {
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Key Performance Metrics</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Key Performance Metrics
+          </h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Total Revenue (All Time)</span>
@@ -421,12 +441,19 @@ export default function SPVFinancialsPage() {
         </Card>
 
         <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Recent Distribution History</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Recent Distribution History
+          </h3>
           <div className="space-y-3">
             {financials.distributionHistory.slice(0, 3).map(distribution => (
-              <div key={distribution.id} className="flex items-center justify-between">
+              <div
+                key={distribution.id}
+                className="flex items-center justify-between"
+              >
                 <div>
-                  <p className="font-medium text-gray-900">{distribution.period}</p>
+                  <p className="font-medium text-gray-900">
+                    {distribution.period}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {distribution.recipientCount} recipients
                   </p>
@@ -435,7 +462,9 @@ export default function SPVFinancialsPage() {
                   <p className="font-medium text-gray-900">
                     {formatCurrency(distribution.amount)}
                   </p>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distribution.status)}`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distribution.status)}`}
+                  >
                     {getStatusLabel(distribution.status)}
                   </span>
                 </div>
@@ -452,7 +481,9 @@ export default function SPVFinancialsPage() {
       {/* Distribution Control */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Execute Profit Distribution</h3>
+          <h3 className="font-semibold text-gray-900">
+            Execute Profit Distribution
+          </h3>
           <Button
             variant="primary"
             onClick={() => setDistributionModalOpen(true)}
@@ -467,7 +498,9 @@ export default function SPVFinancialsPage() {
             <div className="text-xl font-bold text-green-600">
               {formatCurrency(financials.currentPeriod.distributionAmount)}
             </div>
-            <div className="text-sm text-green-800">Available for Distribution</div>
+            <div className="text-sm text-green-800">
+              Available for Distribution
+            </div>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-xl font-bold text-blue-600">
@@ -476,9 +509,7 @@ export default function SPVFinancialsPage() {
             <div className="text-sm text-blue-800">Token Holders</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-xl font-bold text-purple-600">
-              90%
-            </div>
+            <div className="text-xl font-bold text-purple-600">90%</div>
             <div className="text-sm text-purple-800">Distribution Rate</div>
           </div>
         </div>
@@ -486,10 +517,13 @@ export default function SPVFinancialsPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
             <div>
-              <h4 className="font-medium text-yellow-800">Distribution Notice</h4>
+              <h4 className="font-medium text-yellow-800">
+                Distribution Notice
+              </h4>
               <p className="text-sm text-yellow-700 mt-1">
-                Profit distribution requires multi-signature approval and will be executed on-chain. 
-                Platform management fee (10%) will be automatically deducted.
+                Profit distribution requires multi-signature approval and will
+                be executed on-chain. Platform management fee (10%) will be
+                automatically deducted.
               </p>
             </div>
           </div>
@@ -498,7 +532,9 @@ export default function SPVFinancialsPage() {
 
       {/* Token Holders Preview */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Distribution Preview</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Distribution Preview
+        </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -554,18 +590,26 @@ export default function SPVFinancialsPage() {
 
       {/* Distribution History */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Distribution History</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Distribution History
+        </h3>
         <div className="space-y-4">
           {financials.distributionHistory.map(distribution => (
-            <div key={distribution.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div
+              key={distribution.id}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{distribution.period} Distribution</p>
+                  <p className="font-medium text-gray-900">
+                    {distribution.period} Distribution
+                  </p>
                   <p className="text-sm text-gray-600">
-                    {distribution.recipientCount} recipients • {formatDateTime(distribution.executionDate)}
+                    {distribution.recipientCount} recipients •{' '}
+                    {formatDateTime(distribution.executionDate)}
                   </p>
                   {distribution.transactionHash && (
                     <p className="text-xs text-gray-500 font-mono">
@@ -578,7 +622,9 @@ export default function SPVFinancialsPage() {
                 <p className="font-medium text-gray-900">
                   {formatCurrency(distribution.amount)}
                 </p>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distribution.status)}`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distribution.status)}`}
+                >
                   {getStatusLabel(distribution.status)}
                 </span>
               </div>
@@ -594,8 +640,12 @@ export default function SPVFinancialsPage() {
       {/* Expense Controls */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Expense Management</h2>
-          <p className="text-gray-600">Track and manage project operational expenses</p>
+          <h2 className="text-xl font-bold text-gray-900">
+            Expense Management
+          </h2>
+          <p className="text-gray-600">
+            Track and manage project operational expenses
+          </p>
         </div>
         <Button
           variant="primary"
@@ -692,8 +742,12 @@ export default function SPVFinancialsPage() {
                 <tr key={expense.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-medium text-gray-900">{expense.description}</p>
-                      <p className="text-sm text-gray-500">By {expense.submittedBy}</p>
+                      <p className="font-medium text-gray-900">
+                        {expense.description}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        By {expense.submittedBy}
+                      </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -707,10 +761,14 @@ export default function SPVFinancialsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-gray-900">{formatDate(expense.date)}</span>
+                    <span className="text-gray-900">
+                      {formatDate(expense.date)}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(expense.status)}`}
+                    >
                       {getStatusLabel(expense.status)}
                     </span>
                   </td>
@@ -750,43 +808,61 @@ export default function SPVFinancialsPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900">Treasury Management</h2>
-        <p className="text-gray-600">Monitor and manage project treasury funds</p>
+        <p className="text-gray-600">
+          Monitor and manage project treasury funds
+        </p>
       </div>
 
       {/* Treasury Overview */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Treasury Balance Breakdown</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Treasury Balance Breakdown
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="text-center p-6 bg-blue-50 rounded-lg">
             <Wallet className="w-8 h-8 text-blue-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-blue-600">
               {formatCurrency(financials.treasuryBalance.operational)}
             </div>
-            <div className="text-sm text-blue-800 font-medium">Operational Fund</div>
-            <div className="text-xs text-blue-600 mt-1">For daily operations</div>
+            <div className="text-sm text-blue-800 font-medium">
+              Operational Fund
+            </div>
+            <div className="text-xs text-blue-600 mt-1">
+              For daily operations
+            </div>
           </div>
           <div className="text-center p-6 bg-green-50 rounded-lg">
             <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(financials.treasuryBalance.distribution)}
             </div>
-            <div className="text-sm text-green-800 font-medium">Distribution Fund</div>
-            <div className="text-xs text-green-600 mt-1">Ready for investors</div>
+            <div className="text-sm text-green-800 font-medium">
+              Distribution Fund
+            </div>
+            <div className="text-xs text-green-600 mt-1">
+              Ready for investors
+            </div>
           </div>
           <div className="text-center p-6 bg-purple-50 rounded-lg">
             <Shield className="w-8 h-8 text-purple-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-purple-600">
               {formatCurrency(financials.treasuryBalance.reserve)}
             </div>
-            <div className="text-sm text-purple-800 font-medium">Reserve Fund</div>
-            <div className="text-xs text-purple-600 mt-1">Emergency reserves</div>
+            <div className="text-sm text-purple-800 font-medium">
+              Reserve Fund
+            </div>
+            <div className="text-xs text-purple-600 mt-1">
+              Emergency reserves
+            </div>
           </div>
           <div className="text-center p-6 bg-primary-50 rounded-lg">
             <Calculator className="w-8 h-8 text-primary-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-primary-600">
               {formatCurrency(financials.treasuryBalance.total)}
             </div>
-            <div className="text-sm text-primary-800 font-medium">Total Balance</div>
+            <div className="text-sm text-primary-800 font-medium">
+              Total Balance
+            </div>
             <div className="text-xs text-primary-600 mt-1">Combined funds</div>
           </div>
         </div>
@@ -798,29 +874,50 @@ export default function SPVFinancialsPage() {
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Operational (67%)</span>
-              <span className="text-sm text-gray-600">{formatCurrency(financials.treasuryBalance.operational)}</span>
+              <span className="text-sm font-medium text-gray-700">
+                Operational (67%)
+              </span>
+              <span className="text-sm text-gray-600">
+                {formatCurrency(financials.treasuryBalance.operational)}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '67%' }}></div>
+              <div
+                className="bg-blue-500 h-2 rounded-full"
+                style={{ width: '67%' }}
+              ></div>
             </div>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Distribution (19%)</span>
-              <span className="text-sm text-gray-600">{formatCurrency(financials.treasuryBalance.distribution)}</span>
+              <span className="text-sm font-medium text-gray-700">
+                Distribution (19%)
+              </span>
+              <span className="text-sm text-gray-600">
+                {formatCurrency(financials.treasuryBalance.distribution)}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '19%' }}></div>
+              <div
+                className="bg-green-500 h-2 rounded-full"
+                style={{ width: '19%' }}
+              ></div>
             </div>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Reserve (14%)</span>
-              <span className="text-sm text-gray-600">{formatCurrency(financials.treasuryBalance.reserve)}</span>
+              <span className="text-sm font-medium text-gray-700">
+                Reserve (14%)
+              </span>
+              <span className="text-sm text-gray-600">
+                {formatCurrency(financials.treasuryBalance.reserve)}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: '14%' }}></div>
+              <div
+                className="bg-purple-500 h-2 rounded-full"
+                style={{ width: '14%' }}
+              ></div>
             </div>
           </div>
         </div>
@@ -832,14 +929,18 @@ export default function SPVFinancialsPage() {
           <h3 className="font-semibold text-gray-900 mb-4">Fund Transfer</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">From</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                From
+              </label>
               <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="operational">Operational Fund</option>
                 <option value="reserve">Reserve Fund</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                To
+              </label>
               <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="distribution">Distribution Fund</option>
                 <option value="operational">Operational Fund</option>
@@ -847,7 +948,9 @@ export default function SPVFinancialsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Amount (IDR)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount (IDR)
+              </label>
               <Input type="number" placeholder="Enter amount" />
             </div>
             <Button variant="primary" className="w-full">
@@ -885,8 +988,12 @@ export default function SPVFinancialsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Reports & Analytics</h2>
-          <p className="text-gray-600">Generate and download financial reports</p>
+          <h2 className="text-xl font-bold text-gray-900">
+            Reports & Analytics
+          </h2>
+          <p className="text-gray-600">
+            Generate and download financial reports
+          </p>
         </div>
         <Button
           variant="primary"
@@ -905,53 +1012,75 @@ export default function SPVFinancialsPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Q1 2024</span>
-              <span className="font-medium text-green-600">{formatCurrency(1250000000)}</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(1250000000)}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Q4 2023</span>
-              <span className="font-medium text-green-600">{formatCurrency(1180000000)}</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(1180000000)}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Q3 2023</span>
-              <span className="font-medium text-green-600">{formatCurrency(1050000000)}</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(1050000000)}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Q2 2023</span>
-              <span className="font-medium text-green-600">{formatCurrency(980000000)}</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(980000000)}
+              </span>
             </div>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Expense Breakdown
+          </h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Maintenance</span>
               <span className="font-medium">33%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '33%' }}></div>
+              <div
+                className="bg-blue-500 h-2 rounded-full"
+                style={{ width: '33%' }}
+              ></div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Operations</span>
               <span className="font-medium">44%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '44%' }}></div>
+              <div
+                className="bg-green-500 h-2 rounded-full"
+                style={{ width: '44%' }}
+              ></div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Marketing</span>
               <span className="font-medium">17%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: '17%' }}></div>
+              <div
+                className="bg-purple-500 h-2 rounded-full"
+                style={{ width: '17%' }}
+              ></div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Technology</span>
               <span className="font-medium">6%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '6%' }}></div>
+              <div
+                className="bg-yellow-500 h-2 rounded-full"
+                style={{ width: '6%' }}
+              ></div>
             </div>
           </div>
         </Card>
@@ -962,28 +1091,65 @@ export default function SPVFinancialsPage() {
         <h3 className="font-semibold text-gray-900 mb-4">Available Reports</h3>
         <div className="space-y-3">
           {[
-            { title: 'Q1 2024 Financial Statement', type: 'Financial', date: '2024-04-01', status: 'ready' },
-            { title: 'Annual Distribution Report 2023', type: 'Distribution', date: '2024-01-31', status: 'ready' },
-            { title: 'Expense Audit Report', type: 'Audit', date: '2024-03-15', status: 'processing' },
-            { title: 'Treasury Balance Report', type: 'Treasury', date: '2024-03-31', status: 'ready' },
-            { title: 'Regulatory Compliance Report', type: 'Compliance', date: '2024-02-28', status: 'ready' },
+            {
+              title: 'Q1 2024 Financial Statement',
+              type: 'Financial',
+              date: '2024-04-01',
+              status: 'ready',
+            },
+            {
+              title: 'Annual Distribution Report 2023',
+              type: 'Distribution',
+              date: '2024-01-31',
+              status: 'ready',
+            },
+            {
+              title: 'Expense Audit Report',
+              type: 'Audit',
+              date: '2024-03-15',
+              status: 'processing',
+            },
+            {
+              title: 'Treasury Balance Report',
+              type: 'Treasury',
+              date: '2024-03-31',
+              status: 'ready',
+            },
+            {
+              title: 'Regulatory Compliance Report',
+              type: 'Compliance',
+              date: '2024-02-28',
+              status: 'ready',
+            },
           ].map((report, index) => (
-            <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="font-medium text-gray-900">{report.title}</p>
-                  <p className="text-sm text-gray-500">{report.type} • Generated on {formatDate(report.date)}</p>
+                  <p className="text-sm text-gray-500">
+                    {report.type} • Generated on {formatDate(report.date)}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  report.status === 'ready' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    report.status === 'ready'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
                   {report.status === 'ready' ? 'Ready' : 'Processing'}
                 </span>
                 {report.status === 'ready' && (
-                  <Button variant="secondary" className="text-sm flex items-center gap-1">
+                  <Button
+                    variant="secondary"
+                    className="text-sm flex items-center gap-1"
+                  >
                     <Download className="w-4 h-4" />
                     Download
                   </Button>
@@ -1001,8 +1167,12 @@ export default function SPVFinancialsPage() {
       <div className="p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{financials.projectTitle}</h1>
-          <p className="text-gray-600">Financial management and reporting dashboard</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {financials.projectTitle}
+          </h1>
+          <p className="text-gray-600">
+            Financial management and reporting dashboard
+          </p>
         </div>
 
         {/* Tabs */}
@@ -1041,11 +1211,25 @@ export default function SPVFinancialsPage() {
             <div className="p-6">
               <div className="mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-medium text-blue-900 mb-2">Distribution Summary</h4>
+                  <h4 className="font-medium text-blue-900 mb-2">
+                    Distribution Summary
+                  </h4>
                   <div className="text-sm text-blue-800 space-y-1">
-                    <p>Available for distribution: {formatCurrency(financials.currentPeriod.distributionAmount)}</p>
-                    <p>Number of recipients: {financials.tokenHolders.length}</p>
-                    <p>Platform fee (10%): {formatCurrency(financials.currentPeriod.distributionAmount * 0.1)}</p>
+                    <p>
+                      Available for distribution:{' '}
+                      {formatCurrency(
+                        financials.currentPeriod.distributionAmount
+                      )}
+                    </p>
+                    <p>
+                      Number of recipients: {financials.tokenHolders.length}
+                    </p>
+                    <p>
+                      Platform fee (10%):{' '}
+                      {formatCurrency(
+                        financials.currentPeriod.distributionAmount * 0.1
+                      )}
+                    </p>
                   </div>
                 </div>
                 <div>
@@ -1055,11 +1239,14 @@ export default function SPVFinancialsPage() {
                   <Input
                     type="number"
                     value={distributionAmount}
-                    onChange={(e) => setDistributionAmount(e.target.value)}
+                    onChange={e => setDistributionAmount(e.target.value)}
                     placeholder={financials.currentPeriod.distributionAmount.toString()}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Maximum available: {formatCurrency(financials.currentPeriod.distributionAmount)}
+                    Maximum available:{' '}
+                    {formatCurrency(
+                      financials.currentPeriod.distributionAmount
+                    )}
                   </p>
                 </div>
               </div>
@@ -1092,47 +1279,76 @@ export default function SPVFinancialsPage() {
           >
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
                 <select
                   value={expenseForm.category}
-                  onChange={(e) => setExpenseForm(prev => ({ ...prev, category: e.target.value }))}
+                  onChange={e =>
+                    setExpenseForm(prev => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">Select category</option>
                   {expenseCategories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (IDR)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amount (IDR)
+                </label>
                 <Input
                   type="number"
                   value={expenseForm.amount}
-                  onChange={(e) => setExpenseForm(prev => ({ ...prev, amount: e.target.value }))}
+                  onChange={e =>
+                    setExpenseForm(prev => ({
+                      ...prev,
+                      amount: e.target.value,
+                    }))
+                  }
                   placeholder="Enter amount"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
                 <textarea
                   value={expenseForm.description}
-                  onChange={(e) => setExpenseForm(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={e =>
+                    setExpenseForm(prev => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Enter expense description"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date
+                </label>
                 <Input
                   type="date"
                   value={expenseForm.date}
-                  onChange={(e) => setExpenseForm(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={e =>
+                    setExpenseForm(prev => ({ ...prev, date: e.target.value }))
+                  }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Receipt (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Receipt (optional)
+                </label>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
@@ -1174,7 +1390,9 @@ export default function SPVFinancialsPage() {
           >
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Report Type
+                </label>
                 <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                   <option value="financial">Financial Statement</option>
                   <option value="distribution">Distribution Report</option>
@@ -1184,7 +1402,9 @@ export default function SPVFinancialsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Period</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Period
+                </label>
                 <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                   <option value="current-quarter">Current Quarter</option>
                   <option value="last-quarter">Last Quarter</option>
@@ -1193,7 +1413,9 @@ export default function SPVFinancialsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Format
+                </label>
                 <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                   <option value="pdf">PDF Report</option>
                   <option value="excel">Excel Spreadsheet</option>
@@ -1208,10 +1430,7 @@ export default function SPVFinancialsPage() {
                 >
                   Cancel
                 </Button>
-                <Button
-                  variant="primary"
-                  className="flex-1"
-                >
+                <Button variant="primary" className="flex-1">
                   Generate Report
                 </Button>
               </div>

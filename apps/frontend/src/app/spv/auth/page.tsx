@@ -155,13 +155,16 @@ export default function SPVAuthPage() {
                 </p>
               </div>
 
-              <Input
-                label="Multi-Sig Wallet Address"
-                value={walletAddress}
-                onChange={e => setWalletAddress(e.target.value)}
-                placeholder="0x1234...5678"
-                className="font-mono"
-              />
+              <div className="space-y-2">
+                <label htmlFor="walletAddress">Multi-Sig Wallet Address</label>
+                <Input
+                  id="walletAddress"
+                  value={walletAddress}
+                  onChange={e => setWalletAddress(e.target.value)}
+                  placeholder="0x1234...5678"
+                  className="font-mono"
+                />
+              </div>
 
               <Button
                 onClick={connectMultiSigWallet}

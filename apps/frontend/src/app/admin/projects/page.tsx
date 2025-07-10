@@ -41,7 +41,15 @@ interface AdminProject {
   fundingProgress: number;
   fundingTarget: number;
   investorCount: number;
-  status: 'draft' | 'review' | 'approved' | 'funding' | 'active' | 'operational' | 'completed' | 'suspended';
+  status:
+    | 'draft'
+    | 'review'
+    | 'approved'
+    | 'funding'
+    | 'active'
+    | 'operational'
+    | 'completed'
+    | 'suspended';
   riskLevel: 'low' | 'medium' | 'high';
   createdDate: string;
   launchDate?: string;
@@ -267,16 +275,19 @@ export default function AdminProjectsPage() {
   const handleViewProject = (_projectId: string) => {
     // TODO: Navigate to project detail page
     // console.log('View project:', projectId);
+    _projectId;
   };
 
   const handleSuspendProject = (_projectId: string) => {
     // TODO: Suspend project and notify stakeholders
     // console.log('Suspend project:', projectId);
+    _projectId;
   };
 
   const handleApproveProject = (_projectId: string) => {
     // TODO: Approve project for funding
     // console.log('Approve project:', projectId);
+    _projectId;
   };
 
   const projectColumns: Column[] = [
@@ -289,9 +300,7 @@ export default function AdminProjectsPage() {
           <span className="text-sm text-gray-500">
             {row.projectType} • {row.location}
           </span>
-          <span className="text-xs text-gray-400">
-            SPV: {row.spvName}
-          </span>
+          <span className="text-xs text-gray-400">SPV: {row.spvName}</span>
         </div>
       ),
     },
@@ -300,7 +309,9 @@ export default function AdminProjectsPage() {
       label: 'Status',
       render: (_, row) => (
         <div className="flex flex-col gap-1">
-          <div className={`flex items-center gap-2 ${getStatusColor(row.status)}`}>
+          <div
+            className={`flex items-center gap-2 ${getStatusColor(row.status)}`}
+          >
             {getStatusIcon(row.status)}
             <span className="capitalize font-medium">{row.status}</span>
           </div>
@@ -345,10 +356,14 @@ export default function AdminProjectsPage() {
       label: 'Risk & Compliance',
       render: (_, row) => (
         <div className="flex flex-col gap-1">
-          <span className={`text-xs px-2 py-1 rounded-full font-medium ${getRiskColor(row.riskLevel)}`}>
+          <span
+            className={`text-xs px-2 py-1 rounded-full font-medium ${getRiskColor(row.riskLevel)}`}
+          >
             {row.riskLevel.toUpperCase()} RISK
           </span>
-          <span className={`text-xs px-2 py-1 rounded-full font-medium ${getComplianceColor(row.complianceStatus)}`}>
+          <span
+            className={`text-xs px-2 py-1 rounded-full font-medium ${getComplianceColor(row.complianceStatus)}`}
+          >
             {row.complianceStatus.replace('_', ' ').toUpperCase()}
           </span>
         </div>
@@ -360,7 +375,9 @@ export default function AdminProjectsPage() {
       render: (_, row) => (
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-gray-400" />
-          <span className="font-medium">{row.investorCount.toLocaleString()}</span>
+          <span className="font-medium">
+            {row.investorCount.toLocaleString()}
+          </span>
         </div>
       ),
     },
@@ -377,10 +394,7 @@ export default function AdminProjectsPage() {
             <Eye className="h-4 w-4" />
           </Button>
           {row.status === 'review' && (
-            <Button
-              size="sm"
-              onClick={() => handleApproveProject(row.id)}
-            >
+            <Button size="sm" onClick={() => handleApproveProject(row.id)}>
               Approve
             </Button>
           )}
@@ -404,7 +418,9 @@ export default function AdminProjectsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Project Oversight</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Project Oversight
+            </h1>
             <p className="text-gray-600">
               Monitor and manage all platform projects
             </p>
@@ -497,7 +513,7 @@ export default function AdminProjectsPage() {
                   type="text"
                   placeholder="Search projects, SPVs, or locations..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>
@@ -505,7 +521,7 @@ export default function AdminProjectsPage() {
             <div className="flex gap-2">
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={e => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
@@ -609,9 +625,15 @@ export default function AdminProjectsPage() {
                 TODO: Mock Implementation Notes
               </h3>
               <ul className="text-sm text-primary-800 space-y-1">
-                <li>• Mock project monitoring API with real-time status updates</li>
-                <li>• Mock risk assessment algorithms and compliance checking</li>
-                <li>• Mock project approval workflow with multi-step verification</li>
+                <li>
+                  • Mock project monitoring API with real-time status updates
+                </li>
+                <li>
+                  • Mock risk assessment algorithms and compliance checking
+                </li>
+                <li>
+                  • Mock project approval workflow with multi-step verification
+                </li>
                 <li>• Mock notification system for flagged projects</li>
                 <li>• Mock automated compliance reporting and audit trails</li>
               </ul>

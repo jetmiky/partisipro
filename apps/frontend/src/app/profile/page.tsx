@@ -15,13 +15,11 @@ import {
   Phone,
   Mail,
   MapPin,
-  Calendar,
   CreditCard,
   Smartphone,
   Monitor,
   ChevronRight,
   Download,
-  Upload,
   AlertCircle,
   CheckCircle,
   Lock,
@@ -160,11 +158,22 @@ const mockLoginActivity: LoginActivity[] = [
   },
 ];
 
-const indonesianProvinces = [
-  'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 'Banten',
-  'Yogyakarta', 'Bali', 'Sumatera Utara', 'Sumatera Selatan', 'Sumatera Barat',
-  'Kalimantan Timur', 'Kalimantan Selatan', 'Sulawesi Selatan', 'Papua'
-];
+// const indonesianProvinces = [
+//   'DKI Jakarta',
+//   'Jawa Barat',
+//   'Jawa Tengah',
+//   'Jawa Timur',
+//   'Banten',
+//   'Yogyakarta',
+//   'Bali',
+//   'Sumatera Utara',
+//   'Sumatera Selatan',
+//   'Sumatera Barat',
+//   'Kalimantan Timur',
+//   'Kalimantan Selatan',
+//   'Sulawesi Selatan',
+//   'Papua',
+// ];
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile>(mockProfile);
@@ -174,6 +183,8 @@ export default function ProfilePage() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+
+  editingSection;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -225,19 +236,19 @@ export default function ProfilePage() {
       setCopiedAddress(id);
       setTimeout(() => setCopiedAddress(null), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      // console.error('Failed to copy text: ', err);
     }
   };
 
-  const handleProfileUpdate = (section: string, data: any) => {
-    setProfile(prev => ({
-      ...prev,
-      ...data,
-    }));
-    setEditingSection(null);
-  };
+  // const handleProfileUpdate = (section: string, data: any) => {
+  //   setProfile(prev => ({ ...prev, ...data }));
+  //   setEditingSection(null);
+  // };
 
-  const handleNotificationChange = (key: keyof UserProfile['preferences']['notifications'], value: boolean) => {
+  const handleNotificationChange = (
+    key: keyof UserProfile['preferences']['notifications'],
+    value: boolean
+  ) => {
     setProfile(prev => ({
       ...prev,
       preferences: {
@@ -267,7 +278,11 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
               {profile.avatar ? (
-                <img src={profile.avatar} alt="Profile" className="w-20 h-20 rounded-full object-cover" />
+                <img
+                  src={profile.avatar}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover"
+                />
               ) : (
                 <User className="w-10 h-10 text-gray-400" />
               )}
@@ -278,13 +293,19 @@ export default function ProfilePage() {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-xl font-semibold text-gray-900">{profile.fullName}</h2>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {profile.fullName}
+              </h2>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}
+              >
                 {getKYCStatusLabel(profile.kycStatus)}
               </span>
             </div>
             <p className="text-gray-600 mb-1">{profile.email}</p>
-            <p className="text-sm text-gray-500">Member since {formatDate(profile.registrationDate)}</p>
+            <p className="text-sm text-gray-500">
+              Member since {formatDate(profile.registrationDate)}
+            </p>
           </div>
           <div>
             <Button
@@ -332,7 +353,8 @@ export default function ProfilePage() {
             <div>
               <p className="text-sm text-gray-500">Address</p>
               <p className="font-medium text-gray-900">
-                {profile.address.street}, {profile.address.city}, {profile.address.province} {profile.address.postalCode}
+                {profile.address.street}, {profile.address.city},{' '}
+                {profile.address.province} {profile.address.postalCode}
               </p>
             </div>
           </div>
@@ -352,23 +374,28 @@ export default function ProfilePage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-gray-600">Identity Verification</span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}
+            >
               {getKYCStatusLabel(profile.kycStatus)}
             </span>
           </div>
           {profile.kycStatus === 'verified' && (
             <div className="text-sm text-gray-500">
-              Your identity has been successfully verified. You can now participate in all investment activities.
+              Your identity has been successfully verified. You can now
+              participate in all investment activities.
             </div>
           )}
           {profile.kycStatus === 'pending' && (
             <div className="text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg">
-              Your KYC application is under review. This process typically takes 1-3 business days.
+              Your KYC application is under review. This process typically takes
+              1-3 business days.
             </div>
           )}
           {profile.kycStatus === 'rejected' && (
             <div className="text-sm text-red-700 bg-red-50 p-3 rounded-lg">
-              Your KYC application was rejected. Please contact support for assistance.
+              Your KYC application was rejected. Please contact support for
+              assistance.
             </div>
           )}
         </div>
@@ -388,14 +415,19 @@ export default function ProfilePage() {
         </div>
         <div className="space-y-4">
           {profile.connectedWallets.map((wallet, index) => (
-            <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <Wallet className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 capitalize">{wallet.type}</p>
+                    <p className="font-medium text-gray-900 capitalize">
+                      {wallet.type}
+                    </p>
                     {wallet.isActive && (
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Active
@@ -413,7 +445,9 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => copyToClipboard(wallet.address, wallet.address)}
+                  onClick={() =>
+                    copyToClipboard(wallet.address, wallet.address)
+                  }
                   className="text-sm p-2"
                 >
                   {copiedAddress === wallet.address ? (
@@ -440,7 +474,9 @@ export default function ProfilePage() {
               <Shield className="w-5 h-5 text-blue-600" />
               <div>
                 <p className="font-medium text-gray-900">Backup & Recovery</p>
-                <p className="text-sm text-gray-600">Secure your wallet with backup phrase</p>
+                <p className="text-sm text-gray-600">
+                  Secure your wallet with backup phrase
+                </p>
               </div>
             </div>
             <Button variant="secondary" className="text-sm">
@@ -451,8 +487,12 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div>
-                <p className="font-medium text-gray-900">Multi-Factor Authentication</p>
-                <p className="text-sm text-gray-600">Additional security for transactions</p>
+                <p className="font-medium text-gray-900">
+                  Multi-Factor Authentication
+                </p>
+                <p className="text-sm text-gray-600">
+                  Additional security for transactions
+                </p>
               </div>
             </div>
             <span className="text-sm text-green-600 font-medium">Enabled</span>
@@ -469,28 +509,51 @@ export default function ProfilePage() {
         <h3 className="font-semibold text-gray-900 mb-4">Risk Tolerance</h3>
         <div className="space-y-3">
           {[
-            { value: 'low', label: 'Conservative', description: 'Prefer stable returns with minimal risk' },
-            { value: 'medium', label: 'Moderate', description: 'Balanced approach with moderate risk and returns' },
-            { value: 'high', label: 'Aggressive', description: 'Higher risk tolerance for potentially higher returns' },
-          ].map((option) => (
-            <label key={option.value} className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+            {
+              value: 'low',
+              label: 'Conservative',
+              description: 'Prefer stable returns with minimal risk',
+            },
+            {
+              value: 'medium',
+              label: 'Moderate',
+              description: 'Balanced approach with moderate risk and returns',
+            },
+            {
+              value: 'high',
+              label: 'Aggressive',
+              description:
+                'Higher risk tolerance for potentially higher returns',
+            },
+          ].map(option => (
+            <label
+              key={option.value}
+              className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+            >
               <input
                 type="radio"
                 name="riskTolerance"
                 value={option.value}
                 checked={profile.preferences.riskTolerance === option.value}
-                onChange={(e) => setProfile(prev => ({
-                  ...prev,
-                  preferences: {
-                    ...prev.preferences,
-                    riskTolerance: e.target.value as 'low' | 'medium' | 'high',
-                  },
-                }))}
+                onChange={e =>
+                  setProfile(prev => ({
+                    ...prev,
+                    preferences: {
+                      ...prev.preferences,
+                      riskTolerance: e.target.value as
+                        | 'low'
+                        | 'medium'
+                        | 'high',
+                    },
+                  }))
+                }
                 className="text-primary-600"
               />
               <div>
                 <div className="font-medium text-gray-900">{option.label}</div>
-                <div className="text-sm text-gray-600">{option.description}</div>
+                <div className="text-sm text-gray-600">
+                  {option.description}
+                </div>
               </div>
             </label>
           ))}
@@ -499,20 +562,33 @@ export default function ProfilePage() {
 
       {/* Investment Categories */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Preferred Investment Categories</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Preferred Investment Categories
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
-            'Transportation', 'Energy', 'Infrastructure', 'Healthcare',
-            'Education', 'Technology', 'Agriculture', 'Tourism'
-          ].map((category) => (
-            <label key={category} className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+            'Transportation',
+            'Energy',
+            'Infrastructure',
+            'Healthcare',
+            'Education',
+            'Technology',
+            'Agriculture',
+            'Tourism',
+          ].map(category => (
+            <label
+              key={category}
+              className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+            >
               <input
                 type="checkbox"
                 checked={profile.preferences.categories.includes(category)}
-                onChange={(e) => {
+                onChange={e => {
                   const newCategories = e.target.checked
                     ? [...profile.preferences.categories, category]
-                    : profile.preferences.categories.filter(c => c !== category);
+                    : profile.preferences.categories.filter(
+                        c => c !== category
+                      );
                   setProfile(prev => ({
                     ...prev,
                     preferences: {
@@ -534,17 +610,52 @@ export default function ProfilePage() {
   const renderNotificationsSection = () => (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Notification Preferences</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Notification Preferences
+        </h3>
         <div className="space-y-4">
           {[
-            { key: 'email', label: 'Email Notifications', description: 'Receive updates via email', icon: Mail },
-            { key: 'sms', label: 'SMS Notifications', description: 'Receive important alerts via SMS', icon: Smartphone },
-            { key: 'push', label: 'Push Notifications', description: 'Browser and mobile push notifications', icon: Monitor },
-            { key: 'governance', label: 'Governance Alerts', description: 'Voting reminders and governance updates', icon: Bell },
-            { key: 'portfolio', label: 'Portfolio Updates', description: 'Investment performance and return notifications', icon: CreditCard },
-            { key: 'marketing', label: 'Marketing Communications', description: 'New projects and promotional offers', icon: Bell },
-          ].map((item) => (
-            <div key={item.key} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            {
+              key: 'email',
+              label: 'Email Notifications',
+              description: 'Receive updates via email',
+              icon: Mail,
+            },
+            {
+              key: 'sms',
+              label: 'SMS Notifications',
+              description: 'Receive important alerts via SMS',
+              icon: Smartphone,
+            },
+            {
+              key: 'push',
+              label: 'Push Notifications',
+              description: 'Browser and mobile push notifications',
+              icon: Monitor,
+            },
+            {
+              key: 'governance',
+              label: 'Governance Alerts',
+              description: 'Voting reminders and governance updates',
+              icon: Bell,
+            },
+            {
+              key: 'portfolio',
+              label: 'Portfolio Updates',
+              description: 'Investment performance and return notifications',
+              icon: CreditCard,
+            },
+            {
+              key: 'marketing',
+              label: 'Marketing Communications',
+              description: 'New projects and promotional offers',
+              icon: Bell,
+            },
+          ].map(item => (
+            <div
+              key={item.key}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-3">
                 <item.icon className="w-5 h-5 text-gray-400" />
                 <div>
@@ -555,8 +666,17 @@ export default function ProfilePage() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={profile.preferences.notifications[item.key as keyof typeof profile.preferences.notifications]}
-                  onChange={(e) => handleNotificationChange(item.key as keyof typeof profile.preferences.notifications, e.target.checked)}
+                  checked={
+                    profile.preferences.notifications[
+                      item.key as keyof typeof profile.preferences.notifications
+                    ]
+                  }
+                  onChange={e =>
+                    handleNotificationChange(
+                      item.key as keyof typeof profile.preferences.notifications,
+                      e.target.checked
+                    )
+                  }
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
@@ -571,19 +691,26 @@ export default function ProfilePage() {
         <h3 className="font-semibold text-gray-900 mb-4">Report Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Frequency
+            </label>
             <select
               value={profile.preferences.reporting.frequency}
-              onChange={(e) => setProfile(prev => ({
-                ...prev,
-                preferences: {
-                  ...prev.preferences,
-                  reporting: {
-                    ...prev.preferences.reporting,
-                    frequency: e.target.value as 'daily' | 'weekly' | 'monthly',
+              onChange={e =>
+                setProfile(prev => ({
+                  ...prev,
+                  preferences: {
+                    ...prev.preferences,
+                    reporting: {
+                      ...prev.preferences.reporting,
+                      frequency: e.target.value as
+                        | 'daily'
+                        | 'weekly'
+                        | 'monthly',
+                    },
                   },
-                },
-              }))}
+                }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="daily">Daily</option>
@@ -592,19 +719,23 @@ export default function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Format
+            </label>
             <select
               value={profile.preferences.reporting.format}
-              onChange={(e) => setProfile(prev => ({
-                ...prev,
-                preferences: {
-                  ...prev.preferences,
-                  reporting: {
-                    ...prev.preferences.reporting,
-                    format: e.target.value as 'email' | 'pdf' | 'both',
+              onChange={e =>
+                setProfile(prev => ({
+                  ...prev,
+                  preferences: {
+                    ...prev.preferences,
+                    reporting: {
+                      ...prev.preferences.reporting,
+                      format: e.target.value as 'email' | 'pdf' | 'both',
+                    },
                   },
-                },
-              }))}
+                }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="email">Email Only</option>
@@ -613,19 +744,23 @@ export default function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Language
+            </label>
             <select
               value={profile.preferences.reporting.language}
-              onChange={(e) => setProfile(prev => ({
-                ...prev,
-                preferences: {
-                  ...prev.preferences,
-                  reporting: {
-                    ...prev.preferences.reporting,
-                    language: e.target.value as 'id' | 'en',
+              onChange={e =>
+                setProfile(prev => ({
+                  ...prev,
+                  preferences: {
+                    ...prev.preferences,
+                    reporting: {
+                      ...prev.preferences.reporting,
+                      language: e.target.value as 'id' | 'en',
+                    },
                   },
-                },
-              }))}
+                }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="id">Bahasa Indonesia</option>
@@ -647,8 +782,12 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div>
-                <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                <p className="text-sm text-gray-600">Additional security layer enabled</p>
+                <p className="font-medium text-gray-900">
+                  Two-Factor Authentication
+                </p>
+                <p className="text-sm text-gray-600">
+                  Additional security layer enabled
+                </p>
               </div>
             </div>
             <Button
@@ -664,7 +803,9 @@ export default function ProfilePage() {
               <Lock className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="font-medium text-gray-900">Password</p>
-                <p className="text-sm text-gray-600">Last changed 3 months ago</p>
+                <p className="text-sm text-gray-600">
+                  Last changed 3 months ago
+                </p>
               </div>
             </div>
             <Button
@@ -680,7 +821,9 @@ export default function ProfilePage() {
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div>
                 <p className="font-medium text-gray-900">Security Questions</p>
-                <p className="text-sm text-gray-600">Recovery questions configured</p>
+                <p className="text-sm text-gray-600">
+                  Recovery questions configured
+                </p>
               </div>
             </div>
             <Button variant="secondary" className="text-sm">
@@ -692,21 +835,34 @@ export default function ProfilePage() {
 
       {/* Login Activity */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Recent Login Activity</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Recent Login Activity
+        </h3>
         <div className="space-y-3">
-          {mockLoginActivity.map((activity) => (
-            <div key={activity.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+          {mockLoginActivity.map(activity => (
+            <div
+              key={activity.id}
+              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : 'bg-red-500'}`}
+                ></div>
                 <div>
                   <p className="font-medium text-gray-900">{activity.device}</p>
                   <p className="text-sm text-gray-600">{activity.location}</p>
-                  <p className="text-xs text-gray-500">{formatDateTime(activity.timestamp)}</p>
+                  <p className="text-xs text-gray-500">
+                    {formatDateTime(activity.timestamp)}
+                  </p>
                 </div>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                activity.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  activity.status === 'success'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
                 {activity.status === 'success' ? 'Success' : 'Failed'}
               </span>
             </div>
@@ -728,7 +884,9 @@ export default function ProfilePage() {
         <h3 className="font-semibold text-gray-900 mb-4">Tax Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tax Residency</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tax Residency
+            </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
               <option value="ID">Indonesia</option>
               <option value="SG">Singapore</option>
@@ -736,7 +894,9 @@ export default function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID (NPWP)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tax ID (NPWP)
+            </label>
             <Input type="text" placeholder="Enter your NPWP number" />
           </div>
         </div>
@@ -747,20 +907,44 @@ export default function ProfilePage() {
         <h3 className="font-semibold text-gray-900 mb-4">Available Reports</h3>
         <div className="space-y-3">
           {[
-            { title: 'Annual Investment Summary 2023', date: '2024-01-01', type: 'Tax Report' },
-            { title: 'Q4 2023 Portfolio Performance', date: '2023-12-31', type: 'Performance' },
-            { title: 'Transaction History - December 2023', date: '2023-12-31', type: 'Transactions' },
-            { title: 'Profit Distribution Summary 2023', date: '2023-12-31', type: 'Distributions' },
+            {
+              title: 'Annual Investment Summary 2023',
+              date: '2024-01-01',
+              type: 'Tax Report',
+            },
+            {
+              title: 'Q4 2023 Portfolio Performance',
+              date: '2023-12-31',
+              type: 'Performance',
+            },
+            {
+              title: 'Transaction History - December 2023',
+              date: '2023-12-31',
+              type: 'Transactions',
+            },
+            {
+              title: 'Profit Distribution Summary 2023',
+              date: '2023-12-31',
+              type: 'Distributions',
+            },
           ].map((report, index) => (
-            <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="font-medium text-gray-900">{report.title}</p>
-                  <p className="text-sm text-gray-600">{report.type} • Generated on {formatDate(report.date)}</p>
+                  <p className="text-sm text-gray-600">
+                    {report.type} • Generated on {formatDate(report.date)}
+                  </p>
                 </div>
               </div>
-              <Button variant="secondary" className="text-sm flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="text-sm flex items-center gap-2"
+              >
                 <Download className="w-4 h-4" />
                 Download
               </Button>
@@ -771,10 +955,14 @@ export default function ProfilePage() {
 
       {/* Generate Custom Report */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Generate Custom Report</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Generate Custom Report
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Report Type
+            </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
               <option value="portfolio">Portfolio Summary</option>
               <option value="transactions">Transaction History</option>
@@ -783,7 +971,9 @@ export default function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date Range
+            </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
               <option value="ytd">Year to Date</option>
               <option value="last-year">Last Year</option>
@@ -817,7 +1007,7 @@ export default function ProfilePage() {
           <div className="w-64 flex-shrink-0">
             <Card className="p-2">
               <nav className="space-y-1">
-                {tabs.map((tab) => (
+                {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -829,9 +1019,11 @@ export default function ProfilePage() {
                   >
                     <tab.icon className="w-5 h-5" />
                     <span className="font-medium">{tab.label}</span>
-                    <ChevronRight className={`w-4 h-4 ml-auto transition-transform ${
-                      activeTab === tab.id ? 'rotate-90' : ''
-                    }`} />
+                    <ChevronRight
+                      className={`w-4 h-4 ml-auto transition-transform ${
+                        activeTab === tab.id ? 'rotate-90' : ''
+                      }`}
+                    />
                   </button>
                 ))}
               </nav>
@@ -858,10 +1050,12 @@ export default function ProfilePage() {
           >
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password
+                </label>
                 <div className="relative">
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Enter current password"
                   />
                   <button
@@ -869,16 +1063,24 @@ export default function ProfilePage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New Password
+                </label>
                 <Input type="password" placeholder="Enter new password" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm New Password
+                </label>
                 <Input type="password" placeholder="Confirm new password" />
               </div>
               <div className="flex items-center gap-3 pt-4">
@@ -907,8 +1109,12 @@ export default function ProfilePage() {
             <div className="p-6">
               <div className="text-center mb-6">
                 <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">2FA is Currently Enabled</h3>
-                <p className="text-gray-600">Your account is protected with two-factor authentication</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  2FA is Currently Enabled
+                </h3>
+                <p className="text-gray-600">
+                  Your account is protected with two-factor authentication
+                </p>
               </div>
               <div className="space-y-3">
                 <Button variant="secondary" className="w-full">

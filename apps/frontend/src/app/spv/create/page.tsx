@@ -189,7 +189,7 @@ export default function SPVCreatePage() {
     setIsSubmitting(true);
 
     // TODO: Replace with real ProjectFactory contract integration
-    console.log('Submitting project:', formData);
+    // console.log('Submitting project:', formData);
 
     try {
       // Simulate project creation
@@ -199,7 +199,7 @@ export default function SPVCreatePage() {
       alert('Project created successfully! Redirecting to SPV dashboard...');
       window.location.href = '/spv/dashboard';
     } catch (error) {
-      console.error('Project creation failed:', error);
+      // console.error('Project creation failed:', error);
       alert('Project creation failed. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -219,13 +219,18 @@ export default function SPVCreatePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="md:col-span-2">
-          <Input
-            label="Project Name"
-            value={formData.projectName}
-            onChange={e => updateFormData('projectName', e.target.value)}
-            error={errors.projectName}
-            placeholder="e.g., Jakarta-Bandung High-Speed Rail"
-          />
+          <div className="space-y-2">
+            <label htmlFor="projectName">Project Name</label>
+            <Input
+              id="projectName"
+              value={formData.projectName}
+              onChange={e => updateFormData('projectName', e.target.value)}
+              placeholder="e.g., Jakarta-Bandung High-Speed Rail"
+            />
+            {errors.projectName ? (
+              <p className="mt-1 text-sm text-red-600">{errors.projectName}</p>
+            ) : null}
+          </div>
         </div>
 
         <div>
@@ -251,14 +256,17 @@ export default function SPVCreatePage() {
           )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="location">Location</label>
           <Input
-            label="Location"
+            id="location"
             value={formData.location}
             onChange={e => updateFormData('location', e.target.value)}
-            error={errors.location}
             placeholder="e.g., Jakarta, Indonesia"
           />
+          {errors.location ? (
+            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+          ) : null}
         </div>
 
         <div className="md:col-span-2">
@@ -294,48 +302,58 @@ export default function SPVCreatePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="totalValue">Total Project Value (IDR)</label>
           <Input
-            label="Total Project Value (IDR)"
+            id="totalValue"
             type="number"
             value={formData.totalValue || ''}
             onChange={e =>
               updateFormData('totalValue', parseFloat(e.target.value) || 0)
             }
-            error={errors.totalValue}
             placeholder="1000000000"
           />
+          {errors.totalValue && (
+            <p className="mt-1 text-sm text-red-600">{errors.totalValue}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="tokenSupply">Total Token Supply</label>
           <Input
-            label="Total Token Supply"
+            id="tokenSupply"
             type="number"
             value={formData.tokenSupply || ''}
             onChange={e =>
               updateFormData('tokenSupply', parseFloat(e.target.value) || 0)
             }
-            error={errors.tokenSupply}
             placeholder="1000000"
           />
+          {errors.tokenSupply && (
+            <p className="mt-1 text-sm text-red-600">{errors.tokenSupply}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="tokenPrice">Token Price (IDR)</label>
           <Input
-            label="Token Price (IDR)"
+            id="tokenPrice"
             type="number"
             value={formData.tokenPrice || ''}
             onChange={e =>
               updateFormData('tokenPrice', parseFloat(e.target.value) || 0)
             }
-            error={errors.tokenPrice}
             placeholder="1000"
           />
+          {errors.tokenPrice && (
+            <p className="mt-1 text-sm text-red-600">{errors.tokenPrice}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="minimumInvestment">Minimum Investment (IDR)</label>
           <Input
-            label="Minimum Investment (IDR)"
+            id="minimumInvestment"
             type="number"
             value={formData.minimumInvestment || ''}
             onChange={e =>
@@ -344,9 +362,13 @@ export default function SPVCreatePage() {
                 parseFloat(e.target.value) || 0
               )
             }
-            error={errors.minimumInvestment}
             placeholder="100000"
           />
+          {errors.minimumInvestment && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.minimumInvestment}
+            </p>
+          )}
         </div>
       </div>
 
@@ -394,44 +416,56 @@ export default function SPVCreatePage() {
 
       {/* Timeline */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="offeringStart">Token Offering Start Date</label>
           <Input
-            label="Token Offering Start Date"
+            id="offeringStart"
             type="date"
             value={formData.offeringStart}
             onChange={e => updateFormData('offeringStart', e.target.value)}
-            error={errors.offeringStart}
           />
+          {errors.offeringStart && (
+            <p className="mt-1 text-sm text-red-600">{errors.offeringStart}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="offeringEnd">Token Offering End Date</label>
           <Input
-            label="Token Offering End Date"
+            id="offeringEnd"
             type="date"
             value={formData.offeringEnd}
             onChange={e => updateFormData('offeringEnd', e.target.value)}
-            error={errors.offeringEnd}
           />
+          {errors.offeringEnd && (
+            <p className="mt-1 text-sm text-red-600">{errors.offeringEnd}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="projectStart">Project Construction Start</label>
           <Input
-            label="Project Construction Start"
+            id="projectStart"
             type="date"
             value={formData.projectStart}
             onChange={e => updateFormData('projectStart', e.target.value)}
-            error={errors.projectStart}
           />
+          {errors.projectStart && (
+            <p className="mt-1 text-sm text-red-600">{errors.projectStart}</p>
+          )}
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label htmlFor="projectEnd">Project Operation End</label>
           <Input
-            label="Project Operation End"
+            id="projectEnd"
             type="date"
             value={formData.projectEnd}
             onChange={e => updateFormData('projectEnd', e.target.value)}
-            error={errors.projectEnd}
           />
+          {errors.projectEnd && (
+            <p className="mt-1 text-sm text-red-600">{errors.projectEnd}</p>
+          )}
         </div>
       </div>
 
@@ -499,9 +533,15 @@ export default function SPVCreatePage() {
 
       {/* Revenue Model */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+        <div className="space-y-2">
+          <label
+            htmlFor="expectedAnnualRevenue"
+            className="text-sm font-medium text-gray-700"
+          >
+            Expected Annual Revenue (IDR)
+          </label>
           <Input
-            label="Expected Annual Revenue (IDR)"
+            id="expectedAnnualRevenue"
             type="number"
             value={formData.expectedAnnualRevenue || ''}
             onChange={e =>
@@ -510,9 +550,14 @@ export default function SPVCreatePage() {
                 parseFloat(e.target.value) || 0
               )
             }
-            error={errors.expectedAnnualRevenue}
             placeholder="500000000"
           />
+
+          {errors.expectedAnnualRevenue && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.expectedAnnualRevenue}
+            </p>
+          )}
         </div>
 
         <div>
@@ -533,9 +578,15 @@ export default function SPVCreatePage() {
           </select>
         </div>
 
-        <div>
+        <div className="space-y-2">
+          <label
+            htmlFor="platformFee"
+            className="text-sm font-medium text-gray-700"
+          >
+            Platform Management Fee (%)
+          </label>
           <Input
-            label="Platform Management Fee (%)"
+            id="platformFee"
             type="number"
             min="0"
             max="20"

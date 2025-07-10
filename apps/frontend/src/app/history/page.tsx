@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 'use client';
 
 import { useState } from 'react';
@@ -7,9 +8,7 @@ import {
   ArrowDownRight,
   DollarSign,
   Download,
-  Filter,
   Search,
-  Calendar,
   FileText,
   Eye,
   ChevronLeft,
@@ -179,12 +178,13 @@ const ITEMS_PER_PAGE = 10;
 export default function HistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState('csv');
   const [exportDateRange, setExportDateRange] = useState('all');
-  
+
   const [filters, setFilters] = useState<TransactionFilter>({
     type: 'all',
     status: 'all',
@@ -290,7 +290,7 @@ export default function HistoryPage() {
   const isDateInRange = (dateString: string, range: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    
+
     switch (range) {
       case 'today':
         return date.toDateString() === now.toDateString();
@@ -315,18 +315,40 @@ export default function HistoryPage() {
   };
 
   const filteredTransactions = mockTransactions.filter(transaction => {
-    const matchesSearch = 
-      transaction.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.transactionId.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filters.type === 'all' || transaction.type === filters.type;
-    const matchesStatus = filters.status === 'all' || transaction.status === filters.status;
-    const matchesDateRange = filters.dateRange === 'all' || isDateInRange(transaction.date, filters.dateRange);
-    const matchesProject = filters.project === 'all' || transaction.projectId === filters.project;
-    const matchesAmount = isAmountInRange(transaction.amount, filters.amountRange.min, filters.amountRange.max);
+    const matchesSearch =
+      transaction.projectTitle
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.transactionId
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-    return matchesSearch && matchesType && matchesStatus && matchesDateRange && matchesProject && matchesAmount;
+    const matchesType =
+      filters.type === 'all' || transaction.type === filters.type;
+    const matchesStatus =
+      filters.status === 'all' || transaction.status === filters.status;
+    const matchesDateRange =
+      filters.dateRange === 'all' ||
+      isDateInRange(transaction.date, filters.dateRange);
+    const matchesProject =
+      filters.project === 'all' || transaction.projectId === filters.project;
+    const matchesAmount = isAmountInRange(
+      transaction.amount,
+      filters.amountRange.min,
+      filters.amountRange.max
+    );
+
+    return (
+      matchesSearch &&
+      matchesType &&
+      matchesStatus &&
+      matchesDateRange &&
+      matchesProject &&
+      matchesAmount
+    );
   });
 
   const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
@@ -335,16 +357,22 @@ export default function HistoryPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const uniqueProjects = Array.from(new Set(mockTransactions.map(t => t.projectId)))
+  const uniqueProjects = Array.from(
+    new Set(mockTransactions.map(t => t.projectId))
+  )
     .map(id => ({
       id,
-      title: mockTransactions.find(t => t.projectId === id)?.projectTitle || 'Unknown',
+      title:
+        mockTransactions.find(t => t.projectId === id)?.projectTitle ||
+        'Unknown',
     }))
     .filter(p => p.id !== 'platform' && p.id !== 'portfolio');
 
   const handleExport = () => {
     // TODO: Implement actual export logic
-    console.log(`Exporting ${exportFormat} for ${exportDateRange} transactions`);
+    // console.log(
+    //   `Exporting ${exportFormat} for ${exportDateRange} transactions`
+    // );
     setExportModalOpen(false);
   };
 
@@ -366,14 +394,16 @@ export default function HistoryPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Transaction History</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Transaction History
+            </h1>
             <p className="text-gray-600">
               View and manage all your investment transactions
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={() => setExportModalOpen(true)}
               className="flex items-center gap-2"
             >
@@ -401,14 +431,15 @@ export default function HistoryPage() {
               />
             </div>
             <Button
-              variant={showFilters ? "primary" : "secondary"}
+              variant={showFilters ? 'primary' : 'secondary'}
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2"
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filters
             </Button>
-            {(searchTerm || Object.values(filters).some(v => v !== 'all' && v !== '')) && (
+            {(searchTerm ||
+              Object.values(filters).some(v => v !== 'all' && v !== '')) && (
               <Button variant="secondary" onClick={resetFilters}>
                 Clear All
               </Button>
@@ -420,10 +451,14 @@ export default function HistoryPage() {
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type
+                  </label>
                   <select
                     value={filters.type}
-                    onChange={e => setFilters({ ...filters, type: e.target.value })}
+                    onChange={e =>
+                      setFilters({ ...filters, type: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="all">All Types</option>
@@ -436,10 +471,14 @@ export default function HistoryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
                   <select
                     value={filters.status}
-                    onChange={e => setFilters({ ...filters, status: e.target.value })}
+                    onChange={e =>
+                      setFilters({ ...filters, status: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="all">All Status</option>
@@ -451,10 +490,14 @@ export default function HistoryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date Range
+                  </label>
                   <select
                     value={filters.dateRange}
-                    onChange={e => setFilters({ ...filters, dateRange: e.target.value })}
+                    onChange={e =>
+                      setFilters({ ...filters, dateRange: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="all">All Time</option>
@@ -466,10 +509,14 @@ export default function HistoryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project
+                  </label>
                   <select
                     value={filters.project}
-                    onChange={e => setFilters({ ...filters, project: e.target.value })}
+                    onChange={e =>
+                      setFilters({ ...filters, project: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="all">All Projects</option>
@@ -484,16 +531,23 @@ export default function HistoryPage() {
 
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount Range (IDR)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Amount Range (IDR)
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       placeholder="Min amount"
                       value={filters.amountRange.min}
-                      onChange={e => setFilters({ 
-                        ...filters, 
-                        amountRange: { ...filters.amountRange, min: e.target.value }
-                      })}
+                      onChange={e =>
+                        setFilters({
+                          ...filters,
+                          amountRange: {
+                            ...filters.amountRange,
+                            min: e.target.value,
+                          },
+                        })
+                      }
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                     <span className="text-gray-500">to</span>
@@ -501,10 +555,15 @@ export default function HistoryPage() {
                       type="number"
                       placeholder="Max amount"
                       value={filters.amountRange.max}
-                      onChange={e => setFilters({ 
-                        ...filters, 
-                        amountRange: { ...filters.amountRange, max: e.target.value }
-                      })}
+                      onChange={e =>
+                        setFilters({
+                          ...filters,
+                          amountRange: {
+                            ...filters.amountRange,
+                            max: e.target.value,
+                          },
+                        })
+                      }
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
@@ -517,7 +576,8 @@ export default function HistoryPage() {
         {/* Results Summary */}
         <div className="mb-4 flex items-center justify-between text-sm text-gray-600">
           <span>
-            Showing {paginatedTransactions.length} of {filteredTransactions.length} transactions
+            Showing {paginatedTransactions.length} of{' '}
+            {filteredTransactions.length} transactions
           </span>
           <span>
             Page {currentPage} of {totalPages}
@@ -579,12 +639,20 @@ export default function HistoryPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className={`font-medium ${
-                            ['investment', 'fee', 'withdrawal'].includes(transaction.type)
-                              ? 'text-red-600'
-                              : 'text-green-600'
-                          }`}>
-                            {['investment', 'fee', 'withdrawal'].includes(transaction.type) ? '-' : '+'}
+                          <div
+                            className={`font-medium ${
+                              ['investment', 'fee', 'withdrawal'].includes(
+                                transaction.type
+                              )
+                                ? 'text-red-600'
+                                : 'text-green-600'
+                            }`}
+                          >
+                            {['investment', 'fee', 'withdrawal'].includes(
+                              transaction.type
+                            )
+                              ? '-'
+                              : '+'}
                             {formatCurrency(transaction.amount)}
                           </div>
                           {transaction.feeAmount && (
@@ -600,15 +668,20 @@ export default function HistoryPage() {
                             {formatDate(transaction.date)}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {new Date(transaction.date).toLocaleTimeString('id-ID', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
+                            {new Date(transaction.date).toLocaleTimeString(
+                              'id-ID',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}
+                        >
                           {getStatusLabel(transaction.status)}
                         </span>
                       </td>
@@ -630,17 +703,21 @@ export default function HistoryPage() {
           ) : (
             <div className="p-12 text-center">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Transactions Found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Transactions Found
+              </h3>
               <p className="text-gray-600 mb-4">
-                {searchTerm || Object.values(filters).some(v => v !== 'all' && v !== '')
+                {searchTerm ||
+                Object.values(filters).some(v => v !== 'all' && v !== '')
                   ? 'Try adjusting your search or filter criteria.'
-                  : 'You haven\'t made any transactions yet.'}
+                  : "You haven't made any transactions yet."}
               </p>
-              {!searchTerm && !Object.values(filters).some(v => v !== 'all' && v !== '') && (
-                <Link href="/marketplace">
-                  <Button variant="primary">Browse Projects</Button>
-                </Link>
-              )}
+              {!searchTerm &&
+                !Object.values(filters).some(v => v !== 'all' && v !== '') && (
+                  <Link href="/marketplace">
+                    <Button variant="primary">Browse Projects</Button>
+                  </Link>
+                )}
             </div>
           )}
         </Card>
@@ -649,7 +726,12 @@ export default function HistoryPage() {
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)} of {filteredTransactions.length} results
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+              {Math.min(
+                currentPage * ITEMS_PER_PAGE,
+                filteredTransactions.length
+              )}{' '}
+              of {filteredTransactions.length} results
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -667,7 +749,7 @@ export default function HistoryPage() {
                   return (
                     <Button
                       key={page}
-                      variant={currentPage === page ? "primary" : "secondary"}
+                      variant={currentPage === page ? 'primary' : 'secondary'}
                       onClick={() => setCurrentPage(page)}
                       className="w-8 h-8 p-0"
                     >
@@ -705,9 +787,13 @@ export default function HistoryPage() {
                     <h3 className="font-semibold text-gray-900">
                       {getTransactionTypeLabel(selectedTransaction.type)}
                     </h3>
-                    <p className="text-sm text-gray-500">{selectedTransaction.description}</p>
+                    <p className="text-sm text-gray-500">
+                      {selectedTransaction.description}
+                    </p>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTransaction.status)}`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTransaction.status)}`}
+                  >
                     {getStatusLabel(selectedTransaction.status)}
                   </span>
                 </div>
@@ -715,15 +801,21 @@ export default function HistoryPage() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Transaction ID:</span>
-                    <span className="ml-2 font-mono">{selectedTransaction.transactionId}</span>
+                    <span className="ml-2 font-mono">
+                      {selectedTransaction.transactionId}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Date & Time:</span>
-                    <span className="ml-2">{formatDateTime(selectedTransaction.date)}</span>
+                    <span className="ml-2">
+                      {formatDateTime(selectedTransaction.date)}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Project:</span>
-                    <span className="ml-2">{selectedTransaction.projectTitle}</span>
+                    <span className="ml-2">
+                      {selectedTransaction.projectTitle}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Category:</span>
@@ -731,31 +823,45 @@ export default function HistoryPage() {
                   </div>
                   <div>
                     <span className="text-gray-500">Amount:</span>
-                    <span className={`ml-2 font-medium ${
-                      ['investment', 'fee', 'withdrawal'].includes(selectedTransaction.type)
-                        ? 'text-red-600'
-                        : 'text-green-600'
-                    }`}>
-                      {['investment', 'fee', 'withdrawal'].includes(selectedTransaction.type) ? '-' : '+'}
+                    <span
+                      className={`ml-2 font-medium ${
+                        ['investment', 'fee', 'withdrawal'].includes(
+                          selectedTransaction.type
+                        )
+                          ? 'text-red-600'
+                          : 'text-green-600'
+                      }`}
+                    >
+                      {['investment', 'fee', 'withdrawal'].includes(
+                        selectedTransaction.type
+                      )
+                        ? '-'
+                        : '+'}
                       {formatCurrency(selectedTransaction.amount)}
                     </span>
                   </div>
                   {selectedTransaction.feeAmount && (
                     <div>
                       <span className="text-gray-500">Fee:</span>
-                      <span className="ml-2">{formatCurrency(selectedTransaction.feeAmount)}</span>
+                      <span className="ml-2">
+                        {formatCurrency(selectedTransaction.feeAmount)}
+                      </span>
                     </div>
                   )}
                   {selectedTransaction.exchangeRate && (
                     <div>
                       <span className="text-gray-500">Exchange Rate:</span>
-                      <span className="ml-2">IDR {selectedTransaction.exchangeRate.toLocaleString()}</span>
+                      <span className="ml-2">
+                        IDR {selectedTransaction.exchangeRate.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   {selectedTransaction.paymentMethod && (
                     <div>
                       <span className="text-gray-500">Payment Method:</span>
-                      <span className="ml-2">{selectedTransaction.paymentMethod}</span>
+                      <span className="ml-2">
+                        {selectedTransaction.paymentMethod}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -763,8 +869,13 @@ export default function HistoryPage() {
                 {selectedTransaction.blockchainHash && (
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Blockchain Hash:</span>
-                      <Button variant="secondary" className="text-xs flex items-center gap-1">
+                      <span className="text-sm text-gray-500">
+                        Blockchain Hash:
+                      </span>
+                      <Button
+                        variant="secondary"
+                        className="text-xs flex items-center gap-1"
+                      >
                         <ExternalLink className="w-3 h-3" />
                         View on Explorer
                       </Button>
@@ -789,7 +900,9 @@ export default function HistoryPage() {
             <div className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Export Format</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Export Format
+                  </label>
                   <div className="space-y-2">
                     <label className="flex items-center gap-2">
                       <input
@@ -817,7 +930,9 @@ export default function HistoryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date Range
+                  </label>
                   <select
                     value={exportDateRange}
                     onChange={e => setExportDateRange(e.target.value)}
@@ -832,7 +947,8 @@ export default function HistoryPage() {
 
                 <div className="pt-4 border-t">
                   <p className="text-sm text-gray-600 mb-4">
-                    This will export {filteredTransactions.length} transactions matching your current filters.
+                    This will export {filteredTransactions.length} transactions
+                    matching your current filters.
                   </p>
                   <div className="flex items-center gap-3">
                     <Button

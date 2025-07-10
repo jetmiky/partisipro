@@ -24,7 +24,7 @@ import {
   Wifi,
   HardDrive,
   Cpu,
-  Memory,
+  MemoryStick,
 } from 'lucide-react';
 import {
   Button,
@@ -242,7 +242,13 @@ const mockUserRoles: UserRole[] = [
     id: 'super_admin',
     name: 'Super Administrator',
     description: 'Full system access with all permissions',
-    permissions: ['system:admin', 'users:manage', 'projects:manage', 'fees:manage', 'reports:view'],
+    permissions: [
+      'system:admin',
+      'users:manage',
+      'projects:manage',
+      'fees:manage',
+      'reports:view',
+    ],
     userCount: 2,
     lastModified: '2024-01-15',
     isSystemRole: true,
@@ -336,28 +342,44 @@ const getCategoryIcon = (category: SystemConfig['category']) => {
   }
 };
 
-const formatConfigValue = (value: string | number | boolean, type: string, sensitive: boolean) => {
+const formatConfigValue = (
+  value: string | number | boolean,
+  type: string,
+  sensitive: boolean
+) => {
   if (sensitive && type !== 'boolean') {
     return '••••••••';
   }
-  
+
   if (type === 'boolean') {
     return value ? 'Enabled' : 'Disabled';
   }
-  
-  if (type === 'number' && value >= 1000000) {
-    return (value / 1000000).toLocaleString() + 'M';
+
+  if (type === 'number') {
+    if (typeof value === 'number' && value >= 1000000) {
+      return (value / 1000000).toLocaleString() + 'M';
+    }
+
+    if (typeof value === 'string' && Number.parseInt(value) >= 1000000) {
+      return (Number.parseInt(value) / 1000000).toLocaleString() + 'M';
+    }
   }
-  
+
   return value.toString();
 };
 
 export default function AdminSystemPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [editingConfig, setEditingConfig] = useState<string | null>(null);
-  const [configValues, setConfigValues] = useState<Record<string, string | number | boolean>>({});
-  const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'health' | 'config' | 'logs' | 'roles'>('health');
+  const [configValues, setConfigValues] = useState<
+    Record<string, string | number | boolean>
+  >({});
+  const [showSensitive, setShowSensitive] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [activeTab, setActiveTab] = useState<
+    'health' | 'config' | 'logs' | 'roles'
+  >('health');
 
   const handleRefresh = async () => {
     setIsLoading(true);
@@ -366,7 +388,10 @@ export default function AdminSystemPage() {
     setIsLoading(false);
   };
 
-  const handleEditConfig = (configId: string, currentValue: string | number | boolean) => {
+  const handleEditConfig = (
+    configId: string,
+    currentValue: string | number | boolean
+  ) => {
     setEditingConfig(configId);
     setConfigValues({ ...configValues, [configId]: currentValue });
   };
@@ -374,12 +399,15 @@ export default function AdminSystemPage() {
   const handleSaveConfig = async (_configId: string) => {
     // TODO: Update system configuration
     // console.log('Updating config:', configId, 'to value:', configValues[configId]);
+    _configId;
     setEditingConfig(null);
   };
 
   const handleCancelEdit = (configId: string) => {
     setEditingConfig(null);
     const { [configId]: _removed, ...rest } = configValues;
+
+    _removed;
     setConfigValues(rest);
   };
 
@@ -408,7 +436,9 @@ export default function AdminSystemPage() {
       key: 'status',
       label: 'Status',
       render: (_, row) => (
-        <div className={`flex items-center gap-2 px-2 py-1 rounded-full w-fit ${getHealthStatusColor(row.status)}`}>
+        <div
+          className={`flex items-center gap-2 px-2 py-1 rounded-full w-fit ${getHealthStatusColor(row.status)}`}
+        >
           {getHealthStatusIcon(row.status)}
           <span className="font-medium capitalize">{row.status}</span>
         </div>
@@ -433,7 +463,9 @@ export default function AdminSystemPage() {
             <span className="text-gray-600">Memory: {row.metrics.memory}%</span>
           )}
           {row.metrics?.connections && (
-            <span className="text-gray-600">Connections: {row.metrics.connections}</span>
+            <span className="text-gray-600">
+              Connections: {row.metrics.connections}
+            </span>
           )}
         </div>
       ),
@@ -459,7 +491,9 @@ export default function AdminSystemPage() {
           </div>
           <span className="text-sm text-gray-500">{row.description}</span>
           {row.requiresRestart && (
-            <span className="text-xs text-accent-600 mt-1">⚠ Requires restart</span>
+            <span className="text-xs text-accent-600 mt-1">
+              ⚠ Requires restart
+            </span>
           )}
         </div>
       ),
@@ -473,8 +507,15 @@ export default function AdminSystemPage() {
             <div className="flex items-center gap-2">
               {row.type === 'boolean' ? (
                 <select
-                  value={configValues[row.id]?.toString() || row.value.toString()}
-                  onChange={(e) => setConfigValues({ ...configValues, [row.id]: e.target.value === 'true' })}
+                  value={
+                    configValues[row.id]?.toString() || row.value.toString()
+                  }
+                  onChange={e =>
+                    setConfigValues({
+                      ...configValues,
+                      [row.id]: e.target.value === 'true',
+                    })
+                  }
                   className="px-2 py-1 border border-gray-300 rounded text-sm"
                 >
                   <option value="true">Enabled</option>
@@ -483,21 +524,33 @@ export default function AdminSystemPage() {
               ) : row.type === 'select' ? (
                 <select
                   value={configValues[row.id] || row.value}
-                  onChange={(e) => setConfigValues({ ...configValues, [row.id]: e.target.value })}
+                  onChange={e =>
+                    setConfigValues({
+                      ...configValues,
+                      [row.id]: e.target.value,
+                    })
+                  }
                   className="px-2 py-1 border border-gray-300 rounded text-sm"
                 >
-                  {row.options?.map(option => (
-                    <option key={option} value={option}>{option}</option>
+                  {row.options?.map((option: any) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
                   ))}
                 </select>
               ) : (
                 <input
                   type={row.type === 'password' ? 'password' : row.type}
                   value={configValues[row.id] || row.value}
-                  onChange={(e) => setConfigValues({ 
-                    ...configValues, 
-                    [row.id]: row.type === 'number' ? parseFloat(e.target.value) : e.target.value 
-                  })}
+                  onChange={e =>
+                    setConfigValues({
+                      ...configValues,
+                      [row.id]:
+                        row.type === 'number'
+                          ? parseFloat(e.target.value)
+                          : e.target.value,
+                    })
+                  }
                   className="px-2 py-1 border border-gray-300 rounded text-sm"
                 />
               )}
@@ -505,15 +558,28 @@ export default function AdminSystemPage() {
           ) : (
             <div className="flex items-center gap-2">
               <span className="font-medium text-gray-900">
-                {formatConfigValue(row.value, row.type, row.sensitive && !showSensitive[row.id])}
+                {formatConfigValue(
+                  row.value,
+                  row.type,
+                  row.sensitive && !showSensitive[row.id]
+                )}
               </span>
               {row.sensitive && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowSensitive({ ...showSensitive, [row.id]: !showSensitive[row.id] })}
+                  onClick={() =>
+                    setShowSensitive({
+                      ...showSensitive,
+                      [row.id]: !showSensitive[row.id],
+                    })
+                  }
                 >
-                  {showSensitive[row.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  {showSensitive[row.id] ? (
+                    <EyeOff className="h-3 w-3" />
+                  ) : (
+                    <Eye className="h-3 w-3" />
+                  )}
                 </Button>
               )}
             </div>
@@ -538,10 +604,7 @@ export default function AdminSystemPage() {
         <div className="flex gap-2">
           {editingConfig === row.id ? (
             <>
-              <Button
-                size="sm"
-                onClick={() => handleSaveConfig(row.id)}
-              >
+              <Button size="sm" onClick={() => handleSaveConfig(row.id)}>
                 <Save className="h-4 w-4" />
               </Button>
               <Button
@@ -578,7 +641,9 @@ export default function AdminSystemPage() {
       key: 'level',
       label: 'Level',
       render: (_, row) => (
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getLogLevelColor(row.level)}`}>
+        <span
+          className={`text-xs px-2 py-1 rounded-full font-medium ${getLogLevelColor(row.level)}`}
+        >
           {row.level.toUpperCase()}
         </span>
       ),
@@ -613,7 +678,9 @@ export default function AdminSystemPage() {
           <div className="flex items-center gap-2">
             <span className="font-medium text-gray-900">{row.name}</span>
             {row.isSystemRole && (
-              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">SYSTEM</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                SYSTEM
+              </span>
             )}
           </div>
           <span className="text-sm text-gray-500">{row.description}</span>
@@ -625,8 +692,11 @@ export default function AdminSystemPage() {
       label: 'Permissions',
       render: (_, row) => (
         <div className="flex flex-wrap gap-1">
-          {row.permissions.slice(0, 3).map(permission => (
-            <span key={permission} className="text-xs px-2 py-1 rounded bg-primary-50 text-primary-700">
+          {row.permissions.slice(0, 3).map((permission: any) => (
+            <span
+              key={permission}
+              className="text-xs px-2 py-1 rounded bg-primary-50 text-primary-700"
+            >
               {permission}
             </span>
           ))}
@@ -649,27 +719,31 @@ export default function AdminSystemPage() {
       key: 'lastModified',
       label: 'Last Modified',
       render: (_, row) => (
-        <span className="text-sm text-gray-600">{new Date(row.lastModified).toLocaleDateString()}</span>
+        <span className="text-sm text-gray-600">
+          {new Date(row.lastModified).toLocaleDateString()}
+        </span>
       ),
     },
     {
       key: 'actions',
       label: 'Actions',
       render: (_, row) => (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={row.isSystemRole}
-        >
+        <Button variant="outline" size="sm" disabled={row.isSystemRole}>
           <Edit className="h-4 w-4" />
         </Button>
       ),
     },
   ];
 
-  const healthyComponents = mockSystemHealth.filter(h => h.status === 'healthy').length;
-  const warningComponents = mockSystemHealth.filter(h => h.status === 'warning').length;
-  const criticalComponents = mockSystemHealth.filter(h => h.status === 'critical').length;
+  const healthyComponents = mockSystemHealth.filter(
+    h => h.status === 'healthy'
+  ).length;
+  const warningComponents = mockSystemHealth.filter(
+    h => h.status === 'warning'
+  ).length;
+  const criticalComponents = mockSystemHealth.filter(
+    h => h.status === 'critical'
+  ).length;
   const totalRoles = mockUserRoles.length;
 
   return (
@@ -678,7 +752,9 @@ export default function AdminSystemPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">System Configuration</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              System Configuration
+            </h1>
             <p className="text-gray-600">
               Platform-wide settings and system management
             </p>
@@ -694,17 +770,11 @@ export default function AdminSystemPage() {
               />
               Refresh
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleToggleMaintenanceMode}
-            >
+            <Button variant="outline" onClick={handleToggleMaintenanceMode}>
               <Pause className="h-4 w-4 mr-2" />
               Maintenance Mode
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleRestartSystem}
-            >
+            <Button variant="outline" onClick={handleRestartSystem}>
               <RotateCcw className="h-4 w-4 mr-2" />
               Restart Services
             </Button>
@@ -751,14 +821,32 @@ export default function AdminSystemPage() {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: 'health', label: 'System Health', icon: <Activity className="h-4 w-4" /> },
-              { id: 'config', label: 'Configuration', icon: <Settings className="h-4 w-4" /> },
-              { id: 'logs', label: 'System Logs', icon: <FileText className="h-4 w-4" /> },
-              { id: 'roles', label: 'User Roles', icon: <Users className="h-4 w-4" /> },
-            ].map((tab) => (
+              {
+                id: 'health',
+                label: 'System Health',
+                icon: <Activity className="h-4 w-4" />,
+              },
+              {
+                id: 'config',
+                label: 'Configuration',
+                icon: <Settings className="h-4 w-4" />,
+              },
+              {
+                id: 'logs',
+                label: 'System Logs',
+                icon: <FileText className="h-4 w-4" />,
+              },
+              {
+                id: 'roles',
+                label: 'User Roles',
+                icon: <Users className="h-4 w-4" />,
+              },
+            ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'health' | 'config' | 'logs' | 'roles')}
+                onClick={() =>
+                  setActiveTab(tab.id as 'health' | 'config' | 'logs' | 'roles')
+                }
                 className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-primary-500 text-primary-600'
@@ -777,8 +865,12 @@ export default function AdminSystemPage() {
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">System Health</h2>
-                <p className="text-sm text-gray-600">Monitor system components and performance</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  System Health
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Monitor system components and performance
+                </p>
               </div>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
@@ -793,8 +885,12 @@ export default function AdminSystemPage() {
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">System Configuration</h2>
-                <p className="text-sm text-gray-600">Manage platform settings and parameters</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  System Configuration
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Manage platform settings and parameters
+                </p>
               </div>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
@@ -809,8 +905,12 @@ export default function AdminSystemPage() {
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">System Logs</h2>
-                <p className="text-sm text-gray-600">View system events and error logs</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  System Logs
+                </h2>
+                <p className="text-sm text-gray-600">
+                  View system events and error logs
+                </p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -831,8 +931,12 @@ export default function AdminSystemPage() {
           <Card className="p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">User Roles</h2>
-                <p className="text-sm text-gray-600">Manage user roles and permissions</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  User Roles
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Manage user roles and permissions
+                </p>
               </div>
               <Button>
                 <Users className="h-4 w-4 mr-2" />
@@ -856,7 +960,7 @@ export default function AdminSystemPage() {
           <StatsCard
             title="Memory Usage"
             value="62%"
-            icon={<Memory className="w-4 h-4" />}
+            icon={<MemoryStick className="w-4 h-4" />}
             change={8.1}
             changeType="increase"
             description="System memory utilization"
@@ -888,12 +992,26 @@ export default function AdminSystemPage() {
                 TODO: Mock Implementation Notes
               </h3>
               <ul className="text-sm text-primary-800 space-y-1">
-                <li>• Mock system health monitoring with real-time metrics collection</li>
-                <li>• Mock configuration management with blockchain parameter updates</li>
-                <li>• Mock centralized logging system with log aggregation and analysis</li>
-                <li>• Mock user role management with permission-based access control</li>
+                <li>
+                  • Mock system health monitoring with real-time metrics
+                  collection
+                </li>
+                <li>
+                  • Mock configuration management with blockchain parameter
+                  updates
+                </li>
+                <li>
+                  • Mock centralized logging system with log aggregation and
+                  analysis
+                </li>
+                <li>
+                  • Mock user role management with permission-based access
+                  control
+                </li>
                 <li>• Mock maintenance mode with graceful service shutdown</li>
-                <li>• Mock system restart capabilities with service orchestration</li>
+                <li>
+                  • Mock system restart capabilities with service orchestration
+                </li>
               </ul>
             </div>
           </div>

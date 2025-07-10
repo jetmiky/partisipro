@@ -254,18 +254,22 @@ export default function AdminFeesPage() {
   const handleSaveFee = async (_feeId: string) => {
     // TODO: Update fee configuration on blockchain/backend
     // console.log('Updating fee:', feeId, 'to value:', feeValues[feeId]);
+    _feeId;
     setEditingFee(null);
   };
 
   const handleCancelEdit = (feeId: string) => {
     setEditingFee(null);
     const { [feeId]: _removed, ...rest } = feeValues;
+
+    _removed;
     setFeeValues(rest);
   };
 
   const handleApplyPendingFee = (_feeId: string) => {
     // TODO: Apply pending fee change
     // console.log('Apply pending fee change:', feeId);
+    _feeId;
   };
 
   const feeConfigColumns: Column[] = [
@@ -276,7 +280,9 @@ export default function AdminFeesPage() {
         <div className="flex flex-col">
           <span className="font-medium text-gray-900">{row.name}</span>
           <span className="text-sm text-gray-500">{row.description}</span>
-          <span className={`text-xs px-2 py-1 rounded-full font-medium mt-1 w-fit ${getCategoryColor(row.category)}`}>
+          <span
+            className={`text-xs px-2 py-1 rounded-full font-medium mt-1 w-fit ${getCategoryColor(row.category)}`}
+          >
             {row.category.toUpperCase()}
           </span>
         </div>
@@ -292,7 +298,12 @@ export default function AdminFeesPage() {
               <input
                 type="number"
                 value={feeValues[row.id] || row.currentValue}
-                onChange={(e) => setFeeValues({ ...feeValues, [row.id]: parseFloat(e.target.value) })}
+                onChange={e =>
+                  setFeeValues({
+                    ...feeValues,
+                    [row.id]: parseFloat(e.target.value),
+                  })
+                }
                 min={row.minValue}
                 max={row.maxValue}
                 step={row.type === 'percentage' ? 0.1 : 1000}
@@ -308,7 +319,8 @@ export default function AdminFeesPage() {
             </span>
           )}
           <span className="text-xs text-gray-500">
-            Range: {formatFeeValue(row.minValue, row.currency)} - {formatFeeValue(row.maxValue, row.currency)}
+            Range: {formatFeeValue(row.minValue, row.currency)} -{' '}
+            {formatFeeValue(row.maxValue, row.currency)}
           </span>
           {row.proposedValue && (
             <span className="text-xs text-primary-600">
@@ -322,7 +334,9 @@ export default function AdminFeesPage() {
       key: 'status',
       label: 'Status',
       render: (_, row) => (
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(row.status)}`}>
+        <span
+          className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(row.status)}`}
+        >
           {row.status.toUpperCase()}
         </span>
       ),
@@ -344,10 +358,7 @@ export default function AdminFeesPage() {
         <div className="flex gap-2">
           {editingFee === row.id ? (
             <>
-              <Button
-                size="sm"
-                onClick={() => handleSaveFee(row.id)}
-              >
+              <Button size="sm" onClick={() => handleSaveFee(row.id)}>
                 <Save className="h-4 w-4" />
               </Button>
               <Button
@@ -369,10 +380,7 @@ export default function AdminFeesPage() {
                 <Edit className="h-4 w-4" />
               </Button>
               {row.status === 'pending' && (
-                <Button
-                  size="sm"
-                  onClick={() => handleApplyPendingFee(row.id)}
-                >
+                <Button size="sm" onClick={() => handleApplyPendingFee(row.id)}>
                   Apply
                 </Button>
               )}
@@ -398,32 +406,42 @@ export default function AdminFeesPage() {
       key: 'amount',
       label: 'Amount',
       render: (_, row) => (
-        <span className="font-medium text-gray-900">{formatCurrency(row.amount)}</span>
+        <span className="font-medium text-gray-900">
+          {formatCurrency(row.amount)}
+        </span>
       ),
     },
     {
       key: 'date',
       label: 'Date',
       render: (_, row) => (
-        <span className="text-sm">{new Date(row.date).toLocaleDateString()}</span>
+        <span className="text-sm">
+          {new Date(row.date).toLocaleDateString()}
+        </span>
       ),
     },
     {
       key: 'transactionId',
       label: 'Transaction ID',
       render: (_, row) => (
-        <span className="text-sm font-mono text-gray-600">{row.transactionId}</span>
+        <span className="text-sm font-mono text-gray-600">
+          {row.transactionId}
+        </span>
       ),
     },
     {
       key: 'status',
       label: 'Status',
       render: (_, row) => (
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-          row.status === 'collected' ? 'text-support-600 bg-support-50' :
-          row.status === 'pending' ? 'text-primary-600 bg-primary-50' :
-          'text-accent-600 bg-accent-50'
-        }`}>
+        <span
+          className={`text-xs px-2 py-1 rounded-full font-medium ${
+            row.status === 'collected'
+              ? 'text-support-600 bg-support-50'
+              : row.status === 'pending'
+                ? 'text-primary-600 bg-primary-50'
+                : 'text-accent-600 bg-accent-50'
+          }`}
+        >
           {row.status.toUpperCase()}
         </span>
       ),
@@ -630,12 +648,16 @@ export default function AdminFeesPage() {
                 Fee Change Policy
               </h3>
               <p className="text-sm text-primary-800 mb-2">
-                All fee changes require a 30-day notice period and must be approved by the platform governance council. 
-                Changes will be applied to new projects only, existing projects maintain their original fee structure.
+                All fee changes require a 30-day notice period and must be
+                approved by the platform governance council. Changes will be
+                applied to new projects only, existing projects maintain their
+                original fee structure.
               </p>
               <ul className="text-sm text-primary-800 space-y-1">
                 <li>• Platform fees: 1-5% range for sustainability</li>
-                <li>• Transaction fees: Fixed amounts to cover operational costs</li>
+                <li>
+                  • Transaction fees: Fixed amounts to cover operational costs
+                </li>
                 <li>• Service fees: Third-party service cost pass-through</li>
               </ul>
             </div>
@@ -651,10 +673,17 @@ export default function AdminFeesPage() {
                 TODO: Mock Implementation Notes
               </h3>
               <ul className="text-sm text-primary-800 space-y-1">
-                <li>• Mock blockchain fee configuration updates via smart contracts</li>
+                <li>
+                  • Mock blockchain fee configuration updates via smart
+                  contracts
+                </li>
                 <li>• Mock automated fee collection and revenue tracking</li>
-                <li>• Mock fee change approval workflow with governance voting</li>
-                <li>• Mock real-time revenue analytics and reporting dashboard</li>
+                <li>
+                  • Mock fee change approval workflow with governance voting
+                </li>
+                <li>
+                  • Mock real-time revenue analytics and reporting dashboard
+                </li>
                 <li>• Mock fee audit trail and compliance reporting system</li>
               </ul>
             </div>

@@ -283,8 +283,8 @@ export default function AdminSPVPage() {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // TODO: Implement actual API call to update SPV status
-    console.log(`${action} SPV:`, selectedApplication.id);
-    console.log('Review notes:', reviewNotes);
+    // console.log(`${action} SPV:`, selectedApplication.id);
+    // console.log('Review notes:', reviewNotes);
 
     setIsSubmitting(false);
     setIsReviewModalOpen(false);
@@ -295,12 +295,16 @@ export default function AdminSPVPage() {
 
   const handleSuspendSPV = async (spvId: string) => {
     // TODO: Implement SPV suspension logic
-    console.log('Suspend SPV:', spvId);
+    // console.log('Suspend SPV:', spvId);
+
+    spvId;
   };
 
   const handleActivateSPV = async (spvId: string) => {
     // TODO: Implement SPV activation logic
-    console.log('Activate SPV:', spvId);
+    // console.log('Activate SPV:', spvId);
+
+    spvId;
   };
 
   const applicationColumns: Column[] = [

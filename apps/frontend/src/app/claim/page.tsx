@@ -150,7 +150,7 @@ export default function ClaimPage() {
     if (!selectedClaim) return;
 
     // TODO: Replace with real Treasury contract claim function
-    console.log('Processing claim for:', selectedClaim);
+    // console.log('Processing claim for:', selectedClaim);
 
     // Simulate claim processing
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -181,7 +181,7 @@ export default function ClaimPage() {
 
   const handleBankAccountSave = async () => {
     // TODO: Replace with real bank account update API
-    console.log('Saving bank account:', bankForm);
+    // console.log('Saving bank account:', bankForm);
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -380,36 +380,45 @@ export default function ClaimPage() {
           title="Bank Account Information"
         >
           <div className="space-y-4">
-            <Input
-              label="Bank Name"
-              value={bankForm.bankName}
-              onChange={e =>
-                setBankForm(prev => ({ ...prev, bankName: e.target.value }))
-              }
-              placeholder="e.g., Bank Central Asia"
-            />
-            <Input
-              label="Account Number"
-              value={bankForm.accountNumber}
-              onChange={e =>
-                setBankForm(prev => ({
-                  ...prev,
-                  accountNumber: e.target.value,
-                }))
-              }
-              placeholder="Enter your account number"
-            />
-            <Input
-              label="Account Holder Name"
-              value={bankForm.accountHolder}
-              onChange={e =>
-                setBankForm(prev => ({
-                  ...prev,
-                  accountHolder: e.target.value,
-                }))
-              }
-              placeholder="Enter account holder name"
-            />
+            <div className="space-y-2">
+              <label htmlFor="bankName">Bank Name</label>
+              <Input
+                id="bankName"
+                value={bankForm.bankName}
+                onChange={e =>
+                  setBankForm(prev => ({ ...prev, bankName: e.target.value }))
+                }
+                placeholder="e.g., Bank Central Asia"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="accountNumber">Account Number</label>
+              <Input
+                id="accountNumber"
+                value={bankForm.accountNumber}
+                onChange={e =>
+                  setBankForm(prev => ({
+                    ...prev,
+                    accountNumber: e.target.value,
+                  }))
+                }
+                placeholder="Enter your account number"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="accountName">Account Holder Name</label>
+              <Input
+                id="Account Holder Name"
+                value={bankForm.accountHolder}
+                onChange={e =>
+                  setBankForm(prev => ({
+                    ...prev,
+                    accountHolder: e.target.value,
+                  }))
+                }
+                placeholder="Enter account holder name"
+              />
+            </div>
             <div className="flex gap-3 pt-4">
               <Button
                 onClick={handleBankAccountSave}

@@ -20,18 +20,24 @@ import {
   BarChart3,
   ArrowLeft,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Card } from '@/components/ui';
-import { StatsCard } from '@/components/ui';
-import { DashboardLayout } from '@/components/ui';
-import { DataTable } from '@/components/ui/DataTable';
+import {
+  Button,
+  Card,
+  StatsCard,
+  DashboardLayout,
+  DataTable,
+} from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
 
 interface GovernanceProposal {
   id: string;
   title: string;
   description: string;
-  type: 'contract_upgrade' | 'parameter_change' | 'fund_allocation' | 'operational_change';
+  type:
+    | 'contract_upgrade'
+    | 'parameter_change'
+    | 'fund_allocation'
+    | 'operational_change';
   status: 'draft' | 'active' | 'passed' | 'rejected' | 'executed';
   createdDate: string;
   votingStart: string;
@@ -66,7 +72,8 @@ const mockProposals: GovernanceProposal[] = [
   {
     id: 'prop-001',
     title: 'Upgrade Treasury Contract to v2.1',
-    description: 'Upgrade the Treasury smart contract to include new security features and gas optimization improvements.',
+    description:
+      'Upgrade the Treasury smart contract to include new security features and gas optimization improvements.',
     type: 'contract_upgrade',
     status: 'active',
     createdDate: '2025-01-05',
@@ -82,7 +89,8 @@ const mockProposals: GovernanceProposal[] = [
   {
     id: 'prop-002',
     title: 'Adjust Revenue Distribution Percentage',
-    description: 'Proposal to increase investor revenue share from 85% to 88% of net profits to improve investor returns.',
+    description:
+      'Proposal to increase investor revenue share from 85% to 88% of net profits to improve investor returns.',
     type: 'parameter_change',
     status: 'passed',
     createdDate: '2024-12-20',
@@ -99,7 +107,8 @@ const mockProposals: GovernanceProposal[] = [
   {
     id: 'prop-003',
     title: 'Emergency Maintenance Fund Allocation',
-    description: 'Allocate 2% of current treasury balance for emergency road maintenance during rainy season.',
+    description:
+      'Allocate 2% of current treasury balance for emergency road maintenance during rainy season.',
     type: 'fund_allocation',
     status: 'executed',
     createdDate: '2024-11-15',
@@ -171,7 +180,7 @@ const formatProposalType = (type: GovernanceProposal['type']) => {
 const calculateVotingProgress = (votesFor: number, votesAgainst: number) => {
   const total = votesFor + votesAgainst;
   if (total === 0) return { forPercentage: 0, againstPercentage: 0 };
-  
+
   return {
     forPercentage: (votesFor / total) * 100,
     againstPercentage: (votesAgainst / total) * 100,
@@ -192,6 +201,8 @@ export default function SPVGovernancePage() {
   const _projectId = params.id as string;
   const [isLoading, setIsLoading] = useState(false);
 
+  _projectId;
+
   const handleRefresh = async () => {
     setIsLoading(true);
     // TODO: Fetch latest governance data from blockchain
@@ -207,11 +218,13 @@ export default function SPVGovernancePage() {
   const handleViewProposal = (_proposalId: string) => {
     // TODO: Navigate to proposal detail page
     // console.log('View proposal:', proposalId);
+    _proposalId;
   };
 
   const handleExecuteProposal = (_proposalId: string) => {
     // TODO: Execute passed proposal on blockchain
     // console.log('Execute proposal:', proposalId);
+    _proposalId;
   };
 
   const proposalColumns: Column[] = [
@@ -225,7 +238,8 @@ export default function SPVGovernancePage() {
             <span className="font-medium text-gray-900">{row.title}</span>
           </div>
           <span className="text-sm text-gray-500">
-            {formatProposalType(row.type)} • Created {new Date(row.createdDate).toLocaleDateString()}
+            {formatProposalType(row.type)} • Created{' '}
+            {new Date(row.createdDate).toLocaleDateString()}
           </span>
         </div>
       ),
@@ -234,7 +248,9 @@ export default function SPVGovernancePage() {
       key: 'status',
       label: 'Status',
       render: (_, row) => (
-        <div className={`flex items-center gap-2 ${getStatusColor(row.status)}`}>
+        <div
+          className={`flex items-center gap-2 ${getStatusColor(row.status)}`}
+        >
           {getStatusIcon(row.status)}
           <span className="capitalize font-medium">{row.status}</span>
         </div>
@@ -244,12 +260,19 @@ export default function SPVGovernancePage() {
       key: 'voting',
       label: 'Voting Results',
       render: (_, row) => {
-        const { forPercentage, againstPercentage } = calculateVotingProgress(row.votesFor, row.votesAgainst);
+        const { forPercentage, againstPercentage } = calculateVotingProgress(
+          row.votesFor,
+          row.votesAgainst
+        );
         return (
           <div className="flex flex-col">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-support-600">For: {formatTokenCount(row.votesFor)}</span>
-              <span className="text-accent-600">Against: {formatTokenCount(row.votesAgainst)}</span>
+              <span className="text-support-600">
+                For: {formatTokenCount(row.votesFor)}
+              </span>
+              <span className="text-accent-600">
+                Against: {formatTokenCount(row.votesAgainst)}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div className="flex h-2 rounded-full overflow-hidden">
@@ -264,7 +287,8 @@ export default function SPVGovernancePage() {
               </div>
             </div>
             <span className="text-xs text-gray-500 mt-1">
-              Quorum: {formatTokenCount(row.quorumRequired)} {row.quorumMet ? '✓' : '✗'}
+              Quorum: {formatTokenCount(row.quorumRequired)}{' '}
+              {row.quorumMet ? '✓' : '✗'}
             </span>
           </div>
         );
@@ -276,7 +300,8 @@ export default function SPVGovernancePage() {
       render: (_, row) => (
         <div className="flex flex-col text-sm">
           <span className="text-gray-900">
-            {new Date(row.votingStart).toLocaleDateString()} - {new Date(row.votingEnd).toLocaleDateString()}
+            {new Date(row.votingStart).toLocaleDateString()} -{' '}
+            {new Date(row.votingEnd).toLocaleDateString()}
           </span>
           {row.executionDate && (
             <span className="text-support-600">
@@ -299,10 +324,7 @@ export default function SPVGovernancePage() {
             <Eye className="h-4 w-4" />
           </Button>
           {row.status === 'passed' && !row.executionDate && (
-            <Button
-              size="sm"
-              onClick={() => handleExecuteProposal(row.id)}
-            >
+            <Button size="sm" onClick={() => handleExecuteProposal(row.id)}>
               Execute
             </Button>
           )}
@@ -311,10 +333,15 @@ export default function SPVGovernancePage() {
     },
   ];
 
-  const activeProposals = mockProposals.filter(p => p.status === 'active').length;
-  const passedProposals = mockProposals.filter(p => p.status === 'passed').length;
+  const activeProposals = mockProposals.filter(
+    p => p.status === 'active'
+  ).length;
+  const passedProposals = mockProposals.filter(
+    p => p.status === 'passed'
+  ).length;
   const totalVotes = mockProposals.reduce((sum, p) => sum + p.totalVotes, 0);
-  const averageParticipation = totalVotes / mockProposals.length / mockProject.totalTokens * 100;
+  const averageParticipation =
+    (totalVotes / mockProposals.length / mockProject.totalTokens) * 100;
 
   return (
     <DashboardLayout userType="spv">
@@ -478,11 +505,17 @@ export default function SPVGovernancePage() {
                 TODO: Mock Implementation Notes
               </h3>
               <ul className="text-sm text-primary-800 space-y-1">
-                <li>• Mock governance contract integration for proposal creation</li>
-                <li>• Mock voting mechanism with token-weighted voting power</li>
+                <li>
+                  • Mock governance contract integration for proposal creation
+                </li>
+                <li>
+                  • Mock voting mechanism with token-weighted voting power
+                </li>
                 <li>• Mock proposal execution via smart contract calls</li>
                 <li>• Mock real-time voting updates and quorum tracking</li>
-                <li>• Mock proposal creation wizard with parameter validation</li>
+                <li>
+                  • Mock proposal creation wizard with parameter validation
+                </li>
               </ul>
             </div>
           </div>

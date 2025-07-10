@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   Vote,
-  Clock,
   Users,
   CheckCircle,
   XCircle,
@@ -13,12 +11,16 @@ import {
   MessageSquare,
   FileText,
   ChevronRight,
-  Filter,
   Search,
-  Plus,
   BarChart3,
 } from 'lucide-react';
-import { Button, Card, DashboardLayout, StatsCard, Modal } from '@/components/ui';
+import {
+  Button,
+  Card,
+  DashboardLayout,
+  StatsCard,
+  Modal,
+} from '@/components/ui';
 
 interface Proposal {
   id: string;
@@ -54,7 +56,8 @@ const mockProposals: Proposal[] = [
   {
     id: '1',
     title: 'Increase Revenue Distribution Rate to 8%',
-    description: 'Proposal to increase the monthly revenue distribution rate from 6% to 8% for the Jakarta-Bandung High-Speed Rail Extension project to provide better returns for token holders.',
+    description:
+      'Proposal to increase the monthly revenue distribution rate from 6% to 8% for the Jakarta-Bandung High-Speed Rail Extension project to provide better returns for token holders.',
     proposer: '0x1234...5678',
     status: 'active',
     votingPeriod: {
@@ -76,7 +79,8 @@ const mockProposals: Proposal[] = [
   {
     id: '2',
     title: 'Approve Additional Infrastructure Investment',
-    description: 'Authorize additional investment of 50 billion IDR for enhanced safety systems and passenger amenities in the Soekarno-Hatta Airport Terminal 4 project.',
+    description:
+      'Authorize additional investment of 50 billion IDR for enhanced safety systems and passenger amenities in the Soekarno-Hatta Airport Terminal 4 project.',
     proposer: '0x9876...4321',
     status: 'active',
     votingPeriod: {
@@ -98,7 +102,8 @@ const mockProposals: Proposal[] = [
   {
     id: '3',
     title: 'Implement Quarterly Financial Reporting',
-    description: 'Mandate quarterly financial reports for all projects to increase transparency and provide regular updates on project performance and revenue distribution.',
+    description:
+      'Mandate quarterly financial reports for all projects to increase transparency and provide regular updates on project performance and revenue distribution.',
     proposer: '0x5555...7777',
     status: 'passed',
     votingPeriod: {
@@ -119,7 +124,8 @@ const mockProposals: Proposal[] = [
   {
     id: '4',
     title: 'Emergency Fund Allocation for Project Delays',
-    description: 'Establish emergency fund allocation protocol for handling unexpected project delays and cost overruns to protect investor interests.',
+    description:
+      'Establish emergency fund allocation protocol for handling unexpected project delays and cost overruns to protect investor interests.',
     proposer: '0x3333...8888',
     status: 'rejected',
     votingPeriod: {
@@ -164,9 +170,13 @@ export default function GovernancePage() {
   const [selectedTab, setSelectedTab] = useState('active');
   const [filterCategory, setFilterCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
+    null
+  );
   const [votingModalOpen, setVotingModalOpen] = useState(false);
-  const [selectedVote, setSelectedVote] = useState<'for' | 'against' | 'abstain' | ''>('');
+  const [selectedVote, setSelectedVote] = useState<
+    'for' | 'against' | 'abstain' | ''
+  >('');
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('id-ID').format(num);
@@ -224,11 +234,13 @@ export default function GovernancePage() {
   };
 
   const calculateVotingProgress = (proposal: Proposal) => {
-    const totalVotes = proposal.votes.for + proposal.votes.against + proposal.votes.abstain;
+    const totalVotes =
+      proposal.votes.for + proposal.votes.against + proposal.votes.abstain;
     const participation = (totalVotes / proposal.totalTokens) * 100;
-    const approval = totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
+    const approval =
+      totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
     const quorumReached = totalVotes >= proposal.requiredQuorum;
-    
+
     return {
       participation: participation.toFixed(1),
       approval: approval.toFixed(1),
@@ -251,9 +263,12 @@ export default function GovernancePage() {
 
   const filteredProposals = mockProposals.filter(proposal => {
     const matchesTab = selectedTab === 'all' || proposal.status === selectedTab;
-    const matchesCategory = filterCategory === 'all' || proposal.category.toLowerCase() === filterCategory;
-    const matchesSearch = proposal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         proposal.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === 'all' ||
+      proposal.category.toLowerCase() === filterCategory;
+    const matchesSearch =
+      proposal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      proposal.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesTab && matchesCategory && matchesSearch;
   });
 
@@ -264,17 +279,25 @@ export default function GovernancePage() {
     { id: 'all', label: 'All Proposals' },
   ];
 
-  const activeProposals = mockProposals.filter(p => p.status === 'active').length;
-  const totalVotingPower = mockUserTokens.reduce((sum, token) => sum + token.votingPower, 0);
+  const activeProposals = mockProposals.filter(
+    p => p.status === 'active'
+  ).length;
+  const totalVotingPower = mockUserTokens.reduce(
+    (sum, token) => sum + token.votingPower,
+    0
+  );
   const proposalsVoted = mockProposals.filter(p => p.userVote).length;
-  const participationRate = mockProposals.length > 0 ? (proposalsVoted / mockProposals.length) * 100 : 0;
+  const participationRate =
+    mockProposals.length > 0
+      ? (proposalsVoted / mockProposals.length) * 100
+      : 0;
 
   const handleVote = () => {
     if (!selectedProposal || !selectedVote) return;
 
     // TODO: Implement actual voting logic with smart contract integration
-    console.log(`Voting ${selectedVote} on proposal ${selectedProposal.id}`);
-    
+    // console.log(`Voting ${selectedVote} on proposal ${selectedProposal.id}`);
+
     // Mock vote submission
     setTimeout(() => {
       setVotingModalOpen(false);
@@ -288,23 +311,29 @@ export default function GovernancePage() {
     const progress = calculateVotingProgress(proposal);
     const votingActive = isVotingActive(proposal);
     const userVotingPower = getUserVotingPower(proposal.projectId);
-    
+
     return (
       <Card key={proposal.id} className="p-6 hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h3 className="font-semibold text-gray-900 text-lg">{proposal.title}</h3>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}>
+              <h3 className="font-semibold text-gray-900 text-lg">
+                {proposal.title}
+              </h3>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(proposal.status)}`}
+              >
                 {getStatusLabel(proposal.status)}
               </span>
-              <span className={`text-xs font-medium ${getPriorityColor(proposal.priority)}`}>
+              <span
+                className={`text-xs font-medium ${getPriorityColor(proposal.priority)}`}
+              >
                 {proposal.priority.toUpperCase()}
               </span>
             </div>
             <p className="text-gray-600 mb-3 text-sm leading-relaxed">
-              {proposal.description.length > 150 
-                ? `${proposal.description.substring(0, 150)}...` 
+              {proposal.description.length > 150
+                ? `${proposal.description.substring(0, 150)}...`
                 : proposal.description}
             </p>
             <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -324,8 +353,8 @@ export default function GovernancePage() {
             </div>
           </div>
           <div className="ml-4">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               className="text-sm"
               onClick={() => setSelectedProposal(proposal)}
             >
@@ -339,11 +368,13 @@ export default function GovernancePage() {
         <div className="border-t pt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <div className="text-xs text-gray-500 mb-1">For ({progress.approval}%)</div>
+              <div className="text-xs text-gray-500 mb-1">
+                For ({progress.approval}%)
+              </div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full" 
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
                     style={{ width: `${progress.approval}%` }}
                   ></div>
                 </div>
@@ -356,9 +387,11 @@ export default function GovernancePage() {
               <div className="text-xs text-gray-500 mb-1">Against</div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-red-500 h-2 rounded-full" 
-                    style={{ width: `${((proposal.votes.against / progress.totalVotes) * 100) || 0}%` }}
+                  <div
+                    className="bg-red-500 h-2 rounded-full"
+                    style={{
+                      width: `${(proposal.votes.against / progress.totalVotes) * 100 || 0}%`,
+                    }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-red-600">
@@ -370,9 +403,11 @@ export default function GovernancePage() {
               <div className="text-xs text-gray-500 mb-1">Abstain</div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gray-400 h-2 rounded-full" 
-                    style={{ width: `${((proposal.votes.abstain / progress.totalVotes) * 100) || 0}%` }}
+                  <div
+                    className="bg-gray-400 h-2 rounded-full"
+                    style={{
+                      width: `${(proposal.votes.abstain / progress.totalVotes) * 100 || 0}%`,
+                    }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-gray-600">
@@ -384,9 +419,16 @@ export default function GovernancePage() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 text-sm">
-              <span className={`flex items-center gap-1 ${progress.quorumReached ? 'text-green-600' : 'text-orange-600'}`}>
-                {progress.quorumReached ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                Quorum {progress.quorumReached ? 'Reached' : 'Required'}: {formatNumber(proposal.requiredQuorum)}
+              <span
+                className={`flex items-center gap-1 ${progress.quorumReached ? 'text-green-600' : 'text-orange-600'}`}
+              >
+                {progress.quorumReached ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
+                )}
+                Quorum {progress.quorumReached ? 'Reached' : 'Required'}:{' '}
+                {formatNumber(proposal.requiredQuorum)}
               </span>
               <span className="text-gray-500">
                 Participation: {progress.participation}%
@@ -394,17 +436,21 @@ export default function GovernancePage() {
             </div>
             <div className="flex items-center gap-2">
               {proposal.userVote && (
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  proposal.userVote === 'for' ? 'bg-green-100 text-green-800' :
-                  proposal.userVote === 'against' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    proposal.userVote === 'for'
+                      ? 'bg-green-100 text-green-800'
+                      : proposal.userVote === 'against'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
                   You voted: {proposal.userVote}
                 </span>
               )}
               {votingActive && !proposal.userVote && userVotingPower > 0 && (
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   className="text-sm"
                   onClick={() => {
                     setSelectedProposal(proposal);
@@ -439,25 +485,29 @@ export default function GovernancePage() {
             title="Active Proposals"
             value={activeProposals.toString()}
             icon={<Vote className="w-5 h-5" />}
-            trend={{ value: 12.5, isPositive: true }}
+            changeType="increase"
+            change={12.5}
           />
           <StatsCard
             title="Your Voting Power"
             value={`${totalVotingPower.toFixed(2)}%`}
             icon={<BarChart3 className="w-5 h-5" />}
-            trend={{ value: 0.8, isPositive: true }}
+            changeType="increase"
+            change={0.8}
           />
           <StatsCard
             title="Proposals Voted"
             value={proposalsVoted.toString()}
             icon={<CheckCircle className="w-5 h-5" />}
-            trend={{ value: proposalsVoted, isPositive: true }}
+            changeType="increase"
+            change={proposalsVoted}
           />
           <StatsCard
             title="Participation Rate"
             value={`${participationRate.toFixed(1)}%`}
             icon={<Users className="w-5 h-5" />}
-            trend={{ value: participationRate, isPositive: participationRate > 50 }}
+            changeType={participationRate > 50 ? 'increase' : 'decrease'}
+            change={participationRate}
           />
         </div>
 
@@ -512,7 +562,9 @@ export default function GovernancePage() {
           ) : (
             <Card className="p-12 text-center">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Proposals Found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Proposals Found
+              </h3>
               <p className="text-gray-600 mb-4">
                 {searchTerm || filterCategory !== 'all'
                   ? 'Try adjusting your search or filter criteria.'
@@ -534,11 +586,16 @@ export default function GovernancePage() {
           >
             <div className="p-6">
               <div className="mb-6">
-                <h3 className="font-semibold text-gray-900 mb-2">{selectedProposal.title}</h3>
-                <p className="text-gray-600 text-sm mb-4">{selectedProposal.description}</p>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  {selectedProposal.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  {selectedProposal.description}
+                </p>
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <p className="text-sm text-blue-800">
-                    Your voting power: {getUserVotingPower(selectedProposal.projectId).toFixed(2)}%
+                    Your voting power:{' '}
+                    {getUserVotingPower(selectedProposal.projectId).toFixed(2)}%
                   </p>
                 </div>
               </div>
@@ -556,7 +613,9 @@ export default function GovernancePage() {
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <div>
                     <div className="font-medium text-gray-900">Vote For</div>
-                    <div className="text-sm text-gray-600">Support this proposal</div>
+                    <div className="text-sm text-gray-600">
+                      Support this proposal
+                    </div>
                   </div>
                 </label>
 
@@ -571,8 +630,12 @@ export default function GovernancePage() {
                   />
                   <XCircle className="w-5 h-5 text-red-600" />
                   <div>
-                    <div className="font-medium text-gray-900">Vote Against</div>
-                    <div className="text-sm text-gray-600">Oppose this proposal</div>
+                    <div className="font-medium text-gray-900">
+                      Vote Against
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Oppose this proposal
+                    </div>
                   </div>
                 </label>
 
@@ -588,7 +651,9 @@ export default function GovernancePage() {
                   <MessageSquare className="w-5 h-5 text-gray-600" />
                   <div>
                     <div className="font-medium text-gray-900">Abstain</div>
-                    <div className="text-sm text-gray-600">No preference on this proposal</div>
+                    <div className="text-sm text-gray-600">
+                      No preference on this proposal
+                    </div>
                   </div>
                 </label>
               </div>
@@ -627,17 +692,25 @@ export default function GovernancePage() {
             <div className="p-6 max-h-96 overflow-y-auto">
               <div className="mb-4">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-gray-900 text-lg">{selectedProposal.title}</h3>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedProposal.status)}`}>
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    {selectedProposal.title}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedProposal.status)}`}
+                  >
                     {getStatusLabel(selectedProposal.status)}
                   </span>
                 </div>
-                <p className="text-gray-600 mb-4">{selectedProposal.description}</p>
-                
+                <p className="text-gray-600 mb-4">
+                  {selectedProposal.description}
+                </p>
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Proposer:</span>
-                    <span className="ml-2 font-mono">{selectedProposal.proposer}</span>
+                    <span className="ml-2 font-mono">
+                      {selectedProposal.proposer}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Category:</span>
@@ -646,30 +719,41 @@ export default function GovernancePage() {
                   <div>
                     <span className="text-gray-500">Voting Period:</span>
                     <span className="ml-2">
-                      {formatDate(selectedProposal.votingPeriod.start)} - {formatDate(selectedProposal.votingPeriod.end)}
+                      {formatDate(selectedProposal.votingPeriod.start)} -{' '}
+                      {formatDate(selectedProposal.votingPeriod.end)}
                     </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Required Quorum:</span>
-                    <span className="ml-2">{formatNumber(selectedProposal.requiredQuorum)} tokens</span>
+                    <span className="ml-2">
+                      {formatNumber(selectedProposal.requiredQuorum)} tokens
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-3">Voting Results</h4>
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Voting Results
+                </h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-green-600 font-medium">For</span>
-                    <span>{formatNumber(selectedProposal.votes.for)} tokens</span>
+                    <span>
+                      {formatNumber(selectedProposal.votes.for)} tokens
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-red-600 font-medium">Against</span>
-                    <span>{formatNumber(selectedProposal.votes.against)} tokens</span>
+                    <span>
+                      {formatNumber(selectedProposal.votes.against)} tokens
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-medium">Abstain</span>
-                    <span>{formatNumber(selectedProposal.votes.abstain)} tokens</span>
+                    <span>
+                      {formatNumber(selectedProposal.votes.abstain)} tokens
+                    </span>
                   </div>
                 </div>
               </div>
