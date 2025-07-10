@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Menu, X, Shield, Layers, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -65,11 +66,12 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <button
+            <Link
               className={`btn btn-sm transition-all duration-200 ${isScrolled ? 'btn-ghost' : 'glass-hero text-white/90 hover:text-white hover:glass-modern border-white/30'}`}
+              href="/auth/signin"
             >
               Sign In
-            </button>
+            </Link>
             <button className="btn btn-primary btn-sm">
               <Shield className="w-4 h-4" />
               Get Started

@@ -371,6 +371,10 @@
     @apply text-base md:text-lg leading-relaxed text-muted-foreground;
   }
 
+  button {
+    @apply cursor-pointer;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
       --color-border: hsl(217.2 32.6% 17.5%);
