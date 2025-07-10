@@ -32,13 +32,20 @@ Stablecoin for regulatory compliance.
 
 ### Smart Contract Architecture
 
-**Factory Pattern**: Each project gets isolated contract deployment:
+**ERC-3643 Enhanced Factory Pattern**: Each project gets isolated contract
+deployment with identity-centric compliance:
 
-- **Core Infrastructure**: `ProjectFactory.sol`, `PlatformRegistry.sol`,
-  `PlatformTreasury.sol`
-- **Per-Project**: `ProjectToken.sol` (ERC-20), `Offering.sol`, `Treasury.sol`,
-  `Governance.sol`
-- **Security**: OpenZeppelin + UUPS proxy pattern for upgradeability
+- **Core Infrastructure**: `PlatformRegistry.sol`, `PlatformTreasury.sol`,
+  `ProjectFactory.sol`
+- **ERC-3643 Compliance Infrastructure**: `ClaimTopicsRegistry.sol`,
+  `TrustedIssuersRegistry.sol`, `IdentityRegistry.sol` - Standards-based
+  identity verification system
+- **Per-Project**: `ProjectToken.sol` (ERC-3643 compliant),
+  `ProjectOffering.sol`, `ProjectTreasury.sol`, `ProjectGovernance.sol`
+- **Security**: OpenZeppelin + AccessControl + ERC-3643 standard for regulatory
+  compliance
+- **Architecture**: 10 contracts total (7 original + 3 ERC-3643),
+  production-ready compliance model
 
 ### Technology Stack
 
@@ -120,10 +127,19 @@ npm run commit                 # Interactive conventional commits
 
 ### Smart Contract Conventions
 
-- **Factory Deployment**: Use `ProjectFactory.createProject()` for new projects
-- **Proxy Pattern**: All project contracts are upgradeable via UUPS
-- **Access Control**: OpenZeppelin `Ownable` + custom role-based permissions
+- **Factory Deployment**: Use `ProjectFactory.createProject()` with listing fee
+  payment and ERC-3643 compliance integration
+- **ERC-3643 Compliance**: Identity-centric verification through
+  IdentityRegistry, one-time KYC for all platform projects
+- **Access Control**: Dual-layer system - PlatformRegistry for SPVs,
+  IdentityRegistry for investor compliance
+- **Fee Structure**: Dual-fee model (listing + management) with automatic
+  platform treasury collection
+- **Governance**: Token-weighted voting through ProjectGovernance.sol
+- **Upgradeability**: Production-ready UUPS proxy pattern with Clone factory
 - **Gas Optimization**: Target Arbitrum network for low-cost transactions
+- **Standards Compliance**: Full ERC-3643 (T-REX) implementation for regulatory
+  compliance
 
 ### Frontend Patterns
 
@@ -166,15 +182,187 @@ npm run commit                 # Interactive conventional commits
 
 ### Key Business Logic
 
-- **Tokenization**: Each infrastructure project becomes an ERC-20 token
-  representing fractional ownership
-- **Profit Distribution**: Automated on-chain calculation and claiming mechanism
-- **Governance**: Token holder voting on project decisions
-- **Liquidity**: Secondary market trading on external DEX platforms
+- **Tokenization**: Each infrastructure project becomes an ERC-3643 compliant
+  token with identity-based transfer restrictions and voting capabilities
+- **Identity-Centric Compliance**: One-time KYC verification for all platform
+  projects through ERC-3643 standard implementation
+- **Access Control**: Dual-layer system - SPV management via PlatformRegistry,
+  investor compliance via IdentityRegistry with trusted claim issuers
+- **Fee Management**: Automatic platform fee collection (listing + management
+  fees) with transparent on-chain calculation
+- **Profit Distribution**: Automated on-chain calculation with platform fee
+  deduction and proportional distribution to verified token holders
+- **Governance**: Token-weighted voting with proposal and execution mechanisms
+  for verified identity holders only
+- **Liquidity**: Secondary market trading on external DEX platforms with
+  compliance verification at transfer level
 
 ### Security Considerations
 
-- Multi-signature wallets for admin functions
-- Upgradeable contracts for future-proofing
-- Comprehensive input validation on all user inputs
-- Rate limiting and DDoS protection on API endpoints
+- **Access Control**: Registry-based whitelist system with role-based
+  permissions
+- **Platform Treasury**: Secure fee collection with emergency withdrawal
+  capabilities
+- **Governance Security**: Token-weighted voting with proposal validation
+- **Input Validation**: Comprehensive validation on all user inputs and
+  transactions
+- **Upgrade Path**: Simplified contracts for MVP, UUPS proxy pattern for
+  production
+- **Multi-signature**: Planned for production deployment and admin functions
+- **Rate Limiting**: DDoS protection on API endpoints and transaction limits
+
+## MVP Implementation Plan
+
+### 7-Day Prototype Schedule
+
+**Day 1**: PlatformRegistry.sol + PlatformTreasury.sol
+
+- AccessControl setup and fee collection mechanism
+- Integration between registry and treasury
+
+**Day 2**: ProjectFactory.sol + ProjectToken.sol
+
+- Factory pattern with listing fee payment
+- ERC-20 token with voting capabilities
+
+**Day 3**: ProjectOffering.sol
+
+- Token sale with whitelist enforcement
+- ETH payment handling (fiat integration planned)
+
+**Day 4**: ProjectTreasury.sol
+
+- Profit distribution with automatic platform fee deduction
+- Claim mechanism with proportional distribution
+
+**Day 5**: ProjectGovernance.sol
+
+- Token-weighted voting with proposal mechanism
+- Integration with token voting power
+
+**Day 6**: Integration & Testing
+
+- End-to-end testing of all 7 contracts
+- Arbitrum Sepolia testnet deployment
+
+**Day 7**: Demo Preparation
+
+- Final testing and documentation
+- Complete user flow demonstration
+
+### ERC-3643 Enhanced Contracts Overview
+
+#### Core Infrastructure (3 contracts)
+
+1. **PlatformRegistry.sol** - Central access control and configuration for SPVs
+2. **PlatformTreasury.sol** - Platform fee collection and management
+3. **ProjectFactory.sol** - Factory pattern for project deployment with
+   compliance integration
+
+#### ERC-3643 Compliance Infrastructure (3 contracts)
+
+4. **ClaimTopicsRegistry.sol** - Standardized claim types for compliance (KYC,
+   accreditation, etc.)
+5. **TrustedIssuersRegistry.sol** - Authorized claim issuers management and
+   verification
+6. **IdentityRegistry.sol** - Central identity and claims management for
+   investor verification
+
+#### Per-Project Contracts (4 contracts)
+
+7. **ProjectToken.sol** - ERC-3643 compliant token with identity-based transfer
+   restrictions
+8. **ProjectOffering.sol** - Token sale with identity registry enforcement
+9. **ProjectTreasury.sol** - Project-specific profit distribution to verified
+   holders
+10. **ProjectGovernance.sol** - Token-weighted voting mechanism for verified
+    identities
+
+## ERC-3643 Implementation Details
+
+### Platform Transformation
+
+The platform has been **successfully transformed** from an asset-centric to an
+**identity-centric compliance model** through ERC-3643 (T-REX) standard
+implementation:
+
+- **Before**: Per-project investor whitelisting via PlatformRegistry
+- **After**: One-time KYC verification for all platform projects via
+  IdentityRegistry
+- **Impact**: Dramatically improved user experience and regulatory compliance
+
+### ERC-3643 Architecture
+
+#### Claim-Based Verification System
+
+- **Claim Topics**: Standardized verification types (KYC_APPROVED,
+  ACCREDITED_INVESTOR, etc.)
+- **Trusted Issuers**: Authorized KYC providers who can issue claims
+- **Identity Registry**: Central claims management with verification status
+  tracking
+
+#### Contract Relationships
+
+```
+IdentityRegistry
+├── ClaimTopicsRegistry (defines claim types)
+├── TrustedIssuersRegistry (manages authorized issuers)
+└── Claims Management (investor verification status)
+
+ProjectToken (ERC-3643)
+├── Transfer Compliance (checks IdentityRegistry)
+├── Voting Rights (verified holders only)
+└── Token Economics (standard ERC-20 functionality)
+```
+
+#### Key Benefits
+
+- **One-Time KYC**: Investors verified once for all platform projects
+- **Regulatory Compliance**: Industry-standard ERC-3643 framework
+- **Scalability**: Centralized identity supports unlimited projects
+- **User Experience**: Eliminated per-project compliance overhead
+
+### Development Patterns
+
+#### Identity Verification Flow
+
+1. **KYC Issuer Setup**: Add trusted issuer to TrustedIssuersRegistry
+2. **Investor Verification**: Issuer adds KYC claim to IdentityRegistry
+3. **Token Transfers**: Automatic compliance verification before transfers
+4. **Project Participation**: Verified status enables investment and governance
+
+#### Contract Deployment Order
+
+1. Deploy ClaimTopicsRegistry with admin
+2. Deploy TrustedIssuersRegistry with ClaimTopicsRegistry address
+3. Deploy IdentityRegistry with both registries
+4. Grant necessary operator roles between contracts
+5. Deploy ProjectFactory with IdentityRegistry integration
+
+#### Testing Strategy
+
+- **Unit Tests**: Individual contract functionality
+- **Integration Tests**: Cross-contract interaction verification
+- **Compliance Tests**: End-to-end identity verification workflows
+- **Gas Optimization**: Target <400k gas per transaction sequence
+
+### Migration Notes
+
+#### Breaking Changes
+
+- **ProjectFactory**: Now requires IdentityRegistry parameter in constructor
+- **ProjectToken**: Enhanced with ERC-3643 compliance verification
+- **ProjectOffering**: Uses IdentityRegistry instead of PlatformRegistry for
+  investor verification
+
+#### Backward Compatibility
+
+- **ERC-20 Interface**: Fully preserved for DEX compatibility
+- **Existing SPV System**: PlatformRegistry still manages SPV authorization
+- **Fee Structure**: No changes to platform economics
+
+### Post-MVP Roadmap
+
+- **Weeks 2-3**: Advanced claims management, delegation mechanisms
+- **Weeks 4-5**: Automated compliance monitoring, claim expiration handling
+- **Weeks 6-8**: Cross-platform identity, regulatory integration, security audit
