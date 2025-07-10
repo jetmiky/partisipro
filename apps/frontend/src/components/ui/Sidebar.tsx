@@ -1,21 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   FolderOpen,
-  CheckSquare,
   Users,
-  Calendar,
-  MessageSquare,
   Package,
   FileText,
-  Folder,
-  Bell,
   BarChart3,
-  HelpCircle,
-  ChevronDown,
   Building,
   Wallet,
   TrendingUp,
@@ -37,15 +29,6 @@ const Sidebar = ({
   userType = 'admin',
 }: SidebarProps) => {
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
-
-  const toggleExpanded = (itemId: string) => {
-    setExpandedItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
-    );
-  };
 
   // Navigation items based on user type
   const getNavigationItems = () => {

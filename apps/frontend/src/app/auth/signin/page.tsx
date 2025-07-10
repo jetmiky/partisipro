@@ -30,7 +30,8 @@ export default function SignInPage() {
     // TODO: Implement Web3Auth SDK integration
     // This is a mockup for demonstration
     setTimeout(() => {
-      console.log('Sign in attempt:', formData);
+      // TODO: Implement Web3Auth sign in API call
+      // console.log('Sign in attempt:', formData);
       setIsLoading(false);
       // Simulate success/failure for demo
       alert('Sign in successful! (This is a mockup)');
@@ -39,7 +40,8 @@ export default function SignInPage() {
 
   const handleSocialAuth = (provider: string) => {
     // TODO: Implement Web3Auth social login
-    console.log(`Attempting ${provider} login...`);
+    // TODO: Implement Web3Auth social login
+    // console.log(`Attempting ${provider} login...`);
     alert(`${provider} login would be handled by Web3Auth SDK`);
   };
 

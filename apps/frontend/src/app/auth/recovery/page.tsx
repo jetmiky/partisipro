@@ -42,7 +42,8 @@ export default function PasswordRecoveryPage() {
 
     // TODO: Implement email verification and OTP sending
     setTimeout(() => {
-      console.log('Sending OTP to:', formData.email);
+      // TODO: Implement OTP sending API call
+      // console.log('Sending OTP to:', formData.email);
       setIsLoading(false);
       setStep('otp');
       setTimer(119); // 1:59 timer
@@ -56,7 +57,8 @@ export default function PasswordRecoveryPage() {
 
     // TODO: Implement OTP verification
     setTimeout(() => {
-      console.log('Verifying OTP:', formData.otp);
+      // TODO: Implement OTP verification API call
+      // console.log('Verifying OTP:', formData.otp);
       setIsLoading(false);
       if (formData.otp === '123456') {
         setStep('newPassword');
@@ -72,7 +74,8 @@ export default function PasswordRecoveryPage() {
 
     // TODO: Implement password reset
     setTimeout(() => {
-      console.log('Resetting password');
+      // TODO: Implement password reset API call
+      // console.log('Resetting password');
       setIsLoading(false);
       alert('Password reset successful! (This is a mockup)');
       // Redirect to sign in

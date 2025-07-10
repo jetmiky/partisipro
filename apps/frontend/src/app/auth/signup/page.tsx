@@ -30,7 +30,8 @@ export default function SignUpPage() {
     // TODO: Implement Web3Auth SDK integration for sign up
     // This includes creating embedded wallet for new users
     setTimeout(() => {
-      console.log('Sign up attempt:', formData);
+      // TODO: Implement Web3Auth sign up API call
+      // console.log('Sign up attempt:', formData);
       setIsLoading(false);
       // Simulate success for demo
       alert('Account created successfully! (This is a mockup)');
@@ -40,7 +41,8 @@ export default function SignUpPage() {
   const handleSocialAuth = (provider: string) => {
     // TODO: Implement Web3Auth social signup
     // Should create embedded wallet and user profile
-    console.log(`Attempting ${provider} signup...`);
+    // TODO: Implement Web3Auth social signup
+    // console.log(`Attempting ${provider} signup...`);
     alert(`${provider} signup would be handled by Web3Auth SDK`);
   };
 
