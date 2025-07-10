@@ -57,8 +57,64 @@ async function main() {
   );
   console.log('PlatformTreasury updated with registry address');
 
-  // 3. Deploy Project Token Implementation
-  console.log('3. Deploying ProjectToken implementation...');
+  console.log('\n=== Deploying ERC-3643 Infrastructure Contracts ===');
+
+  // 3. Deploy ClaimTopicsRegistry
+  console.log('3. Deploying ClaimTopicsRegistry...');
+  const ClaimTopicsRegistry = await ethers.getContractFactory(
+    'ClaimTopicsRegistry'
+  );
+  const claimTopicsRegistry = await ClaimTopicsRegistry.deploy(
+    deployer.address // admin
+  );
+  await claimTopicsRegistry.waitForDeployment();
+  console.log(
+    'ClaimTopicsRegistry deployed to:',
+    await claimTopicsRegistry.getAddress()
+  );
+
+  // 4. Deploy TrustedIssuersRegistry
+  console.log('4. Deploying TrustedIssuersRegistry...');
+  const TrustedIssuersRegistry = await ethers.getContractFactory(
+    'TrustedIssuersRegistry'
+  );
+  const trustedIssuersRegistry = await TrustedIssuersRegistry.deploy(
+    deployer.address, // admin
+    await claimTopicsRegistry.getAddress() // claimTopicsRegistry
+  );
+  await trustedIssuersRegistry.waitForDeployment();
+  console.log(
+    'TrustedIssuersRegistry deployed to:',
+    await trustedIssuersRegistry.getAddress()
+  );
+
+  // 5. Deploy IdentityRegistry
+  console.log('5. Deploying IdentityRegistry...');
+  const IdentityRegistry = await ethers.getContractFactory('IdentityRegistry');
+  const identityRegistry = await IdentityRegistry.deploy(
+    deployer.address, // admin
+    await claimTopicsRegistry.getAddress(), // claimTopicsRegistry
+    await trustedIssuersRegistry.getAddress() // trustedIssuersRegistry
+  );
+  await identityRegistry.waitForDeployment();
+  console.log(
+    'IdentityRegistry deployed to:',
+    await identityRegistry.getAddress()
+  );
+
+  // Grant necessary roles for identity registry to interact with trusted issuers
+  await trustedIssuersRegistry.grantRole(
+    await trustedIssuersRegistry.OPERATOR_ROLE(),
+    await identityRegistry.getAddress()
+  );
+  console.log(
+    'IdentityRegistry granted operator role in TrustedIssuersRegistry'
+  );
+
+  console.log('\n=== Deploying Project Implementation Contracts ===');
+
+  // 6. Deploy Project Token Implementation
+  console.log('6. Deploying ProjectToken implementation...');
   const ProjectToken = await ethers.getContractFactory('ProjectToken');
   const projectTokenImpl = await ProjectToken.deploy();
   await projectTokenImpl.waitForDeployment();
@@ -67,8 +123,8 @@ async function main() {
     await projectTokenImpl.getAddress()
   );
 
-  // 4. Deploy Project Offering Implementation
-  console.log('4. Deploying ProjectOffering implementation...');
+  // 7. Deploy Project Offering Implementation
+  console.log('7. Deploying ProjectOffering implementation...');
   const ProjectOffering = await ethers.getContractFactory('ProjectOffering');
   const projectOfferingImpl = await ProjectOffering.deploy();
   await projectOfferingImpl.waitForDeployment();
@@ -77,8 +133,8 @@ async function main() {
     await projectOfferingImpl.getAddress()
   );
 
-  // 5. Deploy Project Treasury Implementation
-  console.log('5. Deploying ProjectTreasury implementation...');
+  // 8. Deploy Project Treasury Implementation
+  console.log('8. Deploying ProjectTreasury implementation...');
   const ProjectTreasury = await ethers.getContractFactory('ProjectTreasury');
   const projectTreasuryImpl = await ProjectTreasury.deploy();
   await projectTreasuryImpl.waitForDeployment();
@@ -87,8 +143,8 @@ async function main() {
     await projectTreasuryImpl.getAddress()
   );
 
-  // 6. Deploy Project Governance Implementation
-  console.log('6. Deploying ProjectGovernance implementation...');
+  // 9. Deploy Project Governance Implementation
+  console.log('9. Deploying ProjectGovernance implementation...');
   const ProjectGovernance =
     await ethers.getContractFactory('ProjectGovernance');
   const projectGovernanceImpl = await ProjectGovernance.deploy();
@@ -98,13 +154,14 @@ async function main() {
     await projectGovernanceImpl.getAddress()
   );
 
-  // 7. Deploy ProjectFactory
-  console.log('7. Deploying ProjectFactory...');
+  // 10. Deploy ProjectFactory
+  console.log('10. Deploying ProjectFactory...');
   const ProjectFactory = await ethers.getContractFactory('ProjectFactory');
   const projectFactory = await ProjectFactory.deploy(
     deployer.address, // admin
     await platformRegistry.getAddress(),
     await platformTreasury.getAddress(),
+    await identityRegistry.getAddress(),
     await projectTokenImpl.getAddress(),
     await projectOfferingImpl.getAddress(),
     await projectTreasuryImpl.getAddress(),
@@ -118,23 +175,33 @@ async function main() {
   console.log('ProjectFactory authorized in registry');
 
   console.log('\n=== Deployment Summary ===');
-  console.log('PlatformRegistry:', await platformRegistry.getAddress());
-  console.log('PlatformTreasury:', await platformTreasury.getAddress());
-  console.log('ProjectFactory:', await projectFactory.getAddress());
+  console.log('Core Infrastructure:');
+  console.log('  PlatformRegistry:', await platformRegistry.getAddress());
+  console.log('  PlatformTreasury:', await platformTreasury.getAddress());
+  console.log('ERC-3643 Infrastructure:');
+  console.log('  ClaimTopicsRegistry:', await claimTopicsRegistry.getAddress());
   console.log(
-    'ProjectToken Implementation:',
+    '  TrustedIssuersRegistry:',
+    await trustedIssuersRegistry.getAddress()
+  );
+  console.log('  IdentityRegistry:', await identityRegistry.getAddress());
+  console.log('Project Factory:');
+  console.log('  ProjectFactory:', await projectFactory.getAddress());
+  console.log('Project Implementations:');
+  console.log(
+    '  ProjectToken Implementation:',
     await projectTokenImpl.getAddress()
   );
   console.log(
-    'ProjectOffering Implementation:',
+    '  ProjectOffering Implementation:',
     await projectOfferingImpl.getAddress()
   );
   console.log(
-    'ProjectTreasury Implementation:',
+    '  ProjectTreasury Implementation:',
     await projectTreasuryImpl.getAddress()
   );
   console.log(
-    'ProjectGovernance Implementation:',
+    '  ProjectGovernance Implementation:',
     await projectGovernanceImpl.getAddress()
   );
 
@@ -144,9 +211,16 @@ async function main() {
     timestamp: new Date().toISOString(),
     deployer: deployer.address,
     contracts: {
+      // Core Infrastructure
       PlatformRegistry: await platformRegistry.getAddress(),
       PlatformTreasury: await platformTreasury.getAddress(),
+      // ERC-3643 Infrastructure
+      ClaimTopicsRegistry: await claimTopicsRegistry.getAddress(),
+      TrustedIssuersRegistry: await trustedIssuersRegistry.getAddress(),
+      IdentityRegistry: await identityRegistry.getAddress(),
+      // Project Factory
       ProjectFactory: await projectFactory.getAddress(),
+      // Project Implementations
       ProjectTokenImpl: await projectTokenImpl.getAddress(),
       ProjectOfferingImpl: await projectOfferingImpl.getAddress(),
       ProjectTreasuryImpl: await projectTreasuryImpl.getAddress(),
