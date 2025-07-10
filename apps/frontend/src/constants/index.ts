@@ -14,6 +14,24 @@ export const NAVIGATION_ITEMS = [
   { name: 'Projects', href: '/projects', current: false },
   { name: 'Portfolio', href: '/portfolio', current: false },
   { name: 'Marketplace', href: '/marketplace', current: false },
+  { name: 'Claim Rewards', href: '/claim', current: false },
+];
+
+export const SPV_NAVIGATION_ITEMS = [
+  { name: 'Dashboard', href: '/spv/dashboard', current: false },
+  { name: 'Create Project', href: '/spv/create', current: false },
+  { name: 'My Projects', href: '/spv/projects', current: false },
+  { name: 'Financials', href: '/spv/financials', current: false },
+  { name: 'Governance', href: '/spv/governance', current: false },
+];
+
+export const ADMIN_NAVIGATION_ITEMS = [
+  { name: 'Dashboard', href: '/admin/dashboard', current: false },
+  { name: 'Projects', href: '/admin/projects', current: false },
+  { name: 'SPV Management', href: '/admin/spv', current: false },
+  { name: 'Users', href: '/admin/users', current: false },
+  { name: 'Fee Management', href: '/admin/fees', current: false },
+  { name: 'Settings', href: '/admin/settings', current: false },
 ];
 
 export const WALLET_CONNECT_PROJECT_ID =
