@@ -112,12 +112,10 @@ export default function KYCPage() {
   };
 
   const simulateKYCProcess = (result: 'success' | 'failed') => {
-    setIsLoading(true);
     setKycStatus('processing');
 
     setTimeout(() => {
       setKycStatus(result);
-      setIsLoading(false);
       if (result === 'success') {
         setCurrentStep('complete');
       }
