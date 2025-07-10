@@ -18,10 +18,10 @@ const Header = () => {
   }, []);
 
   const navigation = [
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'About', href: '#about' },
-    { name: 'Security', href: '#security' },
+    { name: 'How It Works', href: '/how-it-works' },
+    { name: 'Projects', href: '/marketplace' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
