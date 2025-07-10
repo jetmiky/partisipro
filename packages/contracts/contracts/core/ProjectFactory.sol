@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./PlatformRegistry.sol";
 import "./PlatformTreasury.sol";
+import "./IdentityRegistry.sol";
 import "../interfaces/IProjectToken.sol";
 import "../interfaces/IProjectOffering.sol";
 import "../interfaces/IProjectTreasury.sol";
@@ -42,6 +43,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
 
     PlatformRegistry public platformRegistry;
     PlatformTreasury public platformTreasury;
+    IdentityRegistry public identityRegistry;
 
     event ProjectCreated(
         uint256 indexed projectId,
@@ -54,6 +56,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
 
     event PlatformRegistryUpdated(address indexed oldRegistry, address indexed newRegistry);
     event PlatformTreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
+    event IdentityRegistryUpdated(address indexed oldRegistry, address indexed newRegistry);
 
     modifier onlyAuthorizedSPV() {
         require(platformRegistry.isSPVAuthorized(msg.sender), "Not authorized SPV");
@@ -64,6 +67,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
         address _admin,
         address _platformRegistry,
         address payable _platformTreasury,
+        address _identityRegistry,
         address _projectTokenImplementation,
         address _offeringImplementation,
         address _treasuryImplementation,
@@ -72,6 +76,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
         require(_admin != address(0), "Invalid admin address");
         require(_platformRegistry != address(0), "Invalid registry address");
         require(_platformTreasury != address(0), "Invalid treasury address");
+        require(_identityRegistry != address(0), "Invalid identity registry address");
         require(_projectTokenImplementation != address(0), "Invalid token implementation");
         require(_offeringImplementation != address(0), "Invalid offering implementation");
         require(_treasuryImplementation != address(0), "Invalid treasury implementation");
@@ -82,6 +87,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
 
         platformRegistry = PlatformRegistry(_platformRegistry);
         platformTreasury = PlatformTreasury(_platformTreasury);
+        identityRegistry = IdentityRegistry(_identityRegistry);
 
         projectTokenImplementation = _projectTokenImplementation;
         offeringImplementation = _offeringImplementation;
@@ -111,10 +117,10 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
         projectId = nextProjectId++;
 
         // Deploy contracts using Clone factory pattern
-        address projectToken = projectTokenImplementation.clone();
-        address offering = offeringImplementation.clone();
-        address treasury = treasuryImplementation.clone();
-        address governance = governanceImplementation.clone();
+        address projectToken = Clones.clone(projectTokenImplementation);
+        address offering = Clones.clone(offeringImplementation);
+        address treasury = Clones.clone(treasuryImplementation);
+        address governance = Clones.clone(governanceImplementation);
 
         projects[projectId] = ProjectDeployment({
             projectToken: projectToken,
@@ -190,7 +196,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
             metadataURI: ""
         });
 
-        // 1. Initialize ProjectToken
+        // 1. Initialize ProjectToken with IdentityRegistry
         IProjectToken(project.projectToken).initialize(
             _projectName,
             _projectSymbol,
@@ -198,6 +204,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
             msg.sender, // SPV is the owner
             project.treasury,
             project.offering,
+            address(identityRegistry),
             projectInfo
         );
 
@@ -219,6 +226,7 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
         IProjectOffering(project.offering).initialize(
             project.projectToken,
             address(platformRegistry),
+            address(identityRegistry),
             project.treasury,
             msg.sender, // SPV is the owner
             _offeringPrice,
@@ -279,5 +287,24 @@ contract ProjectFactory is AccessControl, ReentrancyGuard {
         address oldTreasury = address(platformTreasury);
         platformTreasury = PlatformTreasury(_newTreasury);
         emit PlatformTreasuryUpdated(oldTreasury, _newTreasury);
+    }
+
+    /**
+     * @dev Update identity registry address
+     * @param _newIdentityRegistry New identity registry address
+     */
+    function updateIdentityRegistry(address _newIdentityRegistry) external onlyRole(ADMIN_ROLE) {
+        require(_newIdentityRegistry != address(0), "Invalid identity registry address");
+        address oldRegistry = address(identityRegistry);
+        identityRegistry = IdentityRegistry(_newIdentityRegistry);
+        emit IdentityRegistryUpdated(oldRegistry, _newIdentityRegistry);
+    }
+
+    /**
+     * @dev Get identity registry address
+     * @return address The identity registry contract address
+     */
+    function getIdentityRegistry() external view returns (address) {
+        return address(identityRegistry);
     }
 }

@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ProjectToken.sol";
 import "../core/PlatformRegistry.sol";
+import "../core/IdentityRegistry.sol";
 
 /**
  * @title ProjectOffering
@@ -45,6 +46,7 @@ contract ProjectOffering is
 
     ProjectToken public projectToken;
     PlatformRegistry public platformRegistry;
+    IdentityRegistry public identityRegistry;
 
     OfferingInfo public offeringInfo;
     mapping(address => InvestorInfo) public investors;
@@ -77,7 +79,7 @@ contract ProjectOffering is
     }
 
     modifier onlyAuthorizedInvestor() {
-        require(platformRegistry.isInvestorAuthorized(msg.sender), "Not authorized investor");
+        require(identityRegistry.isIdentityVerified(msg.sender), "Investor not verified");
         _;
     }
 
@@ -89,6 +91,7 @@ contract ProjectOffering is
     function initialize(
         address _projectToken,
         address _platformRegistry,
+        address _identityRegistry,
         address _projectTreasury,
         address _owner,
         uint256 _tokenPrice,
@@ -100,6 +103,7 @@ contract ProjectOffering is
     ) public initializer {
         require(_projectToken != address(0), "Invalid token address");
         require(_platformRegistry != address(0), "Invalid registry address");
+        require(_identityRegistry != address(0), "Invalid identity registry address");
         require(_projectTreasury != address(0), "Invalid treasury address");
         require(_owner != address(0), "Invalid owner address");
         require(_tokenPrice > 0, "Invalid token price");
@@ -115,6 +119,7 @@ contract ProjectOffering is
 
         projectToken = ProjectToken(_projectToken);
         platformRegistry = PlatformRegistry(_platformRegistry);
+        identityRegistry = IdentityRegistry(_identityRegistry);
         projectTreasury = _projectTreasury;
 
         PlatformRegistry.PlatformConfig memory config = platformRegistry.getPlatformConfig();
@@ -163,8 +168,8 @@ contract ProjectOffering is
         offeringInfo.availableSupply -= tokensToAllocate;
         totalFundsRaised += msg.value;
 
-        // Increment investment count in registry
-        platformRegistry.incrementInvestmentCount(msg.sender);
+        // Note: Investment counting could be moved to IdentityRegistry if needed
+        // For now, we keep the platform registry for SPV management and stats
 
         emit InvestmentMade(msg.sender, msg.value, tokensToAllocate);
 
@@ -368,5 +373,34 @@ contract ProjectOffering is
      */
     function getOfferingInfo() external view returns (OfferingInfo memory) {
         return offeringInfo;
+    }
+
+    /**
+     * @dev Update identity registry address (only owner)
+     * @param _newIdentityRegistry New identity registry address
+     */
+    function updateIdentityRegistry(address _newIdentityRegistry) external onlyOwner {
+        require(_newIdentityRegistry != address(0), "Invalid identity registry address");
+        identityRegistry = IdentityRegistry(_newIdentityRegistry);
+    }
+
+    /**
+     * @dev Check if an address is authorized to invest
+     * @param _investor Address to check
+     * @return bool True if investor is verified and can invest
+     */
+    function isInvestorAuthorized(address _investor) external view returns (bool) {
+        return identityRegistry.isIdentityVerified(_investor);
+    }
+
+    /**
+     * @dev Batch check investor authorization (gas optimization)
+     * @param _investors Array of investor addresses to check
+     * @return authorizations Array of authorization statuses
+     */
+    function batchCheckInvestorAuthorization(
+        address[] calldata _investors
+    ) external view returns (bool[] memory authorizations) {
+        return identityRegistry.batchCheckVerification(_investors);
     }
 }

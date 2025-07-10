@@ -6,11 +6,12 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "../core/IdentityRegistry.sol";
 
 /**
  * @title ProjectToken
- * @dev ERC20 token representing fractional ownership of a PPP project
- * @notice This token represents shares in a specific infrastructure project
+ * @dev ERC-3643 compliant token representing fractional ownership of a PPP project
+ * @notice This token represents shares in a specific infrastructure project with identity-based compliance
  */
 contract ProjectToken is
     Initializable,
@@ -33,6 +34,7 @@ contract ProjectToken is
     address public treasury;
     address public offering;
     address public governance;
+    IdentityRegistry public identityRegistry;
 
     uint256 public constant MAX_SUPPLY = 1_000_000 * 10 ** 18; // 1M tokens max
     bool public transfersEnabled;
@@ -46,6 +48,8 @@ contract ProjectToken is
     event TransfersDisabled();
     event AuthorizedMinterAdded(address indexed minter);
     event AuthorizedMinterRemoved(address indexed minter);
+    event IdentityRegistryUpdated(address indexed oldRegistry, address indexed newRegistry);
+    event ComplianceVerificationFailed(address indexed from, address indexed to, string reason);
 
     modifier onlyAuthorized() {
         require(authorizedMinters[msg.sender] || msg.sender == owner(), "Not authorized");
@@ -64,12 +68,14 @@ contract ProjectToken is
         address _owner,
         address _treasury,
         address _offering,
+        address _identityRegistry,
         ProjectInfo memory _projectInfo
     ) public initializer {
         require(_totalSupply <= MAX_SUPPLY, "Exceeds maximum supply");
         require(_owner != address(0), "Invalid owner");
         require(_treasury != address(0), "Invalid treasury");
         require(_offering != address(0), "Invalid offering");
+        require(_identityRegistry != address(0), "Invalid identity registry");
 
         __ERC20_init(_name, _symbol);
         __ERC20Pausable_init();
@@ -78,6 +84,7 @@ contract ProjectToken is
 
         treasury = _treasury;
         offering = _offering;
+        identityRegistry = IdentityRegistry(_identityRegistry);
         projectInfo = _projectInfo;
         transfersEnabled = false;
 
@@ -182,7 +189,18 @@ contract ProjectToken is
     }
 
     /**
-     * @dev Override transfer function to check if transfers are enabled
+     * @dev Set identity registry (only owner)
+     * @param _identityRegistry New identity registry address
+     */
+    function setIdentityRegistry(address _identityRegistry) external onlyOwner {
+        require(_identityRegistry != address(0), "Invalid identity registry");
+        address oldRegistry = address(identityRegistry);
+        identityRegistry = IdentityRegistry(_identityRegistry);
+        emit IdentityRegistryUpdated(oldRegistry, _identityRegistry);
+    }
+
+    /**
+     * @dev Override transfer function to check ERC-3643 compliance
      */
     function _update(
         address from,
@@ -192,9 +210,36 @@ contract ProjectToken is
         // Allow minting (from == address(0)) and burning (to == address(0))
         if (from != address(0) && to != address(0)) {
             require(transfersEnabled, "Transfers disabled");
+
+            // ERC-3643 compliance check
+            _verifyTransferCompliance(from, to, value);
         }
 
         super._update(from, to, value);
+    }
+
+    /**
+     * @dev Verify transfer compliance according to ERC-3643
+     * @param from Sender address
+     * @param to Receiver address
+     * @param value Transfer amount
+     */
+    function _verifyTransferCompliance(address from, address to, uint256 value) internal view {
+        // Allow transfers to/from authorized contracts (offering, treasury, governance)
+        bool fromAuthorized = (from == offering || from == treasury || from == governance || from == owner());
+        bool toAuthorized = (to == offering || to == treasury || to == governance || to == owner());
+
+        // Check verification for non-authorized addresses
+        if (!fromAuthorized && !identityRegistry.isIdentityVerified(from)) {
+            revert("Sender not verified");
+        }
+
+        if (!toAuthorized && !identityRegistry.isIdentityVerified(to)) {
+            revert("Receiver not verified");
+        }
+
+        // Additional compliance checks can be added here
+        // For example: transfer limits, holding limits, etc.
     }
 
     /**
@@ -221,5 +266,53 @@ contract ProjectToken is
      */
     function getProjectInfo() external view returns (ProjectInfo memory) {
         return projectInfo;
+    }
+
+    // ERC-3643 Standard Functions
+
+    /**
+     * @dev Check if an address is verified according to ERC-3643
+     * @param _address Address to check
+     * @return bool True if address is verified
+     */
+    function isVerified(address _address) external view returns (bool) {
+        return identityRegistry.isIdentityVerified(_address);
+    }
+
+    /**
+     * @dev Get the identity registry address
+     * @return address The identity registry contract address
+     */
+    function getIdentityRegistry() external view returns (address) {
+        return address(identityRegistry);
+    }
+
+    /**
+     * @dev Check if a transfer is allowed (ERC-3643 compliance)
+     * @param from Sender address
+     * @param to Receiver address
+     * @param value Transfer amount
+     * @return bool True if transfer is allowed
+     */
+    function canTransfer(address from, address to, uint256 value) external view returns (bool) {
+        if (!transfersEnabled) {
+            return false;
+        }
+
+        // Check ERC-3643 compliance
+        if (!identityRegistry.isIdentityVerified(from) || !identityRegistry.isIdentityVerified(to)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @dev Batch verification for multiple addresses (gas optimization)
+     * @param _addresses Array of addresses to check
+     * @return verificationStatuses Array of verification statuses
+     */
+    function batchIsVerified(address[] calldata _addresses) external view returns (bool[] memory verificationStatuses) {
+        return identityRegistry.batchCheckVerification(_addresses);
     }
 }

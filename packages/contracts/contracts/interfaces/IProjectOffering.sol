@@ -38,6 +38,7 @@ interface IProjectOffering {
     function initialize(
         address _projectToken,
         address _platformRegistry,
+        address _identityRegistry,
         address _projectTreasury,
         address _owner,
         uint256 _tokenPrice,
@@ -50,6 +51,7 @@ interface IProjectOffering {
 
     function projectToken() external view returns (address);
     function platformRegistry() external view returns (address);
+    function identityRegistry() external view returns (address);
     function projectTreasury() external view returns (address);
     function totalFundsRaised() external view returns (uint256);
     function totalInvestors() external view returns (uint256);
@@ -77,4 +79,9 @@ interface IProjectOffering {
     function getAllInvestors() external view returns (address[] memory);
     function isOfferingActive() external view returns (bool);
     function getOfferingInfo() external view returns (OfferingInfo memory);
+
+    // ERC-3643 Integration Functions
+    function updateIdentityRegistry(address _newIdentityRegistry) external;
+    function isInvestorAuthorized(address _investor) external view returns (bool);
+    function batchCheckInvestorAuthorization(address[] calldata _investors) external view returns (bool[] memory);
 }

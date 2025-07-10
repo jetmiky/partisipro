@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title IProjectToken
- * @dev Interface for ProjectToken contract
+ * @dev Interface for ERC-3643 compliant ProjectToken contract
  */
 interface IProjectToken is IERC20 {
     struct ProjectInfo {
@@ -24,6 +24,8 @@ interface IProjectToken is IERC20 {
     event TransfersDisabled();
     event AuthorizedMinterAdded(address indexed minter);
     event AuthorizedMinterRemoved(address indexed minter);
+    event IdentityRegistryUpdated(address indexed oldRegistry, address indexed newRegistry);
+    event ComplianceVerificationFailed(address indexed from, address indexed to, string reason);
 
     function initialize(
         string memory _name,
@@ -32,12 +34,14 @@ interface IProjectToken is IERC20 {
         address _owner,
         address _treasury,
         address _offering,
+        address _identityRegistry,
         ProjectInfo memory _projectInfo
     ) external;
 
     function treasury() external view returns (address);
     function offering() external view returns (address);
     function governance() external view returns (address);
+    function identityRegistry() external view returns (address);
     function transfersEnabled() external view returns (bool);
     function authorizedMinters(address minter) external view returns (bool);
 
@@ -48,6 +52,7 @@ interface IProjectToken is IERC20 {
     function mint(address _to, uint256 _amount) external;
     function burn(uint256 _amount) external;
     function setGovernance(address _governance) external;
+    function setIdentityRegistry(address _identityRegistry) external;
     function updateProjectInfo(
         string calldata _name,
         string calldata _description,
@@ -61,4 +66,10 @@ interface IProjectToken is IERC20 {
     function getProjectInfo() external view returns (ProjectInfo memory);
     function pause() external;
     function unpause() external;
+
+    // ERC-3643 Standard Functions
+    function isVerified(address _address) external view returns (bool);
+    function getIdentityRegistry() external view returns (address);
+    function canTransfer(address from, address to, uint256 value) external view returns (bool);
+    function batchIsVerified(address[] calldata _addresses) external view returns (bool[] memory);
 }
