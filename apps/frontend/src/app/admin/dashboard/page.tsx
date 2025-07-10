@@ -16,11 +16,14 @@ import {
   FolderPlus,
   Activity,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Card } from '@/components/ui';
-import { StatsCard } from '@/components/ui';
-import { DashboardLayout } from '@/components/ui';
-import { DataTable } from '@/components/ui';
+import {
+  Button,
+  Card,
+  StatsCard,
+  DashboardLayout,
+  DataTable,
+} from '@/components/ui';
+import type { Column } from '@/components/ui/DataTable';
 
 interface PlatformStats {
   totalProjects: number;
@@ -164,13 +167,13 @@ const mockSystemHealth: SystemHealth = {
 
 const formatCurrency = (amount: number) => {
   if (amount >= 1000000000000) {
-    return `₹${(amount / 1000000000000).toFixed(1)}T`;
+    return `Rp ${(amount / 1000000000000).toFixed(1)}T`;
   } else if (amount >= 1000000000) {
-    return `₹${(amount / 1000000000).toFixed(1)}B`;
+    return `Rp ${(amount / 1000000000).toFixed(1)}B`;
   } else if (amount >= 1000000) {
-    return `₹${(amount / 1000000).toFixed(1)}M`;
+    return `Rp ${(amount / 1000000).toFixed(1)}M`;
   }
-  return `₹${amount.toLocaleString()}`;
+  return `Rp ${amount.toLocaleString()}`;
 };
 
 const getActivityIcon = (type: RecentActivity['type']) => {
@@ -246,57 +249,51 @@ export default function AdminDashboardPage() {
     setIsLoading(false);
   };
 
-  const topProjectColumns = [
+  const topProjectColumns: Column[] = [
     {
-      header: 'Project',
-      accessorKey: 'name',
-      cell: ({ row }: any) => (
+      key: 'project',
+      label: 'Project',
+      render: (_, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{row.original.name}</span>
-          <span className="text-sm text-gray-500">{row.original.spv}</span>
+          <span className="font-medium text-gray-900">{row.name}</span>
+          <span className="text-sm text-gray-500">{row.spv}</span>
         </div>
       ),
     },
     {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }: any) => (
+      key: 'status',
+      label: 'Status',
+      render: (_, row) => (
         <span
-          className={`capitalize font-medium ${getStatusColor(row.original.status)}`}
+          className={`capitalize font-medium ${getStatusColor(row.status)}`}
         >
-          {row.original.status}
+          {row.status}
         </span>
       ),
     },
     {
-      header: 'Total Funding',
-      accessorKey: 'totalFunding',
-      cell: ({ row }: any) => (
-        <span className="font-medium">
-          {formatCurrency(row.original.totalFunding)}
-        </span>
+      key: 'totalFunding',
+      label: 'Total Funding',
+      render: (_, row) => (
+        <span className="font-medium">{formatCurrency(row.totalFunding)}</span>
       ),
     },
     {
-      header: 'Investors',
-      accessorKey: 'investorCount',
-      cell: ({ row }: any) => (
-        <span>{row.original.investorCount.toLocaleString()}</span>
+      key: 'investorCount',
+      label: 'Investors',
+      render: (_, row) => <span>{row.investorCount.toLocaleString()}</span>,
+    },
+    {
+      key: 'roi',
+      label: 'ROI',
+      render: (_, row) => (
+        <span className="text-support-600 font-medium">{row.roi}%</span>
       ),
     },
     {
-      header: 'ROI',
-      accessorKey: 'roi',
-      cell: ({ row }: any) => (
-        <span className="text-support-600 font-medium">
-          {row.original.roi}%
-        </span>
-      ),
-    },
-    {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: () => (
+      key: 'actions',
+      label: 'Actions',
+      render: () => (
         <Button variant="outline" size="sm">
           <Eye className="h-4 w-4" />
         </Button>
@@ -342,41 +339,33 @@ export default function AdminDashboardPage() {
           <StatsCard
             title="Total Projects"
             value={mockPlatformStats.totalProjects.toString()}
-            icon={Building}
-            trend={{
-              value: mockPlatformStats.monthlyGrowth.projects,
-              isPositive: true,
-            }}
+            icon={<Building className="w-4 h-4" />}
+            change={mockPlatformStats.monthlyGrowth.projects}
+            changeType="increase"
             description="Active platform projects"
           />
           <StatsCard
             title="Total Users"
             value={mockPlatformStats.totalUsers.toLocaleString()}
-            icon={Users}
-            trend={{
-              value: mockPlatformStats.monthlyGrowth.users,
-              isPositive: true,
-            }}
+            icon={<Users className="w-4 h-4" />}
+            change={mockPlatformStats.monthlyGrowth.users}
+            changeType="increase"
             description="Registered investors"
           />
           <StatsCard
             title="Funding Volume"
             value={formatCurrency(mockPlatformStats.totalFundingVolume)}
-            icon={DollarSign}
-            trend={{
-              value: mockPlatformStats.monthlyGrowth.funding,
-              isPositive: true,
-            }}
+            icon={<DollarSign className="w-4 h-4" />}
+            change={mockPlatformStats.monthlyGrowth.funding}
+            changeType="increase"
             description="Total platform funding"
           />
           <StatsCard
             title="Platform Revenue"
             value={formatCurrency(mockPlatformStats.platformRevenue)}
-            icon={TrendingUp}
-            trend={{
-              value: mockPlatformStats.monthlyGrowth.revenue,
-              isPositive: true,
-            }}
+            icon={<TrendingUp className="w-4 h-4" />}
+            change={mockPlatformStats.monthlyGrowth.revenue}
+            changeType="increase"
             description="Total platform earnings"
           />
         </div>

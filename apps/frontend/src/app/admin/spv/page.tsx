@@ -16,12 +16,15 @@ import {
   Users,
   Shield,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Card } from '@/components/ui';
-import { StatsCard } from '@/components/ui';
-import { DashboardLayout } from '@/components/ui';
-import { DataTable } from '@/components/ui';
-import { Modal } from '@/components/ui';
+import {
+  Button,
+  Card,
+  StatsCard,
+  DashboardLayout,
+  DataTable,
+  Modal,
+} from '@/components/ui';
+import type { Column } from '@/components/ui/DataTable';
 
 interface SPVApplication {
   id: string;
@@ -183,13 +186,13 @@ const mockApprovedSPVs: ApprovedSPV[] = [
 
 const formatCurrency = (amount: number) => {
   if (amount >= 1000000000000) {
-    return `₹${(amount / 1000000000000).toFixed(1)}T`;
+    return `Rp ${(amount / 1000000000000).toFixed(1)}T`;
   } else if (amount >= 1000000000) {
-    return `₹${(amount / 1000000000).toFixed(1)}B`;
+    return `Rp ${(amount / 1000000000).toFixed(1)}B`;
   } else if (amount >= 1000000) {
-    return `₹${(amount / 1000000).toFixed(1)}M`;
+    return `Rp ${(amount / 1000000).toFixed(1)}M`;
   }
-  return `₹${amount.toLocaleString()}`;
+  return `Rp ${amount.toLocaleString()}`;
 };
 
 const getStatusIcon = (status: SPVApplication['status']) => {
@@ -300,54 +303,49 @@ export default function AdminSPVPage() {
     console.log('Activate SPV:', spvId);
   };
 
-  const applicationColumns = [
+  const applicationColumns: Column[] = [
     {
-      header: 'Company',
-      accessorKey: 'companyName',
-      cell: ({ row }: any) => (
+      key: 'companyName',
+      label: 'Company',
+      render: (_, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900">
-            {row.original.companyName}
-          </span>
-          <span className="text-sm text-gray-500">
-            {row.original.businessType}
-          </span>
+          <span className="font-medium text-gray-900">{row.companyName}</span>
+          <span className="text-sm text-gray-500">{row.businessType}</span>
         </div>
       ),
     },
     {
-      header: 'Contact',
-      accessorKey: 'contactPerson',
-      cell: ({ row }: any) => (
+      key: 'contactPerson',
+      label: 'Contact',
+      render: (_, row) => (
         <div className="flex flex-col">
-          <span className="text-sm text-gray-900">
-            {row.original.contactPerson}
-          </span>
-          <span className="text-xs text-gray-500">{row.original.email}</span>
+          <span className="text-sm text-gray-900">{row.contactPerson}</span>
+          <span className="text-xs text-gray-500">{row.email}</span>
         </div>
       ),
     },
     {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }: any) => (
+      key: 'status',
+      label: 'Status',
+      render: (_, row) => (
         <div
-          className={`flex items-center gap-2 ${getStatusColor(row.original.status)}`}
+          className={`flex items-center gap-2 ${getStatusColor(row.status)}`}
         >
-          {getStatusIcon(row.original.status)}
+          {getStatusIcon(row.status)}
           <span className="capitalize font-medium">
-            {row.original.status.replace('_', ' ')}
+            {row.status.replace('_', ' ')}
           </span>
         </div>
       ),
     },
     {
-      header: 'Documents',
-      accessorKey: 'documents',
-      cell: ({ row }: any) => {
-        const docs = row.original.documents;
+      key: 'documents',
+      label: 'Documents',
+      render: (_, row) => {
+        const docs = row.documents;
         const completed = Object.values(docs).filter(Boolean).length;
         const total = Object.keys(docs).length;
+
         return (
           <div className="flex flex-col">
             <span className="text-sm font-medium">
@@ -357,29 +355,29 @@ export default function AdminSPVPage() {
               <div
                 className="bg-primary-500 h-1.5 rounded-full"
                 style={{ width: `${(completed / total) * 100}%` }}
-              ></div>
+              />
             </div>
           </div>
         );
       },
     },
     {
-      header: 'Submitted',
-      accessorKey: 'submittedDate',
-      cell: ({ row }: any) => (
+      key: 'submittedDate',
+      label: 'Submitted',
+      render: (_, row) => (
         <span className="text-sm text-gray-600">
-          {formatTimeAgo(row.original.submittedDate)}
+          {formatTimeAgo(row.submittedDate)}
         </span>
       ),
     },
     {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: any) => (
+      key: 'actions',
+      label: 'Actions',
+      render: (_, row) => (
         <Button
           variant="outline"
           size="sm"
-          onClick={() => handleViewApplication(row.original)}
+          onClick={() => handleViewApplication(row)}
         >
           <Eye className="h-4 w-4 mr-1" />
           Review
@@ -388,79 +386,77 @@ export default function AdminSPVPage() {
     },
   ];
 
-  const approvedSPVColumns = [
+  const approvedSPVColumns: Column[] = [
     {
-      header: 'Company',
-      accessorKey: 'companyName',
-      cell: ({ row }: any) => (
+      key: 'companyName',
+      label: 'Company',
+      render: (_, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900">
-            {row.original.companyName}
-          </span>
+          <span className="font-medium text-gray-900">{row.companyName}</span>
           <span className="text-sm text-gray-500 font-mono">
-            {row.original.walletAddress}
+            {row.walletAddress}
           </span>
         </div>
       ),
     },
     {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }: any) => (
+      key: 'status',
+      label: 'Status',
+      render: (_, row) => (
         <span
-          className={`capitalize font-medium ${getApprovedStatusColor(row.original.status)}`}
+          className={`capitalize font-medium ${getApprovedStatusColor(row.status)}`}
         >
-          {row.original.status}
+          {row.status}
         </span>
       ),
     },
     {
-      header: 'Projects',
-      accessorKey: 'projectsCreated',
-      cell: ({ row }: any) => (
-        <span className="font-medium">{row.original.projectsCreated}</span>
+      key: 'projectsCreated',
+      label: 'Projects',
+      render: (_, row) => (
+        <span className="font-medium">{row.projectsCreated}</span>
       ),
     },
     {
-      header: 'Total Funding',
-      accessorKey: 'totalFundingRaised',
-      cell: ({ row }: any) => (
+      key: 'totalFundingRaised',
+      label: 'Total Funding',
+      render: (_, row) => (
         <span className="font-medium">
-          {formatCurrency(row.original.totalFundingRaised)}
+          {formatCurrency(row.totalFundingRaised)}
         </span>
       ),
     },
     {
-      header: 'Performance',
-      accessorKey: 'performanceScore',
-      cell: ({ row }: any) => (
+      key: 'performanceScore',
+      label: 'Performance',
+      render: (_, row) => (
         <span className="text-support-600 font-medium">
-          {row.original.performanceScore}/10
+          {row.performanceScore}/10
         </span>
       ),
     },
     {
-      header: 'Last Activity',
-      accessorKey: 'lastActivity',
-      cell: ({ row }: any) => (
+      key: 'lastActivity',
+      label: 'Last Activity',
+      render: (_, row) => (
         <span className="text-sm text-gray-600">
-          {formatTimeAgo(row.original.lastActivity)}
+          {formatTimeAgo(row.lastActivity)}
         </span>
       ),
     },
     {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: any) => (
+      key: 'actions',
+      label: 'Actions',
+      render: (_, row) => (
         <div className="flex gap-1">
           <Button variant="outline" size="sm">
             <Eye className="h-4 w-4" />
           </Button>
-          {row.original.status === 'active' ? (
+          {row.status === 'active' ? (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleSuspendSPV(row.original.id)}
+              onClick={() => handleSuspendSPV(row.id)}
             >
               Suspend
             </Button>
@@ -468,7 +464,7 @@ export default function AdminSPVPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleActivateSPV(row.original.id)}
+              onClick={() => handleActivateSPV(row.id)}
             >
               Activate
             </Button>
@@ -506,29 +502,33 @@ export default function AdminSPVPage() {
           <StatsCard
             title="Pending Applications"
             value={mockSPVStats.pendingApplications.toString()}
-            icon={Clock}
-            trend={{ value: 0, isPositive: true }}
+            icon={<Clock className="w-4 h-4" />}
+            change={0}
+            changeType="neutral"
             description="Awaiting review"
           />
           <StatsCard
             title="Approved SPVs"
             value={mockSPVStats.approvedSPVs.toString()}
-            icon={Shield}
-            trend={{ value: 8.3, isPositive: true }}
+            icon={<Shield className="w-4 h-4" />}
+            change={8.3}
+            changeType="increase"
             description="Active on platform"
           />
           <StatsCard
             title="Projects Created"
             value={mockSPVStats.totalProjectsCreated.toString()}
-            icon={Building}
-            trend={{ value: 12.5, isPositive: true }}
+            icon={<Building className="w-4 h-4" />}
+            change={12.5}
+            changeType="increase"
             description="By approved SPVs"
           />
           <StatsCard
             title="Funding Facilitated"
             value={formatCurrency(mockSPVStats.totalFundingFacilitated)}
-            icon={Users}
-            trend={{ value: 24.7, isPositive: true }}
+            icon={<Users className="w-4 h-4" />}
+            change={24.7}
+            changeType="increase"
             description="Total platform volume"
           />
         </div>
@@ -583,7 +583,6 @@ export default function AdminSPVPage() {
               <DataTable
                 columns={applicationColumns}
                 data={mockPendingApplications}
-                searchPlaceholder="Search applications..."
               />
             </div>
           ) : (
@@ -605,11 +604,7 @@ export default function AdminSPVPage() {
                 </div>
               </div>
 
-              <DataTable
-                columns={approvedSPVColumns}
-                data={mockApprovedSPVs}
-                searchPlaceholder="Search SPVs..."
-              />
+              <DataTable columns={approvedSPVColumns} data={mockApprovedSPVs} />
             </div>
           )}
         </Card>

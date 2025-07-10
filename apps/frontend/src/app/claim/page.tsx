@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/components/ui/DashboardLayout';
-import { StatsCard } from '@/components/ui/StatsCard';
-import { DataTable } from '@/components/ui/DataTable';
-import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
+import {
+  DashboardLayout,
+  StatsCard,
+  DataTable,
+  Button,
+  Modal,
+  Input,
+  Card,
+} from '@/components/ui';
 
 interface ClaimableAmount {
   projectId: string;
@@ -300,15 +302,13 @@ export default function ClaimPage() {
             title="Total Claimable"
             value={`IDR ${totalClaimable.toLocaleString()}`}
             subtitle="Available for withdrawal"
-            trend="up"
-            trendValue=""
+            changeType="increase"
           />
           <StatsCard
             title="Total Claimed"
             value={`IDR ${totalClaimed.toLocaleString()}`}
             subtitle="Successfully withdrawn"
-            trend="neutral"
-            trendValue=""
+            changeType="neutral"
           />
           <StatsCard
             title="Active Claims"
@@ -316,8 +316,7 @@ export default function ClaimPage() {
               .filter(c => c.status === 'processing')
               .length.toString()}
             subtitle="Currently processing"
-            trend="neutral"
-            trendValue=""
+            changeType="neutral"
           />
         </div>
 

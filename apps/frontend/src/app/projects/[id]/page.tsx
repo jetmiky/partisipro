@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   MapPin,
   Building,
-  Road,
+  Route,
   Zap,
   Droplets,
   Shield,
@@ -210,7 +210,7 @@ export default function ProjectDetailPage() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'transportation':
-        return Road;
+        return Route;
       case 'energy':
         return Zap;
       case 'water':

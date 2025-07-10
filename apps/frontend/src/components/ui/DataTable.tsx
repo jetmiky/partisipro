@@ -10,7 +10,7 @@ import {
   Filter,
 } from 'lucide-react';
 
-interface Column {
+export interface Column {
   key: string;
   label: string;
   sortable?: boolean;

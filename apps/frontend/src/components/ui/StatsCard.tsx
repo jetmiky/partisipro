@@ -10,6 +10,7 @@ interface StatsCardProps {
   icon?: React.ReactNode;
   color?: 'blue' | 'green' | 'purple' | 'red' | 'yellow' | 'cyan';
   subtitle?: string;
+  description?: string;
 }
 
 const StatsCard = ({

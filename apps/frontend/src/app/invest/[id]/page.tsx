@@ -57,6 +57,7 @@ export default function InvestmentFlowPage() {
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>('');
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingMessage, setProcessingMessage] = useState('');
   const [agreementAccepted, setAgreementAccepted] = useState(false);
   const [riskAcknowledged, setRiskAcknowledged] = useState(false);
@@ -590,7 +591,7 @@ export default function InvestmentFlowPage() {
             <Button
               onClick={() => simulatePayment('success')}
               variant="primary"
-              disabled={!agreementAccepted || !riskAcknowledged}
+              disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
             >
               Confirm Investment
             </Button>
@@ -598,7 +599,7 @@ export default function InvestmentFlowPage() {
               onClick={() => simulatePayment('failed')}
               variant="primary"
               className="bg-red-600 hover:bg-red-700"
-              disabled={!agreementAccepted || !riskAcknowledged}
+              disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
             >
               Simulate Failure
             </Button>

@@ -9,7 +9,7 @@ import {
   Calendar,
   Users,
   Building,
-  Road,
+  Route,
   Zap,
   Droplets,
   Layers,
@@ -193,7 +193,7 @@ const mockProjects: Project[] = [
 
 const categories = [
   { id: 'all', label: 'All Projects', icon: Grid },
-  { id: 'transportation', label: 'Transportation', icon: Road },
+  { id: 'transportation', label: 'Transportation', icon: Route },
   { id: 'energy', label: 'Energy', icon: Zap },
   { id: 'water', label: 'Water', icon: Droplets },
   { id: 'telecommunications', label: 'Telecommunications', icon: Building },
@@ -304,7 +304,7 @@ export default function MarketplacePage() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'transportation':
-        return Road;
+        return Route;
       case 'energy':
         return Zap;
       case 'water':
