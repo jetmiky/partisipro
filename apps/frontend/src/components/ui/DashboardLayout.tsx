@@ -15,7 +15,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({
   children,
   userType = 'admin',
-  userName = 'Michael Nyoman',
+  userName = 'Rayya Danish',
   userRole = 'Admin',
   notificationCount = 3,
 }: DashboardLayoutProps) => {
@@ -26,7 +26,7 @@ const DashboardLayout = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen max-w-screen bg-gray-50 flex lg:grid lg:grid-cols-[auto_1fr]">
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -35,7 +35,7 @@ const DashboardLayout = ({
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
         <DashboardHeader
           onMenuToggle={toggleSidebar}
@@ -45,7 +45,7 @@ const DashboardLayout = ({
         />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto lg:px-6 lg:py-4">{children}</main>
       </div>
     </div>
   );

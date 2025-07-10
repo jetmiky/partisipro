@@ -107,7 +107,7 @@ const mockRecentActivity: RecentActivity[] = [
     type: 'large_investment',
     title: 'Large Investment',
     description:
-      'Institutional investor committed ₹250B to Jakarta MRT Phase 3',
+      'Institutional investor committed Rp 250B to Jakarta MRT Phase 3',
     timestamp: '2025-01-10T06:45:00Z',
     amount: 250000000000, // 250B IDR
     project: 'Jakarta MRT Phase 3',
@@ -475,11 +475,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <DataTable
-            columns={topProjectColumns}
-            data={mockTopProjects}
-            searchPlaceholder="Search projects..."
-          />
+          <DataTable columns={topProjectColumns} data={mockTopProjects} />
         </Card>
 
         {/* Quick Actions */}

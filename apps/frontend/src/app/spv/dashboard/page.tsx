@@ -22,6 +22,7 @@ import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/ui';
 import { DashboardLayout } from '@/components/ui';
 import { DataTable } from '@/components/ui';
+import { Column } from '@/components/ui/DataTable';
 
 interface SPVProject {
   id: string;
@@ -145,13 +146,13 @@ const getStatusColor = (status: SPVProject['status']) => {
 
 const formatCurrency = (amount: number) => {
   if (amount >= 1000000000000) {
-    return `₹${(amount / 1000000000000).toFixed(1)}T`;
+    return `Rp ${(amount / 1000000000000).toFixed(1)}T`;
   } else if (amount >= 1000000000) {
-    return `₹${(amount / 1000000000).toFixed(1)}B`;
+    return `Rp ${(amount / 1000000000).toFixed(1)}B`;
   } else if (amount >= 1000000) {
-    return `₹${(amount / 1000000).toFixed(1)}M`;
+    return `Rp ${(amount / 1000000).toFixed(1)}M`;
   }
-  return `₹${amount.toLocaleString()}`;
+  return `Rp ${amount.toLocaleString()}`;
 };
 
 const formatPercentage = (current: number, target: number) => {
@@ -179,101 +180,95 @@ export default function SPVDashboardPage() {
     console.log('Edit project:', projectId);
   };
 
-  const projectColumns = [
+  const projectColumns: Column[] = [
     {
-      header: 'Project',
-      accessorKey: 'projectName',
-      cell: ({ row }: any) => (
+      key: 'projectName',
+      label: 'Project',
+      render: (_, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900">
-            {row.original.projectName}
-          </span>
+          <span className="font-medium text-gray-900">{row.projectName}</span>
           <span className="text-sm text-gray-500">
-            {row.original.projectType} • {row.original.location}
+            {row.projectType} • {row.location}
           </span>
         </div>
       ),
     },
     {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }: any) => (
+      key: 'status',
+      label: 'Status',
+      render: (_, row) => (
         <div
-          className={`flex items-center gap-2 ${getStatusColor(row.original.status)}`}
+          className={`flex items-center gap-2 ${getStatusColor(row.status)}`}
         >
-          {getStatusIcon(row.original.status)}
-          <span className="capitalize font-medium">{row.original.status}</span>
+          {getStatusIcon(row.status)}
+          <span className="capitalize font-medium">{row.status}</span>
         </div>
       ),
     },
     {
-      header: 'Funding Progress',
-      accessorKey: 'fundingProgress',
-      cell: ({ row }: any) => (
+      key: 'fundingProgress',
+      label: 'Funding Progress',
+      render: (_, row) => (
         <div className="flex flex-col">
           <div className="flex justify-between text-sm">
-            <span>{formatCurrency(row.original.fundingProgress)}</span>
+            <span>{formatCurrency(row.fundingProgress)}</span>
             <span className="text-gray-500">
-              {formatPercentage(
-                row.original.fundingProgress,
-                row.original.fundingTarget
-              )}
-              %
+              {formatPercentage(row.fundingProgress, row.fundingTarget)}%
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
             <div
               className="bg-primary-500 h-2 rounded-full"
               style={{
-                width: `${Math.min((row.original.fundingProgress / row.original.fundingTarget) * 100, 100)}%`,
+                width: `${Math.min((row.fundingProgress / row.fundingTarget) * 100, 100)}%`,
               }}
             ></div>
           </div>
           <span className="text-xs text-gray-500 mt-1">
-            Target: {formatCurrency(row.original.fundingTarget)}
+            Target: {formatCurrency(row.fundingTarget)}
           </span>
         </div>
       ),
     },
     {
-      header: 'Investors',
-      accessorKey: 'investorCount',
-      cell: ({ row }: any) => (
+      key: 'investorCount',
+      label: 'Investors',
+      render: (_, row) => (
         <span className="font-medium">
-          {row.original.investorCount.toLocaleString()}
+          {row.investorCount.toLocaleString()}
         </span>
       ),
     },
     {
-      header: 'Revenue',
-      accessorKey: 'currentRevenue',
-      cell: ({ row }: any) => (
+      key: 'currentRevenue',
+      label: 'Revenue',
+      render: (_, row) => (
         <div className="flex flex-col">
           <span className="font-medium">
-            {formatCurrency(row.original.currentRevenue)}
+            {formatCurrency(row.currentRevenue)}
           </span>
           <span className="text-sm text-gray-500">
-            Expected: {formatCurrency(row.original.expectedRevenue)}
+            Expected: {formatCurrency(row.expectedRevenue)}
           </span>
         </div>
       ),
     },
     {
-      header: 'Actions',
-      accessorKey: 'actions',
-      cell: ({ row }: any) => (
+      key: 'actions',
+      label: 'Actions',
+      render: (_, row) => (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleViewProject(row.original.id)}
+            onClick={() => handleViewProject(row.id)}
           >
             <Eye className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleEditProject(row.original.id)}
+            onClick={() => handleEditProject(row.id)}
           >
             Edit
           </Button>
@@ -318,29 +313,33 @@ export default function SPVDashboardPage() {
           <StatsCard
             title="Total Projects"
             value={mockStats.totalProjects.toString()}
-            icon={Building}
-            trend={{ value: 0, isPositive: true }}
+            icon={<Building className="w-4 h-4" />}
+            change={0}
+            changeType="neutral"
             description="All projects created"
           />
           <StatsCard
             title="Active Projects"
             value={mockStats.activeProjects.toString()}
-            icon={PlayCircle}
-            trend={{ value: 0, isPositive: true }}
+            icon={<PlayCircle className="w-4 h-4" />}
+            change={0}
+            changeType="neutral"
             description="Currently operational"
           />
           <StatsCard
             title="Total Funding Raised"
             value={formatCurrency(mockStats.totalFundingRaised)}
-            icon={DollarSign}
-            trend={{ value: 18.2, isPositive: true }}
+            icon={<DollarSign className="w-4 h-4" />}
+            change={18.2}
+            changeType="increase"
             description="Across all projects"
           />
           <StatsCard
             title="Monthly Revenue"
             value={formatCurrency(mockStats.monthlyRevenue)}
-            icon={TrendingUp}
-            trend={{ value: 8.5, isPositive: true }}
+            icon={<TrendingUp className="w-4 h-4" />}
+            change={8.5}
+            changeType="increase"
             description="Average monthly"
           />
         </div>
@@ -368,11 +367,7 @@ export default function SPVDashboardPage() {
             </div>
           </div>
 
-          <DataTable
-            columns={projectColumns}
-            data={mockProjects}
-            searchPlaceholder="Search projects..."
-          />
+          <DataTable columns={projectColumns} data={mockProjects} />
         </Card>
 
         {/* Quick Actions */}

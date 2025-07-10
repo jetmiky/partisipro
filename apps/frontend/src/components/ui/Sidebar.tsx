@@ -223,7 +223,7 @@ const Sidebar = ({
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center gap-3 text-xs text-gray-400">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
               <span>Online</span>
             </div>
             <span>•</span>
@@ -231,9 +231,9 @@ const Sidebar = ({
           </div>
 
           {/* Version info */}
-          <div className="mt-2 text-xs text-gray-500">
-            <p>Version 1.0.0</p>
-            <p>© 2024 Partisipro</p>
+          <div className="mt-2 text-gray-500">
+            <p className="text-xs">Version 0.1.0</p>
+            <p className="text-xs">©2025 Partisipro</p>
           </div>
         </div>
       </aside>
