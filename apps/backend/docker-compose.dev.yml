@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: partisipro-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - partisipro-network
+
+  # PostgreSQL for additional data storage (if needed)
+  postgres:
+    image: postgres:15-alpine
+    container_name: partisipro-postgres
+    environment:
+      POSTGRES_DB: partisipro_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - partisipro-network
+
+  # Nginx for reverse proxy and load balancing
+  nginx:
+    image: nginx:alpine
+    container_name: partisipro-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    networks:
+      - partisipro-network
+
+  # Backend API service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: partisipro-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/partisipro_dev
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - partisipro-network
+    command: npm run start:dev
+
+  # Firebase emulator (if needed as separate service)
+  firebase-emulator:
+    image: node:18-alpine
+    container_name: partisipro-firebase-emulator
+    working_dir: /app
+    ports:
+      - "4000:4000"  # Firebase UI
+      - "5001:5001"  # Functions
+      - "8080:8080"  # Firestore
+      - "9099:9099"  # Auth
+      - "9199:9199"  # Storage
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install -g firebase-tools && firebase emulators:start --only auth,firestore,storage,ui"
+    networks:
+      - partisipro-network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  partisipro-network:
+    driver: bridge

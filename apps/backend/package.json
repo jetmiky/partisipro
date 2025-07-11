@@ -4,7 +4,7 @@
   "private": true,
   "description": "Partisipro Backend API",
   "scripts": {
-    "dev": "nest start --watch",
+    "dev": "concurrently \"npm run emulators:start\" \"npm run start:dev\"",
     "build": "nest build",
     "start": "node dist/main",
     "start:dev": "nest start --watch",
@@ -17,7 +17,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "emulators:start": "firebase emulators:start --only auth,firestore,storage,ui",
+    "emulators:export": "firebase emulators:export ./firebase-export",
+    "emulators:import": "firebase emulators:start --import=./firebase-export",
+    "emulators:seed": "node scripts/seed-emulator-data.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -34,6 +38,7 @@
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^4.8.0",
     "redis": "^4.6.0",
+    "ioredis": "^5.3.2",
     "@nestjs-modules/ioredis": "^2.0.0",
     "bullmq": "^5.0.0",
     "passport": "^0.6.0",
@@ -61,6 +66,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.2.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

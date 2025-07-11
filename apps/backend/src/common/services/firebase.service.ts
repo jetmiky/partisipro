@@ -25,22 +25,57 @@ export class FirebaseService implements OnModuleInit {
 
   private async initializeFirebase() {
     try {
-      const firebaseConfig = {
-        projectId: this.configService.get('firebase.projectId'),
-        privateKey: this.configService.get('firebase.privateKey'),
-        clientEmail: this.configService.get('firebase.clientEmail'),
-        databaseURL: this.configService.get('firebase.databaseURL'),
-      };
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const projectId =
+        this.configService.get('firebase.projectId') || 'partisipro-dev';
 
-      if (!admin.apps.length) {
-        admin.initializeApp({
-          credential: admin.credential.cert(firebaseConfig),
-          databaseURL: firebaseConfig.databaseURL,
+      // In development mode, use emulators
+      if (isDevelopment) {
+        this.logger.log('Development mode detected - using Firebase emulators');
+
+        // Set emulator environment variables if not already set
+        if (!process.env.FIRESTORE_EMULATOR_HOST) {
+          process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+        }
+        if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+          process.env.FIREBASE_AUTH_EMULATOR_HOST = 'localhost:9099';
+        }
+
+        // Initialize Firebase app with minimal config for emulators
+        if (!admin.apps.length) {
+          admin.initializeApp({
+            projectId: projectId,
+          });
+        }
+
+        this.firestore = admin.firestore();
+
+        // Connect to Firestore emulator
+        this.firestore.settings({
+          host: 'localhost:8080',
+          ssl: false,
         });
-      }
 
-      this.firestore = admin.firestore();
-      this.logger.log('Firebase Admin SDK initialized successfully');
+        this.logger.log('Firebase emulators initialized successfully');
+      } else {
+        // Production mode - use actual Firebase credentials
+        const firebaseConfig = {
+          projectId: projectId,
+          privateKey: this.configService.get('firebase.privateKey'),
+          clientEmail: this.configService.get('firebase.clientEmail'),
+          databaseURL: this.configService.get('firebase.databaseURL'),
+        };
+
+        if (!admin.apps.length) {
+          admin.initializeApp({
+            credential: admin.credential.cert(firebaseConfig),
+            databaseURL: firebaseConfig.databaseURL,
+          });
+        }
+
+        this.firestore = admin.firestore();
+        this.logger.log('Firebase Admin SDK initialized successfully');
+      }
     } catch (error) {
       this.logger.error('Failed to initialize Firebase Admin SDK', error);
       throw error;
