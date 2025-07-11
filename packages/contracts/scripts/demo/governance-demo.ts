@@ -7,6 +7,9 @@ import {
   ProjectToken,
   ProjectOffering,
   ProjectGovernance,
+  ClaimTopicsRegistry,
+  TrustedIssuersRegistry,
+  IdentityRegistry,
 } from '../../typechain-types';
 
 /**
@@ -58,6 +61,37 @@ async function main() {
     await platformRegistry.getAddress()
   );
 
+  // Deploy ERC-3643 Infrastructure
+  const ClaimTopicsRegistry = await ethers.getContractFactory(
+    'ClaimTopicsRegistry'
+  );
+  const claimTopicsRegistry = await ClaimTopicsRegistry.deploy(
+    deployer.address
+  );
+  await claimTopicsRegistry.waitForDeployment();
+
+  const TrustedIssuersRegistry = await ethers.getContractFactory(
+    'TrustedIssuersRegistry'
+  );
+  const trustedIssuersRegistry = await TrustedIssuersRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress()
+  );
+  await trustedIssuersRegistry.waitForDeployment();
+
+  const IdentityRegistry = await ethers.getContractFactory('IdentityRegistry');
+  const identityRegistry = await IdentityRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress(),
+    await trustedIssuersRegistry.getAddress()
+  );
+  await identityRegistry.waitForDeployment();
+
+  await trustedIssuersRegistry.grantRole(
+    await trustedIssuersRegistry.OPERATOR_ROLE(),
+    await identityRegistry.getAddress()
+  );
+
   // Deploy implementations and factory
   const ProjectToken = await ethers.getContractFactory('ProjectToken');
   const projectTokenImpl = await ProjectToken.deploy();
@@ -77,6 +111,7 @@ async function main() {
     deployer.address,
     await platformRegistry.getAddress(),
     await platformTreasury.getAddress(),
+    await identityRegistry.getAddress(),
     await projectTokenImpl.getAddress(),
     await projectOfferingImpl.getAddress(),
     await projectTreasuryImpl.getAddress(),
@@ -208,7 +243,7 @@ async function main() {
   const targets1 = [await projectToken.getAddress()];
   const values1 = [0];
   const calldatas1 = [
-    projectToken.interface.encodeFunctionData('enableTransfers', []),
+    projectToken.interface.encodeFunctionData('enableTransfers'),
   ];
   const signatures1 = ['enableTransfers()'];
 
@@ -412,8 +447,8 @@ async function main() {
   ];
 
   console.log(`📍 Current States:`);
-  console.log(`  - Proposal 1: ${stateNames[state1]}`);
-  console.log(`  - Proposal 2: ${stateNames[state2]}`);
+  console.log(`  - Proposal 1: ${stateNames[Number(state1)]}`);
+  console.log(`  - Proposal 2: ${stateNames[Number(state2)]}`);
 
   // Fast forward to voting end
   console.log('\\n⏭️  Fast forwarding to voting end...');
@@ -427,8 +462,8 @@ async function main() {
   const finalState2 = await projectGovernance.state(2);
 
   console.log(`📍 Final States:`);
-  console.log(`  - Proposal 1: ${stateNames[finalState1]}`);
-  console.log(`  - Proposal 2: ${stateNames[finalState2]}`);
+  console.log(`  - Proposal 1: ${stateNames[Number(finalState1)]}`);
+  console.log(`  - Proposal 2: ${stateNames[Number(finalState2)]}`);
 
   // ===== STEP 6: ACTIVE PROPOSALS TRACKING =====
   console.log('\\n📋 STEP 6: Active Proposals Tracking');
@@ -464,13 +499,13 @@ async function main() {
 
   console.log(`\\n📝 Individual Vote Records (Proposal 1):`);
   console.log(
-    `  - Investor 1: ${vote1_1.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][vote1_1.vote]} - Weight: ${formatEther(vote1_1.weight)}`
+    `  - Investor 1: ${vote1_1.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][Number(vote1_1.vote)]} - Weight: ${formatEther(vote1_1.weight)}`
   );
   console.log(
-    `  - Investor 2: ${vote1_2.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][vote1_2.vote]} - Weight: ${formatEther(vote1_2.weight)}`
+    `  - Investor 2: ${vote1_2.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][Number(vote1_2.vote)]} - Weight: ${formatEther(vote1_2.weight)}`
   );
   console.log(
-    `  - Investor 3: ${vote1_3.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][vote1_3.vote]} - Weight: ${formatEther(vote1_3.weight)}`
+    `  - Investor 3: ${vote1_3.hasVoted ? 'Voted' : 'Not voted'} - ${['Against', 'For', 'Abstain'][Number(vote1_3.vote)]} - Weight: ${formatEther(vote1_3.weight)}`
   );
 
   // ===== STEP 8: GOVERNANCE STATISTICS =====
@@ -518,18 +553,22 @@ async function main() {
 
   console.log('\\n📊 Final Summary:');
   console.log(`  - Total Proposals Created: ${proposalCount}`);
-  console.log(`  - Proposal 1 (Enable Trading): ${stateNames[finalState1]}`);
-  console.log(`  - Proposal 2 (Reduce Quorum): ${stateNames[finalState2]}`);
+  console.log(
+    `  - Proposal 1 (Enable Trading): ${stateNames[Number(finalState1)]}`
+  );
+  console.log(
+    `  - Proposal 2 (Reduce Quorum): ${stateNames[Number(finalState2)]}`
+  );
   console.log(
     `  - Average Participation: ${(proposal1Participation + proposal2Participation) / 2n}%`
   );
 
   console.log('\\n⛽ Gas Usage Analysis:');
   console.log(
-    `  - Proposal Creation: ~${(proposeReceipt1?.gasUsed || 0n + proposeReceipt2?.gasUsed || 0n) / 2n} gas`
+    `  - Proposal Creation: ~${((proposeReceipt1?.gasUsed || 0n) + (proposeReceipt2?.gasUsed || 0n)) / 2n} gas`
   );
   console.log(
-    `  - Voting: ~${(voteReceipt1_1?.gasUsed || 0n + voteReceipt1_2?.gasUsed || 0n + voteReceipt1_3?.gasUsed || 0n) / 3n} gas`
+    `  - Voting: ~${((voteReceipt1_1?.gasUsed || 0n) + (voteReceipt1_2?.gasUsed || 0n) + (voteReceipt1_3?.gasUsed || 0n)) / 3n} gas`
   );
 
   console.log('\\n🚀 Governance system is fully functional and ready for:');

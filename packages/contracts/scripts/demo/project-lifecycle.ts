@@ -8,6 +8,9 @@ import {
   ProjectOffering,
   ProjectTreasury,
   ProjectGovernance,
+  ClaimTopicsRegistry,
+  TrustedIssuersRegistry,
+  IdentityRegistry,
 } from '../../typechain-types';
 
 /**
@@ -53,6 +56,37 @@ async function main() {
     await platformRegistry.getAddress()
   );
 
+  // Deploy ERC-3643 Infrastructure
+  const ClaimTopicsRegistry = await ethers.getContractFactory(
+    'ClaimTopicsRegistry'
+  );
+  const claimTopicsRegistry = await ClaimTopicsRegistry.deploy(
+    deployer.address
+  );
+  await claimTopicsRegistry.waitForDeployment();
+
+  const TrustedIssuersRegistry = await ethers.getContractFactory(
+    'TrustedIssuersRegistry'
+  );
+  const trustedIssuersRegistry = await TrustedIssuersRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress()
+  );
+  await trustedIssuersRegistry.waitForDeployment();
+
+  const IdentityRegistry = await ethers.getContractFactory('IdentityRegistry');
+  const identityRegistry = await IdentityRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress(),
+    await trustedIssuersRegistry.getAddress()
+  );
+  await identityRegistry.waitForDeployment();
+
+  await trustedIssuersRegistry.grantRole(
+    await trustedIssuersRegistry.OPERATOR_ROLE(),
+    await identityRegistry.getAddress()
+  );
+
   // Deploy implementations
   const ProjectToken = await ethers.getContractFactory('ProjectToken');
   const projectTokenImpl = await ProjectToken.deploy();
@@ -72,6 +106,7 @@ async function main() {
     deployer.address,
     await platformRegistry.getAddress(),
     await platformTreasury.getAddress(),
+    await identityRegistry.getAddress(),
     await projectTokenImpl.getAddress(),
     await projectOfferingImpl.getAddress(),
     await projectTreasuryImpl.getAddress(),
@@ -98,8 +133,8 @@ async function main() {
 
   console.log(`✅ SPV Registered:`);
   console.log(`  - Address: ${spv.address}`);
-  console.log(`  - Name: ${spvInfo.companyName}`);
-  console.log(`  - Registration ID: ${spvInfo.registrationId}`);
+  console.log(`  - Name: ${spvInfo.name}`);
+  console.log(`  - Registration ID: ${spvInfo.registrationNumber}`);
   console.log(`  - Status: ${spvInfo.isActive ? 'Active' : 'Inactive'}`);
 
   // ===== STEP 2: PROJECT CREATION =====
@@ -190,10 +225,10 @@ async function main() {
   );
 
   console.log(
-    `✅ Investor 1: ${investor1.address} - ${investor1Info.isVerified ? 'Verified' : 'Unverified'}`
+    `✅ Investor 1: ${investor1.address} - ${investor1Info.kycVerified ? 'Verified' : 'Unverified'}`
   );
   console.log(
-    `✅ Investor 2: ${investor2.address} - ${investor2Info.isVerified ? 'Verified' : 'Unverified'}`
+    `✅ Investor 2: ${investor2.address} - ${investor2Info.kycVerified ? 'Verified' : 'Unverified'}`
   );
 
   // ===== STEP 4: OFFERING PERIOD =====

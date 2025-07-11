@@ -240,10 +240,10 @@ describe('Gas Optimization Analysis', function () {
         'ProjectOffering',
         project.offering
       );
-      projectTreasuryContract = await ethers.getContractAt(
-        'ProjectTreasury',
-        project.treasury
-      );
+      // projectTreasuryContract = await ethers.getContractAt(
+      //   'ProjectTreasury',
+      //   project.treasury
+      // );
 
       await projectToken.connect(spv).setGovernance(project.governance);
       await projectToken.connect(spv).addAuthorizedMinter(project.offering);
@@ -393,7 +393,7 @@ describe('Gas Optimization Analysis', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
