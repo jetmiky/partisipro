@@ -278,15 +278,15 @@ describe('ERC-3643 Integration Tests', function () {
         );
 
       const receipt = await tx.wait();
-      const projectCreatedEvent = receipt.logs.find(
+      const projectCreatedEvent = receipt?.logs.find(
         (log: any) => log.fragment && log.fragment.name === 'ProjectCreated'
       );
 
-      if (!projectCreatedEvent) {
+      if (!projectCreatedEvent || !('args' in projectCreatedEvent)) {
         throw new Error('ProjectCreated event not found');
       }
 
-      const projectTokenAddress = projectCreatedEvent.args[2]; // token address is third argument
+      const projectTokenAddress = (projectCreatedEvent as any).args[2]; // token address is third argument
       projectToken = await ethers.getContractAt(
         'ProjectToken',
         projectTokenAddress

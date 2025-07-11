@@ -220,10 +220,10 @@ describe('Governance Flow', function () {
       'ProjectOffering',
       project.offering
     );
-    projectTreasuryContract = await ethers.getContractAt(
-      'ProjectTreasury',
-      project.treasury
-    );
+    // projectTreasuryContract = await ethers.getContractAt(
+    //   'ProjectTreasury',
+    //   project.treasury
+    // );
     projectGovernance = await ethers.getContractAt(
       'ProjectGovernance',
       project.governance
@@ -267,7 +267,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -298,7 +298,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -323,7 +323,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -362,7 +362,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -432,7 +432,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -473,7 +473,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -540,7 +540,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -600,7 +600,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -625,7 +625,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 
@@ -662,7 +662,7 @@ describe('Governance Flow', function () {
       const targets = [await projectToken.getAddress()];
       const values = [0];
       const calldatas = [
-        projectToken.interface.encodeFunctionData('enableTransfers', []),
+        projectToken.interface.encodeFunctionData('enableTransfers'),
       ];
       const signatures = ['enableTransfers()'];
 

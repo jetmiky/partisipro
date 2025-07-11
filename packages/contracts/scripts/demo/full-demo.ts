@@ -8,6 +8,9 @@ import {
   ProjectOffering,
   ProjectTreasury,
   ProjectGovernance,
+  ClaimTopicsRegistry,
+  TrustedIssuersRegistry,
+  IdentityRegistry,
 } from '../../typechain-types';
 
 async function main() {
@@ -79,6 +82,55 @@ async function main() {
   );
   console.log('🔄 PlatformTreasury updated with registry address');
 
+  // Deploy ERC-3643 Infrastructure
+  console.log('📦 Deploying ERC-3643 Infrastructure...');
+
+  // Deploy ClaimTopicsRegistry
+  const ClaimTopicsRegistry = await ethers.getContractFactory(
+    'ClaimTopicsRegistry'
+  );
+  const claimTopicsRegistry = await ClaimTopicsRegistry.deploy(
+    deployer.address
+  );
+  await claimTopicsRegistry.waitForDeployment();
+  console.log(
+    `✅ ClaimTopicsRegistry deployed: ${await claimTopicsRegistry.getAddress()}`
+  );
+
+  // Deploy TrustedIssuersRegistry
+  const TrustedIssuersRegistry = await ethers.getContractFactory(
+    'TrustedIssuersRegistry'
+  );
+  const trustedIssuersRegistry = await TrustedIssuersRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress()
+  );
+  await trustedIssuersRegistry.waitForDeployment();
+  console.log(
+    `✅ TrustedIssuersRegistry deployed: ${await trustedIssuersRegistry.getAddress()}`
+  );
+
+  // Deploy IdentityRegistry
+  const IdentityRegistry = await ethers.getContractFactory('IdentityRegistry');
+  const identityRegistry = await IdentityRegistry.deploy(
+    deployer.address,
+    await claimTopicsRegistry.getAddress(),
+    await trustedIssuersRegistry.getAddress()
+  );
+  await identityRegistry.waitForDeployment();
+  console.log(
+    `✅ IdentityRegistry deployed: ${await identityRegistry.getAddress()}`
+  );
+
+  // Grant necessary roles
+  await trustedIssuersRegistry.grantRole(
+    await trustedIssuersRegistry.OPERATOR_ROLE(),
+    await identityRegistry.getAddress()
+  );
+  console.log(
+    '🔄 IdentityRegistry granted operator role in TrustedIssuersRegistry'
+  );
+
   // Deploy implementation contracts
   console.log('📦 Deploying implementation contracts...');
   const ProjectToken = await ethers.getContractFactory('ProjectToken');
@@ -107,6 +159,7 @@ async function main() {
     deployer.address,
     await platformRegistry.getAddress(),
     await platformTreasury.getAddress(),
+    await identityRegistry.getAddress(),
     await projectTokenImpl.getAddress(),
     await projectOfferingImpl.getAddress(),
     await projectTreasuryImpl.getAddress(),
@@ -207,7 +260,7 @@ async function main() {
     investor1.address
   );
   console.log(
-    `👤 Investor 1 - Active: ${investor1Info.isActive}, Verified: ${investor1Info.isVerified}`
+    `👤 Investor 1 - Active: ${investor1Info.isActive}, Verified: ${investor1Info.kycVerified}`
   );
 
   // ===== PHASE 4: INVESTMENT PHASE =====
@@ -310,7 +363,7 @@ async function main() {
   const targets = [await projectToken.getAddress()];
   const values = [0];
   const calldatas = [
-    projectToken.interface.encodeFunctionData('enableTransfers', []),
+    projectToken.interface.encodeFunctionData('enableTransfers'),
   ];
   const signatures = ['enableTransfers()'];
 
@@ -374,7 +427,7 @@ async function main() {
     'Expired',
     'Executed',
   ];
-  console.log(`📍 Proposal State: ${stateNames[proposalState]}`);
+  console.log(`📍 Proposal State: ${stateNames[Number(proposalState)]}`);
 
   // ===== PHASE 8: PROFIT DISTRIBUTION SIMULATION =====
   console.log('\\n💵 PHASE 8: Profit Distribution Simulation');
