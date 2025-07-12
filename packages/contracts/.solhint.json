@@ -6,6 +6,19 @@
     "max-line-length": ["warn", 120],
     "not-rely-on-time": "off",
     "avoid-low-level-calls": "off",
-    "avoid-sha3": "warn"
+    "avoid-sha3": "warn",
+    "no-global-import": "warn",
+    "use-natspec": "off",
+    "gas-custom-errors": "warn",
+    "gas-small-strings": "warn",
+    "gas-increment-by-one": "warn",
+    "gas-struct-packing": "warn",
+    "gas-indexed-events": "warn",
+    "function-max-lines": ["warn", 80],
+    "reason-string": ["warn", { "maxLength": 64 }],
+    "state-visibility": "warn",
+    "no-unused-vars": "warn",
+    "code-complexity": ["warn", 8],
+    "max-states-count": ["warn", 20]
   }
 }

@@ -19,23 +19,40 @@
 
 ## Overview
 
-The Partisipro Platform is a comprehensive blockchain-based solution for Public Private Partnership (PPP) funding that tokenizes large-scale infrastructure projects in Indonesia. The platform enables retail investors to participate through fractional ownership using ERC-3643 compliant tokens.
+The Partisipro Platform is a comprehensive blockchain-based solution for Public
+Private Partnership (PPP) funding that tokenizes large-scale infrastructure
+projects in Indonesia. The platform enables retail investors to participate
+through fractional ownership using ERC-3643 compliant tokens.
 
 ### Key Features
 
-- **ERC-3643 Compliance**: Industry-standard regulatory compliance for token transfers
-- **Identity-Centric Architecture**: One-time KYC verification for all platform projects
+- **ERC-3643 Compliance**: Industry-standard regulatory compliance for token
+  transfers
+- **Identity-Centric Architecture**: One-time KYC verification for all platform
+  projects
 - **Factory Pattern**: Isolated contract deployment for each project
 - **UUPS Upgradeability**: Production-ready upgrade mechanisms
 - **Comprehensive Monitoring**: Real-time health monitoring and analytics
-- **Automated Compliance**: Built-in regulatory reporting and violation detection
+- **Automated Compliance**: Built-in regulatory reporting and violation
+  detection
 
 ### Platform Components
 
 - **Core Infrastructure**: PlatformRegistry, PlatformTreasury, ProjectFactory
-- **ERC-3643 Compliance**: IdentityRegistry, ClaimTopicsRegistry, TrustedIssuersRegistry
-- **Per-Project Contracts**: ProjectToken, ProjectOffering, ProjectTreasury, ProjectGovernance
-- **Development Tools**: Enhanced deployment, monitoring, analytics, compliance reporting
+- **ERC-3643 Compliance**: IdentityRegistry, ClaimTopicsRegistry,
+  TrustedIssuersRegistry
+- **Per-Project Contracts**: ProjectToken, ProjectOffering, ProjectTreasury,
+  ProjectGovernance
+- **Advanced Features (Phase 2)**:
+  - IdentityRegistryAdvanced: Automated claim management, batch operations
+  - ProjectGovernanceAdvanced: Proposal templates, voting incentives, delegation
+  - ProjectTreasuryAdvanced: Dynamic fees, vesting schedules, batch operations
+- **Upgradeable Infrastructure (Phase 1)**:
+  - PlatformRegistryUpgradeable: UUPS upgradeable registry with emergency
+    controls
+  - PlatformTreasuryUpgradeable: UUPS upgradeable treasury with circuit breakers
+- **Development Tools**: Enhanced deployment, monitoring, analytics, compliance
+  reporting, TypeScript SDK
 
 ## Getting Started
 
@@ -186,7 +203,10 @@ The central registry for SPV management and platform configuration.
 ```solidity
 // Key Functions
 function registerSPV(address spvAddress) external;
-function updatePlatformConfig(uint256 listingFee, uint256 managementFeeRate) external;
+function updatePlatformConfig(
+  uint256 listingFee,
+  uint256 managementFeeRate
+) external;
 function activateEmergencyMode() external;
 function deactivateEmergencyMode() external;
 function pause() external;
@@ -195,7 +215,10 @@ function unpause() external;
 // View Functions
 function getPlatformConfig() external view returns (PlatformConfig memory);
 function isSPVRegistered(address spvAddress) external view returns (bool);
-function getEmergencyStatus() external view returns (bool emergencyMode, uint256 activatedAt);
+function getEmergencyStatus()
+  external
+  view
+  returns (bool emergencyMode, uint256 activatedAt);
 ```
 
 #### PlatformTreasury
@@ -211,7 +234,10 @@ function activateEmergencyMode() external;
 
 // View Functions
 function getTreasuryBalance() external view returns (uint256);
-function getWithdrawalLimits() external view returns (uint256 daily, uint256 maxSingle);
+function getWithdrawalLimits()
+  external
+  view
+  returns (uint256 daily, uint256 maxSingle);
 function getEmergencyStatus() external view returns (bool);
 ```
 
@@ -222,24 +248,26 @@ Factory pattern for deploying isolated project contracts.
 ```solidity
 // Key Functions
 function createProject(
-    string memory tokenName,
-    string memory tokenSymbol,
-    uint256 totalSupply,
-    uint256 offeringPrice,
-    uint256 offeringDuration
+  string memory tokenName,
+  string memory tokenSymbol,
+  uint256 totalSupply,
+  uint256 offeringPrice,
+  uint256 offeringDuration
 ) external payable returns (uint256 projectId);
 
 function updateImplementations(
-    address tokenImpl,
-    address offeringImpl,
-    address treasuryImpl,
-    address governanceImpl
+  address tokenImpl,
+  address offeringImpl,
+  address treasuryImpl,
+  address governanceImpl
 ) external;
 
 // View Functions
 function getProjectCount() external view returns (uint256);
 function getProjectAddress(uint256 projectId) external view returns (address);
-function getProjectData(uint256 projectId) external view returns (ProjectData memory);
+function getProjectData(
+  uint256 projectId
+) external view returns (ProjectData memory);
 ```
 
 ### ERC-3643 Compliance Contracts
@@ -251,21 +279,31 @@ Central identity management with claim verification.
 ```solidity
 // Key Functions
 function registerIdentity(
-    address userAddress,
-    string memory identityId,
-    Claim[] memory claims
+  address userAddress,
+  string memory identityId,
+  Claim[] memory claims
 ) external;
 
 function addClaim(address userAddress, Claim memory claim) external;
-function updateClaim(address userAddress, uint256 claimIndex, Claim memory claim) external;
+function updateClaim(
+  address userAddress,
+  uint256 claimIndex,
+  Claim memory claim
+) external;
 function removeClaim(address userAddress, uint256 claimIndex) external;
 function batchRegisterIdentities(IdentityData[] memory identities) external;
 
 // View Functions
 function isVerified(address userAddress) external view returns (bool);
 function getClaims(address userAddress) external view returns (Claim[] memory);
-function getClaimsByTopic(address userAddress, uint256 topic) external view returns (Claim[] memory);
-function isClaimValid(address userAddress, uint256 claimIndex) external view returns (bool);
+function getClaimsByTopic(
+  address userAddress,
+  uint256 topic
+) external view returns (Claim[] memory);
+function isClaimValid(
+  address userAddress,
+  uint256 claimIndex
+) external view returns (bool);
 ```
 
 #### ClaimTopicsRegistry
@@ -296,13 +334,21 @@ Management of authorized claim issuers.
 
 ```solidity
 // Key Functions
-function addTrustedIssuer(address issuer, uint256[] memory allowedClaimTopics) external;
+function addTrustedIssuer(
+  address issuer,
+  uint256[] memory allowedClaimTopics
+) external;
 function removeTrustedIssuer(address issuer) external;
-function updateIssuerClaimTopics(address issuer, uint256[] memory allowedClaimTopics) external;
+function updateIssuerClaimTopics(
+  address issuer,
+  uint256[] memory allowedClaimTopics
+) external;
 
 // View Functions
 function isTrustedIssuer(address issuer) external view returns (bool);
-function getIssuerClaimTopics(address issuer) external view returns (uint256[] memory);
+function getIssuerClaimTopics(
+  address issuer
+) external view returns (uint256[] memory);
 function getTrustedIssuers() external view returns (address[] memory);
 ```
 
@@ -322,10 +368,21 @@ function burn(uint256 amount) external;
 // Governance Functions
 function getVotes(address account) external view returns (uint256);
 function delegate(address delegatee) external;
-function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external;
+function delegateBySig(
+  address delegatee,
+  uint256 nonce,
+  uint256 expiry,
+  uint8 v,
+  bytes32 r,
+  bytes32 s
+) external;
 
 // Compliance Functions
-function canTransfer(address from, address to, uint256 amount) external view returns (bool);
+function canTransfer(
+  address from,
+  address to,
+  uint256 amount
+) external view returns (bool);
 function getIdentityRegistry() external view returns (address);
 ```
 
@@ -338,11 +395,17 @@ Token sale with identity verification enforcement.
 function buyTokens(uint256 amount) external payable;
 function claimTokens() external;
 function finalizeOffering() external;
-function setOfferingParameters(uint256 price, uint256 duration, uint256 minInvestment) external;
+function setOfferingParameters(
+  uint256 price,
+  uint256 duration,
+  uint256 minInvestment
+) external;
 
 // View Functions
 function getOfferingInfo() external view returns (OfferingInfo memory);
-function getInvestorData(address investor) external view returns (InvestorData memory);
+function getInvestorData(
+  address investor
+) external view returns (InvestorData memory);
 function getRemainingTokens() external view returns (uint256);
 ```
 
@@ -360,7 +423,9 @@ function emergencyWithdraw(address recipient, uint256 amount) external;
 // View Functions
 function getClaimableAmount(address investor) external view returns (uint256);
 function getTotalDistributed() external view returns (uint256);
-function getVestingInfo(address investor) external view returns (VestingInfo memory);
+function getVestingInfo(
+  address investor
+) external view returns (VestingInfo memory);
 ```
 
 #### ProjectGovernance
@@ -369,15 +434,32 @@ Token-weighted voting with proposal management.
 
 ```solidity
 // Key Functions
-function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description) external returns (uint256);
+function propose(
+  address[] memory targets,
+  uint256[] memory values,
+  bytes[] memory calldatas,
+  string memory description
+) external returns (uint256);
 function castVote(uint256 proposalId, uint8 support) external returns (uint256);
-function castVoteWithReason(uint256 proposalId, uint8 support, string memory reason) external returns (uint256);
+function castVoteWithReason(
+  uint256 proposalId,
+  uint8 support,
+  string memory reason
+) external returns (uint256);
 function execute(uint256 proposalId) external;
 
 // View Functions
-function getProposal(uint256 proposalId) external view returns (Proposal memory);
-function getVotes(address account, uint256 blockNumber) external view returns (uint256);
-function hasVoted(uint256 proposalId, address account) external view returns (bool);
+function getProposal(
+  uint256 proposalId
+) external view returns (Proposal memory);
+function getVotes(
+  address account,
+  uint256 blockNumber
+) external view returns (uint256);
+function hasVoted(
+  uint256 proposalId,
+  address account
+) external view returns (bool);
 function proposalDeadline(uint256 proposalId) external view returns (uint256);
 function proposalSnapshot(uint256 proposalId) external view returns (uint256);
 ```
@@ -393,7 +475,10 @@ npm install @partisipro/blockchain-sdk
 ### Basic Usage
 
 ```typescript
-import { createPartisiproSDK, NETWORK_CONFIGS } from '@partisipro/blockchain-sdk';
+import {
+  createPartisiproSDK,
+  NETWORK_CONFIGS,
+} from '@partisipro/blockchain-sdk';
 import { ethers } from 'ethers';
 
 // Create wallet
@@ -406,7 +491,9 @@ const sdk = createPartisiproSDK(NETWORK_CONFIGS.arbitrumSepolia, wallet);
 await sdk.initialize();
 
 // Register SPV
-const txHash = await sdk.registerSPV('0x1234567890123456789012345678901234567890');
+const txHash = await sdk.registerSPV(
+  '0x1234567890123456789012345678901234567890'
+);
 console.log('SPV registered:', txHash);
 
 // Register identity
@@ -419,9 +506,9 @@ const identityData = {
       issuer: '0x5678901234567890123456789012345678901234',
       signature: '0x...',
       data: '0x...',
-      validity: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60 // 1 year
-    }
-  ]
+      validity: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year
+    },
+  ],
 };
 
 const identityTxHash = await sdk.registerIdentity(identityData);
@@ -440,8 +527,8 @@ const projectParams = {
     location: 'Jakarta, Indonesia',
     category: 'Transportation',
     expectedROI: 8.5,
-    riskLevel: 'medium' as const
-  }
+    riskLevel: 'medium' as const,
+  },
 };
 
 const { projectId, projectAddress } = await sdk.createProject(projectParams);
@@ -452,7 +539,7 @@ const investmentData = {
   projectAddress,
   amount: ethers.parseEther('1'),
   investorAddress: wallet.address,
-  paymentMethod: 'crypto' as const
+  paymentMethod: 'crypto' as const,
 };
 
 const investmentTxHash = await sdk.investInProject(investmentData);
@@ -463,18 +550,21 @@ console.log('Investment made:', investmentTxHash);
 
 ```typescript
 // Enable monitoring
-const sdkWithMonitoring = createPartisiproSDK({
-  ...NETWORK_CONFIGS.arbitrumSepolia,
-  monitoring: {
-    enabled: true,
-    checkInterval: 30000,
-    alertThresholds: {
-      responseTime: 5000,
-      gasPrice: 50,
-      errorRate: 5
-    }
-  }
-}, wallet);
+const sdkWithMonitoring = createPartisiproSDK(
+  {
+    ...NETWORK_CONFIGS.arbitrumSepolia,
+    monitoring: {
+      enabled: true,
+      checkInterval: 30000,
+      alertThresholds: {
+        responseTime: 5000,
+        gasPrice: 50,
+        errorRate: 5,
+      },
+    },
+  },
+  wallet
+);
 
 await sdkWithMonitoring.initialize();
 
@@ -482,7 +572,7 @@ await sdkWithMonitoring.initialize();
 await sdkWithMonitoring.startHealthMonitoring();
 
 // Listen for health updates
-sdkWithMonitoring.on('healthUpdate', (status) => {
+sdkWithMonitoring.on('healthUpdate', status => {
   console.log('Health status:', status.overallStatus);
 });
 
@@ -499,30 +589,146 @@ console.log('Compliance score:', complianceReport.overallComplianceScore);
 
 ```typescript
 // Listen for contract events
-sdk.listenToContractEvents('PlatformRegistry', 'SPVRegistered', (event) => {
+sdk.listenToContractEvents('PlatformRegistry', 'SPVRegistered', event => {
   console.log('New SPV registered:', event.args.spvAddress);
 });
 
-sdk.listenToContractEvents('IdentityRegistry', 'IdentityRegistered', (event) => {
+sdk.listenToContractEvents('IdentityRegistry', 'IdentityRegistered', event => {
   console.log('New identity registered:', event.args.userAddress);
 });
 
-sdk.listenToContractEvents('ProjectFactory', 'ProjectCreated', (event) => {
+sdk.listenToContractEvents('ProjectFactory', 'ProjectCreated', event => {
   console.log('New project created:', event.args.projectId);
 });
 
 // Listen for SDK events
-sdk.on('spvRegistered', (data) => {
+sdk.on('spvRegistered', data => {
   console.log('SPV registered via SDK:', data.spvAddress);
 });
 
-sdk.on('projectCreated', (data) => {
+sdk.on('projectCreated', data => {
   console.log('Project created via SDK:', data.projectId);
 });
 
-sdk.on('investmentMade', (data) => {
+sdk.on('investmentMade', data => {
   console.log('Investment made via SDK:', data.amount);
 });
+```
+
+## Advanced Contract Features (Phase 2)
+
+### Identity Registry Advanced
+
+The `IdentityRegistryAdvanced` contract provides enhanced identity management
+capabilities:
+
+```typescript
+// Get advanced identity registry contract
+const identityAdvanced = sdk.getContract('IdentityRegistryAdvanced');
+
+// Batch register multiple identities
+const userAddresses = ['0x123...', '0x456...', '0x789...'];
+const identityIds = ['user-1', 'user-2', 'user-3'];
+await identityAdvanced.batchRegisterIdentities(userAddresses, identityIds);
+
+// Auto-renew claims
+await identityAdvanced.autoRenewClaim(
+  '0x123...', // user address
+  1, // KYC_APPROVED topic
+  Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60 // new expiration
+);
+
+// Batch process expired claims
+const expiredUsers = ['0x123...', '0x456...'];
+const expiredTopics = [1, 1]; // KYC_APPROVED for both
+await identityAdvanced.batchProcessExpiredClaims(expiredUsers, expiredTopics);
+
+// Check verification cache
+const cache = await identityAdvanced.getVerificationCache('0x123...');
+console.log(
+  'Verification status:',
+  cache.isVerified,
+  'Last update:',
+  cache.lastUpdate
+);
+```
+
+### Project Governance Advanced
+
+Enhanced governance with voting incentives and delegation:
+
+```typescript
+const governanceAdvanced = sdk.getContract('ProjectGovernanceAdvanced');
+
+// Create proposal from template
+await governanceAdvanced.createProposalFromTemplate(
+  1, // template ID for fee adjustment
+  ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [250]) // 2.5% fee
+);
+
+// Delegate voting power
+await governanceAdvanced.delegateVotingPower('0x456...'); // delegate address
+
+// Cast vote with incentive
+await governanceAdvanced.castVoteWithIncentive(
+  1, // proposal ID
+  1 // support (1 = for, 0 = against, 2 = abstain)
+);
+
+// Check voting incentives
+const incentives = await governanceAdvanced.getVotingIncentives('0x123...');
+console.log('Rewards:', incentives.rewards, 'Streak:', incentives.streak);
+```
+
+### Project Treasury Advanced
+
+Advanced treasury features with vesting and dynamic fees:
+
+```typescript
+const treasuryAdvanced = sdk.getContract('ProjectTreasuryAdvanced');
+
+// Create vesting schedule
+await treasuryAdvanced.createVestingSchedule(
+  '0x123...', // beneficiary
+  ethers.parseEther('1000'), // amount
+  365 * 24 * 60 * 60, // cliff duration (1 year)
+  4 * 365 * 24 * 60 * 60 // vesting duration (4 years)
+);
+
+// Claim vested tokens
+await treasuryAdvanced.claimVestedTokens();
+
+// Update dynamic fee rate (admin only)
+await treasuryAdvanced.updateDynamicFeeRate(275); // 2.75%
+
+// Batch claim profits for multiple beneficiaries
+const beneficiaries = ['0x123...', '0x456...', '0x789...'];
+await treasuryAdvanced.batchClaimProfits(beneficiaries);
+```
+
+### Upgradeable Contracts (Phase 1)
+
+Working with UUPS upgradeable contracts:
+
+```typescript
+// Platform Registry Upgradeable
+const registryUpgradeable = sdk.getContract('PlatformRegistryUpgradeable');
+
+// Emergency mode management
+await registryUpgradeable.activateEmergencyMode();
+await registryUpgradeable.deactivateEmergencyMode();
+
+// Upgrade contract (admin only)
+await registryUpgradeable.upgradeTo('0x789...'); // new implementation address
+
+// Platform Treasury Upgradeable
+const treasuryUpgradeable = sdk.getContract('PlatformTreasuryUpgradeable');
+
+// Set daily withdrawal limits
+await treasuryUpgradeable.setDailyWithdrawalLimit(ethers.parseEther('1000'));
+
+// Emergency withdrawal (admin only)
+await treasuryUpgradeable.emergencyWithdraw(ethers.parseEther('500'));
 ```
 
 ## Development Tools
@@ -548,16 +754,28 @@ import { ContractInteractionUtils } from './scripts/utils/ContractInteractionUti
 const utils = new ContractInteractionUtils(provider, signer);
 
 // Load contracts from deployment
-const configs = await utils.loadDeploymentConfig('./deployments/latest-deployment.json');
+const configs = await utils.loadDeploymentConfig(
+  './deployments/latest-deployment.json'
+);
 configs.forEach(config => utils.registerContract(config));
 
 // Execute single function
-const result = await utils.executeFunction('PlatformRegistry', 'registerSPV', [spvAddress]);
+const result = await utils.executeFunction('PlatformRegistry', 'registerSPV', [
+  spvAddress,
+]);
 
 // Execute batch operations
 const operations = [
-  { contractName: 'PlatformRegistry', functionName: 'registerSPV', args: [spv1] },
-  { contractName: 'PlatformRegistry', functionName: 'registerSPV', args: [spv2] }
+  {
+    contractName: 'PlatformRegistry',
+    functionName: 'registerSPV',
+    args: [spv1],
+  },
+  {
+    contractName: 'PlatformRegistry',
+    functionName: 'registerSPV',
+    args: [spv2],
+  },
 ];
 const batchResult = await utils.executeBatchOperations(operations);
 
@@ -575,18 +793,18 @@ const monitor = new PlatformHealthMonitor(provider, {
   alertThresholds: {
     responseTime: 5000,
     gasPrice: 50,
-    errorRate: 5
+    errorRate: 5,
   },
-  contracts: deployedContracts
+  contracts: deployedContracts,
 });
 
 await monitor.startMonitoring();
 
-monitor.on('healthUpdate', (status) => {
+monitor.on('healthUpdate', status => {
   console.log('Platform health:', status.overallStatus);
 });
 
-monitor.on('error', (error) => {
+monitor.on('error', error => {
   console.error('Monitoring error:', error);
 });
 ```
@@ -639,30 +857,36 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 describe('PlatformRegistry', function () {
   async function deployPlatformRegistryFixture() {
     const [owner, spv1, spv2] = await ethers.getSigners();
-    
-    const PlatformRegistry = await ethers.getContractFactory('PlatformRegistry');
+
+    const PlatformRegistry =
+      await ethers.getContractFactory('PlatformRegistry');
     const registry = await PlatformRegistry.deploy();
-    
+
     return { registry, owner, spv1, spv2 };
   }
 
   it('Should register SPV successfully', async function () {
-    const { registry, owner, spv1 } = await loadFixture(deployPlatformRegistryFixture);
-    
+    const { registry, owner, spv1 } = await loadFixture(
+      deployPlatformRegistryFixture
+    );
+
     await expect(registry.registerSPV(spv1.address))
       .to.emit(registry, 'SPVRegistered')
       .withArgs(spv1.address, anyValue);
-    
+
     expect(await registry.isSPVRegistered(spv1.address)).to.be.true;
   });
 
   it('Should reject duplicate SPV registration', async function () {
-    const { registry, owner, spv1 } = await loadFixture(deployPlatformRegistryFixture);
-    
+    const { registry, owner, spv1 } = await loadFixture(
+      deployPlatformRegistryFixture
+    );
+
     await registry.registerSPV(spv1.address);
-    
-    await expect(registry.registerSPV(spv1.address))
-      .to.be.revertedWith('SPV already registered');
+
+    await expect(registry.registerSPV(spv1.address)).to.be.revertedWith(
+      'SPV already registered'
+    );
   });
 });
 ```
@@ -674,17 +898,17 @@ describe('End-to-End Project Flow', function () {
   it('Should complete full project lifecycle', async function () {
     // Deploy all contracts
     const contracts = await deployFullPlatform();
-    
+
     // Register SPV
     await contracts.registry.registerSPV(spv.address);
-    
+
     // Register investor identity
     await contracts.identityRegistry.registerIdentity(
       investor.address,
       'investor-123',
       [kycClaim]
     );
-    
+
     // Create project
     const tx = await contracts.factory.createProject(
       'Test Project',
@@ -693,18 +917,23 @@ describe('End-to-End Project Flow', function () {
       ethers.parseEther('0.1'),
       30 * 24 * 60 * 60
     );
-    
+
     const receipt = await tx.wait();
     const projectAddress = getProjectAddressFromReceipt(receipt);
-    
+
     // Invest in project
-    const projectOffering = await ethers.getContractAt('ProjectOffering', projectAddress);
+    const projectOffering = await ethers.getContractAt(
+      'ProjectOffering',
+      projectAddress
+    );
     await projectOffering.connect(investor).buyTokens(ethers.parseEther('1'), {
-      value: ethers.parseEther('0.1')
+      value: ethers.parseEther('0.1'),
     });
-    
+
     // Verify investment
-    const investorBalance = await projectOffering.getInvestorData(investor.address);
+    const investorBalance = await projectOffering.getInvestorData(
+      investor.address
+    );
     expect(investorBalance.tokenAmount).to.equal(ethers.parseEther('1'));
   });
 });
@@ -768,14 +997,14 @@ const config = {
       accounts: [process.env.PRIVATE_KEY],
       chainId: 42161,
       gasPrice: 100000000, // 0.1 gwei
-    }
+    },
   },
   etherscan: {
     apiKey: {
       arbitrumSepolia: process.env.ARBISCAN_API_KEY,
       arbitrumOne: process.env.ARBISCAN_API_KEY,
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -787,13 +1016,13 @@ const config = {
 // Set up monitoring
 const monitor = new PlatformHealthMonitor(provider, {
   checkInterval: 30000,
-  contracts: deployedContracts
+  contracts: deployedContracts,
 });
 
 await monitor.startMonitoring();
 
 // Monitor specific metrics
-monitor.on('healthUpdate', (status) => {
+monitor.on('healthUpdate', status => {
   if (status.overallStatus === 'critical') {
     // Send alert
     sendAlert(`Platform health critical: ${status.alerts.length} alerts`);
@@ -805,13 +1034,16 @@ monitor.on('healthUpdate', (status) => {
 
 ```typescript
 // Generate regular reports
-setInterval(async () => {
-  const analytics = new OnChainAnalytics(provider, analyticsConfig);
-  const report = await analytics.generateAnalyticsReport();
-  
-  // Save to database or send to dashboard
-  await saveAnalyticsReport(report);
-}, 60 * 60 * 1000); // Every hour
+setInterval(
+  async () => {
+    const analytics = new OnChainAnalytics(provider, analyticsConfig);
+    const report = await analytics.generateAnalyticsReport();
+
+    // Save to database or send to dashboard
+    await saveAnalyticsReport(report);
+  },
+  60 * 60 * 1000
+); // Every hour
 ```
 
 ### Compliance Monitoring
@@ -820,14 +1052,17 @@ setInterval(async () => {
 // Automated compliance checking
 const compliance = new ComplianceReporting(provider, complianceConfig);
 
-setInterval(async () => {
-  const report = await compliance.generateComplianceReport();
-  
-  if (report.overallComplianceScore < 85) {
-    // Send compliance alert
-    sendComplianceAlert(report);
-  }
-}, 24 * 60 * 60 * 1000); // Daily
+setInterval(
+  async () => {
+    const report = await compliance.generateComplianceReport();
+
+    if (report.overallComplianceScore < 85) {
+      // Send compliance alert
+      sendComplianceAlert(report);
+    }
+  },
+  24 * 60 * 60 * 1000
+); // Daily
 ```
 
 ## Security
@@ -924,7 +1159,7 @@ console.log('Trusted issuers:', issuers);
 ```typescript
 // Enable debug logging
 const sdk = createPartisiproSDK(config, signer);
-sdk.on('debug', (message) => {
+sdk.on('debug', message => {
   console.log('Debug:', message);
 });
 ```
@@ -1004,10 +1239,12 @@ git push origin feature/your-feature-name
 For support and questions:
 
 - Documentation: [docs.partisipro.com](https://docs.partisipro.com)
-- GitHub Issues: [github.com/partisipro/blockchain/issues](https://github.com/partisipro/blockchain/issues)
+- GitHub Issues:
+  [github.com/partisipro/blockchain/issues](https://github.com/partisipro/blockchain/issues)
 - Developer Chat: [discord.gg/partisipro](https://discord.gg/partisipro)
 - Email: developers@partisipro.com
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for
+details.

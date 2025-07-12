@@ -25,6 +25,13 @@ export interface SDKConfig {
     ProjectOffering: string;
     ProjectTreasury: string;
     ProjectGovernance: string;
+    // Advanced contracts from Phase 2
+    IdentityRegistryAdvanced?: string;
+    ProjectGovernanceAdvanced?: string;
+    ProjectTreasuryAdvanced?: string;
+    // Upgradeable contracts from Phase 1
+    PlatformRegistryUpgradeable?: string;
+    PlatformTreasuryUpgradeable?: string;
   };
   monitoring?: {
     enabled: boolean;
@@ -49,6 +56,7 @@ export interface SDKConfig {
       minimumComplianceScore: number;
       identityVerificationRate: number;
       transactionComplianceRate: number;
+      governanceParticipationRate: number;
     };
   };
 }
@@ -136,34 +144,37 @@ export class PartisiproSDK extends EventEmitter {
     }
 
     console.log('🚀 Initializing Partisipro SDK...');
-    
+
     try {
       // Load contract ABIs and initialize contracts
       await this.loadContracts();
-      
+
       // Initialize utilities
       if (this.signer) {
-        this.contractUtils = new ContractInteractionUtils(this.provider, this.signer);
-        
+        this.contractUtils = new ContractInteractionUtils(
+          this.provider,
+          this.signer
+        );
+
         // Load deployment configuration for utilities
         const deploymentConfig = await this.loadDeploymentConfiguration();
-        
+
         // Initialize monitoring if enabled
         if (this.config.monitoring?.enabled) {
           await this.initializeMonitoring();
         }
-        
+
         // Initialize analytics if enabled
         if (this.config.analytics?.enabled) {
           await this.initializeAnalytics();
         }
-        
+
         // Initialize compliance if enabled
         if (this.config.compliance?.enabled) {
           await this.initializeCompliance();
         }
       }
-      
+
       this.isInitialized = true;
       console.log('✅ Partisipro SDK initialized successfully');
       this.emit('initialized');
@@ -178,24 +189,26 @@ export class PartisiproSDK extends EventEmitter {
    */
   private async loadContracts(): Promise<void> {
     console.log('📋 Loading contracts...');
-    
+
     // Load ABIs (in production, these would be loaded from artifacts)
     const contractABIs = await this.loadContractABIs();
-    
-    for (const [contractName, address] of Object.entries(this.config.contracts)) {
+
+    for (const [contractName, address] of Object.entries(
+      this.config.contracts
+    )) {
       try {
         const abi = contractABIs[contractName];
         if (!abi) {
           console.warn(`⚠️ ABI not found for ${contractName}`);
           continue;
         }
-        
+
         const contract = new ethers.Contract(
           address,
           abi,
           this.signer || this.provider
         );
-        
+
         this.contracts.set(contractName, contract);
         console.log(`✅ Loaded ${contractName} at ${address}`);
       } catch (error) {
@@ -232,7 +245,48 @@ export class PartisiproSDK extends EventEmitter {
         'function getProjectAddress(uint256 projectId) external view returns (address)',
         'event ProjectCreated(uint256 indexed projectId, address indexed projectAddress, address indexed spv)',
       ],
-      // Add more contract ABIs as needed
+      // Advanced contracts from Phase 2
+      IdentityRegistryAdvanced: [
+        'function batchRegisterIdentities(address[] memory userAddresses, string[] memory identityIds) external',
+        'function autoRenewClaim(address userAddress, uint256 topicId, uint256 newExpirationTime) external',
+        'function batchProcessExpiredClaims(address[] memory userAddresses, uint256[] memory topicIds) external',
+        'function getVerificationCache(address userAddress) external view returns (bool isVerified, uint256 lastUpdate)',
+        'event ClaimAutoRenewed(address indexed userAddress, uint256 indexed topicId, uint256 newExpiration)',
+        'event BatchIdentitiesRegistered(address[] userAddresses, uint256 timestamp)',
+      ],
+      ProjectGovernanceAdvanced: [
+        'function createProposalFromTemplate(uint256 templateId, bytes memory proposalData) external',
+        'function delegateVotingPower(address delegate) external',
+        'function getVotingIncentives(address voter) external view returns (uint256 rewards, uint256 streak)',
+        'function castVoteWithIncentive(uint256 proposalId, uint8 support) external',
+        'event ProposalCreatedFromTemplate(uint256 indexed proposalId, uint256 indexed templateId)',
+        'event VotingIncentiveRewarded(address indexed voter, uint256 amount, uint256 reason)',
+      ],
+      ProjectTreasuryAdvanced: [
+        'function createVestingSchedule(address beneficiary, uint256 amount, uint256 cliffDuration, uint256 vestingDuration) external',
+        'function claimVestedTokens() external',
+        'function updateDynamicFeeRate(uint256 newRate) external',
+        'function batchClaimProfits(address[] memory beneficiaries) external',
+        'event VestingScheduleCreated(address indexed beneficiary, uint256 amount, uint256 cliff, uint256 duration)',
+        'event DynamicFeeRateUpdated(uint256 oldRate, uint256 newRate)',
+      ],
+      // Upgradeable contracts from Phase 1
+      PlatformRegistryUpgradeable: [
+        'function initialize(address admin) external',
+        'function registerSPV(address spvAddress) external',
+        'function activateEmergencyMode() external',
+        'function deactivateEmergencyMode() external',
+        'function upgradeTo(address newImplementation) external',
+        'event Upgraded(address indexed implementation)',
+      ],
+      PlatformTreasuryUpgradeable: [
+        'function initialize(address admin, address registryAddress) external',
+        'function collectFee(uint256 amount) external',
+        'function emergencyWithdraw(uint256 amount) external',
+        'function setDailyWithdrawalLimit(uint256 newLimit) external',
+        'event EmergencyWithdrawal(address indexed admin, uint256 amount)',
+        'event DailyLimitUpdated(uint256 oldLimit, uint256 newLimit)',
+      ],
     };
   }
 
@@ -242,11 +296,13 @@ export class PartisiproSDK extends EventEmitter {
   private async loadDeploymentConfiguration(): Promise<any> {
     // In production, this would load from deployment files
     return {
-      contracts: Array.from(this.contracts.entries()).map(([name, contract]) => ({
-        name,
-        address: contract.target as string,
-        abi: [], // Would be loaded from artifacts
-      })),
+      contracts: Array.from(this.contracts.entries()).map(
+        ([name, contract]) => ({
+          name,
+          address: contract.target as string,
+          abi: [], // Would be loaded from artifacts
+        })
+      ),
     };
   }
 
@@ -255,9 +311,9 @@ export class PartisiproSDK extends EventEmitter {
    */
   private async initializeMonitoring(): Promise<void> {
     if (!this.config.monitoring?.enabled) return;
-    
+
     console.log('📊 Initializing health monitoring...');
-    
+
     const monitoringConfig = {
       checkInterval: this.config.monitoring.checkInterval || 30000,
       alertThresholds: this.config.monitoring.alertThresholds || {
@@ -265,22 +321,27 @@ export class PartisiproSDK extends EventEmitter {
         gasPrice: 50,
         errorRate: 5,
       },
-      contracts: Array.from(this.contracts.entries()).map(([name, contract]) => ({
-        name,
-        address: contract.target as string,
-        abi: [], // Would be loaded from artifacts
-      })),
+      contracts: Array.from(this.contracts.entries()).map(
+        ([name, contract]) => ({
+          name,
+          address: contract.target as string,
+          abi: [], // Would be loaded from artifacts
+        })
+      ),
       notifications: {},
     };
-    
-    this.healthMonitor = new PlatformHealthMonitor(this.provider, monitoringConfig);
-    
+
+    this.healthMonitor = new PlatformHealthMonitor(
+      this.provider,
+      monitoringConfig
+    );
+
     // Set up event listeners
-    this.healthMonitor.on('healthUpdate', (status) => {
+    this.healthMonitor.on('healthUpdate', status => {
       this.emit('healthUpdate', status);
     });
-    
-    this.healthMonitor.on('error', (error) => {
+
+    this.healthMonitor.on('error', error => {
       this.emit('monitoringError', error);
     });
   }
@@ -290,16 +351,18 @@ export class PartisiproSDK extends EventEmitter {
    */
   private async initializeAnalytics(): Promise<void> {
     if (!this.config.analytics?.enabled) return;
-    
+
     console.log('📈 Initializing analytics...');
-    
+
     const analyticsConfig = {
-      contracts: Array.from(this.contracts.entries()).map(([name, contract]) => ({
-        name,
-        address: contract.target as string,
-        abi: [], // Would be loaded from artifacts
-        startBlock: 0,
-      })),
+      contracts: Array.from(this.contracts.entries()).map(
+        ([name, contract]) => ({
+          name,
+          address: contract.target as string,
+          abi: [], // Would be loaded from artifacts
+          startBlock: 0,
+        })
+      ),
       reportingPeriod: this.config.analytics.reportingPeriod || {
         start: 0,
         end: await this.provider.getBlockNumber(),
@@ -309,7 +372,7 @@ export class PartisiproSDK extends EventEmitter {
       includeEvents: true,
       includeFunctionCalls: true,
     };
-    
+
     this.analytics = new OnChainAnalytics(this.provider, analyticsConfig);
   }
 
@@ -318,57 +381,69 @@ export class PartisiproSDK extends EventEmitter {
    */
   private async initializeCompliance(): Promise<void> {
     if (!this.config.compliance?.enabled) return;
-    
+
     console.log('📋 Initializing compliance reporting...');
-    
+
     const complianceConfig = {
-      contracts: Array.from(this.contracts.entries()).map(([name, contract]) => ({
-        name,
-        address: contract.target as string,
-        abi: [], // Would be loaded from artifacts
-        complianceRules: [],
-      })),
+      contracts: Array.from(this.contracts.entries()).map(
+        ([name, contract]) => ({
+          name,
+          address: contract.target as string,
+          abi: [], // Would be loaded from artifacts
+          complianceRules: [],
+        })
+      ),
       reportingPeriod: {
         start: 0,
         end: Date.now(),
       },
       regulatoryFramework: {
         country: 'Indonesia',
-        regulations: ['Indonesian Capital Market Law', 'OJK Regulation No. 13/2022'],
+        regulations: [
+          'Indonesian Capital Market Law',
+          'OJK Regulation No. 13/2022',
+        ],
         requirements: {},
       },
-      thresholds: this.config.compliance.thresholds || {
-        minimumComplianceScore: 85,
-        identityVerificationRate: 95,
-        transactionComplianceRate: 98,
-        governanceParticipationRate: 30,
+      thresholds: {
+        minimumComplianceScore:
+          this.config.compliance.thresholds?.minimumComplianceScore || 85,
+        identityVerificationRate:
+          this.config.compliance.thresholds?.identityVerificationRate || 95,
+        transactionComplianceRate:
+          this.config.compliance.thresholds?.transactionComplianceRate || 98,
+        governanceParticipationRate:
+          this.config.compliance.thresholds?.governanceParticipationRate || 30,
       },
       notifications: {},
     };
-    
+
     this.compliance = new ComplianceReporting(this.provider, complianceConfig);
   }
 
   /**
    * Platform Management Methods
    */
-  async registerSPV(spvAddress: string, options?: TransactionOptions): Promise<string> {
+  async registerSPV(
+    spvAddress: string,
+    options?: TransactionOptions
+  ): Promise<string> {
     this.ensureInitialized();
-    
+
     const platformRegistry = this.contracts.get('PlatformRegistry');
     if (!platformRegistry) {
       throw new Error('PlatformRegistry contract not found');
     }
-    
+
     console.log(`📝 Registering SPV: ${spvAddress}`);
-    
+
     try {
       const tx = await platformRegistry.registerSPV(spvAddress, options || {});
       const receipt = await tx.wait();
-      
+
       console.log(`✅ SPV registered successfully: ${receipt.hash}`);
       this.emit('spvRegistered', { spvAddress, transactionHash: receipt.hash });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ SPV registration failed:', error);
@@ -378,32 +453,32 @@ export class PartisiproSDK extends EventEmitter {
 
   async getPlatformConfig(): Promise<any> {
     this.ensureInitialized();
-    
+
     const platformRegistry = this.contracts.get('PlatformRegistry');
     if (!platformRegistry) {
       throw new Error('PlatformRegistry contract not found');
     }
-    
+
     return await platformRegistry.getPlatformConfig();
   }
 
   async activateEmergencyMode(): Promise<string> {
     this.ensureInitialized();
-    
+
     const platformRegistry = this.contracts.get('PlatformRegistry');
     if (!platformRegistry) {
       throw new Error('PlatformRegistry contract not found');
     }
-    
+
     console.log('🚨 Activating emergency mode...');
-    
+
     try {
       const tx = await platformRegistry.activateEmergencyMode();
       const receipt = await tx.wait();
-      
+
       console.log(`✅ Emergency mode activated: ${receipt.hash}`);
       this.emit('emergencyModeActivated', { transactionHash: receipt.hash });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ Emergency mode activation failed:', error);
@@ -419,14 +494,14 @@ export class PartisiproSDK extends EventEmitter {
     options?: TransactionOptions
   ): Promise<string> {
     this.ensureInitialized();
-    
+
     const identityRegistry = this.contracts.get('IdentityRegistry');
     if (!identityRegistry) {
       throw new Error('IdentityRegistry contract not found');
     }
-    
+
     console.log(`👤 Registering identity: ${identityData.userAddress}`);
-    
+
     try {
       const tx = await identityRegistry.registerIdentity(
         identityData.userAddress,
@@ -435,14 +510,14 @@ export class PartisiproSDK extends EventEmitter {
         options || {}
       );
       const receipt = await tx.wait();
-      
+
       console.log(`✅ Identity registered successfully: ${receipt.hash}`);
-      this.emit('identityRegistered', { 
+      this.emit('identityRegistered', {
         userAddress: identityData.userAddress,
         identityId: identityData.identityId,
-        transactionHash: receipt.hash 
+        transactionHash: receipt.hash,
       });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ Identity registration failed:', error);
@@ -452,23 +527,23 @@ export class PartisiproSDK extends EventEmitter {
 
   async isIdentityVerified(userAddress: string): Promise<boolean> {
     this.ensureInitialized();
-    
+
     const identityRegistry = this.contracts.get('IdentityRegistry');
     if (!identityRegistry) {
       throw new Error('IdentityRegistry contract not found');
     }
-    
+
     return await identityRegistry.isVerified(userAddress);
   }
 
   async getIdentityClaims(userAddress: string): Promise<any[]> {
     this.ensureInitialized();
-    
+
     const identityRegistry = this.contracts.get('IdentityRegistry');
     if (!identityRegistry) {
       throw new Error('IdentityRegistry contract not found');
     }
-    
+
     return await identityRegistry.getClaims(userAddress);
   }
 
@@ -478,16 +553,20 @@ export class PartisiproSDK extends EventEmitter {
   async createProject(
     projectParams: ProjectCreationParams,
     options?: TransactionOptions
-  ): Promise<{ projectId: number; projectAddress: string; transactionHash: string }> {
+  ): Promise<{
+    projectId: number;
+    projectAddress: string;
+    transactionHash: string;
+  }> {
     this.ensureInitialized();
-    
+
     const projectFactory = this.contracts.get('ProjectFactory');
     if (!projectFactory) {
       throw new Error('ProjectFactory contract not found');
     }
-    
+
     console.log(`🏗️ Creating project: ${projectParams.tokenName}`);
-    
+
     try {
       const tx = await projectFactory.createProject(
         projectParams.tokenName,
@@ -498,28 +577,42 @@ export class PartisiproSDK extends EventEmitter {
         options || {}
       );
       const receipt = await tx.wait();
-      
+
       // Parse the ProjectCreated event
-      const projectCreatedEvent = receipt.logs.find((log: any) => 
-        log.topics[0] === projectFactory.interface.getEventTopic('ProjectCreated')
-      );
-      
+      const projectCreatedEvent = receipt.logs.find((log: any) => {
+        try {
+          const parsed = projectFactory.interface.parseLog(log);
+          return parsed && parsed.name === 'ProjectCreated';
+        } catch {
+          return false;
+        }
+      });
+
       if (!projectCreatedEvent) {
-        throw new Error('ProjectCreated event not found in transaction receipt');
+        throw new Error(
+          'ProjectCreated event not found in transaction receipt'
+        );
       }
-      
-      const decodedEvent = projectFactory.interface.parseLog(projectCreatedEvent);
+
+      const decodedEvent =
+        projectFactory.interface.parseLog(projectCreatedEvent);
+      if (!decodedEvent) {
+        throw new Error('Failed to decode ProjectCreated event');
+      }
+
       const projectId = decodedEvent.args.projectId.toNumber();
       const projectAddress = decodedEvent.args.projectAddress;
-      
-      console.log(`✅ Project created successfully: ID ${projectId}, Address ${projectAddress}`);
-      this.emit('projectCreated', { 
+
+      console.log(
+        `✅ Project created successfully: ID ${projectId}, Address ${projectAddress}`
+      );
+      this.emit('projectCreated', {
         projectId,
         projectAddress,
         projectParams,
-        transactionHash: receipt.hash 
+        transactionHash: receipt.hash,
       });
-      
+
       return { projectId, projectAddress, transactionHash: receipt.hash };
     } catch (error) {
       console.error('❌ Project creation failed:', error);
@@ -529,24 +622,24 @@ export class PartisiproSDK extends EventEmitter {
 
   async getProjectCount(): Promise<number> {
     this.ensureInitialized();
-    
+
     const projectFactory = this.contracts.get('ProjectFactory');
     if (!projectFactory) {
       throw new Error('ProjectFactory contract not found');
     }
-    
+
     const count = await projectFactory.getProjectCount();
     return count.toNumber();
   }
 
   async getProjectAddress(projectId: number): Promise<string> {
     this.ensureInitialized();
-    
+
     const projectFactory = this.contracts.get('ProjectFactory');
     if (!projectFactory) {
       throw new Error('ProjectFactory contract not found');
     }
-    
+
     return await projectFactory.getProjectAddress(projectId);
   }
 
@@ -558,37 +651,39 @@ export class PartisiproSDK extends EventEmitter {
     options?: TransactionOptions
   ): Promise<string> {
     this.ensureInitialized();
-    
+
     console.log(`💰 Investing in project: ${investmentData.projectAddress}`);
-    
+
     // First, verify investor identity
-    const isVerified = await this.isIdentityVerified(investmentData.investorAddress);
+    const isVerified = await this.isIdentityVerified(
+      investmentData.investorAddress
+    );
     if (!isVerified) {
       throw new Error('Investor identity not verified');
     }
-    
+
     // Get project offering contract
     const projectOffering = new ethers.Contract(
       investmentData.projectAddress,
       ['function buyTokens(uint256 amount) external payable'],
       this.signer || this.provider
     );
-    
+
     try {
       const tx = await projectOffering.buyTokens(investmentData.amount, {
         value: investmentData.amount,
         ...options,
       });
       const receipt = await tx.wait();
-      
+
       console.log(`✅ Investment successful: ${receipt.hash}`);
-      this.emit('investmentMade', { 
+      this.emit('investmentMade', {
         projectAddress: investmentData.projectAddress,
         amount: investmentData.amount,
         investor: investmentData.investorAddress,
-        transactionHash: receipt.hash 
+        transactionHash: receipt.hash,
       });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ Investment failed:', error);
@@ -605,16 +700,18 @@ export class PartisiproSDK extends EventEmitter {
     options?: TransactionOptions
   ): Promise<string> {
     this.ensureInitialized();
-    
+
     console.log(`🗳️ Creating proposal: ${proposal.title}`);
-    
+
     // Get project governance contract
     const projectGovernance = new ethers.Contract(
       projectAddress,
-      ['function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) external returns (uint256)'],
+      [
+        'function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) external returns (uint256)',
+      ],
       this.signer || this.provider
     );
-    
+
     try {
       const tx = await projectGovernance.propose(
         proposal.targets,
@@ -624,14 +721,14 @@ export class PartisiproSDK extends EventEmitter {
         options || {}
       );
       const receipt = await tx.wait();
-      
+
       console.log(`✅ Proposal created successfully: ${receipt.hash}`);
-      this.emit('proposalCreated', { 
+      this.emit('proposalCreated', {
         projectAddress,
         proposal,
-        transactionHash: receipt.hash 
+        transactionHash: receipt.hash,
       });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ Proposal creation failed:', error);
@@ -646,28 +743,36 @@ export class PartisiproSDK extends EventEmitter {
     options?: TransactionOptions
   ): Promise<string> {
     this.ensureInitialized();
-    
-    console.log(`🗳️ Voting on proposal ${proposalId}: ${support ? 'FOR' : 'AGAINST'}`);
-    
+
+    console.log(
+      `🗳️ Voting on proposal ${proposalId}: ${support ? 'FOR' : 'AGAINST'}`
+    );
+
     // Get project governance contract
     const projectGovernance = new ethers.Contract(
       projectAddress,
-      ['function castVote(uint256 proposalId, uint8 support) external returns (uint256)'],
+      [
+        'function castVote(uint256 proposalId, uint8 support) external returns (uint256)',
+      ],
       this.signer || this.provider
     );
-    
+
     try {
-      const tx = await projectGovernance.castVote(proposalId, support ? 1 : 0, options || {});
+      const tx = await projectGovernance.castVote(
+        proposalId,
+        support ? 1 : 0,
+        options || {}
+      );
       const receipt = await tx.wait();
-      
+
       console.log(`✅ Vote cast successfully: ${receipt.hash}`);
-      this.emit('voteCast', { 
+      this.emit('voteCast', {
         projectAddress,
         proposalId,
         support,
-        transactionHash: receipt.hash 
+        transactionHash: receipt.hash,
       });
-      
+
       return receipt.hash;
     } catch (error) {
       console.error('❌ Vote casting failed:', error);
@@ -682,7 +787,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!this.healthMonitor) {
       throw new Error('Health monitoring not initialized');
     }
-    
+
     await this.healthMonitor.startMonitoring();
   }
 
@@ -690,7 +795,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!this.healthMonitor) {
       throw new Error('Health monitoring not initialized');
     }
-    
+
     this.healthMonitor.stopMonitoring();
   }
 
@@ -698,7 +803,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!this.healthMonitor) {
       throw new Error('Health monitoring not initialized');
     }
-    
+
     return this.healthMonitor.getCurrentHealthStatus();
   }
 
@@ -706,7 +811,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!this.analytics) {
       throw new Error('Analytics not initialized');
     }
-    
+
     return await this.analytics.generateAnalyticsReport();
   }
 
@@ -714,7 +819,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!this.compliance) {
       throw new Error('Compliance reporting not initialized');
     }
-    
+
     return await this.compliance.generateComplianceReport();
   }
 
@@ -728,12 +833,12 @@ export class PartisiproSDK extends EventEmitter {
     options?: TransactionOptions
   ): Promise<bigint> {
     this.ensureInitialized();
-    
+
     const contract = this.contracts.get(contractName);
     if (!contract) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    
+
     return await contract[functionName].estimateGas(...args, options || {});
   }
 
@@ -753,25 +858,29 @@ export class PartisiproSDK extends EventEmitter {
   /**
    * Event Listeners
    */
-  listenToContractEvents(contractName: string, eventName: string, callback: (event: any) => void): void {
+  listenToContractEvents(
+    contractName: string,
+    eventName: string,
+    callback: (event: any) => void
+  ): void {
     this.ensureInitialized();
-    
+
     const contract = this.contracts.get(contractName);
     if (!contract) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    
+
     contract.on(eventName, callback);
   }
 
   removeContractEventListener(contractName: string, eventName: string): void {
     this.ensureInitialized();
-    
+
     const contract = this.contracts.get(contractName);
     if (!contract) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    
+
     contract.removeAllListeners(eventName);
   }
 
@@ -789,7 +898,7 @@ export class PartisiproSDK extends EventEmitter {
     if (!contract) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    
+
     return contract.target as string;
   }
 
@@ -797,7 +906,7 @@ export class PartisiproSDK extends EventEmitter {
     return this.contracts.get(contractName) || null;
   }
 
-  isInitialized(): boolean {
+  getInitializationStatus(): boolean {
     return this.isInitialized;
   }
 
@@ -808,21 +917,24 @@ export class PartisiproSDK extends EventEmitter {
     if (this.healthMonitor) {
       this.healthMonitor.stopMonitoring();
     }
-    
+
     // Remove all event listeners
     this.contracts.forEach(contract => {
       contract.removeAllListeners();
     });
-    
+
     this.removeAllListeners();
     this.isInitialized = false;
-    
+
     console.log('🧹 SDK cleanup completed');
   }
 }
 
 // Helper function to create SDK instance
-export function createPartisiproSDK(config: SDKConfig, signer?: Signer): PartisiproSDK {
+export function createPartisiproSDK(
+  config: SDKConfig,
+  signer?: Signer
+): PartisiproSDK {
   return new PartisiproSDK(config, signer);
 }
 
