@@ -301,6 +301,9 @@ contract ProjectTreasuryAdvanced is
         totalFeesCollected += platformFee;
         totalNetDistributed += netDistribution;
 
+        // Update performance metrics
+        _updatePerformanceMetrics(_amount);
+
         // Send platform fee
         if (platformFee > 0) {
             platformTreasury.collectManagementFee{ value: platformFee }(address(this));
@@ -405,12 +408,14 @@ contract ProjectTreasuryAdvanced is
      * @param _distributionAmount Amount distributed
      */
     function _updateStakingRewards(uint256 _distributionAmount) internal {
-        if (!stakingRewards.isActive || stakingRewards.totalStaked == 0) return;
+        if (!stakingRewards.isActive) return;
 
-        uint256 rewardAmount = (_distributionAmount * stakingRewards.rewardRate) / 10000;
-        stakingRewards.rewardPerTokenStored += (rewardAmount * 1e18) / stakingRewards.totalStaked;
+        if (stakingRewards.totalStaked > 0) {
+            uint256 rewardAmount = (_distributionAmount * stakingRewards.rewardRate) / 10000;
+            stakingRewards.rewardPerTokenStored += (rewardAmount * 1e18) / stakingRewards.totalStaked;
+        }
+
         stakingRewards.lastUpdateTime = block.timestamp;
-
         emit StakingRewardsUpdated(stakingRewards.totalStaked, stakingRewards.rewardRate);
     }
 
@@ -427,7 +432,7 @@ contract ProjectTreasuryAdvanced is
         require(projectToken.balanceOf(msg.sender) > 0, "No tokens held");
 
         uint256 userTokens = projectToken.balanceOf(msg.sender);
-        uint256 claimAmount = (userTokens * distribution.perTokenAmount);
+        uint256 claimAmount = (userTokens * distribution.netDistribution) / distribution.totalTokenSupply;
 
         require(claimAmount > 0, "No profits to claim");
         require(address(this).balance >= claimAmount, "Insufficient balance");
@@ -557,7 +562,7 @@ contract ProjectTreasuryAdvanced is
                 !distributions[distributionId].hasClaimed[msg.sender]
             ) {
                 ProfitDistribution storage distribution = distributions[distributionId];
-                uint256 claimAmount = (userTokens * distribution.perTokenAmount);
+                uint256 claimAmount = (userTokens * distribution.netDistribution) / distribution.totalTokenSupply;
 
                 if (claimAmount > 0 && address(this).balance >= claimAmount) {
                     // Apply vesting if applicable
@@ -752,7 +757,7 @@ contract ProjectTreasuryAdvanced is
             return 0;
         }
 
-        uint256 baseAmount = (userTokens * distribution.perTokenAmount);
+        uint256 baseAmount = (userTokens * distribution.netDistribution) / distribution.totalTokenSupply;
 
         // Apply vesting schedule if applicable
         if (claimSchedules[_user].isActive) {

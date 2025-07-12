@@ -69,9 +69,61 @@ describe('ProjectTreasuryAdvanced', function () {
     );
     await platformTreasury.waitForDeployment();
 
-    // Deploy project token
+    // Deploy mock ERC-3643 infrastructure for testing
+    const ClaimTopicsRegistryFactory = await ethers.getContractFactory(
+      'ClaimTopicsRegistry'
+    );
+    const mockClaimTopicsRegistry =
+      await ClaimTopicsRegistryFactory.deploy(adminAddr);
+    await mockClaimTopicsRegistry.waitForDeployment();
+
+    const TrustedIssuersRegistryFactory = await ethers.getContractFactory(
+      'TrustedIssuersRegistry'
+    );
+    const mockTrustedIssuersRegistry =
+      await TrustedIssuersRegistryFactory.deploy(
+        adminAddr,
+        await mockClaimTopicsRegistry.getAddress()
+      );
+    await mockTrustedIssuersRegistry.waitForDeployment();
+
+    // Deploy a mock identity registry with proper dependencies
+    const IdentityRegistryFactory =
+      await ethers.getContractFactory('IdentityRegistry');
+    const mockIdentityRegistry = await IdentityRegistryFactory.deploy(
+      adminAddr, // admin
+      await mockClaimTopicsRegistry.getAddress(), // claim topics registry
+      await mockTrustedIssuersRegistry.getAddress() // trusted issuers registry
+    );
+    await mockIdentityRegistry.waitForDeployment();
+
+    // Deploy project token with proxy for testing
     const ProjectTokenFactory = await ethers.getContractFactory('ProjectToken');
-    projectToken = await ProjectTokenFactory.deploy();
+
+    const projectInfo = {
+      projectName: 'Test Infrastructure Project',
+      projectDescription: 'Test description',
+      projectLocation: 'Test Location',
+      projectValue: ethers.parseEther('1000000'),
+      concessionPeriod: 25 * 365 * 24 * 60 * 60, // 25 years in seconds
+      expectedAPY: 1000, // 10%
+      metadataURI: 'https://example.com/metadata.json',
+    };
+
+    projectToken = (await upgrades.deployProxy(
+      ProjectTokenFactory,
+      [
+        'Test Project Token', // name
+        'TPT', // symbol
+        ethers.parseEther('997000'), // totalSupply - leave room for test minting
+        adminAddr, // owner
+        adminAddr, // treasury (placeholder)
+        adminAddr, // offering (placeholder)
+        await mockIdentityRegistry.getAddress(), // identityRegistry
+        projectInfo,
+      ],
+      { initializer: 'initialize' }
+    )) as unknown as ProjectToken;
     await projectToken.waitForDeployment();
 
     // Deploy ProjectTreasuryAdvanced with proxy
@@ -97,9 +149,16 @@ describe('ProjectTreasuryAdvanced', function () {
     await projectTreasuryAdvanced.grantRole(OPERATOR_ROLE, operatorAddr);
     await projectTreasuryAdvanced.grantRole(PAUSER_ROLE, pauserAddr);
 
+    // Add admin as authorized minter for testing
+    await projectToken.connect(admin).addAuthorizedMinter(adminAddr);
+
     // Mint tokens to investors
-    await projectToken.mint(investor1Addr, ethers.parseEther('1000'));
-    await projectToken.mint(investor2Addr, ethers.parseEther('2000'));
+    await projectToken
+      .connect(admin)
+      .mint(investor1Addr, ethers.parseEther('1000'));
+    await projectToken
+      .connect(admin)
+      .mint(investor2Addr, ethers.parseEther('2000'));
   });
 
   describe('Initialization', function () {
@@ -202,7 +261,10 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(investor1)
           .updateFeeConfig(600, 1200, 20000, 8000, 2500, 200)
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -281,7 +343,10 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(investor1)
           .distributeProfits(ethers.parseEther('10'))
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
 
     it('Should reject profit distribution with insufficient balance', async function () {
@@ -316,8 +381,8 @@ describe('ProjectTreasuryAdvanced', function () {
       const distribution =
         await projectTreasuryAdvanced.getDistribution(distributionId);
       const expectedClaim =
-        (investor1Balance * distribution.perTokenAmount) /
-        ethers.parseEther('1');
+        (investor1Balance * distribution.netDistribution) /
+        distribution.totalTokenSupply;
 
       const balanceBefore = await ethers.provider.getBalance(investor1Addr);
 
@@ -538,7 +603,10 @@ describe('ProjectTreasuryAdvanced', function () {
             [10000],
             3600
           )
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -582,7 +650,10 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(investor1)
           .emergencyWithdraw(ethers.parseEther('5'), 'Test')
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -694,14 +765,20 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(investor1)
           .distributeProfits(ethers.parseEther('10'))
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
 
       // Test that only admin can update fee config
       await expect(
         projectTreasuryAdvanced
           .connect(investor1)
           .updateFeeConfig(600, 1200, 20000, 8000, 2500, 200)
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
 
       // Test that only admin can set claim schedules
       await expect(
@@ -714,7 +791,10 @@ describe('ProjectTreasuryAdvanced', function () {
             [10000],
             3600
           )
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -736,7 +816,7 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(spv)
           .distributeProfits(ethers.parseEther('10'))
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(projectTreasuryAdvanced, 'EnforcedPause');
 
       // Unpause the contract
       await projectTreasuryAdvanced.connect(pauser).unpause();
@@ -752,11 +832,17 @@ describe('ProjectTreasuryAdvanced', function () {
     it('Should only allow pauser role to pause/unpause', async function () {
       await expect(
         projectTreasuryAdvanced.connect(investor1).pause()
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
 
       await expect(
         projectTreasuryAdvanced.connect(investor1).unpause()
-      ).to.be.revertedWith('AccessControl: account');
+      ).to.be.revertedWithCustomError(
+        projectTreasuryAdvanced,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
