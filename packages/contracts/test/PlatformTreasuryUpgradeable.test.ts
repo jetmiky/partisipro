@@ -138,7 +138,7 @@ describe('PlatformTreasuryUpgradeable', function () {
         platformTreasury.collectListingFee(project.address, {
           value: ethers.parseEther('0.001'),
         })
-      ).to.be.revertedWith('Contract in emergency mode');
+      ).to.be.revertedWithCustomError(platformTreasury, 'EnforcedPause');
     });
 
     it('Should prevent fee collection when paused', async function () {
@@ -214,7 +214,12 @@ describe('PlatformTreasuryUpgradeable', function () {
     });
 
     it('Should prevent withdrawal request exceeding single withdrawal limit', async function () {
-      const amount = ethers.parseEther('10'); // Exceeds maxSingleWithdrawal
+      // Add more balance to ensure sufficient funds
+      await platformTreasury.collectListingFee(project.address, {
+        value: ethers.parseEther('20'),
+      });
+
+      const amount = ethers.parseEther('10'); // Exceeds maxSingleWithdrawal (should be 5 ETH based on test setup)
 
       await expect(
         platformTreasury
@@ -280,9 +285,9 @@ describe('PlatformTreasuryUpgradeable', function () {
       await time.increase(24 * 60 * 60 + 1);
       await platformTreasury.activateEmergencyMode();
 
-      await expect(platformTreasury.executeWithdrawal(1)).to.be.revertedWith(
-        'Contract in emergency mode'
-      );
+      await expect(
+        platformTreasury.executeWithdrawal(1)
+      ).to.be.revertedWithCustomError(platformTreasury, 'EnforcedPause');
     });
   });
 
@@ -295,7 +300,9 @@ describe('PlatformTreasuryUpgradeable', function () {
     });
 
     it('Should enforce daily withdrawal limits', async function () {
-      // Request and execute first withdrawal
+      // Request both withdrawals first, then execute them in sequence within same day
+
+      // Request first withdrawal (5 ETH)
       await platformTreasury
         .connect(operator)
         .requestWithdrawal(
@@ -303,20 +310,36 @@ describe('PlatformTreasuryUpgradeable', function () {
           other.address,
           'First withdrawal'
         );
-      await time.increase(24 * 60 * 60 + 1);
-      await platformTreasury.executeWithdrawal(1);
 
-      // Request second withdrawal that would exceed daily limit
+      // Request second withdrawal (5 ETH) immediately
       await platformTreasury
         .connect(operator)
         .requestWithdrawal(
-          ethers.parseEther('8'),
+          ethers.parseEther('5'),
           other.address,
           'Second withdrawal'
         );
+
+      // Request third withdrawal (1 ETH) immediately
+      await platformTreasury
+        .connect(operator)
+        .requestWithdrawal(
+          ethers.parseEther('1'),
+          other.address,
+          'Third withdrawal'
+        );
+
+      // Now advance time past withdrawal delay (24 hours + 1 second)
       await time.increase(24 * 60 * 60 + 1);
 
-      await expect(platformTreasury.executeWithdrawal(2)).to.be.revertedWith(
+      // Execute first withdrawal (5 ETH)
+      await platformTreasury.executeWithdrawal(1);
+
+      // Execute second withdrawal (5 ETH) - total now 10 ETH
+      await platformTreasury.executeWithdrawal(2);
+
+      // Execute third withdrawal should fail (would make total 11 ETH > 10 ETH daily limit)
+      await expect(platformTreasury.executeWithdrawal(3)).to.be.revertedWith(
         'Daily withdrawal limit exceeded'
       );
     });

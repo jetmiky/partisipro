@@ -539,7 +539,8 @@ contract PlatformTreasuryUpgradeable is
      * @return bool Circuit breaker status
      */
     function isCircuitBreakerActive() external view returns (bool) {
-        return _isCircuitBreakerTriggered(0);
+        if (circuitBreakerTriggered == 0) return false;
+        return block.timestamp - circuitBreakerTriggered <= circuitBreakerWindow;
     }
 
     /**
