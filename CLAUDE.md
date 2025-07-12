@@ -208,7 +208,9 @@ npm run commit                 # Interactive conventional commits
   transactions
 - **Upgrade Path**: Simplified contracts for MVP, UUPS proxy pattern for
   production
-- **Multi-signature**: Planned for production deployment and admin functions
+- **Multi-signature**: Planned for production deployment and admin functions.
+  IMPORTANT NOTE: AS this project is still on prototype, please use regular
+  wallet for admin and SPV.
 - **Rate Limiting**: DDoS protection on API endpoints and transaction limits
 
 ## MVP Implementation Plan
@@ -366,3 +368,14 @@ ProjectToken (ERC-3643)
 - **Weeks 2-3**: Advanced claims management, delegation mechanisms
 - **Weeks 4-5**: Automated compliance monitoring, claim expiration handling
 - **Weeks 6-8**: Cross-platform identity, regulatory integration, security audit
+
+# IMPORTANT NOTE
+
+Altough the Administrator and SPVs intended to use Multi-Signature Wallet for
+extra security, as this projet is still a prototype, do as follows:
+
+- Blockchain Platform uses Single-Signature Wallet for Administrator and SPVs
+- Backend Platform uses Single-Signature Wallet for Administrator and SPVs
+- Frontend Platform uses Single-Signature Wallet for Administrator and SPVs, but
+  still show views to connect Multi-Signature Wallet just for visual purposes
+  only.
