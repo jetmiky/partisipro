@@ -548,12 +548,19 @@ contract IdentityRegistryAdvanced is
      * @param _identity Address of the identity to check
      */
     function _updateVerificationStatus(address _identity) internal {
+        // Force fresh verification check by temporarily invalidating cache
+        uint256 originalCacheTime = verificationCache[_identity];
+        verificationCache[_identity] = 0; // Invalidate cache
+
         bool verified = _checkVerificationStatus(_identity);
 
         if (isVerified[_identity] != verified) {
             isVerified[_identity] = verified;
             verificationCache[_identity] = block.timestamp;
             emit VerificationStatusChanged(_identity, verified);
+        } else {
+            // Restore cache time if no change
+            verificationCache[_identity] = originalCacheTime;
         }
     }
 
@@ -733,31 +740,6 @@ contract IdentityRegistryAdvanced is
 
     function getExpirationConfig() external view returns (ExpirationConfig memory) {
         return expirationConfig;
-    }
-
-    /**
-     * @dev Batch register identities (stub implementation for testing)
-     * @param _identities Array of identity addresses to register
-     * @param _maxBatchSize Maximum batch size allowed
-     */
-    function batchRegisterIdentities(
-        address[] calldata _identities,
-        uint256 _maxBatchSize
-    ) external onlyRole(OPERATOR_ROLE) {
-        require(_identities.length <= _maxBatchSize, "Batch size exceeds limit");
-
-        for (uint256 i = 0; i < _identities.length; i++) {
-            if (!identities[_identities[i]].exists && _identities[i] != address(0)) {
-                identities[_identities[i]].wallet = _identities[i];
-                identities[_identities[i]].exists = true;
-                identities[_identities[i]].createdAt = block.timestamp;
-                identities[_identities[i]].updatedAt = block.timestamp;
-                identities[_identities[i]].lastExpirationCheck = block.timestamp;
-                identities[_identities[i]].autoRenewalEnabled = false;
-
-                registeredIdentities.push(_identities[i]);
-            }
-        }
     }
 
     /**
