@@ -124,7 +124,7 @@ export class ContractVerificationUtils {
 
       // Try to get deployment transaction
       const filter = {
-        address: null,
+        address: undefined,
         topics: [],
       };
 
@@ -249,7 +249,7 @@ export class ContractVerificationUtils {
         `${this.config.apiUrl}?module=contract&action=getsourcecode&address=${address}&apikey=${this.config.apiKey}`
       );
       
-      const data = await response.json();
+      const data: any = await response.json();
       
       if (data.status === '1' && data.result[0].SourceCode) {
         return 'verified';

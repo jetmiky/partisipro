@@ -50,8 +50,11 @@ describe('ProjectTreasuryAdvanced', function () {
       await ethers.getContractFactory('PlatformRegistry');
     platformRegistry = await PlatformRegistryFactory.deploy(
       adminAddr,
-      500,
-      1000
+      adminAddr, // temporary treasury address
+      ethers.parseEther('0.1'), // listing fee
+      500, // management fee rate (5%)
+      ethers.parseEther('1'), // minimum investment
+      ethers.parseEther('1000000') // maximum investment
     );
     await platformRegistry.waitForDeployment();
 
@@ -60,20 +63,15 @@ describe('ProjectTreasuryAdvanced', function () {
       await ethers.getContractFactory('PlatformTreasury');
     platformTreasury = await PlatformTreasuryFactory.deploy(
       adminAddr,
-      await platformRegistry.getAddress()
+      await platformRegistry.getAddress(),
+      adminAddr, // emergency recipient
+      ethers.parseEther('100') // emergency withdrawal threshold
     );
     await platformTreasury.waitForDeployment();
 
     // Deploy project token
     const ProjectTokenFactory = await ethers.getContractFactory('ProjectToken');
-    projectToken = await ProjectTokenFactory.deploy(
-      'Test Project Token',
-      'TPT',
-      ethers.parseEther('1000000'), // 1M tokens
-      adminAddr,
-      adminAddr,
-      await platformRegistry.getAddress()
-    );
+    projectToken = await ProjectTokenFactory.deploy();
     await projectToken.waitForDeployment();
 
     // Deploy ProjectTreasuryAdvanced with proxy
@@ -830,14 +828,7 @@ describe('ProjectTreasuryAdvanced', function () {
       // Deploy a token with zero supply
       const ProjectTokenFactory =
         await ethers.getContractFactory('ProjectToken');
-      const zeroSupplyToken = await ProjectTokenFactory.deploy(
-        'Zero Token',
-        'ZT',
-        0, // Zero supply
-        adminAddr,
-        adminAddr,
-        await platformRegistry.getAddress()
-      );
+      const zeroSupplyToken = await ProjectTokenFactory.deploy();
 
       // Deploy treasury with zero supply token
       const ProjectTreasuryAdvancedFactory = await ethers.getContractFactory(

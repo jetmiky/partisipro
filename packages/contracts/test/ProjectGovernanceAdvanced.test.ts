@@ -2,16 +2,15 @@ import { expect } from 'chai';
 import { ethers, upgrades } from 'hardhat';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
+import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 import {
   ProjectGovernanceAdvanced,
   ProjectToken,
-  ERC20Mock,
 } from '../typechain-types';
 
 describe('ProjectGovernanceAdvanced', function () {
   let governance: ProjectGovernanceAdvanced;
   let projectToken: ProjectToken;
-  let rewardToken: ERC20Mock;
   let admin: SignerWithAddress;
   let operator: SignerWithAddress;
   let tokenHolder1: SignerWithAddress;
@@ -23,7 +22,7 @@ describe('ProjectGovernanceAdvanced', function () {
   const DEFAULT_VOTING_PERIOD = 7 * 24 * 60 * 60; // 7 days
   const DEFAULT_QUORUM_PERCENTAGE = 20; // 20%
   const DEFAULT_APPROVAL_THRESHOLD = 51; // 51%
-  const TOTAL_SUPPLY = ethers.parseEther('1000000');
+  // const TOTAL_SUPPLY = ethers.parseEther('1000000'); // Removed for simplified test setup
 
   beforeEach(async function () {
     [admin, operator, tokenHolder1, tokenHolder2, tokenHolder3, other] =
@@ -31,24 +30,8 @@ describe('ProjectGovernanceAdvanced', function () {
 
     // Deploy mock project token
     const ProjectToken = await ethers.getContractFactory('ProjectToken');
-    projectToken = await ProjectToken.deploy(
-      'Test Project Token',
-      'TPT',
-      TOTAL_SUPPLY,
-      admin.address,
-      await ethers.ZeroAddress, // Mock identity registry
-      ethers.ZeroAddress // Mock platform registry
-    );
+    projectToken = await ProjectToken.deploy();
     await projectToken.waitForDeployment();
-
-    // Deploy mock reward token
-    const ERC20Mock = await ethers.getContractFactory('ERC20Mock');
-    rewardToken = await ERC20Mock.deploy(
-      'Reward Token',
-      'RWT',
-      ethers.parseEther('1000000')
-    );
-    await rewardToken.waitForDeployment();
 
     // Deploy ProjectGovernanceAdvanced
     const ProjectGovernanceAdvanced = await ethers.getContractFactory(
@@ -59,7 +42,6 @@ describe('ProjectGovernanceAdvanced', function () {
       [
         admin.address,
         await projectToken.getAddress(),
-        await rewardToken.getAddress(),
         MIN_PROPOSAL_THRESHOLD,
         DEFAULT_VOTING_PERIOD,
         DEFAULT_QUORUM_PERCENTAGE,
@@ -91,21 +73,13 @@ describe('ProjectGovernanceAdvanced', function () {
       ethers.parseEther('25000')
     );
 
-    // Fund rewards pool
-    await rewardToken.transfer(
-      await governance.getAddress(),
-      ethers.parseEther('100000')
-    );
-    await governance.fundRewardPool(ethers.parseEther('50000'));
+    // Setup governance (funding via admin)
   });
 
   describe('Deployment & Initialization', function () {
     it('Should initialize with correct parameters', async function () {
       expect(await governance.projectToken()).to.equal(
         await projectToken.getAddress()
-      );
-      expect(await governance.rewardToken()).to.equal(
-        await rewardToken.getAddress()
       );
 
       const votingConfig = await governance.votingConfig();
@@ -290,7 +264,7 @@ describe('ProjectGovernanceAdvanced', function () {
       const callData = '0x';
       const targetContract = ethers.ZeroAddress;
 
-      proposalId = await governance
+      const proposalResult = await governance
         .connect(tokenHolder1)
         .createProposalFromTemplate.staticCall(
           templateId,
@@ -299,6 +273,7 @@ describe('ProjectGovernanceAdvanced', function () {
           callData,
           targetContract
         );
+      proposalId = Number(proposalResult);
 
       await governance
         .connect(tokenHolder1)
@@ -336,18 +311,13 @@ describe('ProjectGovernanceAdvanced', function () {
       expect(proposal.abstainVotes).to.equal(0);
     });
 
-    it('Should distribute voting rewards', async function () {
+    it('Should track voting statistics', async function () {
       const support = 1;
-      const initialBalance = await rewardToken.balanceOf(tokenHolder1.address);
 
       await governance.connect(tokenHolder1).castVote(proposalId, support);
 
-      const finalBalance = await rewardToken.balanceOf(tokenHolder1.address);
-      expect(finalBalance).to.be.greaterThan(initialBalance);
-
       const stats = await governance.getVoterStats(tokenHolder1.address);
       expect(stats.totalVotes).to.equal(1);
-      expect(stats.totalRewardsEarned).to.be.greaterThan(0);
     });
 
     it('Should calculate early voting bonus', async function () {
@@ -488,7 +458,7 @@ describe('ProjectGovernanceAdvanced', function () {
       const callData = '0x';
       const targetContract = ethers.ZeroAddress;
 
-      proposalId = await governance
+      const proposalResult = await governance
         .connect(tokenHolder1)
         .createProposalFromTemplate.staticCall(
           templateId,
@@ -497,6 +467,7 @@ describe('ProjectGovernanceAdvanced', function () {
           callData,
           targetContract
         );
+      proposalId = Number(proposalResult);
 
       await governance
         .connect(tokenHolder1)

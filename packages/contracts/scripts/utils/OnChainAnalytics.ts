@@ -1,5 +1,5 @@
 import { ethers, Contract } from 'ethers';
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 export interface AnalyticsMetric {
@@ -376,7 +376,7 @@ export class OnChainAnalytics {
           for (const event of profitEvents) {
             // Extract amount from event data
             try {
-              const amount = event.args?.amount || BigInt(0);
+              const amount = (event as any).args?.amount || BigInt(0);
               totalDistributed += amount;
             } catch (error) {
               console.log('Could not parse profit distribution amount');

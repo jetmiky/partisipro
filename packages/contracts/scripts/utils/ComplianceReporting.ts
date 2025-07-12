@@ -1,5 +1,5 @@
 import { ethers, Contract } from 'ethers';
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 export interface ComplianceMetric {
@@ -288,7 +288,7 @@ export class ComplianceReporting {
         // Analyze each identity
         for (const event of identityEvents) {
           try {
-            const identityAddress = event.args?.userAddress;
+            const identityAddress = (event as any).args?.userAddress;
             if (identityAddress) {
               // Check if identity is verified
               const isVerified = await identityRegistry.isVerified(identityAddress);
@@ -375,8 +375,8 @@ export class ComplianceReporting {
           compliance.totalTransactions = transferEvents.length;
           
           for (const event of transferEvents) {
-            const from = event.args?.from;
-            const to = event.args?.to;
+            const from = (event as any).args?.from;
+            const to = (event as any).args?.to;
             
             // Check if transfer was compliant
             try {
@@ -444,7 +444,7 @@ export class ComplianceReporting {
           
           // Analyze each proposal
           for (const event of proposalEvents) {
-            const proposalId = event.args?.proposalId;
+            const proposalId = (event as any).args?.proposalId;
             if (proposalId) {
               try {
                 const proposalData = await projectGovernance.getProposal(proposalId);
@@ -474,13 +474,13 @@ export class ComplianceReporting {
           // Calculate unique voters
           const uniqueVoters = new Set();
           for (const event of voteEvents) {
-            uniqueVoters.add(event.args?.voter);
+            uniqueVoters.add((event as any).args?.voter);
           }
           
           // Get total token holders
           const projectToken = this.contracts.get('ProjectToken');
           if (projectToken) {
-            const totalSupply = await projectToken.totalSupply();
+            // const totalSupply = await projectToken.totalSupply(); // Available for future use
             const totalHolders = await this.getTotalTokenHolders(projectToken);
             
             compliance.votingParticipation = totalHolders > 0

@@ -74,7 +74,7 @@ class EnhancedDeploymentManager {
         constructorArgs,
         {
           initializer: 'initialize',
-          kind: options.kind || 'uups',
+          kind: (options.kind as 'uups' | 'transparent' | 'beacon') || 'uups',
         }
       );
       await contract.waitForDeployment();
