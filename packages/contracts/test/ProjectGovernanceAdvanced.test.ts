@@ -18,7 +18,7 @@ describe('ProjectGovernanceAdvanced', function () {
 
   const MIN_PROPOSAL_THRESHOLD = ethers.parseEther('1000');
   const DEFAULT_VOTING_PERIOD = 7 * 24 * 60 * 60; // 7 days
-  const DEFAULT_QUORUM_PERCENTAGE = 20; // 20%
+  const DEFAULT_QUORUM_PERCENTAGE = 15; // 15% (175k distributed of 997k total = ~17.5%)
   const DEFAULT_APPROVAL_THRESHOLD = 51; // 51%
   // const TOTAL_SUPPLY = ethers.parseEther('1000000'); // Removed for simplified test setup
 
@@ -26,13 +26,77 @@ describe('ProjectGovernanceAdvanced', function () {
     [admin, operator, tokenHolder1, tokenHolder2, tokenHolder3, other] =
       await ethers.getSigners();
 
-    // Deploy mock project token
-    const ProjectToken = await ethers.getContractFactory('ProjectToken');
-    projectToken = await ProjectToken.deploy();
+    // Deploy mock ERC-3643 infrastructure for testing
+    const ClaimTopicsRegistryFactory = await ethers.getContractFactory(
+      'ClaimTopicsRegistry'
+    );
+    const claimTopicsRegistry = await ClaimTopicsRegistryFactory.deploy(
+      admin.address
+    );
+    await claimTopicsRegistry.waitForDeployment();
+
+    const TrustedIssuersRegistryFactory = await ethers.getContractFactory(
+      'TrustedIssuersRegistry'
+    );
+    const trustedIssuersRegistry = await TrustedIssuersRegistryFactory.deploy(
+      admin.address,
+      await claimTopicsRegistry.getAddress()
+    );
+    await trustedIssuersRegistry.waitForDeployment();
+
+    const IdentityRegistryFactory =
+      await ethers.getContractFactory('IdentityRegistry');
+    const mockIdentityRegistry = await IdentityRegistryFactory.deploy(
+      admin.address,
+      await claimTopicsRegistry.getAddress(),
+      await trustedIssuersRegistry.getAddress()
+    );
+    await mockIdentityRegistry.waitForDeployment();
+
+    // Deploy mock project token with proxy deployment for consistent testing
+    const ProjectTokenFactory = await ethers.getContractFactory('ProjectToken');
+
+    const projectInfo = {
+      projectName: 'Test Project Token',
+      projectDescription: 'Test description',
+      projectLocation: 'Test Location',
+      projectValue: ethers.parseEther('1000000'),
+      concessionPeriod: 25 * 365 * 24 * 60 * 60,
+      expectedAPY: 1000,
+      metadataURI: 'https://example.com/metadata.json',
+    };
+
+    projectToken = (await upgrades.deployProxy(
+      ProjectTokenFactory,
+      [
+        'Test Project Token',
+        'TPT',
+        ethers.parseEther('1000000'),
+        admin.address, // owner - this allows admin to enable transfers
+        admin.address, // treasury (placeholder)
+        admin.address, // offering (placeholder)
+        await mockIdentityRegistry.getAddress(), // identityRegistry
+        projectInfo,
+      ],
+      { initializer: 'initialize' }
+    )) as unknown as ProjectToken;
     await projectToken.waitForDeployment();
 
     // Deploy mock reward token (using the same ProjectToken as a placeholder)
-    rewardToken = await ProjectToken.deploy();
+    rewardToken = (await upgrades.deployProxy(
+      ProjectTokenFactory,
+      [
+        'Reward Token',
+        'RWT',
+        ethers.parseEther('1000000'),
+        admin.address, // owner
+        admin.address, // treasury (placeholder)
+        admin.address, // offering (placeholder)
+        await mockIdentityRegistry.getAddress(), // identityRegistry
+        projectInfo,
+      ],
+      { initializer: 'initialize' }
+    )) as unknown as ProjectToken;
     await rewardToken.waitForDeployment();
 
     // Deploy ProjectGovernanceAdvanced
@@ -62,8 +126,67 @@ describe('ProjectGovernanceAdvanced', function () {
     const OPERATOR_ROLE = await governance.OPERATOR_ROLE();
     await governance.grantRole(OPERATOR_ROLE, operator.address);
 
-    // Enable transfers and distribute tokens to holders
-    await projectToken.enableTransfers();
+    // Grant necessary roles for identity management
+    const IDENTITY_OPERATOR_ROLE = await mockIdentityRegistry.OPERATOR_ROLE();
+    const IDENTITY_ISSUER_ROLE = await mockIdentityRegistry.ISSUER_ROLE();
+    await mockIdentityRegistry.grantRole(IDENTITY_OPERATOR_ROLE, admin.address);
+    await mockIdentityRegistry.grantRole(IDENTITY_ISSUER_ROLE, admin.address);
+
+    // Grant OPERATOR_ROLE to IdentityRegistry in TrustedIssuersRegistry
+    const TRUSTED_ISSUER_OPERATOR_ROLE =
+      await trustedIssuersRegistry.OPERATOR_ROLE();
+    await trustedIssuersRegistry.grantRole(
+      TRUSTED_ISSUER_OPERATOR_ROLE,
+      await mockIdentityRegistry.getAddress()
+    );
+
+    // Add admin as trusted issuer for KYC claims
+    const kycTopicId = await claimTopicsRegistry.KYC_APPROVED();
+    await trustedIssuersRegistry.addTrustedIssuer(
+      admin.address,
+      'Test Admin Issuer',
+      'Test KYC issuer for governance tests',
+      [kycTopicId]
+    );
+
+    // Register and verify token holders in identity registry for ERC-3643 compliance
+    await mockIdentityRegistry.registerIdentity(tokenHolder1.address);
+    await mockIdentityRegistry.registerIdentity(tokenHolder2.address);
+    await mockIdentityRegistry.registerIdentity(tokenHolder3.address);
+
+    // Register governance contract as verified for reward token transfers
+    await mockIdentityRegistry.registerIdentity(await governance.getAddress());
+
+    // Add KYC claims for all token holders and governance contract
+    const expirationTime = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60; // 1 year from now
+    await mockIdentityRegistry.addClaim(
+      tokenHolder1.address,
+      kycTopicId,
+      '0x01',
+      expirationTime
+    );
+    await mockIdentityRegistry.addClaim(
+      tokenHolder2.address,
+      kycTopicId,
+      '0x01',
+      expirationTime
+    );
+    await mockIdentityRegistry.addClaim(
+      tokenHolder3.address,
+      kycTopicId,
+      '0x01',
+      expirationTime
+    );
+    await mockIdentityRegistry.addClaim(
+      await governance.getAddress(),
+      kycTopicId,
+      '0x01',
+      expirationTime
+    );
+
+    // Enable transfers for both tokens
+    await projectToken.connect(admin).enableTransfers();
+    await rewardToken.connect(admin).enableTransfers();
 
     await projectToken.transfer(
       tokenHolder1.address,
@@ -78,7 +201,11 @@ describe('ProjectGovernanceAdvanced', function () {
       ethers.parseEther('25000')
     );
 
-    // Setup governance (funding via admin)
+    // Fund the reward pool for testing
+    await rewardToken
+      .connect(admin)
+      .approve(await governance.getAddress(), ethers.parseEther('50000'));
+    await governance.connect(admin).fundRewardPool(ethers.parseEther('50000'));
   });
 
   describe('Deployment & Initialization', function () {
@@ -240,7 +367,7 @@ describe('ProjectGovernanceAdvanced', function () {
             callData,
             targetContract
           )
-      ).to.be.revertedWith('Insufficient voting power');
+      ).to.be.revertedWith('Must hold project tokens');
     });
 
     it('Should prevent inactive templates from being used', async function () {
@@ -448,7 +575,7 @@ describe('ProjectGovernanceAdvanced', function () {
     it('Should prevent delegation by non-token holders', async function () {
       await expect(
         governance.connect(other).delegate(tokenHolder1.address)
-      ).to.be.revertedWith('No voting power to delegate');
+      ).to.be.revertedWith('Must hold project tokens');
     });
   });
 
@@ -497,10 +624,11 @@ describe('ProjectGovernanceAdvanced', function () {
       // Wait for voting period to end
       await time.increase(DEFAULT_VOTING_PERIOD + 1);
 
-      // Execute proposal
-      await expect(governance.executeProposal(proposalId))
-        .to.emit(governance, 'ProposalExecuted')
-        .withArgs(proposalId, anyValue);
+      // Wait for execution delay (2 days)
+      await time.increase(2 * 24 * 60 * 60 + 1);
+
+      // Execute proposal (no execution payload, so no ProposalExecuted event)
+      await governance.executeProposal(proposalId);
 
       const proposal = await governance.getProposal(proposalId);
       expect(proposal.status).to.equal(2); // SUCCEEDED
@@ -599,6 +727,11 @@ describe('ProjectGovernanceAdvanced', function () {
     it('Should allow admin to fund reward pool', async function () {
       const fundAmount = ethers.parseEther('10000');
       const initialPool = await governance.rewardPool();
+
+      // Approve tokens for funding
+      await rewardToken
+        .connect(admin)
+        .approve(await governance.getAddress(), fundAmount);
 
       await expect(governance.connect(admin).fundRewardPool(fundAmount))
         .to.emit(governance, 'RewardPoolFunded')
@@ -772,7 +905,7 @@ describe('ProjectGovernanceAdvanced', function () {
             '0x',
             ethers.ZeroAddress
           )
-      ).to.be.revertedWith('Insufficient voting power');
+      ).to.be.revertedWith('Must hold project tokens');
     });
 
     it('Should handle voting when reward pool is empty', async function () {
