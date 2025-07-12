@@ -76,7 +76,12 @@ describe('IdentityRegistryAdvanced', function () {
 
     // Setup trusted issuer
     const kycTopic = await claimTopicsRegistry.KYC_APPROVED();
-    await trustedIssuersRegistry.addTrustedIssuer(issuer.address, 'KYC Provider', 'KYC verification provider', [kycTopic]);
+    await trustedIssuersRegistry.addTrustedIssuer(
+      issuer.address,
+      'KYC Provider',
+      'KYC verification provider',
+      [kycTopic]
+    );
   });
 
   describe('Deployment & Initialization', function () {
@@ -171,7 +176,10 @@ describe('IdentityRegistryAdvanced', function () {
 
       await expect(
         identityRegistry.connect(other).batchRegisterIdentities(identities)
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        identityRegistry,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -547,7 +555,10 @@ describe('IdentityRegistryAdvanced', function () {
             50,
             true
           )
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        identityRegistry,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -614,7 +625,10 @@ describe('IdentityRegistryAdvanced', function () {
           identityRegistry.target,
           IdentityRegistryAdvancedV2
         )
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        identityRegistry,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -624,7 +638,7 @@ describe('IdentityRegistryAdvanced', function () {
 
       await expect(
         identityRegistry.connect(operator).registerIdentity(investor1.address)
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(identityRegistry, 'EnforcedPause');
     });
 
     it('Should allow pauser to unpause contract', async function () {

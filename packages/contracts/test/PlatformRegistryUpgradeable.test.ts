@@ -109,7 +109,10 @@ describe('PlatformRegistryUpgradeable', function () {
           platformRegistry.target,
           PlatformRegistryUpgradeableV2
         )
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        platformRegistry,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -141,7 +144,10 @@ describe('PlatformRegistryUpgradeable', function () {
     it('Should prevent non-admin from activating emergency mode', async function () {
       await expect(
         platformRegistry.connect(other).activateEmergencyMode()
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        platformRegistry,
+        'AccessControlUnauthorizedAccount'
+      );
     });
 
     it('Should prevent operations in emergency mode', async function () {
@@ -159,7 +165,7 @@ describe('PlatformRegistryUpgradeable', function () {
 
       await expect(
         platformRegistry.registerSPV(spv.address, 'Test SPV', 'REG123')
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(platformRegistry, 'EnforcedPause');
     });
 
     it('Should allow pauser to unpause contract', async function () {
@@ -366,7 +372,7 @@ describe('PlatformRegistryUpgradeable', function () {
           ethers.parseEther('2'),
           ethers.parseEther('0.2')
         )
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(platformRegistry, 'EnforcedPause');
     });
   });
 

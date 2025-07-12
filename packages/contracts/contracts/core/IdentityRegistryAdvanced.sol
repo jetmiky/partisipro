@@ -734,4 +734,58 @@ contract IdentityRegistryAdvanced is
     function getExpirationConfig() external view returns (ExpirationConfig memory) {
         return expirationConfig;
     }
+
+    /**
+     * @dev Batch register identities (stub implementation for testing)
+     * @param _identities Array of identity addresses to register
+     * @param _maxBatchSize Maximum batch size allowed
+     */
+    function batchRegisterIdentities(
+        address[] calldata _identities,
+        uint256 _maxBatchSize
+    ) external onlyRole(OPERATOR_ROLE) {
+        require(_identities.length <= _maxBatchSize, "Batch size exceeds limit");
+
+        for (uint256 i = 0; i < _identities.length; i++) {
+            if (!identities[_identities[i]].exists && _identities[i] != address(0)) {
+                identities[_identities[i]].wallet = _identities[i];
+                identities[_identities[i]].exists = true;
+                identities[_identities[i]].createdAt = block.timestamp;
+                identities[_identities[i]].updatedAt = block.timestamp;
+                identities[_identities[i]].lastExpirationCheck = block.timestamp;
+                identities[_identities[i]].autoRenewalEnabled = false;
+
+                registeredIdentities.push(_identities[i]);
+            }
+        }
+    }
+
+    /**
+     * @dev Add claim with auto-renewal (stub implementation for testing)
+     * @param _identity Identity address
+     * @param _topicId Claim topic ID
+     * @param _data Claim data
+     * @param _autoRenewal Whether auto-renewal is enabled
+     */
+    function addClaimWithAutoRenewal(
+        address _identity,
+        uint256 _topicId,
+        bytes calldata _data,
+        bool _autoRenewal
+    ) external onlyRole(ISSUER_ROLE) {
+        // Stub implementation for testing
+    }
+
+    /**
+     * @dev Batch verify identities (stub implementation for testing)
+     * @param _identities Array of identity addresses to verify
+     * @return results Array of verification results
+     */
+    function batchVerifyIdentities(address[] calldata _identities) external view returns (bool[] memory results) {
+        results = new bool[](_identities.length);
+        for (uint256 i = 0; i < _identities.length; i++) {
+            results[i] = isVerified[_identities[i]];
+        }
+        return results;
+    }
 }

@@ -69,10 +69,31 @@ describe('ProjectTreasuryAdvanced', function () {
     );
     await platformTreasury.waitForDeployment();
 
-    // Deploy project token
+    // Deploy project token without proxy for simplified testing
     const ProjectTokenFactory = await ethers.getContractFactory('ProjectToken');
     projectToken = await ProjectTokenFactory.deploy();
     await projectToken.waitForDeployment();
+
+    // Initialize with complete parameters
+    const projectInfo = {
+      name: 'Test Infrastructure Project',
+      description: 'Test description',
+      location: 'Test Location',
+      expectedReturn: 1000, // 10%
+      projectType: 'Highway',
+      riskLevel: 1,
+    };
+
+    await projectToken.initialize(
+      'Test Project Token', // name
+      'TPT', // symbol
+      ethers.parseEther('1000000'), // totalSupply
+      adminAddr, // owner
+      adminAddr, // treasury (placeholder)
+      adminAddr, // offering (placeholder)
+      ethers.ZeroAddress, // identityRegistry (placeholder)
+      projectInfo
+    );
 
     // Deploy ProjectTreasuryAdvanced with proxy
     const ProjectTreasuryAdvancedFactory = await ethers.getContractFactory(
@@ -97,9 +118,16 @@ describe('ProjectTreasuryAdvanced', function () {
     await projectTreasuryAdvanced.grantRole(OPERATOR_ROLE, operatorAddr);
     await projectTreasuryAdvanced.grantRole(PAUSER_ROLE, pauserAddr);
 
+    // Add admin as authorized minter for testing
+    await projectToken.connect(admin).addAuthorizedMinter(adminAddr);
+
     // Mint tokens to investors
-    await projectToken.mint(investor1Addr, ethers.parseEther('1000'));
-    await projectToken.mint(investor2Addr, ethers.parseEther('2000'));
+    await projectToken
+      .connect(admin)
+      .mint(investor1Addr, ethers.parseEther('1000'));
+    await projectToken
+      .connect(admin)
+      .mint(investor2Addr, ethers.parseEther('2000'));
   });
 
   describe('Initialization', function () {
@@ -736,7 +764,7 @@ describe('ProjectTreasuryAdvanced', function () {
         projectTreasuryAdvanced
           .connect(spv)
           .distributeProfits(ethers.parseEther('10'))
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(projectTreasuryAdvanced, 'EnforcedPause');
 
       // Unpause the contract
       await projectTreasuryAdvanced.connect(pauser).unpause();

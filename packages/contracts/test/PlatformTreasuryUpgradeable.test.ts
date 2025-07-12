@@ -148,7 +148,7 @@ describe('PlatformTreasuryUpgradeable', function () {
         platformTreasury.collectListingFee(project.address, {
           value: ethers.parseEther('0.001'),
         })
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(platformTreasury, 'EnforcedPause');
     });
   });
 
@@ -180,7 +180,10 @@ describe('PlatformTreasuryUpgradeable', function () {
     it('Should prevent non-admin from activating emergency mode', async function () {
       await expect(
         platformTreasury.connect(other).activateEmergencyMode()
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        platformTreasury,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -527,7 +530,10 @@ describe('PlatformTreasuryUpgradeable', function () {
           platformTreasury.target,
           PlatformTreasuryUpgradeableV2
         )
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        platformTreasury,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 

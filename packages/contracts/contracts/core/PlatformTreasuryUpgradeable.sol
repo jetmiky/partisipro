@@ -64,8 +64,8 @@ contract PlatformTreasuryUpgradeable is
     address public platformRegistry;
     EmergencyLimits public emergencyLimits;
 
-    uint256 public nextWithdrawalId = 1;
-    uint256 public withdrawalDelay = 24 hours;
+    uint256 public nextWithdrawalId;
+    uint256 public withdrawalDelay;
     address public emergencyRecipient;
     bool public emergencyMode;
     uint256 public emergencyActivatedAt;
@@ -168,6 +168,9 @@ contract PlatformTreasuryUpgradeable is
         circuitBreakerWindow = 1 hours;
         lastCircuitBreakerReset = block.timestamp;
         circuitBreakerTriggered = 0;
+
+        nextWithdrawalId = 1;
+        withdrawalDelay = 24 hours;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}

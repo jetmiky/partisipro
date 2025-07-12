@@ -3,14 +3,12 @@ import { ethers, upgrades } from 'hardhat';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import {
-  ProjectGovernanceAdvanced,
-  ProjectToken,
-} from '../typechain-types';
+import { ProjectGovernanceAdvanced, ProjectToken } from '../typechain-types';
 
 describe('ProjectGovernanceAdvanced', function () {
   let governance: ProjectGovernanceAdvanced;
   let projectToken: ProjectToken;
+  let rewardToken: any; // Mock ERC20 token for rewards
   let admin: SignerWithAddress;
   let operator: SignerWithAddress;
   let tokenHolder1: SignerWithAddress;
@@ -33,6 +31,10 @@ describe('ProjectGovernanceAdvanced', function () {
     projectToken = await ProjectToken.deploy();
     await projectToken.waitForDeployment();
 
+    // Deploy mock reward token (using the same ProjectToken as a placeholder)
+    rewardToken = await ProjectToken.deploy();
+    await rewardToken.waitForDeployment();
+
     // Deploy ProjectGovernanceAdvanced
     const ProjectGovernanceAdvanced = await ethers.getContractFactory(
       'ProjectGovernanceAdvanced'
@@ -42,6 +44,7 @@ describe('ProjectGovernanceAdvanced', function () {
       [
         admin.address,
         await projectToken.getAddress(),
+        await rewardToken.getAddress(),
         MIN_PROPOSAL_THRESHOLD,
         DEFAULT_VOTING_PERIOD,
         DEFAULT_QUORUM_PERCENTAGE,
@@ -59,7 +62,9 @@ describe('ProjectGovernanceAdvanced', function () {
     const OPERATOR_ROLE = await governance.OPERATOR_ROLE();
     await governance.grantRole(OPERATOR_ROLE, operator.address);
 
-    // Distribute tokens to holders
+    // Enable transfers and distribute tokens to holders
+    await projectToken.enableTransfers();
+
     await projectToken.transfer(
       tokenHolder1.address,
       ethers.parseEther('100000')
@@ -615,7 +620,10 @@ describe('ProjectGovernanceAdvanced', function () {
             ethers.parseEther('1'),
             true
           )
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        governance,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -702,7 +710,10 @@ describe('ProjectGovernanceAdvanced', function () {
 
       await expect(
         upgrades.upgradeProxy(governance.target, ProjectGovernanceAdvancedV2)
-      ).to.be.revertedWith('AccessControl:');
+      ).to.be.revertedWithCustomError(
+        governance,
+        'AccessControlUnauthorizedAccount'
+      );
     });
   });
 
@@ -720,7 +731,7 @@ describe('ProjectGovernanceAdvanced', function () {
             '0x',
             ethers.ZeroAddress
           )
-      ).to.be.revertedWith('Pausable: paused');
+      ).to.be.revertedWithCustomError(governance, 'EnforcedPause');
     });
 
     it('Should allow pauser to unpause contract', async function () {
