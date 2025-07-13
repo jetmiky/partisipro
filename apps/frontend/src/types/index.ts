@@ -250,6 +250,66 @@ export interface ApprovedSPV extends Record<string, unknown> {
   performanceScore: number;
 }
 
+// Batch Operations Types
+export interface BatchOperation extends Record<string, unknown> {
+  id: string;
+  type:
+    | 'user_registration'
+    | 'verification'
+    | 'claim_assignment'
+    | 'status_update';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'paused';
+  totalItems: number;
+  processedItems: number;
+  successfulItems: number;
+  failedItems: number;
+  startedAt: string;
+  completedAt?: string;
+  estimatedCompletion?: string;
+  createdBy: string;
+  operationData: BatchOperationData;
+  errors: BatchOperationError[];
+}
+
+export interface BatchOperationData extends Record<string, unknown> {
+  operationType: string;
+  parameters: Record<string, unknown>;
+  targetIdentities?: string[];
+  csvData?: string[][];
+  claimType?: string;
+  newStatus?: string;
+}
+
+export interface BatchOperationError extends Record<string, unknown> {
+  itemIndex: number;
+  itemId?: string;
+  errorMessage: string;
+  errorCode: string;
+  timestamp: string;
+}
+
+export interface BatchUserRegistration extends Record<string, unknown> {
+  walletAddress: string;
+  email?: string;
+  country: string;
+  verificationLevel: 'basic' | 'advanced' | 'institutional';
+  kycProvider?: string;
+  referenceId?: string;
+}
+
+export interface BatchClaimAssignment extends Record<string, unknown> {
+  identityId: string;
+  walletAddress: string;
+  claimType:
+    | 'KYC_APPROVED'
+    | 'ACCREDITED_INVESTOR'
+    | 'Indonesian_CITIZEN'
+    | 'PROFESSIONAL_INVESTOR';
+  claimValue: string;
+  expiresAt?: string;
+  issuer: string;
+}
+
 export interface GovernanceProposal extends Record<string, unknown> {
   id: string;
   title: string;
@@ -270,6 +330,79 @@ export interface GovernanceProposal extends Record<string, unknown> {
   quorumMet: boolean;
   proposer: string;
   executionDate?: string;
+}
+
+// Trusted Issuer Management interfaces
+export interface TrustedIssuer extends Record<string, unknown> {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+  website?: string;
+  email: string;
+  phone?: string;
+  country: string;
+  registrationNumber?: string;
+  claimTypes: string[];
+  status: 'active' | 'suspended' | 'pending' | 'revoked';
+  addedDate: string;
+  addedBy: string;
+  lastActivity: string;
+  verificationsIssued: number;
+  activeVerifications: number;
+  successRate: number;
+  averageProcessingTime: number; // hours
+  complianceScore: number;
+  permissions: {
+    canIssueKYC: boolean;
+    canIssueAccredited: boolean;
+    canRevokeClaims: boolean;
+    canBatchProcess: boolean;
+  };
+}
+
+export interface TrustedIssuerTableRow extends Record<string, unknown> {
+  id: string;
+  name: string;
+  address: string;
+  status: 'active' | 'suspended' | 'pending' | 'revoked';
+  claimTypes: string[];
+  verificationsIssued: number;
+  successRate: number;
+  lastActivity: string;
+  complianceScore: number;
+}
+
+export interface IssuerActivity extends Record<string, unknown> {
+  id: string;
+  issuerId: string;
+  issuerName: string;
+  action: 'claim_issued' | 'claim_revoked' | 'batch_process' | 'status_update';
+  details: string;
+  claimType?: string;
+  userAddress?: string;
+  timestamp: string;
+  status: 'success' | 'failed' | 'pending';
+  transactionHash?: string;
+}
+
+export interface ClaimType extends Record<string, unknown> {
+  id: string;
+  topicId: number;
+  name: string;
+  description: string;
+  schema: string;
+  isRequired: boolean;
+  expirationPeriod: number; // days
+  renewalPeriod: number; // days before expiration to allow renewal
+  authorizedIssuers: string[];
+  createdDate: string;
+  modifiedDate: string;
+  usage: {
+    totalIssued: number;
+    currentActive: number;
+    averageValidityPeriod: number;
+  };
 }
 
 // Admin System Management interfaces
