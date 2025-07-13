@@ -198,6 +198,173 @@ export interface Identity extends Record<string, unknown> {
   totalInvested: number;
 }
 
+// Enhanced KYC Provider Integration Types
+export interface KYCProvider {
+  id: 'verihubs' | 'sumsub' | 'jumio' | 'onfido';
+  name: string;
+  description: string;
+  processingTime: string;
+  supportedCountries: string[];
+  documentTypes: string[];
+  features: string[];
+  logo: string;
+  status: 'active' | 'maintenance' | 'inactive';
+}
+
+export interface KYCSession {
+  id: string;
+  provider: KYCProvider['id'];
+  status:
+    | 'created'
+    | 'initialized'
+    | 'pending'
+    | 'processing'
+    | 'completed'
+    | 'failed'
+    | 'expired';
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string;
+  webhookUrl?: string;
+  redirectUrl?: string;
+  applicantId?: string;
+  reviewId?: string;
+  checks: KYCCheck[];
+  documents: KYCDocument[];
+  riskScore?: number;
+  failReason?: string;
+  reviewNotes?: string;
+}
+
+export interface KYCCheck {
+  id: string;
+  type:
+    | 'document'
+    | 'facial_similarity'
+    | 'liveness'
+    | 'aml'
+    | 'sanctions'
+    | 'identity';
+  status:
+    | 'pending'
+    | 'processing'
+    | 'completed'
+    | 'failed'
+    | 'requires_manual_review';
+  result?: 'approved' | 'rejected' | 'manual_review';
+  confidence?: number;
+  errorCode?: string;
+  errorMessage?: string;
+  completedAt?: string;
+}
+
+export interface KYCDocument {
+  id: string;
+  type:
+    | 'id_card'
+    | 'passport'
+    | 'driving_license'
+    | 'selfie'
+    | 'proof_of_address'
+    | 'bank_statement';
+  country?: string;
+  status: 'uploaded' | 'processing' | 'verified' | 'rejected';
+  extractedData?: {
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    documentNumber?: string;
+    dateOfBirth?: string;
+    expirationDate?: string;
+    issuedDate?: string;
+    nationality?: string;
+    address?: string;
+  };
+  verificationResult?: {
+    authentic: boolean;
+    readability: 'high' | 'medium' | 'low';
+    validity: 'valid' | 'expired' | 'invalid';
+    tampered: boolean;
+  };
+  uploadedAt: string;
+  processedAt?: string;
+}
+
+export interface KYCProviderResponse {
+  success: boolean;
+  sessionId?: string;
+  redirectUrl?: string;
+  status?: KYCSession['status'];
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    details?: Record<string, unknown>;
+  };
+  data?: {
+    checks?: KYCCheck[];
+    documents?: KYCDocument[];
+    riskScore?: number;
+    extractedData?: Record<string, unknown>;
+  };
+}
+
+export interface KYCWebhookEvent {
+  id: string;
+  sessionId: string;
+  provider: KYCProvider['id'];
+  eventType:
+    | 'session_created'
+    | 'check_completed'
+    | 'session_completed'
+    | 'session_failed'
+    | 'manual_review_required';
+  timestamp: string;
+  data: {
+    status: KYCSession['status'];
+    checks?: KYCCheck[];
+    riskScore?: number;
+    failReason?: string;
+  };
+}
+
+export interface AutomatedClaimsIssuance {
+  sessionId: string;
+  identityAddress: string;
+  claimsToIssue: {
+    type: IdentityClaim['type'];
+    value: string;
+    issuer: string;
+    expiresIn?: number; // seconds
+  }[];
+  issuanceStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  transactionHash?: string;
+  issuedAt?: string;
+  failReason?: string;
+}
+
+export interface KYCRetryPolicy {
+  maxRetries: number;
+  retryDelayMs: number;
+  backoffMultiplier: number;
+  maxDelayMs: number;
+  retryableErrors: string[];
+}
+
+export interface KYCErrorHandling {
+  errorCode: string;
+  errorType: 'network' | 'validation' | 'provider' | 'system' | 'user';
+  message: string;
+  userMessage: string;
+  retryable: boolean;
+  suggestedAction:
+    | 'retry'
+    | 'contact_support'
+    | 'update_documents'
+    | 'manual_review';
+  supportReference?: string;
+}
+
 export interface IdentityTableRow extends Record<string, unknown> {
   id: string;
   address: string;

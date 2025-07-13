@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   FileText,
@@ -15,18 +15,43 @@ import {
   UserCheck,
   Award,
   AlertCircle,
+  ExternalLink,
+  RefreshCw,
+  Eye,
+  Zap,
+  Globe,
+  Timer,
+  Building,
+  Smartphone,
+  Lock,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
+import {
+  KYCProvider,
+  KYCSession,
+  KYCCheck,
+  AutomatedClaimsIssuance,
+  KYCErrorHandling,
+} from '@/types';
 
 type KYCStep =
   | 'intro'
+  | 'provider'
   | 'personal'
   | 'document'
   | 'verification'
+  | 'processing'
   | 'identity'
   | 'complete';
-type KYCStatus = 'pending' | 'processing' | 'success' | 'failed';
+type KYCStatus =
+  | 'pending'
+  | 'processing'
+  | 'success'
+  | 'failed'
+  | 'manual_review'
+  | 'retry_required';
 
 interface DocumentUpload {
   id: string;
@@ -47,6 +72,17 @@ interface IdentityClaim {
 export default function KYCPage() {
   const [currentStep, setCurrentStep] = useState<KYCStep>('intro');
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
+  const [selectedProvider, setSelectedProvider] = useState<KYCProvider | null>(
+    null
+  );
+  const [kycSession, setKycSession] = useState<KYCSession | null>(null);
+  const [pollingActive, setPollingActive] = useState(false);
+  const [claimsIssuance, setClaimsIssuance] =
+    useState<AutomatedClaimsIssuance | null>(null);
+  const [error, setError] = useState<KYCErrorHandling | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const [formData, setFormData] = useState({
     fullName: '',
     idNumber: '',
@@ -107,11 +143,67 @@ export default function KYCPage() {
 
   const steps = [
     { id: 'intro', label: 'Introduction', icon: AlertCircle },
+    { id: 'provider', label: 'KYC Provider', icon: Building },
     { id: 'personal', label: 'Personal Information', icon: User },
     { id: 'document', label: 'Document Upload', icon: FileText },
     { id: 'verification', label: 'Verification', icon: Shield },
+    { id: 'processing', label: 'Processing', icon: Timer },
     { id: 'identity', label: 'Identity Registry', icon: UserCheck },
     { id: 'complete', label: 'Complete', icon: CheckCircle },
+  ];
+
+  // Mock KYC providers data
+  const kycProviders: KYCProvider[] = [
+    {
+      id: 'verihubs',
+      name: 'Verihubs Indonesia',
+      description:
+        'Leading Indonesian KYC provider with government integration',
+      processingTime: '2-5 minutes',
+      supportedCountries: ['Indonesia'],
+      documentTypes: ['KTP', 'Passport', 'SIM', 'Selfie'],
+      features: [
+        'Real-time verification',
+        'Government database check',
+        'Biometric matching',
+        'AML screening',
+      ],
+      logo: '/logos/verihubs.png',
+      status: 'active',
+    },
+    {
+      id: 'sumsub',
+      name: 'Sum&Substance',
+      description: 'Global KYC platform with advanced AI verification',
+      processingTime: '1-3 minutes',
+      supportedCountries: ['Indonesia', 'Singapore', 'Malaysia', 'Thailand'],
+      documentTypes: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
+      features: [
+        'AI-powered verification',
+        'Liveness detection',
+        'Global AML database',
+        '99.5% accuracy',
+      ],
+      logo: '/logos/sumsub.png',
+      status: 'active',
+    },
+    {
+      id: 'jumio',
+      name: 'Jumio Netverify',
+      description:
+        'Enterprise-grade identity verification with machine learning',
+      processingTime: '30 seconds - 2 minutes',
+      supportedCountries: ['Indonesia', 'Global coverage'],
+      documentTypes: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
+      features: [
+        'Instant verification',
+        'Fraud detection',
+        'Identity extraction',
+        'Global reach',
+      ],
+      logo: '/logos/jumio.png',
+      status: 'active',
+    },
   ];
 
   const handleInputChange = (
@@ -135,9 +227,11 @@ export default function KYCPage() {
   const handleStepNext = () => {
     const stepOrder: KYCStep[] = [
       'intro',
+      'provider',
       'personal',
       'document',
       'verification',
+      'processing',
       'identity',
       'complete',
     ];
@@ -150,9 +244,11 @@ export default function KYCPage() {
   const handleStepBack = () => {
     const stepOrder: KYCStep[] = [
       'intro',
+      'provider',
       'personal',
       'document',
       'verification',
+      'processing',
       'identity',
       'complete',
     ];
@@ -162,19 +258,240 @@ export default function KYCPage() {
     }
   };
 
-  const simulateKYCProcess = (result: 'success' | 'failed') => {
-    setKycStatus('processing');
+  // Enhanced KYC processing with provider integration
+  const initializeKYCSession = async (provider: KYCProvider) => {
+    setError(null);
+    const mockSession: KYCSession = {
+      id: `session_${Date.now()}`,
+      provider: provider.id,
+      status: 'created',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      checks: [
+        {
+          id: 'doc_check',
+          type: 'document',
+          status: 'pending',
+        },
+        {
+          id: 'face_check',
+          type: 'facial_similarity',
+          status: 'pending',
+        },
+        {
+          id: 'liveness_check',
+          type: 'liveness',
+          status: 'pending',
+        },
+        {
+          id: 'aml_check',
+          type: 'aml',
+          status: 'pending',
+        },
+      ],
+      documents: [],
+    };
+
+    setKycSession(mockSession);
+    setSelectedProvider(provider);
+    return mockSession;
+  };
+
+  // Real-time status polling simulation
+  const startStatusPolling = (sessionId: string) => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+
+    setPollingActive(true);
+    let checkCount = 0;
+
+    pollingIntervalRef.current = setInterval(() => {
+      checkCount++;
+
+      // Simulate progressive status updates
+      if (checkCount === 1) {
+        updateSessionStatus('initialized');
+      } else if (checkCount === 2) {
+        updateSessionStatus('pending');
+        updateCheckStatus('doc_check', 'processing');
+      } else if (checkCount === 4) {
+        updateCheckStatus('doc_check', 'completed', 'approved', 0.95);
+        updateCheckStatus('face_check', 'processing');
+      } else if (checkCount === 6) {
+        updateCheckStatus('face_check', 'completed', 'approved', 0.92);
+        updateCheckStatus('liveness_check', 'processing');
+      } else if (checkCount === 8) {
+        updateCheckStatus('liveness_check', 'completed', 'approved', 0.88);
+        updateCheckStatus('aml_check', 'processing');
+      } else if (checkCount === 10) {
+        updateCheckStatus('aml_check', 'completed', 'approved', 0.98);
+        updateSessionStatus('completed');
+
+        // Start automated claims issuance
+        initiateClaimsIssuance(sessionId);
+
+        setPollingActive(false);
+        clearInterval(pollingIntervalRef.current!);
+      }
+    }, 2000); // Poll every 2 seconds
+  };
+
+  const updateSessionStatus = (status: KYCSession['status']) => {
+    setKycSession(prev =>
+      prev ? { ...prev, status, updatedAt: new Date().toISOString() } : null
+    );
+
+    if (status === 'completed') {
+      setKycStatus('success');
+    } else if (status === 'failed') {
+      setKycStatus('failed');
+    } else if (status === 'processing') {
+      setKycStatus('processing');
+    }
+  };
+
+  const updateCheckStatus = (
+    checkId: string,
+    status: KYCCheck['status'],
+    result?: KYCCheck['result'],
+    confidence?: number
+  ) => {
+    setKycSession(prev => {
+      if (!prev) return null;
+
+      const updatedChecks = prev.checks.map(check => {
+        if (check.id === checkId) {
+          return {
+            ...check,
+            status,
+            result,
+            confidence,
+            completedAt:
+              status === 'completed' ? new Date().toISOString() : undefined,
+          };
+        }
+        return check;
+      });
+
+      return {
+        ...prev,
+        checks: updatedChecks,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  // Automated claims issuance
+  const initiateClaimsIssuance = async (sessionId: string) => {
+    const claimsData: AutomatedClaimsIssuance = {
+      sessionId,
+      identityAddress: '0x1234...5678', // Mock address
+      claimsToIssue: [
+        {
+          type: 'KYC_APPROVED',
+          value: 'true',
+          issuer: selectedProvider?.name || 'KYC Provider',
+        },
+        {
+          type: 'Indonesian_CITIZEN',
+          value: 'true',
+          issuer: 'Verihubs Indonesia',
+        },
+      ],
+      issuanceStatus: 'pending',
+    };
+
+    setClaimsIssuance(claimsData);
+
+    // Simulate claims issuance process
+    setTimeout(() => {
+      setClaimsIssuance(prev =>
+        prev
+          ? {
+              ...prev,
+              issuanceStatus: 'processing',
+            }
+          : null
+      );
+    }, 1000);
 
     setTimeout(() => {
-      setKycStatus(result);
-      if (result === 'success') {
-        // Update identity claims status
-        setIdentityClaims(prev =>
-          prev.map(claim => ({ ...claim, status: 'issued' as const }))
-        );
-        setCurrentStep('identity');
-      }
+      setClaimsIssuance(prev =>
+        prev
+          ? {
+              ...prev,
+              issuanceStatus: 'completed',
+              transactionHash: '0xabcd...1234',
+              issuedAt: new Date().toISOString(),
+            }
+          : null
+      );
+
+      // Update identity claims
+      setIdentityClaims(prev =>
+        prev.map(claim => ({ ...claim, status: 'issued' as const }))
+      );
+
+      setCurrentStep('identity');
     }, 3000);
+  };
+
+  // Enhanced error handling
+  const handleKYCError = (errorCode: string, retryable: boolean = true) => {
+    const errorData: KYCErrorHandling = {
+      errorCode,
+      errorType: 'provider',
+      message: `KYC verification failed: ${errorCode}`,
+      userMessage:
+        'There was an issue with your verification. Please try again.',
+      retryable,
+      suggestedAction: retryable ? 'retry' : 'contact_support',
+      supportReference: `REF-${Date.now()}`,
+    };
+
+    setError(errorData);
+    setKycStatus('failed');
+  };
+
+  const retryKYCProcess = () => {
+    setRetryCount(prev => prev + 1);
+    setError(null);
+    setKycStatus('pending');
+    if (kycSession) {
+      startStatusPolling(kycSession.id);
+    }
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const simulateKYCProcess = (
+    result: 'success' | 'failed' | 'manual_review'
+  ) => {
+    if (!kycSession) return;
+
+    setCurrentStep('processing');
+
+    if (result === 'success') {
+      startStatusPolling(kycSession.id);
+    } else if (result === 'failed') {
+      setTimeout(() => {
+        handleKYCError('VERIFICATION_FAILED', true);
+      }, 2000);
+    } else if (result === 'manual_review') {
+      setTimeout(() => {
+        setKycStatus('manual_review');
+        updateSessionStatus('processing');
+      }, 2000);
+    }
   };
 
   const renderIntroStep = () => (
@@ -697,33 +1014,342 @@ export default function KYCPage() {
     </div>
   );
 
-  const renderVerificationStep = () => (
+  // New Provider Selection Step
+  const renderProviderSelectionStep = () => (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Identity Verification
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Building className="w-8 h-8 text-blue-600" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Choose Your KYC Provider
         </h2>
-        <p className="text-gray-600">
-          We will now verify your identity using our third-party KYC provider.
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Select a trusted verification provider to complete your identity
+          verification. Each provider offers different features and processing
+          times.
         </p>
       </div>
 
-      {kycStatus === 'pending' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {kycProviders.map(provider => (
+          <div
+            key={provider.id}
+            className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+              selectedProvider?.id === provider.id
+                ? 'border-primary-500 bg-primary-50 shadow-md'
+                : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+            }`}
+            onClick={() => setSelectedProvider(provider)}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                  <span className="text-white font-bold text-sm">
+                    {provider.name.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {provider.name}
+                  </h3>
+                  <div className="flex items-center mt-1">
+                    <div
+                      className={`w-2 h-2 rounded-full mr-2 ${
+                        provider.status === 'active'
+                          ? 'bg-green-500'
+                          : 'bg-yellow-500'
+                      }`}
+                    />
+                    <span className="text-xs text-gray-500 capitalize">
+                      {provider.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {selectedProvider?.id === provider.id && (
+                <CheckCircle className="w-5 h-5 text-primary-600" />
+              )}
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">{provider.description}</p>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">Processing Time:</span>
+                <span className="font-medium text-gray-900">
+                  {provider.processingTime}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-sm text-gray-500 block mb-2">
+                  Features:
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {provider.features.slice(0, 2).map((feature, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                  {provider.features.length > 2 && (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      +{provider.features.length - 2} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedProvider && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
           <div className="flex items-center mb-4">
-            <Shield className="w-6 h-6 text-blue-600 mr-2" />
-            <h3 className="font-medium text-blue-900">
-              Ready for Verification
+            <Eye className="w-6 h-6 text-blue-600 mr-3" />
+            <h3 className="text-lg font-semibold text-blue-900">
+              {selectedProvider.name} - Detailed Features
             </h3>
           </div>
-          <p className="text-blue-800 mb-4">
-            Your documents are ready for verification. This process typically
-            takes 1-3 business days.
-          </p>
-          <p className="text-sm text-blue-700 mb-4">
-            For testing purposes, you can simulate the verification result:
-          </p>
-          <div className="flex gap-3">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-medium text-blue-900 mb-2">
+                Supported Documents:
+              </h4>
+              <ul className="space-y-1">
+                {selectedProvider.documentTypes.map((docType, index) => (
+                  <li key={index} className="flex items-center text-blue-800">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mr-2" />
+                    <span>{docType}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-blue-900 mb-2">All Features:</h4>
+              <ul className="space-y-1">
+                {selectedProvider.features.map((feature, index) => (
+                  <li key={index} className="flex items-center text-blue-800">
+                    <Zap className="w-4 h-4 text-blue-600 mr-2" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 p-4 bg-blue-100 rounded-lg">
+            <div className="flex items-center mb-2">
+              <Globe className="w-5 h-5 text-blue-600 mr-2" />
+              <span className="font-medium text-blue-900">
+                Supported Countries:
+              </span>
+            </div>
+            <p className="text-blue-800">
+              {selectedProvider.supportedCountries.join(', ')}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between pt-6">
+        <Button onClick={handleStepBack} variant="secondary">
+          Back
+        </Button>
+        <Button
+          onClick={async () => {
+            if (selectedProvider) {
+              await initializeKYCSession(selectedProvider);
+              handleStepNext();
+            }
+          }}
+          variant="primary"
+          disabled={!selectedProvider}
+        >
+          Continue with {selectedProvider?.name || 'Selected Provider'}
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Enhanced Processing Step
+  const renderProcessingStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Timer className="w-8 h-8 text-yellow-600" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Processing Your Verification
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          {selectedProvider?.name} is now verifying your identity using advanced
+          AI and machine learning. This process typically takes{' '}
+          {selectedProvider?.processingTime}.
+        </p>
+      </div>
+
+      {/* Real-time Status Display */}
+      {kycSession && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-white font-bold text-sm">
+                  {selectedProvider?.name.slice(0, 2).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  {selectedProvider?.name}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Session ID: {kycSession.id.slice(-8)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              {pollingActive && (
+                <RefreshCw className="w-5 h-5 text-blue-600 animate-spin mr-2" />
+              )}
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  kycSession.status === 'completed'
+                    ? 'bg-green-100 text-green-800'
+                    : kycSession.status === 'failed'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                }`}
+              >
+                {kycSession.status.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-medium text-gray-900">Verification Checks:</h4>
+            {kycSession.checks.map(check => (
+              <div
+                key={check.id}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+              >
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                      check.status === 'completed'
+                        ? 'bg-green-100'
+                        : check.status === 'processing'
+                          ? 'bg-yellow-100'
+                          : check.status === 'failed'
+                            ? 'bg-red-100'
+                            : 'bg-gray-100'
+                    }`}
+                  >
+                    {check.status === 'completed' ? (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    ) : check.status === 'processing' ? (
+                      <Clock className="w-5 h-5 text-yellow-600 animate-spin" />
+                    ) : check.status === 'failed' ? (
+                      <XCircle className="w-5 h-5 text-red-600" />
+                    ) : (
+                      <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                    )}
+                  </div>
+                  <div>
+                    <h5 className="font-medium text-gray-900 capitalize">
+                      {check.type.replace('_', ' ')} Check
+                    </h5>
+                    {check.confidence && (
+                      <p className="text-sm text-gray-500">
+                        Confidence: {(check.confidence * 100).toFixed(1)}%
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium capitalize ${
+                    check.status === 'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : check.status === 'processing'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : check.status === 'failed'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {check.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Claims Issuance Status */}
+      {claimsIssuance && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-center mb-4">
+            <Lock className="w-6 h-6 text-blue-600 mr-3" />
+            <h3 className="text-lg font-semibold text-blue-900">
+              Issuing Identity Claims
+            </h3>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-blue-800">Claims Issuance Status:</span>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+                  claimsIssuance.issuanceStatus === 'completed'
+                    ? 'bg-green-100 text-green-800'
+                    : claimsIssuance.issuanceStatus === 'processing'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-blue-100 text-blue-800'
+                }`}
+              >
+                {claimsIssuance.issuanceStatus}
+              </span>
+            </div>
+
+            {claimsIssuance.transactionHash && (
+              <div className="flex items-center justify-between">
+                <span className="text-blue-800">Transaction Hash:</span>
+                <span className="text-blue-600 font-mono text-sm">
+                  {claimsIssuance.transactionHash}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium text-blue-900 mb-2">Claims to Issue:</h4>
+            <div className="space-y-2">
+              {claimsIssuance.claimsToIssue.map((claim, index) => (
+                <div key={index} className="flex items-center">
+                  <Award className="w-4 h-4 text-blue-600 mr-2" />
+                  <span className="text-blue-800">
+                    {claim.type.replace('_', ' ')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test Controls */}
+      {kycStatus === 'pending' && kycSession && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <h3 className="font-medium text-gray-900 mb-4">
+            Testing Controls (Demo Mode)
+          </h3>
+          <div className="flex gap-3 flex-wrap">
             <Button
               onClick={() => simulateKYCProcess('success')}
               variant="primary"
@@ -740,64 +1366,90 @@ export default function KYCPage() {
               <XCircle className="w-4 h-4 mr-2" />
               Simulate Failure
             </Button>
+            <Button
+              onClick={() => simulateKYCProcess('manual_review')}
+              variant="primary"
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Manual Review
+            </Button>
           </div>
         </div>
       )}
 
-      {kycStatus === 'processing' && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <div className="flex items-center mb-4">
-            <Clock className="w-6 h-6 text-yellow-600 mr-2 animate-spin" />
-            <h3 className="font-medium text-yellow-900">
-              Processing Verification
-            </h3>
-          </div>
-          <p className="text-yellow-800">
-            Your identity is being verified. Please wait...
-          </p>
-          <div className="mt-4 bg-yellow-200 rounded-full h-2">
-            <div
-              className="bg-yellow-600 h-2 rounded-full animate-pulse"
-              style={{ width: '60%' }}
-            ></div>
-          </div>
-        </div>
-      )}
-
-      {kycStatus === 'success' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <div className="flex items-center mb-4">
-            <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
-            <h3 className="font-medium text-green-900">
-              Verification Successful
-            </h3>
-          </div>
-          <p className="text-green-800">
-            Your identity has been successfully verified. You can now start
-            investing!
-          </p>
-        </div>
-      )}
-
-      {kycStatus === 'failed' && (
+      {/* Error Display */}
+      {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <div className="flex items-center mb-4">
-            <XCircle className="w-6 h-6 text-red-600 mr-2" />
-            <h3 className="font-medium text-red-900">Verification Failed</h3>
+            <XCircle className="w-6 h-6 text-red-600 mr-3" />
+            <h3 className="text-lg font-semibold text-red-900">
+              Verification Error
+            </h3>
           </div>
-          <p className="text-red-800 mb-4">
-            Your identity verification was unsuccessful. Please check your
-            documents and try again.
+
+          <p className="text-red-800 mb-4">{error.userMessage}</p>
+
+          <div className="space-y-2 text-sm text-red-700">
+            <div className="flex justify-between">
+              <span>Error Code:</span>
+              <span className="font-mono">{error.errorCode}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Support Reference:</span>
+              <span className="font-mono">{error.supportReference}</span>
+            </div>
+          </div>
+
+          {error.retryable && (
+            <div className="mt-4 flex gap-3">
+              <Button
+                onClick={retryKYCProcess}
+                variant="primary"
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry Verification (Attempt {retryCount + 1})
+              </Button>
+              <Button
+                onClick={() => setCurrentStep('document')}
+                variant="secondary"
+              >
+                Upload New Documents
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {kycStatus === 'manual_review' && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+          <div className="flex items-center mb-4">
+            <Eye className="w-6 h-6 text-orange-600 mr-3" />
+            <h3 className="text-lg font-semibold text-orange-900">
+              Manual Review Required
+            </h3>
+          </div>
+          <p className="text-orange-800 mb-4">
+            Your verification requires manual review by our compliance team.
+            This typically takes 1-2 business days. You will receive an email
+            notification once complete.
           </p>
-          <Button
-            onClick={() => {
-              setKycStatus('pending');
-              setCurrentStep('document');
-            }}
-            variant="secondary"
-          >
-            Upload Documents Again
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => {
+                // Simulate manual review completion
+                setTimeout(() => {
+                  simulateKYCProcess('success');
+                }, 2000);
+              }}
+              variant="primary"
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              <Timer className="w-4 h-4 mr-2" />
+              Simulate Review Complete
+            </Button>
+          </div>
         </div>
       )}
 
@@ -807,9 +1459,103 @@ export default function KYCPage() {
         </Button>
         {kycStatus === 'success' && (
           <Button onClick={handleStepNext} variant="primary">
-            Complete KYC
+            <ArrowRight className="w-4 h-4 mr-2" />
+            View Identity Claims
           </Button>
         )}
+      </div>
+    </div>
+  );
+
+  const renderVerificationStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          Ready for Verification
+        </h2>
+        <p className="text-gray-600">
+          Your documents and information are ready for {selectedProvider?.name}{' '}
+          verification.
+        </p>
+      </div>
+
+      {selectedProvider && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-center mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-sm">
+                {selectedProvider.name.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-blue-900">
+                {selectedProvider.name}
+              </h3>
+              <p className="text-sm text-blue-700">
+                Processing Time: {selectedProvider.processingTime}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="text-center p-3 bg-blue-100 rounded-lg">
+              <Smartphone className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+              <p className="text-sm font-medium text-blue-900">
+                Mobile Optimized
+              </p>
+            </div>
+            <div className="text-center p-3 bg-blue-100 rounded-lg">
+              <Lock className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+              <p className="text-sm font-medium text-blue-900">
+                Bank-Level Security
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="font-medium text-gray-900 mb-4">
+          Verification Process:
+        </h3>
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold text-sm">1</span>
+            </div>
+            <span className="text-gray-700">
+              Document authenticity verification
+            </span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold text-sm">2</span>
+            </div>
+            <span className="text-gray-700">Facial similarity matching</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold text-sm">3</span>
+            </div>
+            <span className="text-gray-700">Liveness detection</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold text-sm">4</span>
+            </div>
+            <span className="text-gray-700">AML and sanctions screening</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-6">
+        <Button onClick={handleStepBack} variant="secondary">
+          Back
+        </Button>
+        <Button onClick={handleStepNext} variant="primary">
+          <ExternalLink className="w-4 h-4 mr-2" />
+          Start Verification
+        </Button>
       </div>
     </div>
   );
@@ -910,9 +1656,23 @@ export default function KYCPage() {
                 Partisipro
               </span>
             </Link>
-            <div className="text-sm text-gray-500">
-              Step {steps.findIndex(s => s.id === currentStep) + 1} of{' '}
-              {steps.length}
+            <div className="flex items-center gap-4">
+              {selectedProvider && (
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center mr-2">
+                    <span className="text-white font-bold text-xs">
+                      {selectedProvider.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    {selectedProvider.name}
+                  </span>
+                </div>
+              )}
+              <div className="text-sm text-gray-500">
+                Step {steps.findIndex(s => s.id === currentStep) + 1} of{' '}
+                {steps.length}
+              </div>
             </div>
           </div>
         </div>
@@ -924,9 +1684,11 @@ export default function KYCPage() {
           {renderStepIndicator()}
 
           {currentStep === 'intro' && renderIntroStep()}
+          {currentStep === 'provider' && renderProviderSelectionStep()}
           {currentStep === 'personal' && renderPersonalInfoStep()}
           {currentStep === 'document' && renderDocumentUploadStep()}
           {currentStep === 'verification' && renderVerificationStep()}
+          {currentStep === 'processing' && renderProcessingStep()}
           {currentStep === 'identity' && renderIdentityStep()}
           {currentStep === 'complete' && renderCompleteStep()}
         </div>
