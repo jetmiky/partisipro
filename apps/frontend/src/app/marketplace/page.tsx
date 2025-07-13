@@ -16,10 +16,22 @@ import {
   Grid,
   List,
   ChevronDown,
+  Shield,
+  CheckCircle,
+  AlertTriangle,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
+
+interface IdentityStatus {
+  isVerified: boolean;
+  kycStatus: 'approved' | 'pending' | 'rejected' | 'expired';
+  claims: string[];
+  eligibleForInvestment: boolean;
+  riskProfileCompleted: boolean;
+}
 
 interface Project {
   id: string;
@@ -228,6 +240,15 @@ export default function MarketplacePage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
 
+  // TODO: Mock identity status - replace with actual IdentityRegistry contract integration
+  const identityStatus: IdentityStatus = {
+    isVerified: true,
+    kycStatus: 'approved',
+    claims: ['KYC_APPROVED', 'INDONESIAN_RESIDENT', 'COMPLIANCE_VERIFIED'],
+    eligibleForInvestment: true,
+    riskProfileCompleted: true,
+  };
+
   const filteredProjects = useMemo(() => {
     return mockProjects.filter(project => {
       const matchesSearch =
@@ -318,6 +339,47 @@ export default function MarketplacePage() {
     }
   };
 
+  const EligibilityIndicator = () => {
+    if (!identityStatus.isVerified) {
+      return (
+        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
+          <Lock className="w-3 h-3 text-gray-500" />
+          <span className="text-gray-600">Identity Required</span>
+        </div>
+      );
+    }
+
+    if (!identityStatus.eligibleForInvestment) {
+      return (
+        <div className="flex items-center gap-1 px-2 py-1 bg-red-100 rounded-full text-xs">
+          <AlertTriangle className="w-3 h-3 text-red-500" />
+          <span className="text-red-600">Not Eligible</span>
+        </div>
+      );
+    }
+
+    const minimumMet = identityStatus.eligibleForInvestment;
+    const riskProfile = identityStatus.riskProfileCompleted;
+
+    if (minimumMet && riskProfile) {
+      return (
+        <div className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full text-xs">
+          <CheckCircle className="w-3 h-3 text-green-500" />
+          <span className="text-green-600">Eligible to Invest</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 rounded-full text-xs">
+        <Shield className="w-3 h-3 text-yellow-500" />
+        <span className="text-yellow-600">
+          Additional Verification Required
+        </span>
+      </div>
+    );
+  };
+
   const renderProjectCard = (project: Project) => {
     const Icon = getCategoryIcon(project.category);
     const progressPercentage =
@@ -358,6 +420,14 @@ export default function MarketplacePage() {
               className={`text-sm font-medium ${getRiskColor(project.riskLevel)}`}
             >
               {project.riskLevel} risk
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-3">
+            <EligibilityIndicator />
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <Shield className="w-3 h-3" />
+              <span>ERC-3643 Protected</span>
             </div>
           </div>
 
@@ -487,6 +557,45 @@ export default function MarketplacePage() {
             Discover and invest in Indonesian Public-Private Partnership
             projects
           </p>
+        </div>
+
+        {/* Identity Status Banner */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              <div>
+                <h3 className="font-medium text-green-900">
+                  Identity Verified
+                </h3>
+                <p className="text-sm text-green-700">
+                  Your ERC-3643 identity is verified and you can invest in all
+                  available projects
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-green-700">KYC Approved</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-green-700">
+                  {identityStatus.claims.length} Claims Active
+                </span>
+              </div>
+              <Link href="/identity">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="text-green-700 border-green-300"
+                >
+                  Manage Identity
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Search and Filters */}
