@@ -10,16 +10,16 @@ import {
   Filter,
 } from 'lucide-react';
 
-export interface Column {
+export interface Column<T = Record<string, unknown>> {
   key: string;
   label: string;
   sortable?: boolean;
-  render?: (value: any, row: any) => React.ReactNode;
+  render?: (value: unknown, row: T) => React.ReactNode;
 }
 
-interface DataTableProps {
-  columns: Column[];
-  data: any[];
+interface DataTableProps<T = Record<string, unknown>> {
+  columns: Column<T>[];
+  data: T[];
   searchable?: boolean;
   filterable?: boolean;
   pagination?: boolean;
@@ -27,7 +27,7 @@ interface DataTableProps {
   className?: string;
 }
 
-const DataTable = ({
+const DataTable = <T extends Record<string, unknown>>({
   columns,
   data,
   searchable = true,
@@ -35,7 +35,7 @@ const DataTable = ({
   pagination = true,
   pageSize = 10,
   className = '',
-}: DataTableProps) => {
+}: DataTableProps<T>) => {
   const [sortColumn, setSortColumn] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,8 +48,17 @@ const DataTable = ({
     const aValue = a[sortColumn];
     const bValue = b[sortColumn];
 
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    // Handle null/undefined values
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortDirection === 'asc' ? -1 : 1;
+    if (bValue == null) return sortDirection === 'asc' ? 1 : -1;
+
+    // Convert to strings for comparison if needed
+    const aStr = String(aValue);
+    const bStr = String(bValue);
+
+    if (aStr < bStr) return sortDirection === 'asc' ? -1 : 1;
+    if (aStr > bStr) return sortDirection === 'asc' ? 1 : -1;
     return 0;
   });
 
@@ -142,7 +151,7 @@ const DataTable = ({
                   >
                     {column.render
                       ? column.render(row[column.key], row)
-                      : row[column.key]}
+                      : String(row[column.key] ?? '')}
                   </td>
                 ))}
               </tr>
