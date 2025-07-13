@@ -15,6 +15,10 @@ import {
   RefreshCw,
   Filter,
   Search,
+  Shield,
+  CheckCircle,
+  UserCheck,
+  Award,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
@@ -249,6 +253,68 @@ export default function DashboardPage() {
 
   const renderOverview = () => (
     <div className="space-y-6">
+      {/* Identity Status Section */}
+      <Card className="p-6 border-green-200 bg-green-50">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Shield className="w-6 h-6 text-green-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-green-900">
+                Identity Verification Status
+              </h3>
+              <p className="text-green-700">
+                Your ERC-3643 identity is active and verified
+              </p>
+            </div>
+          </div>
+          <CheckCircle className="w-8 h-8 text-green-600" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center">
+            <UserCheck className="w-5 h-5 text-green-600 mr-2" />
+            <div>
+              <p className="text-sm font-medium text-green-900">KYC Status</p>
+              <p className="text-xs text-green-700">Verified</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <Award className="w-5 h-5 text-blue-600 mr-2" />
+            <div>
+              <p className="text-sm font-medium text-green-900">
+                Active Claims
+              </p>
+              <p className="text-xs text-green-700">4 of 4 claims</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+            <div>
+              <p className="text-sm font-medium text-green-900">
+                Investment Eligible
+              </p>
+              <p className="text-xs text-green-700">All projects available</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 pt-4 border-t border-green-200">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-green-700">
+              <span className="font-medium">Identity Benefits:</span> One-time
+              verification, instant investment approval, automated profit
+              distribution
+            </p>
+            <Link href="/identity">
+              <Button
+                variant="secondary"
+                className="text-green-700 border-green-300 hover:bg-green-100 text-sm"
+              >
+                Manage Identity
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard

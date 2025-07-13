@@ -12,11 +12,20 @@ import {
   Clock,
   Camera,
   Layers,
+  UserCheck,
+  Award,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 
-type KYCStep = 'personal' | 'document' | 'verification' | 'complete';
+type KYCStep =
+  | 'intro'
+  | 'personal'
+  | 'document'
+  | 'verification'
+  | 'identity'
+  | 'complete';
 type KYCStatus = 'pending' | 'processing' | 'success' | 'failed';
 
 interface DocumentUpload {
@@ -26,8 +35,17 @@ interface DocumentUpload {
   required: boolean;
 }
 
+interface IdentityClaim {
+  id: string;
+  type: string;
+  description: string;
+  value: string;
+  issuer: string;
+  status: 'pending' | 'issued' | 'verified';
+}
+
 export default function KYCPage() {
-  const [currentStep, setCurrentStep] = useState<KYCStep>('personal');
+  const [currentStep, setCurrentStep] = useState<KYCStep>('intro');
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
   const [formData, setFormData] = useState({
     fullName: '',
@@ -60,10 +78,39 @@ export default function KYCPage() {
     },
   ]);
 
+  const [identityClaims, setIdentityClaims] = useState<IdentityClaim[]>([
+    {
+      id: '1',
+      type: 'KYC_APPROVED',
+      description: 'Know Your Customer verification completed',
+      value: 'true',
+      issuer: 'Verihubs Indonesia',
+      status: 'pending',
+    },
+    {
+      id: '2',
+      type: 'INDONESIAN_RESIDENT',
+      description: 'Verified Indonesian resident status',
+      value: 'true',
+      issuer: 'Verihubs Indonesia',
+      status: 'pending',
+    },
+    {
+      id: '3',
+      type: 'COMPLIANCE_VERIFIED',
+      description: 'AML and sanctions screening completed',
+      value: 'true',
+      issuer: 'Partisipro Platform',
+      status: 'pending',
+    },
+  ]);
+
   const steps = [
+    { id: 'intro', label: 'Introduction', icon: AlertCircle },
     { id: 'personal', label: 'Personal Information', icon: User },
     { id: 'document', label: 'Document Upload', icon: FileText },
     { id: 'verification', label: 'Verification', icon: Shield },
+    { id: 'identity', label: 'Identity Registry', icon: UserCheck },
     { id: 'complete', label: 'Complete', icon: CheckCircle },
   ];
 
@@ -87,9 +134,11 @@ export default function KYCPage() {
 
   const handleStepNext = () => {
     const stepOrder: KYCStep[] = [
+      'intro',
       'personal',
       'document',
       'verification',
+      'identity',
       'complete',
     ];
     const currentIndex = stepOrder.indexOf(currentStep);
@@ -100,9 +149,11 @@ export default function KYCPage() {
 
   const handleStepBack = () => {
     const stepOrder: KYCStep[] = [
+      'intro',
       'personal',
       'document',
       'verification',
+      'identity',
       'complete',
     ];
     const currentIndex = stepOrder.indexOf(currentStep);
@@ -117,10 +168,271 @@ export default function KYCPage() {
     setTimeout(() => {
       setKycStatus(result);
       if (result === 'success') {
-        setCurrentStep('complete');
+        // Update identity claims status
+        setIdentityClaims(prev =>
+          prev.map(claim => ({ ...claim, status: 'issued' as const }))
+        );
+        setCurrentStep('identity');
       }
     }, 3000);
   };
+
+  const renderIntroStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Shield className="w-8 h-8 text-primary-600" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          One-Time Identity Verification
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Complete your identity verification once and gain access to all
+          investment opportunities on the Partisipro platform. This process
+          creates a permanent identity record that eliminates the need for
+          per-project verification.
+        </p>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <UserCheck className="w-6 h-6 text-blue-600 mr-3" />
+          <h3 className="text-lg font-semibold text-blue-900">
+            What is ERC-3643 Identity Registry?
+          </h3>
+        </div>
+        <p className="text-blue-800 mb-4">
+          Our platform uses the ERC-3643 standard for identity management. This
+          means your identity verification creates a permanent, secure record on
+          the blockchain that can be used across all platform services.
+        </p>
+        <div className="space-y-3">
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>One-time verification for all investments</span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>Secure blockchain-based identity storage</span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>Claims-based verification system</span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>Instant access to all platform features</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <AlertCircle className="w-6 h-6 text-yellow-600 mr-3" />
+          <h3 className="text-lg font-semibold text-yellow-900">
+            What You&apos;ll Need
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center text-yellow-800">
+            <FileText className="w-5 h-5 text-yellow-600 mr-3" />
+            <span>Indonesian ID Card (KTP)</span>
+          </div>
+          <div className="flex items-center text-yellow-800">
+            <Camera className="w-5 h-5 text-yellow-600 mr-3" />
+            <span>Selfie with ID for verification</span>
+          </div>
+          <div className="flex items-center text-yellow-800">
+            <FileText className="w-5 h-5 text-yellow-600 mr-3" />
+            <span>Proof of address document</span>
+          </div>
+          <div className="flex items-center text-yellow-800">
+            <Clock className="w-5 h-5 text-yellow-600 mr-3" />
+            <span>5-10 minutes of your time</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Verification Process Steps
+        </h3>
+        <div className="space-y-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold">1</span>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">
+                Personal Information
+              </h4>
+              <p className="text-sm text-gray-600">
+                Provide your basic personal details
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold">2</span>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">Document Upload</h4>
+              <p className="text-sm text-gray-600">
+                Upload clear photos of your documents
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold">3</span>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">
+                Third-Party Verification
+              </h4>
+              <p className="text-sm text-gray-600">
+                Our KYC provider verifies your identity
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold">4</span>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">
+                Identity Registry Creation
+              </h4>
+              <p className="text-sm text-gray-600">
+                Your verified identity is stored on the blockchain
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-600 font-semibold">5</span>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">Complete Access</h4>
+              <p className="text-sm text-gray-600">
+                Start investing in all platform projects
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center pt-6">
+        <Button onClick={handleStepNext} variant="primary" className="px-8">
+          Start Identity Verification
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderIdentityStep = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <UserCheck className="w-8 h-8 text-green-600" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Identity Registry Created
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Your identity has been successfully verified and registered on the
+          blockchain. The following claims have been issued to your identity.
+        </p>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <Shield className="w-6 h-6 text-green-600 mr-3" />
+          <h3 className="text-lg font-semibold text-green-900">
+            Identity Claims Issued
+          </h3>
+        </div>
+        <p className="text-green-800 mb-4">
+          Your identity now contains verified claims that enable access to all
+          platform features. These claims are permanently stored and can be used
+          for future investments.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Your Identity Claims
+        </h3>
+        {identityClaims.map(claim => (
+          <div
+            key={claim.id}
+            className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+          >
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                <Award className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">
+                  {claim.type.replace('_', ' ')}
+                </h4>
+                <p className="text-sm text-gray-600">{claim.description}</p>
+                <p className="text-xs text-gray-500">
+                  Issued by: {claim.issuer}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                ISSUED
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <UserCheck className="w-6 h-6 text-blue-600 mr-3" />
+          <h3 className="text-lg font-semibold text-blue-900">
+            What This Means for You
+          </h3>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>You can now invest in any project on the platform</span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>
+              No additional verification required for future investments
+            </span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>
+              Your identity is secure and portable across the platform
+            </span>
+          </div>
+          <div className="flex items-center text-blue-800">
+            <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
+            <span>Access to governance features and profit claiming</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-6">
+        <Button onClick={handleStepBack} variant="secondary">
+          Back
+        </Button>
+        <Button onClick={handleStepNext} variant="primary">
+          Complete Setup
+        </Button>
+      </div>
+    </div>
+  );
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
@@ -510,12 +822,36 @@ export default function KYCPage() {
 
       <div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          KYC Verification Complete!
+          Identity Registry Setup Complete!
         </h2>
         <p className="text-gray-600">
-          Your identity has been successfully verified. You can now explore
-          investment opportunities.
+          Your ERC-3643 identity has been successfully created and verified. You
+          now have permanent access to all platform features.
         </p>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="flex items-center justify-center mb-4">
+          <Shield className="w-6 h-6 text-green-600 mr-3" />
+          <h3 className="font-medium text-green-900">
+            Your Identity is Now Active
+          </h3>
+        </div>
+        <p className="text-green-800 mb-4">
+          Your blockchain-based identity contains verified claims that enable
+          seamless access to all investment opportunities without additional
+          verification.
+        </p>
+        <div className="text-center">
+          <Link href="/identity" className="inline-block">
+            <Button
+              variant="secondary"
+              className="text-green-700 border-green-300 hover:bg-green-100"
+            >
+              View Your Identity Status
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6">
@@ -524,19 +860,26 @@ export default function KYCPage() {
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
             <span className="text-gray-700">
-              Browse available investment projects
+              Browse available investment projects (no additional verification
+              needed)
             </span>
           </div>
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
             <span className="text-gray-700">
-              Set up your investment preferences
+              Invest in any project with one-click approval
             </span>
           </div>
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
             <span className="text-gray-700">
-              Start investing in PPP projects
+              Access governance features and profit claiming
+            </span>
+          </div>
+          <div className="flex items-center">
+            <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+            <span className="text-gray-700">
+              Manage your identity claims and verification status
             </span>
           </div>
         </div>
@@ -580,9 +923,11 @@ export default function KYCPage() {
         <div className="bg-white rounded-lg shadow-sm p-8">
           {renderStepIndicator()}
 
+          {currentStep === 'intro' && renderIntroStep()}
           {currentStep === 'personal' && renderPersonalInfoStep()}
           {currentStep === 'document' && renderDocumentUploadStep()}
           {currentStep === 'verification' && renderVerificationStep()}
+          {currentStep === 'identity' && renderIdentityStep()}
           {currentStep === 'complete' && renderCompleteStep()}
         </div>
       </div>

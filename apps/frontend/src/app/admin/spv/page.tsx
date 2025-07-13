@@ -25,44 +25,7 @@ import {
   Modal,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-
-interface SPVApplication {
-  id: string;
-  companyName: string;
-  legalEntityType: string;
-  registrationNumber: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  website?: string;
-  businessType: string;
-  yearsOfOperation: number;
-  submittedDate: string;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected';
-  documents: {
-    businessLicense: boolean;
-    taxCertificate: boolean;
-    auditedFinancials: boolean;
-    companyProfile: boolean;
-    bankReference: boolean;
-  };
-  reviewNotes?: string;
-  reviewedBy?: string;
-  reviewedDate?: string;
-  estimatedProjectValue?: number;
-}
-
-interface ApprovedSPV {
-  id: string;
-  companyName: string;
-  approvedDate: string;
-  walletAddress: string;
-  projectsCreated: number;
-  totalFundingRaised: number;
-  status: 'active' | 'suspended' | 'inactive';
-  lastActivity: string;
-  performanceScore: number;
-}
+import type { SPVApplication, ApprovedSPV } from '@/types';
 
 interface SPVStats {
   pendingApplications: number;
@@ -307,7 +270,7 @@ export default function AdminSPVPage() {
     spvId;
   };
 
-  const applicationColumns: Column[] = [
+  const applicationColumns: Column<SPVApplication>[] = [
     {
       key: 'companyName',
       label: 'Company',
@@ -390,7 +353,7 @@ export default function AdminSPVPage() {
     },
   ];
 
-  const approvedSPVColumns: Column[] = [
+  const approvedSPVColumns: Column<ApprovedSPV>[] = [
     {
       key: 'companyName',
       label: 'Company',
@@ -584,7 +547,7 @@ export default function AdminSPVPage() {
                 </div>
               </div>
 
-              <DataTable
+              <DataTable<SPVApplication>
                 columns={applicationColumns}
                 data={mockPendingApplications}
               />
@@ -608,7 +571,10 @@ export default function AdminSPVPage() {
                 </div>
               </div>
 
-              <DataTable columns={approvedSPVColumns} data={mockApprovedSPVs} />
+              <DataTable<ApprovedSPV>
+                columns={approvedSPVColumns}
+                data={mockApprovedSPVs}
+              />
             </div>
           )}
         </Card>

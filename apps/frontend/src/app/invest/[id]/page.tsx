@@ -13,12 +13,17 @@ import {
   AlertTriangle,
   Clock,
   Layers,
+  Shield,
+  UserCheck,
+  Award,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
+import type { Project } from '@/types';
 import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
 
 type InvestmentStep =
+  | 'identity'
   | 'amount'
   | 'payment'
   | 'confirmation'
@@ -34,6 +39,17 @@ interface PaymentMethod {
   fee: number;
   processingTime: string;
   description: string;
+}
+
+interface IdentityStatus {
+  isVerified: boolean;
+  kycStatus: 'approved' | 'pending' | 'rejected' | 'expired';
+  claims: {
+    id: string;
+    type: string;
+    status: 'active' | 'expired' | 'pending';
+  }[];
+  eligibleForInvestment: boolean;
 }
 
 // Mock project data (simplified from project details)
@@ -52,8 +68,8 @@ const mockProjectData = {
 export default function InvestmentFlowPage() {
   const params = useParams();
   const router = useRouter();
-  const [project, setProject] = useState<any>(null);
-  const [currentStep, setCurrentStep] = useState<InvestmentStep>('amount');
+  const [project, setProject] = useState<Project | null>(null);
+  const [currentStep, setCurrentStep] = useState<InvestmentStep>('identity');
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>('');
@@ -61,6 +77,18 @@ export default function InvestmentFlowPage() {
   const [processingMessage, setProcessingMessage] = useState('');
   const [agreementAccepted, setAgreementAccepted] = useState(false);
   const [riskAcknowledged, setRiskAcknowledged] = useState(false);
+
+  // TODO: Mock identity status - replace with actual IdentityRegistry contract integration
+  const [identityStatus] = useState<IdentityStatus>({
+    isVerified: true,
+    kycStatus: 'approved',
+    claims: [
+      { id: '1', type: 'KYC_APPROVED', status: 'active' },
+      { id: '2', type: 'INDONESIAN_RESIDENT', status: 'active' },
+      { id: '3', type: 'COMPLIANCE_VERIFIED', status: 'active' },
+    ],
+    eligibleForInvestment: true,
+  });
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -135,7 +163,7 @@ export default function InvestmentFlowPage() {
     setTimeout(() => {
       const projectData =
         mockProjectData[projectId as keyof typeof mockProjectData];
-      setProject(projectData);
+      setProject(projectData as unknown as Project);
     }, 500);
   }, [params.id]);
 
@@ -169,6 +197,7 @@ export default function InvestmentFlowPage() {
 
   const handleNextStep = () => {
     const stepOrder: InvestmentStep[] = [
+      'identity',
       'amount',
       'payment',
       'confirmation',
@@ -183,6 +212,7 @@ export default function InvestmentFlowPage() {
 
   const handleBackStep = () => {
     const stepOrder: InvestmentStep[] = [
+      'identity',
       'amount',
       'payment',
       'confirmation',
@@ -220,6 +250,7 @@ export default function InvestmentFlowPage() {
 
   const renderStepIndicator = () => {
     const steps = [
+      { id: 'identity', label: 'Identity' },
       { id: 'amount', label: 'Amount' },
       { id: 'payment', label: 'Payment' },
       { id: 'confirmation', label: 'Confirmation' },
@@ -281,6 +312,163 @@ export default function InvestmentFlowPage() {
       </div>
     );
   };
+
+  const renderIdentityStep = () => (
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Shield className="w-8 h-8 text-primary-600" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Identity Verification
+        </h2>
+        <p className="text-gray-600">
+          Your identity will be verified automatically using the ERC-3643
+          Identity Registry
+        </p>
+      </div>
+
+      {identityStatus.eligibleForInvestment ? (
+        <div className="space-y-6">
+          <Card className="p-6 border-green-200 bg-green-50">
+            <div className="flex items-center mb-4">
+              <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
+              <h3 className="text-lg font-semibold text-green-900">
+                Identity Verification Successful
+              </h3>
+            </div>
+            <p className="text-green-800 mb-4">
+              Your identity has been verified and you are eligible to invest in
+              this project. No additional verification is required.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-green-700 font-medium">KYC Status:</span>
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                {identityStatus.kycStatus.toUpperCase()}
+              </span>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Your Active Identity Claims
+            </h3>
+            <div className="space-y-3">
+              {identityStatus.claims.map(claim => (
+                <div
+                  key={claim.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <Award className="w-5 h-5 text-blue-600 mr-3" />
+                    <span className="font-medium text-gray-900">
+                      {claim.type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      claim.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {claim.status.toUpperCase()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center mb-4">
+              <UserCheck className="w-6 h-6 text-blue-600 mr-3" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Investment Benefits
+              </h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center text-gray-700">
+                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <span>Instant investment approval</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <span>Access to all project tiers</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <span>Automated profit distribution</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <span>Governance voting rights</span>
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex justify-center">
+            <Button onClick={handleNextStep} variant="primary" className="px-8">
+              Proceed to Investment
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <Card className="p-6 border-red-200 bg-red-50">
+            <div className="flex items-center mb-4">
+              <XCircle className="w-6 h-6 text-red-600 mr-3" />
+              <h3 className="text-lg font-semibold text-red-900">
+                Identity Verification Required
+              </h3>
+            </div>
+            <p className="text-red-800 mb-4">
+              Your identity needs to be verified before you can invest in this
+              project. Please complete the KYC process to continue.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-red-700 font-medium">KYC Status:</span>
+              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                {identityStatus.kycStatus.toUpperCase()}
+              </span>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Required Steps
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center text-gray-700">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+                <span>Complete KYC verification</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+                <span>Obtain required identity claims</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
+                <span>Wait for identity registry approval</span>
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex justify-center gap-4">
+            <Link href="/kyc">
+              <Button variant="primary" className="px-8">
+                Start KYC Process
+              </Button>
+            </Link>
+            <Link href="/identity">
+              <Button variant="secondary" className="px-8">
+                Check Identity Status
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const renderAmountStep = () => (
     <div className="max-w-2xl mx-auto">
@@ -395,7 +583,10 @@ export default function InvestmentFlowPage() {
         </div>
       </div>
 
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-between mt-8">
+        <Button onClick={handleBackStep} variant="secondary">
+          Back
+        </Button>
         <Button
           onClick={handleNextStep}
           variant="primary"
@@ -774,6 +965,7 @@ export default function InvestmentFlowPage() {
         <div className="bg-white rounded-lg shadow-sm p-8">
           {renderStepIndicator()}
 
+          {currentStep === 'identity' && renderIdentityStep()}
           {currentStep === 'amount' && renderAmountStep()}
           {currentStep === 'payment' && renderPaymentStep()}
           {currentStep === 'confirmation' && renderConfirmationStep()}

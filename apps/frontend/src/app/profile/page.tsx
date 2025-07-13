@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import {
   User,
   Wallet,
@@ -278,9 +279,11 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
               {profile.avatar ? (
-                <img
+                <Image
                   src={profile.avatar}
                   alt="Profile"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (
