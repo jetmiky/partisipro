@@ -1,44 +1,77 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
+import { HttpExceptionFilter, TransformInterceptor } from './common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
-  // Global validation pipe
+  // Security middleware
+  app.use(helmet());
+
+  // CORS configuration
+  app.enableCors({
+    origin: configService.get('app.corsOrigin'),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
+
+  // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      disableErrorMessages: configService.get('app.nodeEnv') === 'production',
     })
   );
 
-  // CORS configuration
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-  });
+  // Global filters
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global interceptors
+  app.useGlobalInterceptors(new TransformInterceptor());
+
+  // API prefix
+  app.setGlobalPrefix(configService.get('app.apiPrefix'));
 
   // Swagger documentation
-  const config = new DocumentBuilder()
-    .setTitle('Partisipro API')
-    .setDescription(
-      'Blockchain-based Platform for Public Private Partnership Funding'
-    )
-    .setVersion('0.1.0')
-    .addBearerAuth()
-    .build();
+  if (configService.get('app.nodeEnv') !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Partisipro API')
+      .setDescription(
+        'Blockchain-based Platform for Public Private Partnership Funding'
+      )
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addTag('Authentication', 'User authentication and authorization')
+      .addTag('Users', 'User management and profiles')
+      .addTag('Projects', 'Project creation and management')
+      .addTag('Investments', 'Investment tracking and management')
+      .addTag('KYC', 'Know Your Customer verification')
+      .addTag('Payments', 'Payment processing and management')
+      .addTag('Profits', 'Profit distribution and claims')
+      .addTag('Blockchain', 'Blockchain interactions')
+      .addTag('Admin', 'Administrative functions')
+      .addTag('Governance', 'Governance proposals and voting')
+      .addTag('Notifications', 'User notifications and alerts')
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
-  const port = process.env.PORT || 3001;
+  const port = configService.get('app.port');
   await app.listen(port);
 
-  console.log(`🚀 Partisipro Backend API running on port ${port}`);
-  console.log(`📖 API Documentation: http://localhost:${port}/api/docs`);
+  console.log(`
+🚀 Partisipro Backend is running on: http://localhost:${port}
+📚 API Documentation: http://localhost:${port}/api/docs
+🔥 Environment: ${configService.get('app.nodeEnv')}
+  `);
 }
-
 bootstrap();
