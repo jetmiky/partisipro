@@ -178,3 +178,78 @@ npm run commit                 # Interactive conventional commits
 - Upgradeable contracts for future-proofing
 - Comprehensive input validation on all user inputs
 - Rate limiting and DDoS protection on API endpoints
+
+## Business Process Flow Paths (ERC-3643 Model)
+
+### Identity-Centric Compliance Model
+
+The platform has adopted the ERC-3643 standard, transforming from an
+**asset-centric** to an **identity-centric** compliance model. This fundamental
+change impacts all user journeys and workflows.
+
+### Key Flow Changes:
+
+- **One-Time KYC**: Users verify identity once for all investments (vs.
+  per-project KYC)
+- **Persistent Identity**: Central IdentityRegistry manages all compliance
+- **Simplified Investment**: No per-project whitelisting required
+- **Enhanced Admin Tools**: New identity management interfaces
+
+### Core User Flow Paths:
+
+#### Retail Investor Journey
+
+```
+/auth → /kyc → /identity → /marketplace → /projects/[id] → /invest/[id] → /dashboard
+```
+
+**Key Change**: One-time KYC creates persistent identity for all investments
+
+#### SPV Project Creation
+
+```
+/spv/auth → /spv/dashboard → /spv/create → /spv/compliance
+```
+
+**Key Change**: Projects automatically link to central IdentityRegistry
+
+#### Admin Identity Management
+
+```
+/admin/dashboard → /admin/identity → /admin/claims → /admin/compliance
+```
+
+**Key Change**: Centralized identity and compliance management
+
+#### Profit Distribution
+
+```
+/dashboard → /claim (with automatic identity verification)
+```
+
+**Key Change**: Identity verification integrated into claiming process
+
+### Detailed Flow Documentation
+
+Complete user flow paths for all 6 business use cases are documented in:
+
+- **`.claude/contexts/business-flows-erc3643.md`** - Comprehensive flow
+  documentation
+
+### ERC-3643 Benefits:
+
+- **Improved UX**: Reduced friction through one-time verification
+- **Enhanced Security**: Persistent identity with claims management
+- **Operational Efficiency**: Centralized compliance management
+- **Better Scalability**: Platform-wide identity registry
+
+# IMPORTANT NOTE
+
+Altough the Administrator and SPVs intended to use Multi-Signature Wallet for
+extra security, as this projet is still a prototype, do as follows:
+
+- Blockchain Platform uses Single-Signature Wallet for Administrator and SPVs
+- Backend Platform uses Single-Signature Wallet for Administrator and SPVs
+- Frontend Platform uses Single-Signature Wallet for Administrator and SPVs, but
+  still show views to connect Multi-Signature Wallet just for visual purposes
+  only.
