@@ -168,11 +168,6 @@ export class FirebaseService implements OnModuleInit {
       .get();
   }
 
-  // Batch operations
-  getBatch() {
-    return this.firestore.batch();
-  }
-
   // Transaction operations
   async runTransaction<T>(
     updateFunction: (transaction: FirebaseFirestore.Transaction) => Promise<T>
@@ -252,5 +247,74 @@ export class FirebaseService implements OnModuleInit {
       this.logger.error('Firebase health check failed', error);
       return false;
     }
+  }
+
+  // Batch operations for DatabaseOptimizer
+  getBatch(): FirebaseFirestore.WriteBatch {
+    return this.firestore.batch();
+  }
+
+  getCollection(collectionName: string): CollectionReference {
+    return this.firestore.collection(collectionName);
+  }
+
+  getDocumentReference(
+    collectionName: string,
+    documentId: string
+  ): FirebaseFirestore.DocumentReference {
+    return this.firestore.collection(collectionName).doc(documentId);
+  }
+
+  getNewDocumentReference(
+    collectionName: string
+  ): FirebaseFirestore.DocumentReference {
+    return this.firestore.collection(collectionName).doc();
+  }
+
+  async getDocumentsByIds(
+    collectionName: string,
+    documentIds: string[]
+  ): Promise<QuerySnapshot> {
+    if (documentIds.length === 0) {
+      // Return empty snapshot
+      return await this.firestore
+        .collection(collectionName)
+        .where('__name__', 'in', [])
+        .get();
+    }
+
+    // Firestore 'in' query supports up to 10 values
+    const chunks = this.chunkArray(documentIds, 10);
+    const snapshots: QuerySnapshot[] = [];
+
+    for (const chunk of chunks) {
+      const snapshot = await this.firestore
+        .collection(collectionName)
+        .where(
+          '__name__',
+          'in',
+          chunk.map(id => this.firestore.doc(`${collectionName}/${id}`))
+        )
+        .get();
+      snapshots.push(snapshot);
+    }
+
+    // Merge all snapshots
+    const allDocs: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+    snapshots.forEach(snapshot => allDocs.push(...snapshot.docs));
+
+    return {
+      docs: allDocs,
+      size: allDocs.length,
+      empty: allDocs.length === 0,
+    } as QuerySnapshot;
+  }
+
+  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
   }
 }

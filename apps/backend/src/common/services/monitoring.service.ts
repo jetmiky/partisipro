@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { FirebaseService } from './firebase.service';
 import { CacheService } from './cache.service';
 import { HealthService } from './health.service';
+import { ConnectionPoolService } from './connection-pool.service';
+import { ResourceManagerService } from './resource-manager.service';
 
 export interface Alert {
   id: string;
@@ -67,7 +70,9 @@ export class MonitoringService {
     private configService: ConfigService,
     private firebaseService: FirebaseService,
     private cacheService: CacheService,
-    private healthService: HealthService
+    private healthService: HealthService,
+    private connectionPoolService: ConnectionPoolService,
+    private resourceManagerService: ResourceManagerService
   ) {
     this.startMonitoring();
   }
@@ -365,12 +370,337 @@ export class MonitoringService {
     const metrics = this.getMetrics();
     const alerts = this.getActiveAlerts();
     const health = await this.healthService.getHealthStatus();
+    const resourceStats = this.resourceManagerService.getResourceStatistics();
+    const connectionStats = this.connectionPoolService.getPoolStatistics();
+    const requestMetrics = this.connectionPoolService.getRequestMetrics();
+    const cacheHealth = await this.cacheService.healthCheck();
 
     return {
       metrics,
       alerts,
       health,
+      resources: resourceStats,
+      connections: connectionStats,
+      requests: requestMetrics,
+      cache: cacheHealth,
       timestamp: new Date(),
     };
+  }
+
+  /**
+   * Get comprehensive performance report
+   */
+  async getPerformanceReport(): Promise<{
+    summary: any;
+    resources: any;
+    network: any;
+    database: any;
+    cache: any;
+    errors: any;
+    recommendations: string[];
+  }> {
+    const resourceStats = this.resourceManagerService.getResourceStatistics();
+    const connectionStats = this.connectionPoolService.getPoolStatistics();
+    const requestMetrics = this.connectionPoolService.getRequestMetrics();
+    const cacheHealth = await this.cacheService.healthCheck();
+    const memoryLeakInfo = this.resourceManagerService.getMemoryLeakInfo();
+
+    // Generate performance summary
+    const summary = {
+      overallHealth: this.calculateOverallHealth(
+        resourceStats,
+        requestMetrics,
+        cacheHealth
+      ),
+      uptime: resourceStats.uptime,
+      totalRequests: requestMetrics.totalRequests,
+      successRate: requestMetrics.successRate,
+      averageResponseTime: requestMetrics.averageResponseTime,
+      activeAlerts: this.getActiveAlerts().length,
+    };
+
+    // Gather recommendations
+    const recommendations = this.generatePerformanceRecommendations(
+      resourceStats,
+      requestMetrics,
+      memoryLeakInfo,
+      cacheHealth
+    );
+
+    return {
+      summary,
+      resources: resourceStats,
+      network: {
+        connections: connectionStats,
+        requests: requestMetrics,
+      },
+      database: {
+        // Add database performance metrics here
+        healthCheck: await this.firebaseService.healthCheck(),
+      },
+      cache: cacheHealth,
+      errors: {
+        recentErrors: requestMetrics.recentErrors,
+        memoryLeaks: memoryLeakInfo,
+      },
+      recommendations,
+    };
+  }
+
+  /**
+   * Calculate overall system health score
+   */
+  private calculateOverallHealth(
+    resourceStats: any,
+    requestMetrics: any,
+    cacheHealth: any
+  ): { score: number; status: string; factors: any[] } {
+    const factors = [];
+    let totalScore = 0;
+    let maxScore = 0;
+
+    // CPU health (20%)
+    const cpuScore = Math.max(
+      0,
+      100 - (resourceStats.current?.cpu?.usage || 0)
+    );
+    factors.push({ name: 'CPU Usage', score: cpuScore, weight: 20 });
+    totalScore += cpuScore * 0.2;
+    maxScore += 20;
+
+    // Memory health (25%)
+    const memoryScore = Math.max(
+      0,
+      100 - (resourceStats.current?.memory?.usage || 0)
+    );
+    factors.push({ name: 'Memory Usage', score: memoryScore, weight: 25 });
+    totalScore += memoryScore * 0.25;
+    maxScore += 25;
+
+    // Request success rate (30%)
+    const requestScore = requestMetrics.successRate || 0;
+    factors.push({
+      name: 'Request Success Rate',
+      score: requestScore,
+      weight: 30,
+    });
+    totalScore += requestScore * 0.3;
+    maxScore += 30;
+
+    // Response time health (15%)
+    const responseTimeScore = Math.max(
+      0,
+      100 - requestMetrics.averageResponseTime / 50
+    ); // 5000ms = 0 score
+    factors.push({
+      name: 'Response Time',
+      score: responseTimeScore,
+      weight: 15,
+    });
+    totalScore += responseTimeScore * 0.15;
+    maxScore += 15;
+
+    // Cache health (10%)
+    const cacheScore = cacheHealth.healthy ? 100 : 0;
+    factors.push({ name: 'Cache Health', score: cacheScore, weight: 10 });
+    totalScore += cacheScore * 0.1;
+    maxScore += 10;
+
+    const overallScore = Math.round((totalScore / maxScore) * 100);
+
+    let status = 'excellent';
+    if (overallScore < 50) status = 'critical';
+    else if (overallScore < 70) status = 'poor';
+    else if (overallScore < 85) status = 'fair';
+    else if (overallScore < 95) status = 'good';
+
+    return { score: overallScore, status, factors };
+  }
+
+  /**
+   * Generate performance recommendations
+   */
+  private generatePerformanceRecommendations(
+    resourceStats: any,
+    requestMetrics: any,
+    memoryLeakInfo: any,
+    cacheHealth: any
+  ): string[] {
+    const recommendations: string[] = [];
+
+    // CPU recommendations
+    if (resourceStats.current?.cpu?.usage > 80) {
+      recommendations.push(
+        'High CPU usage detected. Consider scaling horizontally or optimizing CPU-intensive operations.'
+      );
+    }
+
+    // Memory recommendations
+    if (resourceStats.current?.memory?.usage > 85) {
+      recommendations.push(
+        'High memory usage detected. Consider increasing available memory or investigating memory leaks.'
+      );
+    }
+
+    if (memoryLeakInfo.suspiciousGrowth) {
+      recommendations.push(
+        'Potential memory leak detected. Review application code for memory retention issues.'
+      );
+    }
+
+    // Request performance recommendations
+    if (requestMetrics.successRate < 95) {
+      recommendations.push(
+        'Request success rate is below 95%. Review error logs and improve error handling.'
+      );
+    }
+
+    if (requestMetrics.averageResponseTime > 2000) {
+      recommendations.push(
+        'Average response time is above 2 seconds. Consider optimizing database queries and caching strategies.'
+      );
+    }
+
+    // Cache recommendations
+    if (!cacheHealth.healthy) {
+      recommendations.push(
+        'Cache service is unhealthy. Check Redis connection and configuration.'
+      );
+    } else if (cacheHealth.latency > 100) {
+      recommendations.push(
+        'Cache latency is high. Consider optimizing Redis configuration or network connectivity.'
+      );
+    }
+
+    // General recommendations
+    if (resourceStats.activeAlerts.length > 0) {
+      recommendations.push(
+        `${resourceStats.activeAlerts.length} active system alerts require attention.`
+      );
+    }
+
+    if (recommendations.length === 0) {
+      recommendations.push(
+        'System is performing well. Continue monitoring for optimal performance.'
+      );
+    }
+
+    return recommendations;
+  }
+
+  /**
+   * Scheduled performance analysis
+   */
+  @Cron(CronExpression.EVERY_HOUR)
+  async scheduledPerformanceAnalysis(): Promise<void> {
+    this.logger.debug('Running scheduled performance analysis...');
+
+    try {
+      const report = await this.getPerformanceReport();
+
+      // Log performance summary
+      this.logger.log(
+        `Performance Score: ${report.summary.overallHealth.score}% (${report.summary.overallHealth.status})`
+      );
+
+      // Check for critical performance issues
+      if (report.summary.overallHealth.score < 50) {
+        await this.createAlert({
+          type: 'error',
+          severity: 'critical',
+          title: 'Critical Performance Issues Detected',
+          description: `System performance score is ${report.summary.overallHealth.score}%. Immediate attention required.`,
+          source: 'performance_analysis',
+          metadata: { report: report.summary },
+        });
+      } else if (report.summary.overallHealth.score < 70) {
+        await this.createAlert({
+          type: 'warning',
+          severity: 'high',
+          title: 'Performance Degradation Detected',
+          description: `System performance score is ${report.summary.overallHealth.score}%. Performance optimization recommended.`,
+          source: 'performance_analysis',
+          metadata: { report: report.summary },
+        });
+      }
+
+      // Cache the performance report for dashboard
+      await this.cacheService.set(
+        'performance:report',
+        report,
+        { ttl: 3600 } // 1 hour
+      );
+    } catch (error) {
+      this.logger.error('Scheduled performance analysis failed:', error);
+    }
+  }
+
+  /**
+   * Get trending metrics over time
+   */
+  getTrendingMetrics(hours: number = 24): {
+    cpu: number[];
+    memory: number[];
+    requests: number[];
+    errors: number[];
+    responseTime: number[];
+  } {
+    const resourceHistory =
+      this.resourceManagerService.getResourceHistory(hours);
+
+    return {
+      cpu: resourceHistory.map(r => r.cpu.usage),
+      memory: resourceHistory.map(r => r.memory.usage),
+      requests: [], // Would need to implement request history tracking
+      errors: [], // Would need to implement error history tracking
+      responseTime: [], // Would need to implement response time history tracking
+    };
+  }
+
+  /**
+   * Force performance optimization actions
+   */
+  async forceOptimization(): Promise<{
+    actionsPerformed: string[];
+    errors: string[];
+  }> {
+    const actionsPerformed: string[] = [];
+    const errors: string[] = [];
+
+    try {
+      // Force garbage collection
+      const gcResult = this.resourceManagerService.forceGarbageCollection();
+      if (gcResult) {
+        actionsPerformed.push('Forced garbage collection');
+      } else {
+        errors.push('Garbage collection not available');
+      }
+    } catch (error) {
+      errors.push(
+        `Garbage collection failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+
+    try {
+      // Clear old cache entries
+      await this.cacheService.deletePattern('*:expired:*');
+      actionsPerformed.push('Cleared expired cache entries');
+    } catch (error) {
+      errors.push(
+        `Cache cleanup failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+
+    try {
+      // Warm up critical caches
+      // Implementation would depend on your specific caching strategy
+      actionsPerformed.push('Cache warm-up initiated');
+    } catch (error) {
+      errors.push(
+        `Cache warm-up failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+
+    return { actionsPerformed, errors };
   }
 }

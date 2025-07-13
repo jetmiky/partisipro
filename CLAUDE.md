@@ -185,3 +185,14 @@ npm run commit                 # Interactive conventional commits
 - Upgradeable contracts for future-proofing
 - Comprehensive input validation on all user inputs
 - Rate limiting and DDoS protection on API endpoints
+
+# IMPORTANT NOTE
+
+Altough the Administrator and SPVs intended to use Multi-Signature Wallet for
+extra security, as this projet is still a prototype, do as follows:
+
+- Blockchain Platform uses Single-Signature Wallet for Administrator and SPVs
+- Backend Platform uses Single-Signature Wallet for Administrator and SPVs
+- Frontend Platform uses Single-Signature Wallet for Administrator and SPVs, but
+  still show views to connect Multi-Signature Wallet just for visual purposes
+  only.

@@ -6,6 +6,11 @@ import {
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import {
+  CacheService,
+  CacheKeys,
+  CacheTTL,
+} from '../../common/services/cache.service';
+import {
   CreateProjectDto,
   UpdateProjectDto,
   ApproveProjectDto,
@@ -20,7 +25,10 @@ export class ProjectsService {
   private readonly PROJECTS_COLLECTION = 'projects';
   private readonly APPROVAL_TIMEOUT = 5000; // 5 seconds for mock approval
 
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private firebaseService: FirebaseService,
+    private cacheService: CacheService
+  ) {}
 
   /**
    * Create a new project (SPV only)
@@ -102,6 +110,9 @@ export class ProjectsService {
       projectId,
       project
     );
+
+    // Invalidate project list caches since new project was added
+    await this.invalidateProjectListCaches();
 
     this.logger.log(`Project created: ${projectId}`);
     return project;
@@ -216,7 +227,7 @@ export class ProjectsService {
   }
 
   /**
-   * Get all projects with filtering and pagination
+   * Get all projects with filtering and pagination (with caching)
    */
   async findAllProjects(
     status?: ProjectStatus,
@@ -228,32 +239,42 @@ export class ProjectsService {
       `Fetching projects - Status: ${status}, Category: ${category}`
     );
 
-    const query = (ref: FirebaseFirestore.Query) => {
-      let q = ref.orderBy('createdAt', 'desc');
+    // Create cache key based on query parameters
+    const filterKey = `${status || 'all'}_${category || 'all'}_${limit}_${startAfter || 'start'}`;
+    const cacheKey = CacheKeys.PROJECT_LIST(filterKey);
 
-      if (status) {
-        q = q.where('status', '==', status);
-      }
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const query = (ref: FirebaseFirestore.Query) => {
+          let q = ref.orderBy('createdAt', 'desc');
 
-      if (category) {
-        q = q.where('category', '==', category);
-      }
+          if (status) {
+            q = q.where('status', '==', status);
+          }
 
-      q = q.limit(limit);
+          if (category) {
+            q = q.where('category', '==', category);
+          }
 
-      if (startAfter) {
-        q = q.startAfter(startAfter);
-      }
+          q = q.limit(limit);
 
-      return q;
-    };
+          if (startAfter) {
+            q = q.startAfter(startAfter);
+          }
 
-    const docs = await this.firebaseService.getDocuments(
-      this.PROJECTS_COLLECTION,
-      query
+          return q;
+        };
+
+        const docs = await this.firebaseService.getDocuments(
+          this.PROJECTS_COLLECTION,
+          query
+        );
+
+        return docs.docs.map(doc => doc.data() as Project);
+      },
+      { ttl: CacheTTL.SHORT } // Shorter TTL for list data that changes more frequently
     );
-
-    return docs.docs.map(doc => doc.data() as Project);
   }
 
   /**
@@ -272,19 +293,27 @@ export class ProjectsService {
   }
 
   /**
-   * Get project by ID
+   * Get project by ID (with caching)
    */
   async findProjectById(projectId: string): Promise<Project | null> {
-    const doc = await this.firebaseService.getDocument(
-      this.PROJECTS_COLLECTION,
-      projectId
+    const cacheKey = CacheKeys.PROJECT_DETAILS(projectId);
+
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const doc = await this.firebaseService.getDocument(
+          this.PROJECTS_COLLECTION,
+          projectId
+        );
+
+        if (!doc.exists) {
+          return null;
+        }
+
+        return doc.data() as Project;
+      },
+      { ttl: CacheTTL.MEDIUM }
     );
-
-    if (!doc.exists) {
-      return null;
-    }
-
-    return doc.data() as Project;
   }
 
   /**
@@ -331,6 +360,9 @@ export class ProjectsService {
       projectId,
       updateData
     );
+
+    // Invalidate caches after update
+    await this.invalidateProjectCaches(projectId);
 
     const updatedProject = {
       ...project,
@@ -453,5 +485,42 @@ export class ProjectsService {
         );
       }
     }, this.APPROVAL_TIMEOUT);
+  }
+
+  /**
+   * Invalidate all caches related to a specific project
+   */
+  private async invalidateProjectCaches(projectId: string): Promise<void> {
+    try {
+      // Invalidate specific project cache
+      await this.cacheService.delete(CacheKeys.PROJECT_DETAILS(projectId));
+
+      // Invalidate project list caches
+      await this.invalidateProjectListCaches();
+
+      this.logger.debug(`Invalidated caches for project: ${projectId}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to invalidate caches for project: ${projectId}`,
+        error
+      );
+    }
+  }
+
+  /**
+   * Invalidate all project list caches
+   */
+  private async invalidateProjectListCaches(): Promise<void> {
+    try {
+      // Invalidate all project list cache variations
+      await this.cacheService.deletePattern('partisipro:project:list:*');
+
+      // Also invalidate platform analytics that might include project counts
+      await this.cacheService.delete(CacheKeys.PLATFORM_ANALYTICS());
+
+      this.logger.debug('Invalidated all project list caches');
+    } catch (error) {
+      this.logger.error('Failed to invalidate project list caches', error);
+    }
   }
 }

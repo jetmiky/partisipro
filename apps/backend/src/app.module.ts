@@ -1,11 +1,18 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { appConfig, firebaseConfig, jwtConfig, redisConfig } from './config';
+import {
+  appConfig,
+  firebaseConfig,
+  jwtConfig,
+  redisConfig,
+  web3authConfig,
+} from './config';
 import { CommonModule } from './common/common.module';
+import { SecurityModule } from './common/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ProjectsModule } from './modules/projects/projects.module';
@@ -25,6 +32,7 @@ import {
   RateLimitMiddleware,
   AuthRateLimitMiddleware,
 } from './common/middleware/rate-limit.middleware';
+import { SecurityInterceptor } from './common/interceptors/security.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { HealthController } from './common/controllers/health.controller';
 import { HealthService } from './common/services/health.service';
@@ -37,7 +45,7 @@ import { MonitoringService } from './common/services/monitoring.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [appConfig, firebaseConfig, jwtConfig, redisConfig],
+      load: [appConfig, firebaseConfig, jwtConfig, redisConfig, web3authConfig],
     }),
 
     // Rate limiting
@@ -50,6 +58,7 @@ import { MonitoringService } from './common/services/monitoring.service';
 
     // Common module (Firebase, guards, etc.)
     CommonModule,
+    SecurityModule,
 
     // Feature modules
     AuthModule,
@@ -73,6 +82,10 @@ import { MonitoringService } from './common/services/monitoring.service';
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SecurityInterceptor,
     },
   ],
 })

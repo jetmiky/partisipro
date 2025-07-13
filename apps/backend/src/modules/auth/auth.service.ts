@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { User, UserRole } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
+import { Web3AuthService } from './web3auth.service';
 
 export interface JwtPayload {
   sub: string;
@@ -28,19 +29,22 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private web3AuthService: Web3AuthService
   ) {}
 
   async authenticateWithWeb3Auth(loginDto: LoginDto): Promise<AuthResponse> {
     try {
-      // Verify Web3Auth ID token
-      const web3AuthUser = await this.verifyWeb3AuthToken(loginDto.idToken);
+      // Verify Web3Auth ID token using dedicated service
+      const web3AuthUser = await this.web3AuthService.verifyIdToken(
+        loginDto.idToken
+      );
 
       // Get or create user in Firestore
       const user = await this.usersService.findOrCreateUser({
-        email: web3AuthUser.email as string,
-        walletAddress: web3AuthUser.walletAddress as string,
-        web3AuthId: web3AuthUser.sub as string,
+        email: web3AuthUser.email,
+        walletAddress: web3AuthUser.walletAddress,
+        web3AuthId: web3AuthUser.sub,
       });
 
       // Generate JWT tokens
@@ -103,91 +107,6 @@ export class AuthService {
     }
 
     return user;
-  }
-
-  private async verifyWeb3AuthToken(
-    idToken: string
-  ): Promise<Record<string, unknown>> {
-    // Mock Web3Auth token verification for development
-    // In production, this would verify the actual Web3Auth JWT token
-    try {
-      this.logger.debug(
-        `Verifying Web3Auth token: ${idToken.substring(0, 10)}...`
-      );
-
-      // Mock different scenarios based on token content
-      const isDevelopment = process.env.NODE_ENV === 'development';
-
-      if (!isDevelopment) {
-        // TODO: Implement actual Web3Auth verification for production
-        // 1. Decode the JWT token
-        // 2. Verify the signature using Web3Auth public key
-        // 3. Validate the token claims
-        throw new Error('Production Web3Auth verification not implemented');
-      }
-
-      // Development mock - parse different test scenarios
-      let mockUser;
-
-      if (idToken.includes('admin')) {
-        mockUser = {
-          sub: 'admin_001',
-          email: 'admin@partisipro.com',
-          walletAddress: '0xadmin123456789012345678901234567890',
-          name: 'Admin User',
-          role: 'admin',
-        };
-      } else if (idToken.includes('spv')) {
-        mockUser = {
-          sub: 'spv_001',
-          email: 'spv@example.com',
-          walletAddress: '0xspv1234567890123456789012345678901234',
-          name: 'SPV Company',
-          role: 'spv',
-        };
-      } else if (idToken.includes('investor')) {
-        mockUser = {
-          sub: 'investor_001',
-          email: 'investor@example.com',
-          walletAddress: '0xinvestor123456789012345678901234567890',
-          name: 'John Investor',
-          role: 'investor',
-        };
-      } else if (idToken.includes('new')) {
-        // New user scenario
-        const randomId = Math.random().toString(36).substr(2, 9);
-        mockUser = {
-          sub: `new_user_${randomId}`,
-          email: `new.user.${randomId}@example.com`,
-          walletAddress: `0x${Math.random().toString(16).substr(2, 40)}`,
-          name: `New User ${randomId}`,
-          role: 'investor',
-        };
-      } else {
-        // Default test user
-        mockUser = {
-          sub: 'test_user_001',
-          email: 'test@example.com',
-          walletAddress: '0x1234567890123456789012345678901234567890',
-          name: 'Test User',
-          role: 'investor',
-        };
-      }
-
-      // Simulate token validation
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      return {
-        ...mockUser,
-        iat: currentTime,
-        exp: currentTime + 3600, // 1 hour
-        aud: 'partisipro-dev',
-        iss: 'web3auth.io',
-      };
-    } catch (error) {
-      this.logger.error('Web3Auth token verification failed', error);
-      throw new UnauthorizedException('Invalid Web3Auth token');
-    }
   }
 
   private async generateAccessToken(user: User): Promise<string> {

@@ -1,5 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
+import { EmailService } from '../../common/services/email.service';
+import { UsersService } from '../users/users.service';
 import {
   SendNotificationDto,
   UpdatePreferencesDto,
@@ -26,7 +28,11 @@ export class NotificationsService {
   private readonly NOTIFICATIONS_COLLECTION = 'notifications';
   private readonly PREFERENCES_COLLECTION = 'notification_preferences';
 
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private firebaseService: FirebaseService,
+    private emailService: EmailService,
+    private usersService: UsersService
+  ) {}
 
   /**
    * Send notification to user(s)
@@ -90,7 +96,7 @@ export class NotificationsService {
 
       // Send email notification if enabled
       if (sendNotificationDto.sendEmail && preferences.emailNotifications) {
-        await this.sendEmailNotification(userId);
+        await this.sendEmailNotification(userId, notification);
       }
     }
 
@@ -413,16 +419,127 @@ export class NotificationsService {
   }
 
   /**
-   * Send email notification (Mock implementation)
+   * Send email notification using EmailService
    */
-  private async sendEmailNotification(userId: string): Promise<void> {
-    this.logger.log(`Sending email notification to user: ${userId}`);
+  private async sendEmailNotification(
+    userId: string,
+    notification: Notification
+  ): Promise<void> {
+    try {
+      this.logger.log(`Sending email notification to user: ${userId}`);
 
-    // TODO: Implement actual email sending using a service like SendGrid or AWS SES
-    // For now, we'll just log the action
+      // Get user details
+      const user = await this.usersService.findById(userId);
+      if (!user || !user.email) {
+        this.logger.warn(
+          `Cannot send email to user ${userId}: No email address found`
+        );
+        return;
+      }
 
-    await new Promise(resolve => setTimeout(resolve, 100)); // Mock delay
+      // Prepare email data
+      const emailData = {
+        to: user.email,
+        subject: notification.title,
+        dynamicTemplateData: {
+          userName: user.profile?.firstName || 'User',
+          notificationTitle: notification.title,
+          notificationMessage: notification.message,
+          notificationData: notification.data,
+          dashboardUrl:
+            process.env.FRONTEND_URL || 'https://partisipro.com/dashboard',
+        },
+      };
 
-    this.logger.log(`Email notification sent to user: ${userId}`);
+      // Send appropriate email based on notification type
+      let messageId: string;
+      switch (notification.type) {
+        case NotificationType.INVESTMENT:
+          messageId = await this.emailService.sendInvestmentNotification(
+            emailData,
+            this.getInvestmentNotificationType(notification)
+          );
+          break;
+        case NotificationType.PROFIT:
+          messageId = await this.emailService.sendInvestmentNotification(
+            emailData,
+            'profit'
+          );
+          break;
+        case NotificationType.KYC:
+          messageId = await this.emailService.sendKYCUpdate(
+            emailData,
+            this.getKYCStatus(notification)
+          );
+          break;
+        case NotificationType.GOVERNANCE:
+          messageId = await this.emailService.sendGovernanceNotification(
+            emailData,
+            this.getGovernanceType(notification)
+          );
+          break;
+        case NotificationType.SYSTEM:
+          messageId = await this.emailService.sendSystemNotification(
+            emailData,
+            'alert'
+          );
+          break;
+        default:
+          // Fallback to system notification
+          messageId = await this.emailService.sendSystemNotification(
+            emailData,
+            'alert'
+          );
+      }
+
+      this.logger.log(
+        `Email notification sent to user ${userId}: ${messageId}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email notification to user ${userId}:`,
+        error instanceof Error ? error.stack : error
+      );
+      // Don't throw error - we don't want email failures to block notification creation
+    }
+  }
+
+  /**
+   * Determine investment notification type from notification data
+   */
+  private getInvestmentNotificationType(
+    notification: Notification
+  ): 'purchase' | 'profit' | 'buyback' {
+    if (notification.data?.type) {
+      return notification.data.type;
+    }
+    // Default to purchase for investment notifications
+    return 'purchase';
+  }
+
+  /**
+   * Determine KYC status from notification data
+   */
+  private getKYCStatus(
+    notification: Notification
+  ): 'pending' | 'approved' | 'rejected' | 'requires_action' {
+    if (notification.data?.kycStatus) {
+      return notification.data.kycStatus;
+    }
+    // Default to pending
+    return 'pending';
+  }
+
+  /**
+   * Determine governance notification type from notification data
+   */
+  private getGovernanceType(
+    notification: Notification
+  ): 'proposal' | 'voting' | 'result' {
+    if (notification.data?.governanceType) {
+      return notification.data.governanceType;
+    }
+    // Default to proposal
+    return 'proposal';
   }
 }

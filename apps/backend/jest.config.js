@@ -24,7 +24,7 @@ module.exports = {
       statements: 70,
     },
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@common/(.*)$': '<rootDir>/src/common/$1',
     '^@modules/(.*)$': '<rootDir>/src/modules/$1',
@@ -33,10 +33,15 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   testTimeout: 10000,
   verbose: true,
-  transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json',
-    },
+  transformIgnorePatterns: [
+    'node_modules/(?!(jwks-client|@sendgrid/mail|.*\\.mjs$))',
+  ],
+  transform: {
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.json',
+      },
+    ],
   },
 };

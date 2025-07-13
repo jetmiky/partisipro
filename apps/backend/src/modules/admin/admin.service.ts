@@ -310,8 +310,13 @@ export class AdminService {
   /**
    * Get user management data
    */
-  async getUserManagementData(): Promise<any[]> {
-    this.logger.log('Fetching user management data');
+  async getUserManagementData(
+    limit: number = 50,
+    startAfter?: string
+  ): Promise<any[]> {
+    this.logger.log(
+      `Fetching user management data, with limit ${limit} and startAfter ${startAfter}`
+    );
 
     // TODO: Implement actual user management data fetching
     // For now, returning mock data
