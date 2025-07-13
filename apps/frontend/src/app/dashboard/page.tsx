@@ -19,11 +19,32 @@ import {
   CheckCircle,
   UserCheck,
   Award,
+  BarChart3,
+  Target,
+  Lightbulb,
+  AlertTriangle,
+  Zap,
+  Users,
+  Activity,
+  ChevronUp,
+  ChevronDown,
+  Minus,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/ui';
 import { DashboardLayout } from '@/components/ui';
+import { PortfolioChart } from '@/components/ui';
+import { PortfolioExport } from '@/components/ui';
+import { PortfolioUpdates } from '@/components/ui';
+import {
+  CrossProjectMetrics,
+  PortfolioComparison,
+  PlatformBenchmarks,
+  IdentityInsights,
+  CrossProjectTrends,
+  EnhancedPortfolioAnalytics,
+} from '@/types';
 
 interface Portfolio {
   id: string;
@@ -249,7 +270,229 @@ export default function DashboardPage() {
     { id: 'portfolio', label: 'Portfolio' },
     { id: 'transactions', label: 'Transactions' },
     { id: 'analytics', label: 'Analytics' },
+    { id: 'insights', label: 'Cross-Project Insights' },
+    { id: 'governance', label: 'Governance Tracking' },
   ];
+
+  // Mock cross-project analytics data
+  const mockCrossProjectMetrics: CrossProjectMetrics = {
+    totalProjects: mockPortfolio.length,
+    activeProjects: mockPortfolio.filter(p => p.status === 'active').length,
+    completedProjects: mockPortfolio.filter(p => p.status === 'completed')
+      .length,
+    totalInvested,
+    totalCurrentValue,
+    totalReturns,
+    averageROI: totalReturnPercentage,
+    portfolioDiversification: [
+      {
+        category: 'transportation',
+        count: 2,
+        investedAmount: 8000000,
+        currentValue: 8990000,
+        percentage: 72.7,
+        averageROI: 12.4,
+      },
+      {
+        category: 'energy',
+        count: 1,
+        investedAmount: 2000000,
+        currentValue: 2280000,
+        percentage: 18.2,
+        averageROI: 14.0,
+      },
+      {
+        category: 'water',
+        count: 1,
+        investedAmount: 1500000,
+        currentValue: 1665000,
+        percentage: 13.6,
+        averageROI: 11.0,
+      },
+    ],
+    riskDistribution: [
+      {
+        riskLevel: 'low',
+        count: 2,
+        investedAmount: 4500000,
+        currentValue: 4905000,
+        percentage: 40.9,
+        averageROI: 9.0,
+      },
+      {
+        riskLevel: 'medium',
+        count: 2,
+        investedAmount: 7000000,
+        currentValue: 8030000,
+        percentage: 59.1,
+        averageROI: 14.7,
+      },
+      {
+        riskLevel: 'high',
+        count: 0,
+        investedAmount: 0,
+        currentValue: 0,
+        percentage: 0,
+        averageROI: 0,
+      },
+    ],
+    monthlyPerformance: [
+      {
+        month: '2024-01',
+        totalValue: 12935000,
+        returns: 1435000,
+        roi: 12.5,
+        newInvestments: 0,
+        claimedReturns: 185000,
+      },
+      {
+        month: '2023-12',
+        totalValue: 11750000,
+        returns: 1250000,
+        roi: 11.9,
+        newInvestments: 2000000,
+        claimedReturns: 0,
+      },
+      {
+        month: '2023-11',
+        totalValue: 9500000,
+        returns: 1000000,
+        roi: 11.8,
+        newInvestments: 3000000,
+        claimedReturns: 80000,
+      },
+    ],
+    governanceParticipation: {
+      totalProposals: 12,
+      votedProposals: 8,
+      participationRate: 66.7,
+      votingPower: 2.3,
+      governanceRewards: 25000,
+      crossProjectVotes: [
+        {
+          projectId: '1',
+          projectName: 'Jakarta-Bandung High-Speed Rail Extension',
+          totalProposals: 4,
+          votedProposals: 3,
+          votingPower: 1.2,
+          lastVoteDate: '2024-01-08',
+          participationRate: 75.0,
+        },
+        {
+          projectId: '2',
+          projectName: 'Soekarno-Hatta Airport Terminal 4',
+          totalProposals: 3,
+          votedProposals: 2,
+          votingPower: 0.8,
+          lastVoteDate: '2024-01-05',
+          participationRate: 66.7,
+        },
+      ],
+    },
+  };
+
+  const mockPortfolioComparison: PortfolioComparison[] = mockPortfolio.map(
+    (project, index) => ({
+      projectId: project.id,
+      projectName: project.projectTitle,
+      category: project.category.toLowerCase(),
+      investedAmount: project.investmentAmount,
+      currentValue: project.currentValue,
+      roi: project.returnPercentage,
+      riskLevel: project.riskLevel,
+      duration: Math.floor(
+        (new Date().getTime() - new Date(project.investmentDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      ),
+      status: project.status,
+      lastUpdate: project.lastUpdate,
+      performanceRank: index + 1,
+      diversificationScore: 75 + Math.random() * 20,
+    })
+  );
+
+  const mockPlatformBenchmarks: PlatformBenchmarks = {
+    averageROI: 11.8,
+    averageInvestmentSize: 2875000,
+    averageProjectDuration: 18,
+    topPerformingCategory: 'energy',
+    platformGrowthRate: 24.7,
+    userPerformancePercentile: 78,
+  };
+
+  const mockIdentityInsights: IdentityInsights = {
+    verificationLevel: 'advanced',
+    claimsCount: 4,
+    identityScore: 95,
+    accessibleProjects: 156,
+    restrictedProjects: 0,
+    identityBenefits: [
+      'One-time verification for all projects',
+      'Instant investment approval',
+      'Access to premium projects',
+      'Enhanced governance participation',
+    ],
+    upgradeRecommendations: [
+      'Consider institutional verification for higher investment limits',
+    ],
+    identityUtilization: {
+      investmentVolume: 88,
+      governanceParticipation: 67,
+      platformEngagement: 82,
+    },
+  };
+
+  const mockTrends: CrossProjectTrends = {
+    investmentTrend: 'increasing',
+    returnsTrend: 'increasing',
+    diversificationTrend: 'improving',
+    riskTrend: 'stable',
+    governanceTrend: 'increasing',
+    recommendations: [
+      {
+        type: 'diversification',
+        priority: 'medium',
+        title: 'Consider Energy Sector Expansion',
+        description:
+          'Your portfolio shows strong performance in energy. Consider increasing allocation.',
+        actionUrl: '/marketplace?category=energy',
+      },
+      {
+        type: 'governance',
+        priority: 'high',
+        title: 'Increase Governance Participation',
+        description:
+          'You have voting power in 2 projects with pending proposals.',
+        actionUrl: '/governance',
+      },
+      {
+        type: 'performance',
+        priority: 'low',
+        title: 'Portfolio Optimization Available',
+        description: 'Consider rebalancing for improved risk-adjusted returns.',
+      },
+    ],
+  };
+
+  const mockEnhancedAnalytics: EnhancedPortfolioAnalytics = {
+    crossProjectMetrics: mockCrossProjectMetrics,
+    portfolioComparison: mockPortfolioComparison,
+    platformBenchmarks: mockPlatformBenchmarks,
+    identityInsights: mockIdentityInsights,
+    trends: mockTrends,
+    predictiveInsights: {
+      expectedReturns12Months: 1650000,
+      recommendedInvestments: [
+        'Renewable Energy Portfolio',
+        'Smart City Infrastructure',
+      ],
+      riskAdjustments: [
+        'Consider low-risk telecommunications projects',
+        'Diversify into water infrastructure',
+      ],
+      optimizationScore: 82,
+    },
+  };
 
   const renderOverview = () => (
     <div className="space-y-6">
@@ -435,6 +678,9 @@ export default function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      {/* Real-time Portfolio Updates */}
+      <PortfolioUpdates />
 
       {/* Recent Activity */}
       <Card className="p-6">
@@ -738,51 +984,121 @@ export default function DashboardPage() {
     </div>
   );
 
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'increasing':
+      case 'improving':
+        return <ChevronUp className="w-4 h-4 text-green-600" />;
+      case 'decreasing':
+      case 'declining':
+        return <ChevronDown className="w-4 h-4 text-red-600" />;
+      case 'stable':
+        return <Minus className="w-4 h-4 text-gray-600" />;
+      default:
+        return <Minus className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getTrendColor = (trend: string) => {
+    switch (trend) {
+      case 'increasing':
+      case 'improving':
+        return 'text-green-600';
+      case 'decreasing':
+      case 'declining':
+        return 'text-red-600';
+      case 'stable':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   const renderAnalytics = () => (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">
-          Portfolio Analytics
-        </h2>
-        <p className="text-gray-600">
-          Detailed insights into your investment performance
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Portfolio Analytics
+          </h2>
+          <p className="text-gray-600">
+            Detailed insights into your investment performance
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
+            Export Data
+          </Button>
+          <Button variant="secondary" className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PortfolioChart
+          data={mockCrossProjectMetrics.monthlyPerformance}
+          type="performance"
+          height={250}
+          showTrend={true}
+        />
+        <PortfolioChart
+          data={mockCrossProjectMetrics.monthlyPerformance}
+          type="returns"
+          height={250}
+          showTrend={true}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Asset Allocation</h3>
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Transportation</span>
-              <span className="font-medium">65%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: '65%' }}
-              ></div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Energy</span>
-              <span className="font-medium">20%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-green-500 h-2 rounded-full"
-                style={{ width: '20%' }}
-              ></div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Infrastructure</span>
-              <span className="font-medium">15%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-purple-500 h-2 rounded-full"
-                style={{ width: '15%' }}
-              ></div>
-            </div>
+            {mockCrossProjectMetrics.portfolioDiversification.map(item => (
+              <div key={item.category}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-gray-600 capitalize">
+                    {item.category}
+                  </span>
+                  <div className="text-right">
+                    <span className="font-medium">
+                      {item.percentage.toFixed(1)}%
+                    </span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({item.averageROI.toFixed(1)}% ROI)
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      item.category === 'transportation'
+                        ? 'bg-blue-500'
+                        : item.category === 'energy'
+                          ? 'bg-green-500'
+                          : 'bg-purple-500'
+                    }`}
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
 
@@ -791,36 +1107,35 @@ export default function DashboardPage() {
             Risk Distribution
           </h3>
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Low Risk</span>
-              <span className="font-medium">40%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-green-500 h-2 rounded-full"
-                style={{ width: '40%' }}
-              ></div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Medium Risk</span>
-              <span className="font-medium">50%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-yellow-500 h-2 rounded-full"
-                style={{ width: '50%' }}
-              ></div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">High Risk</span>
-              <span className="font-medium">10%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-red-500 h-2 rounded-full"
-                style={{ width: '10%' }}
-              ></div>
-            </div>
+            {mockCrossProjectMetrics.riskDistribution.map(item => (
+              <div key={item.riskLevel}>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-gray-600 capitalize">
+                    {item.riskLevel} Risk
+                  </span>
+                  <div className="text-right">
+                    <span className="font-medium">
+                      {item.percentage.toFixed(1)}%
+                    </span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({item.averageROI.toFixed(1)}% ROI)
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${
+                      item.riskLevel === 'low'
+                        ? 'bg-green-500'
+                        : item.riskLevel === 'medium'
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                    }`}
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
       </div>
@@ -829,7 +1144,7 @@ export default function DashboardPage() {
         <h3 className="font-semibold text-gray-900 mb-4">
           Performance Metrics
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
             <div className="text-2xl font-bold text-primary-600">
               {totalReturnPercentage.toFixed(1)}%
@@ -837,15 +1152,674 @@ export default function DashboardPage() {
             <div className="text-sm text-gray-600">Total Return Rate</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">11.2%</div>
-            <div className="text-sm text-gray-600">Average Annual Return</div>
+            <div className="text-2xl font-bold text-green-600">
+              {mockCrossProjectMetrics.averageROI.toFixed(1)}%
+            </div>
+            <div className="text-sm text-gray-600">Average ROI</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">1.8</div>
-            <div className="text-sm text-gray-600">Sharpe Ratio</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {mockPlatformBenchmarks.userPerformancePercentile}th
+            </div>
+            <div className="text-sm text-gray-600">Performance Percentile</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600">
+              {mockEnhancedAnalytics.predictiveInsights.optimizationScore}
+            </div>
+            <div className="text-sm text-gray-600">Optimization Score</div>
           </div>
         </div>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Monthly Performance Trend
+          </h3>
+          <div className="space-y-3">
+            {mockCrossProjectMetrics.monthlyPerformance
+              .slice()
+              .reverse()
+              .map(month => (
+                <div
+                  key={month.month}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {new Date(month.month).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                      })}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      ROI: {month.roi.toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-green-600">
+                      +{formatCurrency(month.returns)}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Value: {formatCurrency(month.totalValue)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Platform Benchmarks
+          </h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Your ROI vs Platform Avg</span>
+              <div className="text-right">
+                <span className="font-medium text-green-600">
+                  {totalReturnPercentage.toFixed(1)}%
+                </span>
+                <span className="text-sm text-gray-500 ml-1">
+                  vs {mockPlatformBenchmarks.averageROI.toFixed(1)}%
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Investment Size vs Avg</span>
+              <div className="text-right">
+                <span className="font-medium text-blue-600">
+                  {formatCurrency(totalInvested / mockPortfolio.length)}
+                </span>
+                <span className="text-sm text-gray-500 ml-1">
+                  vs{' '}
+                  {formatCurrency(mockPlatformBenchmarks.averageInvestmentSize)}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Performance Percentile</span>
+              <span className="font-medium text-primary-600">
+                {mockPlatformBenchmarks.userPerformancePercentile}th percentile
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Top Category</span>
+              <span className="font-medium text-purple-600 capitalize">
+                {mockPlatformBenchmarks.topPerformingCategory}
+              </span>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderCrossProjectInsights = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Cross-Project Insights
+          </h2>
+          <p className="text-gray-600">
+            Comprehensive analytics across your entire portfolio
+          </p>
+        </div>
+        <Button variant="secondary" className="flex items-center gap-2">
+          <Download className="w-4 h-4" />
+          Export Report
+        </Button>
+      </div>
+
+      {/* Identity Insights */}
+      <Card className="p-6 border-blue-200 bg-blue-50">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Shield className="w-6 h-6 text-blue-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900">
+                Identity Utilization Insights
+              </h3>
+              <p className="text-blue-700">
+                Your ERC-3643 identity performance across the platform
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-600">
+              {mockIdentityInsights.identityScore}/100
+            </div>
+            <div className="text-sm text-blue-700">Identity Score</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="text-center p-3 bg-blue-100 rounded-lg">
+            <div className="text-lg font-bold text-blue-900">
+              {mockIdentityInsights.identityUtilization.investmentVolume}%
+            </div>
+            <div className="text-sm text-blue-700">Investment Volume</div>
+          </div>
+          <div className="text-center p-3 bg-blue-100 rounded-lg">
+            <div className="text-lg font-bold text-blue-900">
+              {mockIdentityInsights.identityUtilization.governanceParticipation}
+              %
+            </div>
+            <div className="text-sm text-blue-700">
+              Governance Participation
+            </div>
+          </div>
+          <div className="text-center p-3 bg-blue-100 rounded-lg">
+            <div className="text-lg font-bold text-blue-900">
+              {mockIdentityInsights.identityUtilization.platformEngagement}%
+            </div>
+            <div className="text-sm text-blue-700">Platform Engagement</div>
+          </div>
+        </div>
+
+        <div className="border-t border-blue-200 pt-4">
+          <h4 className="font-medium text-blue-900 mb-2">Active Benefits:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {mockIdentityInsights.identityBenefits.map((benefit, index) => (
+              <div key={index} className="flex items-center text-blue-800">
+                <CheckCircle className="w-4 h-4 text-blue-600 mr-2" />
+                <span className="text-sm">{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* Portfolio Trends */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Portfolio Trends Analysis
+          </h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <TrendingUp className="w-5 h-5 text-gray-600 mr-3" />
+                <span className="text-gray-700">Investment Trend</span>
+              </div>
+              <div className="flex items-center">
+                {getTrendIcon(mockTrends.investmentTrend)}
+                <span
+                  className={`ml-2 font-medium capitalize ${getTrendColor(mockTrends.investmentTrend)}`}
+                >
+                  {mockTrends.investmentTrend}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <DollarSign className="w-5 h-5 text-gray-600 mr-3" />
+                <span className="text-gray-700">Returns Trend</span>
+              </div>
+              <div className="flex items-center">
+                {getTrendIcon(mockTrends.returnsTrend)}
+                <span
+                  className={`ml-2 font-medium capitalize ${getTrendColor(mockTrends.returnsTrend)}`}
+                >
+                  {mockTrends.returnsTrend}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <PieChart className="w-5 h-5 text-gray-600 mr-3" />
+                <span className="text-gray-700">Diversification</span>
+              </div>
+              <div className="flex items-center">
+                {getTrendIcon(mockTrends.diversificationTrend)}
+                <span
+                  className={`ml-2 font-medium capitalize ${getTrendColor(mockTrends.diversificationTrend)}`}
+                >
+                  {mockTrends.diversificationTrend}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <Activity className="w-5 h-5 text-gray-600 mr-3" />
+                <span className="text-gray-700">Governance Activity</span>
+              </div>
+              <div className="flex items-center">
+                {getTrendIcon(mockTrends.governanceTrend)}
+                <span
+                  className={`ml-2 font-medium capitalize ${getTrendColor(mockTrends.governanceTrend)}`}
+                >
+                  {mockTrends.governanceTrend}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Project Performance Comparison
+          </h3>
+          <div className="space-y-3">
+            {mockPortfolioComparison
+              .sort((a, b) => b.roi - a.roi)
+              .map((project, index) => (
+                <div
+                  key={project.projectId}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                        index === 0
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : index === 1
+                            ? 'bg-gray-100 text-gray-800'
+                            : index === 2
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      <span className="text-sm font-bold">#{index + 1}</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 text-sm">
+                        {project.projectName.length > 25
+                          ? `${project.projectName.slice(0, 25)}...`
+                          : project.projectName}
+                      </p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {project.category} • {project.riskLevel} risk
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={`font-medium ${
+                        project.roi >= 12
+                          ? 'text-green-600'
+                          : project.roi >= 8
+                            ? 'text-blue-600'
+                            : 'text-gray-600'
+                      }`}
+                    >
+                      {project.roi.toFixed(1)}%
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatCurrency(project.currentValue)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Recommendations */}
+      <Card className="p-6">
+        <div className="flex items-center mb-4">
+          <Lightbulb className="w-6 h-6 text-yellow-600 mr-3" />
+          <h3 className="text-lg font-semibold text-gray-900">
+            AI-Powered Recommendations
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mockTrends.recommendations.map((recommendation, index) => (
+            <div
+              key={index}
+              className={`p-4 border rounded-lg ${getPriorityColor(recommendation.priority)}`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${
+                    recommendation.priority === 'high'
+                      ? 'bg-red-200 text-red-800'
+                      : recommendation.priority === 'medium'
+                        ? 'bg-yellow-200 text-yellow-800'
+                        : 'bg-green-200 text-green-800'
+                  }`}
+                >
+                  {recommendation.priority} priority
+                </span>
+                <div
+                  className={`p-1 rounded ${
+                    recommendation.type === 'diversification'
+                      ? 'bg-blue-100'
+                      : recommendation.type === 'governance'
+                        ? 'bg-purple-100'
+                        : recommendation.type === 'performance'
+                          ? 'bg-green-100'
+                          : 'bg-gray-100'
+                  }`}
+                >
+                  {recommendation.type === 'diversification' && (
+                    <PieChart className="w-4 h-4 text-blue-600" />
+                  )}
+                  {recommendation.type === 'governance' && (
+                    <Users className="w-4 h-4 text-purple-600" />
+                  )}
+                  {recommendation.type === 'performance' && (
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                  )}
+                  {recommendation.type === 'risk_management' && (
+                    <Shield className="w-4 h-4 text-orange-600" />
+                  )}
+                </div>
+              </div>
+              <h4 className="font-medium text-gray-900 mb-2">
+                {recommendation.title}
+              </h4>
+              <p className="text-sm text-gray-600 mb-3">
+                {recommendation.description}
+              </p>
+              {recommendation.actionUrl && (
+                <Link href={recommendation.actionUrl}>
+                  <Button variant="secondary" className="w-full text-sm">
+                    Take Action
+                  </Button>
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Predictive Insights */}
+      <Card className="p-6">
+        <div className="flex items-center mb-4">
+          <Target className="w-6 h-6 text-blue-600 mr-3" />
+          <h3 className="text-lg font-semibold text-gray-900">
+            12-Month Predictive Insights
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-xl font-bold text-green-600">
+              {formatCurrency(
+                mockEnhancedAnalytics.predictiveInsights.expectedReturns12Months
+              )}
+            </div>
+            <div className="text-sm text-green-700">Expected Returns</div>
+          </div>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <div className="text-xl font-bold text-blue-600">
+              {mockEnhancedAnalytics.predictiveInsights.optimizationScore}/100
+            </div>
+            <div className="text-sm text-blue-700">Optimization Score</div>
+          </div>
+          <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <div className="text-xl font-bold text-purple-600">
+              {
+                mockEnhancedAnalytics.predictiveInsights.recommendedInvestments
+                  .length
+              }
+            </div>
+            <div className="text-sm text-purple-700">Recommended Projects</div>
+          </div>
+          <div className="text-center p-4 bg-orange-50 rounded-lg">
+            <div className="text-xl font-bold text-orange-600">
+              {mockEnhancedAnalytics.predictiveInsights.riskAdjustments.length}
+            </div>
+            <div className="text-sm text-orange-700">Risk Adjustments</div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">
+              Recommended Investments
+            </h4>
+            <div className="space-y-2">
+              {mockEnhancedAnalytics.predictiveInsights.recommendedInvestments.map(
+                (investment, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-2 bg-green-50 rounded"
+                  >
+                    <Zap className="w-4 h-4 text-green-600 mr-2" />
+                    <span className="text-sm text-green-800">{investment}</span>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">Risk Adjustments</h4>
+            <div className="space-y-2">
+              {mockEnhancedAnalytics.predictiveInsights.riskAdjustments.map(
+                (adjustment, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-2 bg-orange-50 rounded"
+                  >
+                    <AlertTriangle className="w-4 h-4 text-orange-600 mr-2" />
+                    <span className="text-sm text-orange-800">
+                      {adjustment}
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Portfolio Export */}
+      <PortfolioExport portfolioData={mockEnhancedAnalytics} />
+    </div>
+  );
+
+  const renderGovernanceTracking = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Cross-Project Governance Tracking
+          </h2>
+          <p className="text-gray-600">
+            Monitor your governance participation across all investments
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            View All Proposals
+          </Button>
+          <Button variant="primary" className="flex items-center gap-2">
+            <Activity className="w-4 h-4" />
+            Vote Now
+          </Button>
+        </div>
+      </div>
+
+      {/* Governance Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Proposals"
+          value={mockCrossProjectMetrics.governanceParticipation.totalProposals.toString()}
+          icon={<BarChart3 className="w-5 h-5" />}
+          changeType="increase"
+          change={12}
+        />
+        <StatsCard
+          title="Voted Proposals"
+          value={mockCrossProjectMetrics.governanceParticipation.votedProposals.toString()}
+          icon={<CheckCircle className="w-5 h-5" />}
+          changeType="increase"
+          change={8}
+        />
+        <StatsCard
+          title="Participation Rate"
+          value={`${mockCrossProjectMetrics.governanceParticipation.participationRate.toFixed(1)}%`}
+          icon={<Activity className="w-5 h-5" />}
+          changeType="increase"
+          change={5.3}
+        />
+        <StatsCard
+          title="Voting Power"
+          value={`${mockCrossProjectMetrics.governanceParticipation.votingPower.toFixed(1)}%`}
+          icon={<Target className="w-5 h-5" />}
+          changeType="increase"
+          change={0.3}
+        />
+      </div>
+
+      {/* Project Governance Breakdown */}
+      <Card className="p-6">
+        <h3 className="font-semibold text-gray-900 mb-4">
+          Project-by-Project Governance Participation
+        </h3>
+        <div className="space-y-4">
+          {mockCrossProjectMetrics.governanceParticipation.crossProjectVotes.map(
+            project => (
+              <div
+                key={project.projectId}
+                className="border border-gray-200 rounded-lg p-4"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="font-medium text-gray-900">
+                      {project.projectName}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Last vote: {formatDate(project.lastVoteDate)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-primary-600">
+                      {project.participationRate.toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-gray-600">Participation</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-lg font-bold text-blue-600">
+                      {project.votedProposals}/{project.totalProposals}
+                    </div>
+                    <div className="text-sm text-blue-700">Proposals Voted</div>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
+                      {project.votingPower.toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-green-700">Voting Power</div>
+                  </div>
+                  <div className="text-center p-3 bg-purple-50 rounded-lg">
+                    <div className="text-lg font-bold text-purple-600">
+                      {project.totalProposals - project.votedProposals}
+                    </div>
+                    <div className="text-sm text-purple-700">Pending Votes</div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex justify-between items-center">
+                  <div className="w-full bg-gray-200 rounded-full h-2 mr-4">
+                    <div
+                      className="bg-primary-500 h-2 rounded-full"
+                      style={{ width: `${project.participationRate}%` }}
+                    ></div>
+                  </div>
+                  <Link href={`/governance?project=${project.projectId}`}>
+                    <Button variant="secondary" className="text-sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      </Card>
+
+      {/* Governance Rewards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Governance Rewards
+          </h3>
+          <div className="text-center mb-4">
+            <div className="text-3xl font-bold text-green-600">
+              {formatCurrency(
+                mockCrossProjectMetrics.governanceParticipation
+                  .governanceRewards
+              )}
+            </div>
+            <div className="text-sm text-gray-600">Total Rewards Earned</div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+              <span className="text-green-700">Participation Bonus</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(15000)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+              <span className="text-blue-700">Proposal Voting</span>
+              <span className="font-medium text-blue-600">
+                {formatCurrency(10000)}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Link href="/claim">
+              <Button variant="primary" className="w-full">
+                Claim Governance Rewards
+              </Button>
+            </Link>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            Upcoming Governance Events
+          </h3>
+          <div className="space-y-3">
+            <div className="border-l-4 border-red-500 pl-4 py-2">
+              <h4 className="font-medium text-gray-900">High Priority Vote</h4>
+              <p className="text-sm text-gray-600">
+                Contract upgrade proposal for Jakarta-Bandung Rail
+              </p>
+              <p className="text-xs text-red-600 mt-1">
+                Ends in 2 days • Your vote needed
+              </p>
+            </div>
+            <div className="border-l-4 border-yellow-500 pl-4 py-2">
+              <h4 className="font-medium text-gray-900">
+                Medium Priority Vote
+              </h4>
+              <p className="text-sm text-gray-600">
+                Fee adjustment proposal for Airport Terminal 4
+              </p>
+              <p className="text-xs text-yellow-600 mt-1">
+                Ends in 5 days • Consider voting
+              </p>
+            </div>
+            <div className="border-l-4 border-green-500 pl-4 py-2">
+              <h4 className="font-medium text-gray-900">Information</h4>
+              <p className="text-sm text-gray-600">
+                New proposal creation for renewable energy project
+              </p>
+              <p className="text-xs text-green-600 mt-1">
+                Voting starts in 3 days
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Link href="/governance">
+              <Button variant="secondary" className="w-full">
+                View All Governance Activity
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 
@@ -886,6 +1860,8 @@ export default function DashboardPage() {
         {selectedTab === 'portfolio' && renderPortfolio()}
         {selectedTab === 'transactions' && renderTransactions()}
         {selectedTab === 'analytics' && renderAnalytics()}
+        {selectedTab === 'insights' && renderCrossProjectInsights()}
+        {selectedTab === 'governance' && renderGovernanceTracking()}
       </div>
     </DashboardLayout>
   );

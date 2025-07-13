@@ -3,6 +3,7 @@ export * from './types/project';
 export * from './types/user';
 export * from './types/blockchain';
 export * from './types/api';
+export * from './types/analytics';
 
 // Constants
 export * from './constants/networks';
