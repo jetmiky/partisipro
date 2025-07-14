@@ -40,17 +40,5 @@ export class KYCGuard implements CanActivate {
   }
 }
 
-// Decorator to require KYC for specific endpoints
-export const RequireKYC = () => {
-  return (
-    target: any,
-    propertyKey?: string,
-    descriptor?: PropertyDescriptor
-  ) => {
-    if (descriptor) {
-      Reflect.defineMetadata(REQUIRE_KYC, true, descriptor.value);
-    } else {
-      Reflect.defineMetadata(REQUIRE_KYC, true, target);
-    }
-  };
-};
+// Note: RequireKYC decorator is now available from ../../common/decorators/claims.decorator
+// This avoids duplicate exports and centralizes claim-related decorators

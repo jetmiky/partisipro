@@ -2,19 +2,142 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
+// Create stateful mock data store
+const mockFirestoreData = new Map<string, Map<string, any>>();
+
 // Mock Firebase Admin SDK
 jest.mock('firebase-admin', () => ({
   initializeApp: jest.fn(),
   getApps: jest.fn(() => []),
+  apps: [], // Add apps property
   credential: {
     cert: jest.fn(),
   },
-  firestore: jest.fn(() => ({
-    collection: jest.fn(),
-    doc: jest.fn(),
-    batch: jest.fn(),
-    runTransaction: jest.fn(),
-  })),
+  firestore: Object.assign(
+    jest.fn(() => ({
+      FieldValue: {
+        serverTimestamp: jest.fn(() => new Date()),
+        increment: jest.fn((n: number) => n),
+        arrayUnion: jest.fn((...elements: any[]) => elements),
+        arrayRemove: jest.fn((...elements: any[]) => elements),
+        delete: jest.fn(),
+      },
+      collection: jest.fn((collectionName: string) => {
+        if (!mockFirestoreData.has(collectionName)) {
+          mockFirestoreData.set(collectionName, new Map());
+        }
+        const collection = mockFirestoreData.get(collectionName)!;
+
+        return {
+          where: jest.fn((field: string, op: string, value: any) => ({
+            get: jest.fn(() => {
+              const docs = Array.from(collection.entries())
+                .filter(([_, data]) => data[field] === value)
+                .map(([id, data]) => ({
+                  id,
+                  data: () => data,
+                }));
+
+              return Promise.resolve({
+                docs,
+                size: docs.length,
+                empty: docs.length === 0,
+              });
+            }),
+          })),
+          doc: jest.fn((docId: string) => ({
+            get: jest.fn(() => {
+              const exists = collection.has(docId);
+              return Promise.resolve({
+                exists,
+                id: docId,
+                data: () => (exists ? collection.get(docId) : null),
+              });
+            }),
+            set: jest.fn((data: any) => {
+              collection.set(docId, data);
+              return Promise.resolve();
+            }),
+            update: jest.fn((data: any) => {
+              if (collection.has(docId)) {
+                collection.set(docId, { ...collection.get(docId), ...data });
+              }
+              return Promise.resolve();
+            }),
+            delete: jest.fn(() => {
+              collection.delete(docId);
+              return Promise.resolve();
+            }),
+          })),
+          add: jest.fn((data: any) => {
+            const id = `mock-doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            collection.set(id, data);
+            return Promise.resolve({ id });
+          }),
+          get: jest.fn(() => {
+            const docs = Array.from(collection.entries()).map(([id, data]) => ({
+              id,
+              data: () => data,
+            }));
+
+            return Promise.resolve({
+              docs,
+              size: docs.length,
+              empty: docs.length === 0,
+            });
+          }),
+        };
+      }),
+      doc: jest.fn((docPath: string) => {
+        const [collectionName, docId] = docPath.split('/');
+        if (!mockFirestoreData.has(collectionName)) {
+          mockFirestoreData.set(collectionName, new Map());
+        }
+        const collection = mockFirestoreData.get(collectionName)!;
+
+        return {
+          get: jest.fn(() => {
+            const exists = collection.has(docId);
+            return Promise.resolve({
+              exists,
+              id: docId,
+              data: () => (exists ? collection.get(docId) : null),
+            });
+          }),
+          set: jest.fn((data: any) => {
+            collection.set(docId, data);
+            return Promise.resolve();
+          }),
+          update: jest.fn((data: any) => {
+            if (collection.has(docId)) {
+              collection.set(docId, { ...collection.get(docId), ...data });
+            }
+            return Promise.resolve();
+          }),
+          delete: jest.fn(() => {
+            collection.delete(docId);
+            return Promise.resolve();
+          }),
+        };
+      }),
+      batch: jest.fn(() => ({
+        set: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+        commit: jest.fn(() => Promise.resolve()),
+      })),
+      runTransaction: jest.fn(),
+    })),
+    {
+      FieldValue: {
+        serverTimestamp: jest.fn(() => new Date()),
+        increment: jest.fn((n: number) => n),
+        arrayUnion: jest.fn((...elements: any[]) => elements),
+        arrayRemove: jest.fn((...elements: any[]) => elements),
+        delete: jest.fn(),
+      },
+    }
+  ),
   auth: jest.fn(() => ({
     createUser: jest.fn(),
     getUserByEmail: jest.fn(),
@@ -71,6 +194,50 @@ jest.mock('redis', () => ({
   })),
 }));
 
+// Mock ioredis (used by CacheService)
+jest.mock('ioredis', () => {
+  const mockRedis = {
+    // Connection methods
+    connect: jest.fn(() => Promise.resolve()),
+    disconnect: jest.fn(() => Promise.resolve()),
+    quit: jest.fn(() => Promise.resolve()),
+
+    // Basic operations
+    get: jest.fn(() => Promise.resolve(null)),
+    set: jest.fn(() => Promise.resolve('OK')),
+    setex: jest.fn(() => Promise.resolve('OK')),
+    del: jest.fn(() => Promise.resolve(1)),
+    exists: jest.fn(() => Promise.resolve(0)),
+    keys: jest.fn(() => Promise.resolve([])),
+    mget: jest.fn(() => Promise.resolve([])),
+    ttl: jest.fn(() => Promise.resolve(-1)),
+    expire: jest.fn(() => Promise.resolve(1)),
+    incrby: jest.fn(() => Promise.resolve(1)),
+
+    // Advanced operations
+    flushdb: jest.fn(() => Promise.resolve('OK')),
+    info: jest.fn(() => Promise.resolve('redis_version:5.0.0')),
+    ping: jest.fn(() => Promise.resolve('PONG')),
+
+    // Pipeline operations
+    pipeline: jest.fn(() => ({
+      setex: jest.fn(),
+      exec: jest.fn(() => Promise.resolve([])),
+    })),
+
+    // Event methods
+    on: jest.fn(),
+    off: jest.fn(),
+    once: jest.fn(),
+    emit: jest.fn(),
+
+    // Connection status
+    status: 'ready',
+  };
+
+  return jest.fn(() => mockRedis);
+});
+
 // Mock SendGrid
 jest.mock('@sendgrid/mail', () => ({
   setApiKey: jest.fn(),
@@ -111,6 +278,7 @@ jest.mock('jsonwebtoken', () => ({
     };
     callback(null, mockPayload);
   }),
+  sign: jest.fn(() => 'mock-jwt-token'),
   decode: jest.fn(() => ({
     header: { kid: 'test-key-id' },
     payload: {
@@ -127,6 +295,14 @@ jest.mock('axios', () => ({
     post: jest.fn(() => Promise.resolve({ data: {} })),
     put: jest.fn(() => Promise.resolve({ data: {} })),
     delete: jest.fn(() => Promise.resolve({ data: {} })),
+    interceptors: {
+      request: {
+        use: jest.fn(),
+      },
+      response: {
+        use: jest.fn(),
+      },
+    },
   })),
   get: jest.fn(() => Promise.resolve({ data: {} })),
   post: jest.fn(() => Promise.resolve({ data: {} })),
@@ -204,12 +380,17 @@ export const setupTestDatabase = async () => {
   process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
   process.env.FIREBASE_AUTH_EMULATOR_HOST = 'localhost:9099';
   process.env.FIREBASE_PROJECT_ID = 'partisipro-test';
+  // Enable mock Web3Auth in test environment
+  process.env.NODE_ENV = 'test';
+  process.env.WEB3AUTH_ENABLE_MOCK = 'true';
 };
 
 // Test cleanup
 export const cleanupTestDatabase = async () => {
   // Cleanup mock data
   jest.clearAllMocks();
+  // Clear mock Firestore data
+  mockFirestoreData.clear();
 };
 
 // Test app factory
@@ -381,6 +562,8 @@ afterAll(async () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Clear mock Firestore data between tests
+  mockFirestoreData.clear();
 });
 
 afterEach(() => {

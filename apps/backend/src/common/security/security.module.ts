@@ -21,10 +21,11 @@ import {
 } from '../middleware/rate-limit.middleware';
 import { AuditMiddleware } from '../middleware/audit.middleware';
 import { CommonModule } from '../common.module';
+import { AuthModule } from '../../modules/auth/auth.module';
 
 @Global()
 @Module({
-  imports: [CommonModule],
+  imports: [CommonModule, AuthModule],
   providers: [
     // Core Security Services
     SecurityService,

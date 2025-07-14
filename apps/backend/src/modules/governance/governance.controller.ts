@@ -12,7 +12,10 @@ import { GovernanceService } from './governance.service';
 import { CreateProposalDto, VoteProposalDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { IdentityGuard } from '../../common/guards/identity.guard';
+import { ClaimsGuard } from '../../common/guards/claims.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RequireKYC } from '../../common/decorators/claims.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../../common/types/user.types';
 
@@ -25,8 +28,9 @@ export class GovernanceController {
    * Create a new governance proposal
    */
   @Post('proposals')
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.INVESTOR, UserRole.SPV)
+  @RequireKYC()
   async createProposal(
     @Body() createProposalDto: CreateProposalDto,
     @CurrentUser() user: any

@@ -3,10 +3,13 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { ProjectsService } from '../projects/projects.service';
 import { PaymentsService } from '../payments/payments.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { CreateInvestmentDto } from './dto';
 import {
   Investment,
@@ -25,7 +28,9 @@ export class InvestmentsService {
   constructor(
     private firebaseService: FirebaseService,
     private projectsService: ProjectsService,
-    private paymentsService: PaymentsService
+    private paymentsService: PaymentsService,
+    @Inject(forwardRef(() => RealtimeService))
+    private realtimeService: RealtimeService
   ) {}
 
   /**
@@ -153,6 +158,20 @@ export class InvestmentsService {
       `Investment created: ${investmentId}, Payment initiated: ${paymentResult.paymentId}`
     );
 
+    // Broadcast real-time investment update
+    try {
+      await this.realtimeService.broadcastPortfolioUpdate(userId, {
+        type: 'investment_created',
+        investment: updatedInvestment,
+        project: {
+          id: project.id,
+          name: project.name,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Failed to broadcast portfolio update:', error);
+    }
+
     return {
       investment: updatedInvestment,
       paymentUrl: paymentResult.paymentUrl,
@@ -199,6 +218,21 @@ export class InvestmentsService {
 
     // TODO: In production, mint tokens to user's wallet
     this.logger.log(`Investment completed successfully: ${investmentId}`);
+
+    // Broadcast real-time investment completion update
+    try {
+      const updatedInvestment = await this.getInvestmentById(investmentId);
+      await this.realtimeService.broadcastPortfolioUpdate(investment.userId, {
+        type: 'investment_completed',
+        investment: updatedInvestment,
+        transactionHash: updatedInvestment?.transactionHash,
+      });
+    } catch (error) {
+      this.logger.error(
+        'Failed to broadcast investment completion update:',
+        error
+      );
+    }
   }
 
   /**

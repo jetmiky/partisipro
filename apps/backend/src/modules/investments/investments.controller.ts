@@ -19,7 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { IdentityGuard } from '../../common/guards/identity.guard';
+import { ClaimsGuard } from '../../common/guards/claims.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RequireKYC } from '../../common/decorators/claims.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { InvestmentsService } from './investments.service';
 import { CreateInvestmentDto } from './dto';
@@ -33,10 +36,13 @@ export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.INVESTOR, UserRole.ADMIN)
+  @RequireKYC()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create new investment' })
+  @ApiOperation({
+    summary: 'Create new investment (requires ERC-3643 KYC verification)',
+  })
   @ApiResponse({ status: 201, description: 'Investment created successfully' })
   @ApiResponse({
     status: 400,
@@ -46,7 +52,7 @@ export class InvestmentsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Investor access required',
+    description: 'Forbidden - Investor access and KYC verification required',
   })
   async createInvestment(
     @CurrentUser() user: User,

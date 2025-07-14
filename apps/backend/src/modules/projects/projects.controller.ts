@@ -22,7 +22,10 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { IdentityGuard } from '../../common/guards/identity.guard';
+import { ClaimsGuard } from '../../common/guards/claims.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RequireAuthorizedSPV } from '../../common/decorators/claims.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ProjectsService } from './projects.service';
 import {
@@ -116,14 +119,20 @@ export class ProjectsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.SPV, UserRole.ADMIN)
+  @RequireAuthorizedSPV()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create new project (SPV only)' })
+  @ApiOperation({
+    summary: 'Create new project (SPV only with ERC-3643 verification)',
+  })
   @ApiResponse({ status: 201, description: 'Project created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - SPV access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - SPV access and verification required',
+  })
   async create(
     @CurrentUser() user: User,
     @Body() createProjectDto: CreateProjectDto

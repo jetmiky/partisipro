@@ -3,11 +3,14 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { ProjectsService } from '../projects/projects.service';
 import { InvestmentsService } from '../investments/investments.service';
 import { PaymentsService } from '../payments/payments.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { DistributeProfitsDto, ClaimProfitsDto } from './dto';
 import {
   ProfitDistribution,
@@ -28,7 +31,9 @@ export class ProfitsService {
     private firebaseService: FirebaseService,
     private projectsService: ProjectsService,
     private investmentsService: InvestmentsService,
-    private paymentsService: PaymentsService
+    private paymentsService: PaymentsService,
+    @Inject(forwardRef(() => RealtimeService))
+    private realtimeService: RealtimeService
   ) {}
 
   /**
@@ -124,6 +129,12 @@ export class ProfitsService {
       profitPerToken
     );
 
+    // Broadcast profit distribution to all investors of this project
+    await this.broadcastProfitDistributionToProjectInvestors(
+      distributeProfitsDto.projectId,
+      distribution
+    );
+
     this.logger.log(`Profit distribution completed: ${distributionId}`);
     return distribution;
   }
@@ -199,6 +210,20 @@ export class ProfitsService {
         }
       );
 
+      // Broadcast profit claim update to user
+      await this.realtimeService.broadcastProfitDistribution(
+        userId,
+        {
+          type: 'claim_processing',
+          distributionId: claimProfitsDto.distributionId,
+          claimId,
+          amount: claim.claimableAmount,
+          paymentId: paymentResult.paymentId,
+          status: ProfitClaimStatus.PROCESSING,
+        },
+        claim.projectId
+      );
+
       this.logger.log(
         `Profit claim processed: ${claimId}, Payment: ${paymentResult.paymentId}`
       );
@@ -244,6 +269,19 @@ export class ProfitsService {
       claimedAt: this.firebaseService.getTimestamp(),
       updatedAt: this.firebaseService.getTimestamp(),
     });
+
+    // Broadcast profit claim completion to user
+    await this.realtimeService.broadcastProfitDistribution(
+      claim.userId,
+      {
+        type: 'claim_completed',
+        distributionId: claim.distributionId,
+        claimId,
+        amount: claim.claimableAmount,
+        status: ProfitClaimStatus.COMPLETED,
+      },
+      claim.projectId
+    );
 
     // TODO: In production, call Treasury contract to mark claim as settled
     this.logger.log(`Profit claim completed successfully: ${claimId}`);
@@ -476,5 +514,47 @@ export class ProfitsService {
     this.logger.log(
       `Created ${completedInvestments.length} profit claims for distribution: ${distributionId}`
     );
+  }
+
+  /**
+   * Broadcast profit distribution to all investors of a project
+   */
+  private async broadcastProfitDistributionToProjectInvestors(
+    projectId: string,
+    distribution: ProfitDistribution
+  ): Promise<void> {
+    try {
+      // Get all investors for this project
+      const projectInvestments =
+        await this.investmentsService.getProjectInvestments(projectId);
+
+      // Broadcast to each investor
+      for (const investment of projectInvestments) {
+        await this.realtimeService.broadcastProfitDistribution(
+          investment.userId,
+          {
+            type: 'distribution_created',
+            distributionId: distribution.id,
+            projectId,
+            period: distribution.period,
+            profitPerToken: distribution.profitPerToken,
+            totalProfit: distribution.totalProfit,
+            distributedProfit: distribution.distributedProfit,
+            status: distribution.status,
+            createdAt: distribution.createdAt,
+          },
+          projectId
+        );
+      }
+
+      this.logger.log(
+        `Broadcasted profit distribution to ${projectInvestments.length} investors for project: ${projectId}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to broadcast profit distribution for project: ${projectId}`,
+        error
+      );
+    }
   }
 }
