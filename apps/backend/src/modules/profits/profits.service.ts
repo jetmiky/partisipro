@@ -525,13 +525,13 @@ export class ProfitsService {
   ): Promise<void> {
     try {
       // Get all investors for this project
-      const projectInvestors =
-        await this.investmentsService.getProjectInvestors(projectId);
+      const projectInvestments =
+        await this.investmentsService.getProjectInvestments(projectId);
 
       // Broadcast to each investor
-      for (const investor of projectInvestors) {
+      for (const investment of projectInvestments) {
         await this.realtimeService.broadcastProfitDistribution(
-          investor.userId,
+          investment.userId,
           {
             type: 'distribution_created',
             distributionId: distribution.id,
@@ -548,7 +548,7 @@ export class ProfitsService {
       }
 
       this.logger.log(
-        `Broadcasted profit distribution to ${projectInvestors.length} investors for project: ${projectId}`
+        `Broadcasted profit distribution to ${projectInvestments.length} investors for project: ${projectId}`
       );
     } catch (error) {
       this.logger.error(

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { CacheService } from '../../common/services/cache.service';
+import { UsersService } from '../users/users.service';
 import {
   IdentityRegistry,
   IdentityStatus,
@@ -28,7 +29,8 @@ export class IdentityService {
 
   constructor(
     private firebaseService: FirebaseService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private usersService: UsersService
   ) {}
 
   async registerIdentity(
@@ -37,6 +39,12 @@ export class IdentityService {
     operatorId?: string
   ): Promise<IdentityRegistry> {
     this.logger.log(`Registering identity for address: ${userAddress}`);
+
+    // Validate user exists
+    const user = await this.usersService.findById(createIdentityDto.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     // Check if identity already exists
     const existingIdentity = await this.getIdentity(userAddress);

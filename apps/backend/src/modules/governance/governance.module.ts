@@ -6,6 +6,8 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
 import { ProjectsModule } from '../projects/projects.module';
 import { InvestmentsModule } from '../investments/investments.module';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { IdentityModule } from '../identity/identity.module';
+import { ClaimsModule } from '../claims/claims.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { RealtimeModule } from '../realtime/realtime.module';
     BlockchainModule,
     ProjectsModule,
     InvestmentsModule,
+    IdentityModule,
+    ClaimsModule,
     forwardRef(() => RealtimeModule),
   ],
   controllers: [GovernanceController],
