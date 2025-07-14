@@ -24,6 +24,10 @@ import { BlockchainModule } from './modules/blockchain/blockchain.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { GovernanceModule } from './modules/governance/governance.module';
+import { IdentityModule } from './modules/identity/identity.module';
+import { ClaimsModule } from './modules/claims/claims.module';
+import { TrustedIssuersModule } from './modules/trusted-issuers/trusted-issuers.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
 
 // Security and monitoring middleware
 import { SecurityMiddleware } from './common/middleware/security.middleware';
@@ -72,6 +76,14 @@ import { MonitoringService } from './common/services/monitoring.service';
     AdminModule,
     NotificationsModule,
     GovernanceModule,
+
+    // ERC-3643 Identity Infrastructure modules
+    IdentityModule,
+    ClaimsModule,
+    TrustedIssuersModule,
+
+    // Real-time WebSocket module
+    RealtimeModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

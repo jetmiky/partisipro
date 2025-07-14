@@ -3,3 +3,4 @@ export * from './project.types';
 export * from './investment.types';
 export * from './profit.types';
 export * from './system.types';
+export * from './identity.types';
