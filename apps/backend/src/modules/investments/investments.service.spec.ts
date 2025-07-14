@@ -4,6 +4,7 @@ import { InvestmentsService } from './investments.service';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { ProjectsService } from '../projects/projects.service';
 import { PaymentsService } from '../payments/payments.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import { CreateInvestmentDto, InvestmentType } from './dto';
 import {
   Investment,
@@ -172,6 +173,19 @@ describe('InvestmentsService', () => {
           useValue: {
             initiatePayment: jest.fn(),
             cancelPayment: jest.fn(),
+          },
+        },
+        {
+          provide: RealtimeService,
+          useValue: {
+            broadcastPortfolioUpdate: jest.fn(),
+            broadcastProjectUpdate: jest.fn(),
+            broadcastGovernanceUpdate: jest.fn(),
+            broadcastProfitDistributionUpdate: jest.fn(),
+            broadcastKYCStatusUpdate: jest.fn(),
+            broadcastSystemUpdate: jest.fn(),
+            broadcastNotificationUpdate: jest.fn(),
+            broadcastGeneralUpdate: jest.fn(),
           },
         },
       ],

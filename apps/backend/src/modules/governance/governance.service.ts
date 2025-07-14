@@ -4,12 +4,15 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ProjectsService } from '../projects/projects.service';
 import { InvestmentsService } from '../investments/investments.service';
+import { RealtimeService } from '../realtime/realtime.service';
 import {
   CreateProposalDto,
   VoteProposalDto,
@@ -67,7 +70,9 @@ export class GovernanceService {
     private firebaseService: FirebaseService,
     private blockchainService: BlockchainService,
     private projectsService: ProjectsService,
-    private investmentsService: InvestmentsService
+    private investmentsService: InvestmentsService,
+    @Inject(forwardRef(() => RealtimeService))
+    private realtimeService: RealtimeService
   ) {}
 
   /**
@@ -157,6 +162,21 @@ export class GovernanceService {
       proposerId,
       { proposalId, type: 'governance_proposal' }
     );
+
+    // Broadcast proposal creation to real-time subscribers
+    await this.realtimeService.broadcastGovernanceUpdate(proposal.projectId, {
+      type: 'proposal_created',
+      proposal: {
+        id: proposal.id,
+        title: proposal.title,
+        type: proposal.type,
+        status: proposal.status,
+        voting: proposal.voting,
+        createdAt: proposal.createdAt,
+      },
+      projectId: proposal.projectId,
+      timestamp: new Date(),
+    });
 
     this.logger.log(`Governance proposal created: ${proposalId}`);
     return proposal;
@@ -248,6 +268,28 @@ export class GovernanceService {
     // Update vote with transaction hash
     await this.firebaseService.updateDocument(this.VOTES_COLLECTION, voteId, {
       transactionHash: vote.transactionHash,
+    });
+
+    // Get updated proposal for broadcasting
+    const updatedProposal = await this.getProposal(proposal.id);
+
+    // Broadcast vote cast to real-time subscribers
+    await this.realtimeService.broadcastGovernanceUpdate(proposal.projectId, {
+      type: 'vote_cast',
+      vote: {
+        id: vote.id,
+        proposalId: vote.proposalId,
+        vote: vote.vote,
+        tokenAmount: vote.tokenAmount,
+        createdAt: vote.createdAt,
+      },
+      proposal: {
+        id: updatedProposal.id,
+        votes: updatedProposal.votes,
+        status: updatedProposal.status,
+      },
+      projectId: proposal.projectId,
+      timestamp: new Date(),
     });
 
     this.logger.log(`Vote cast: ${voteId}`);
@@ -394,6 +436,20 @@ export class GovernanceService {
       }
     );
 
+    // Broadcast proposal execution to real-time subscribers
+    await this.realtimeService.broadcastGovernanceUpdate(proposal.projectId, {
+      type: 'proposal_executed',
+      proposal: {
+        id: updatedProposal.id,
+        title: updatedProposal.title,
+        status: updatedProposal.status,
+        executedAt: updatedProposal.executedAt,
+        contractCall: updatedProposal.contractCall,
+      },
+      projectId: proposal.projectId,
+      timestamp: new Date(),
+    });
+
     this.logger.log(`Proposal executed: ${proposalId}`);
     return updatedProposal;
   }
@@ -440,6 +496,23 @@ export class GovernanceService {
           proposal.id,
           updates
         );
+
+        // Broadcast proposal status update to real-time subscribers
+        await this.realtimeService.broadcastGovernanceUpdate(
+          proposal.projectId,
+          {
+            type: 'proposal_status_updated',
+            proposal: {
+              id: proposal.id,
+              title: proposal.title,
+              status: updates.status,
+              votes: proposal.votes,
+              voting: proposal.voting,
+            },
+            projectId: proposal.projectId,
+            timestamp: new Date(),
+          }
+        );
       }
     }
   }
@@ -449,6 +522,7 @@ export class GovernanceService {
    */
   private async updateProposalVoteCounts(proposalId: string): Promise<void> {
     const votes = await this.getProposalVotes(proposalId);
+    const proposal = await this.getProposal(proposalId);
 
     const voteCounts = {
       for: 0,
@@ -465,6 +539,21 @@ export class GovernanceService {
       proposalId,
       { votes: voteCounts }
     );
+
+    // Broadcast vote count update to real-time subscribers (for live vote tallies)
+    if (proposal) {
+      await this.realtimeService.broadcastGovernanceUpdate(proposal.projectId, {
+        type: 'vote_counts_updated',
+        proposal: {
+          id: proposal.id,
+          title: proposal.title,
+          votes: voteCounts,
+          status: proposal.status,
+        },
+        projectId: proposal.projectId,
+        timestamp: new Date(),
+      });
+    }
   }
 
   /**
