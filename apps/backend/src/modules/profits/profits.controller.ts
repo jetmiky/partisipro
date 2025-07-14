@@ -18,7 +18,10 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { IdentityGuard } from '../../common/guards/identity.guard';
+import { ClaimsGuard } from '../../common/guards/claims.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { RequireKYC } from '../../common/decorators/claims.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ProfitsService } from './profits.service';
 import { DistributeProfitsDto, ClaimProfitsDto } from './dto';
@@ -68,10 +71,13 @@ export class ProfitsController {
   }
 
   @Post('claim')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.INVESTOR, UserRole.ADMIN)
+  @RequireKYC()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Claim profit distribution (Investor only)' })
+  @ApiOperation({
+    summary: 'Claim profit distribution (Verified investor only)',
+  })
   @ApiResponse({
     status: 201,
     description: 'Profit claim processed successfully',
@@ -84,7 +90,7 @@ export class ProfitsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Investor access required',
+    description: 'Forbidden - Verified investor access required',
   })
   async claimProfits(
     @CurrentUser() user: User,
@@ -107,10 +113,11 @@ export class ProfitsController {
   }
 
   @Get('my-claims')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.INVESTOR, UserRole.ADMIN)
+  @RequireKYC()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get user profit claims' })
+  @ApiOperation({ summary: 'Get user profit claims (Verified investor only)' })
   @ApiResponse({
     status: 200,
     description: 'User profit claims retrieved successfully',
@@ -128,10 +135,13 @@ export class ProfitsController {
   }
 
   @Get('my-claimable')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, IdentityGuard, ClaimsGuard)
   @Roles(UserRole.INVESTOR, UserRole.ADMIN)
+  @RequireKYC()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get user claimable profits' })
+  @ApiOperation({
+    summary: 'Get user claimable profits (Verified investor only)',
+  })
   @ApiResponse({
     status: 200,
     description: 'User claimable profits retrieved successfully',
