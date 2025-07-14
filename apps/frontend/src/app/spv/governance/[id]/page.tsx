@@ -28,28 +28,7 @@ import {
   DataTable,
 } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
-
-interface GovernanceProposal {
-  id: string;
-  title: string;
-  description: string;
-  type:
-    | 'contract_upgrade'
-    | 'parameter_change'
-    | 'fund_allocation'
-    | 'operational_change';
-  status: 'draft' | 'active' | 'passed' | 'rejected' | 'executed';
-  createdDate: string;
-  votingStart: string;
-  votingEnd: string;
-  totalVotes: number;
-  votesFor: number;
-  votesAgainst: number;
-  quorumRequired: number;
-  quorumMet: boolean;
-  proposer: string;
-  executionDate?: string;
-}
+import type { GovernanceProposal } from '@/types';
 
 interface Project {
   id: string;
@@ -227,7 +206,7 @@ export default function SPVGovernancePage() {
     _proposalId;
   };
 
-  const proposalColumns: Column[] = [
+  const proposalColumns: Column<GovernanceProposal>[] = [
     {
       key: 'title',
       label: 'Proposal',
@@ -439,7 +418,10 @@ export default function SPVGovernancePage() {
             </div>
           </div>
 
-          <DataTable columns={proposalColumns} data={mockProposals} />
+          <DataTable<GovernanceProposal>
+            columns={proposalColumns}
+            data={mockProposals}
+          />
         </Card>
 
         {/* Quick Actions */}

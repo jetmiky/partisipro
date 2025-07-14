@@ -23,23 +23,7 @@ import { StatsCard } from '@/components/ui';
 import { DashboardLayout } from '@/components/ui';
 import { DataTable } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
-
-interface SPVProject {
-  id: string;
-  projectName: string;
-  projectType: string;
-  location: string;
-  totalValue: number;
-  fundingProgress: number;
-  fundingTarget: number;
-  investorCount: number;
-  status: 'planning' | 'funding' | 'active' | 'operational' | 'completed';
-  createdDate: string;
-  launchDate: string;
-  expectedRevenue: number;
-  currentRevenue: number;
-  lastUpdate: string;
-}
+import type { SPVProject } from '@/types';
 
 interface SPVStats {
   totalProjects: number;
@@ -61,11 +45,16 @@ const mockProjects: SPVProject[] = [
     fundingTarget: 2500000000000,
     investorCount: 1250,
     status: 'funding',
+    riskLevel: 'medium',
     createdDate: '2024-01-15',
     launchDate: '2024-02-01',
-    expectedRevenue: 450000000000, // 450B IDR annually
+    lastActivity: '2025-01-09',
+    complianceStatus: 'compliant',
+    monthlyRevenue: 0,
+    totalRevenue: 0,
+    profitMargin: 0,
     currentRevenue: 0,
-    lastUpdate: '2025-01-09',
+    expectedRevenue: 0,
   },
   {
     id: '2',
@@ -77,11 +66,16 @@ const mockProjects: SPVProject[] = [
     fundingTarget: 850000000000,
     investorCount: 425,
     status: 'operational',
+    riskLevel: 'low',
     createdDate: '2023-06-10',
     launchDate: '2023-07-01',
-    expectedRevenue: 125000000000, // 125B IDR annually
-    currentRevenue: 31250000000, // 31.25B IDR (Q1)
-    lastUpdate: '2025-01-08',
+    lastActivity: '2025-01-09',
+    complianceStatus: 'compliant',
+    monthlyRevenue: 125000000000, // 125B IDR annually
+    totalRevenue: 31250000000, // 31.25B IDR (Q1)
+    profitMargin: 25,
+    currentRevenue: 0,
+    expectedRevenue: 0,
   },
   {
     id: '3',
@@ -93,11 +87,16 @@ const mockProjects: SPVProject[] = [
     fundingTarget: 1200000000000,
     investorCount: 600,
     status: 'active',
+    riskLevel: 'high',
     createdDate: '2023-03-20',
     launchDate: '2023-04-15',
-    expectedRevenue: 180000000000, // 180B IDR annually
-    currentRevenue: 135000000000, // 135B IDR (3 quarters)
-    lastUpdate: '2025-01-07',
+    lastActivity: '2025-01-07',
+    complianceStatus: 'compliant',
+    monthlyRevenue: 180000000000, // 180B IDR annually
+    totalRevenue: 135000000000, // 135B IDR (3 quarters)
+    profitMargin: 30,
+    currentRevenue: 0,
+    expectedRevenue: 0,
   },
 ];
 
@@ -112,7 +111,7 @@ const mockStats: SPVStats = {
 
 const getStatusIcon = (status: SPVProject['status']) => {
   switch (status) {
-    case 'planning':
+    case 'approved':
       return <Clock className="h-4 w-4" />;
     case 'funding':
       return <DollarSign className="h-4 w-4" />;
@@ -129,7 +128,7 @@ const getStatusIcon = (status: SPVProject['status']) => {
 
 const getStatusColor = (status: SPVProject['status']) => {
   switch (status) {
-    case 'planning':
+    case 'approved':
       return 'text-gray-500';
     case 'funding':
       return 'text-primary-500';
@@ -184,7 +183,7 @@ export default function SPVDashboardPage() {
     projectId;
   };
 
-  const projectColumns: Column[] = [
+  const projectColumns: Column<SPVProject>[] = [
     {
       key: 'projectName',
       label: 'Project',

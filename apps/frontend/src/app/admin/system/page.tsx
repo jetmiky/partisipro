@@ -34,129 +34,61 @@ import {
   DataTable,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-
-interface SystemConfig {
-  id: string;
-  category: 'platform' | 'security' | 'integration' | 'maintenance';
-  name: string;
-  description: string;
-  value: string | number | boolean;
-  type: 'text' | 'number' | 'boolean' | 'select' | 'password';
-  options?: string[];
-  lastUpdated: string;
-  updatedBy: string;
-  requiresRestart: boolean;
-  sensitive: boolean;
-}
-
-interface SystemHealth {
-  component: string;
-  status: 'healthy' | 'warning' | 'critical' | 'down';
-  uptime: string;
-  lastCheck: string;
-  details: string;
-  metrics?: {
-    cpu?: number;
-    memory?: number;
-    disk?: number;
-    connections?: number;
-  };
-}
-
-interface SystemLog {
-  id: string;
-  timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'critical';
-  component: string;
-  message: string;
-  details?: string;
-  userId?: string;
-}
-
-interface UserRole {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  userCount: number;
-  lastModified: string;
-  isSystemRole: boolean;
-}
+import type { SystemHealth, SystemConfig, SystemLog, UserRole } from '@/types';
 
 // Mock data
 const mockSystemConfigs: SystemConfig[] = [
   {
     id: 'maintenance_mode',
-    category: 'maintenance',
+    category: 'platform',
     name: 'Maintenance Mode',
     description: 'Enable maintenance mode to block user access during updates',
-    value: false,
     type: 'boolean',
+    currentValue: false,
+    defaultValue: false,
+    isModified: false,
     lastUpdated: '2025-01-08',
     updatedBy: 'System Admin',
     requiresRestart: false,
-    sensitive: false,
   },
   {
     id: 'max_investment_amount',
     category: 'platform',
     name: 'Maximum Investment Amount',
     description: 'Maximum investment amount per transaction in IDR',
-    value: 1000000000, // 1B IDR
     type: 'number',
+    currentValue: 1000000000, // 1B IDR
+    defaultValue: 1000000000,
+    isModified: false,
     lastUpdated: '2024-12-20',
     updatedBy: 'Platform Admin',
     requiresRestart: false,
-    sensitive: false,
   },
   {
     id: 'session_timeout',
     category: 'security',
     name: 'Session Timeout',
     description: 'User session timeout in minutes',
-    value: 30,
     type: 'number',
+    currentValue: 30,
+    defaultValue: 30,
+    isModified: false,
     lastUpdated: '2024-11-15',
     updatedBy: 'Security Admin',
     requiresRestart: false,
-    sensitive: false,
-  },
-  {
-    id: 'kyc_provider',
-    category: 'integration',
-    name: 'KYC Provider',
-    description: 'Selected KYC verification provider',
-    value: 'verihubs',
-    type: 'select',
-    options: ['verihubs', 'sumsub', 'jumio'],
-    lastUpdated: '2024-10-05',
-    updatedBy: 'Integration Admin',
-    requiresRestart: true,
-    sensitive: false,
-  },
-  {
-    id: 'blockchain_rpc_url',
-    category: 'integration',
-    name: 'Blockchain RPC URL',
-    description: 'Arbitrum network RPC endpoint URL',
-    value: 'https://arb1.arbitrum.io/rpc',
-    type: 'text',
-    lastUpdated: '2024-09-20',
-    updatedBy: 'Tech Admin',
-    requiresRestart: true,
-    sensitive: true,
   },
   {
     id: 'admin_email_alerts',
     category: 'platform',
     name: 'Admin Email Alerts',
     description: 'Send email alerts for critical system events',
-    value: true,
     type: 'boolean',
+    currentValue: true,
+    defaultValue: true,
+    isModified: false,
     lastUpdated: '2024-08-10',
     updatedBy: 'System Admin',
     requiresRestart: false,
-    sensitive: false,
   },
 ];
 
@@ -164,38 +96,35 @@ const mockSystemHealth: SystemHealth[] = [
   {
     component: 'Web Application',
     status: 'healthy',
-    uptime: '99.8%',
+    uptime: 99.8,
     lastCheck: '2025-01-10 09:45',
     details: 'All services operational',
-    metrics: { cpu: 45, memory: 62, connections: 1250 },
   },
   {
     component: 'Database',
     status: 'healthy',
-    uptime: '99.9%',
+    uptime: 99.9,
     lastCheck: '2025-01-10 09:45',
     details: 'MySQL cluster healthy',
-    metrics: { cpu: 28, memory: 71, disk: 45, connections: 85 },
   },
   {
     component: 'Blockchain Node',
     status: 'warning',
-    uptime: '98.5%',
+    uptime: 98.5,
     lastCheck: '2025-01-10 09:44',
     details: 'High latency detected',
-    metrics: { cpu: 78, memory: 85 },
   },
   {
     component: 'KYC Service',
     status: 'healthy',
-    uptime: '99.2%',
+    uptime: 99.2,
     lastCheck: '2025-01-10 09:45',
     details: 'Verihubs API responsive',
   },
   {
     component: 'Payment Gateway',
     status: 'critical',
-    uptime: '97.1%',
+    uptime: 97.1,
     lastCheck: '2025-01-10 09:43',
     details: 'Connection timeout issues',
   },
@@ -205,7 +134,7 @@ const mockSystemLogs: SystemLog[] = [
   {
     id: 'log_001',
     timestamp: '2025-01-10 09:45:23',
-    level: 'warning',
+    level: 'warn',
     component: 'Blockchain Node',
     message: 'High RPC response time detected',
     details: 'Average response time: 2.5s (threshold: 1s)',
@@ -230,7 +159,7 @@ const mockSystemLogs: SystemLog[] = [
   {
     id: 'log_004',
     timestamp: '2025-01-10 09:30:42',
-    level: 'critical',
+    level: 'error',
     component: 'Database',
     message: 'Database connection pool exhausted',
     details: 'All 100 database connections in use, new connections queued',
@@ -290,8 +219,6 @@ const getHealthStatusColor = (status: SystemHealth['status']) => {
       return 'text-primary-600 bg-primary-50';
     case 'critical':
       return 'text-accent-600 bg-accent-50';
-    case 'down':
-      return 'text-gray-600 bg-gray-50';
     default:
       return 'text-gray-600 bg-gray-50';
   }
@@ -305,8 +232,6 @@ const getHealthStatusIcon = (status: SystemHealth['status']) => {
       return <AlertTriangle className="h-4 w-4" />;
     case 'critical':
       return <AlertTriangle className="h-4 w-4" />;
-    case 'down':
-      return <X className="h-4 w-4" />;
     default:
       return <Clock className="h-4 w-4" />;
   }
@@ -316,12 +241,12 @@ const getLogLevelColor = (level: SystemLog['level']) => {
   switch (level) {
     case 'info':
       return 'text-support-600 bg-support-50';
-    case 'warning':
+    case 'warn':
       return 'text-primary-600 bg-primary-50';
     case 'error':
       return 'text-accent-600 bg-accent-50';
-    case 'critical':
-      return 'text-accent-700 bg-accent-100';
+    case 'debug':
+      return 'text-gray-600 bg-gray-50';
     default:
       return 'text-gray-600 bg-gray-50';
   }
@@ -421,7 +346,7 @@ export default function AdminSystemPage() {
     // console.log('Restart system');
   };
 
-  const healthColumns: Column[] = [
+  const healthColumns: Column<SystemHealth>[] = [
     {
       key: 'component',
       label: 'Component',
@@ -448,7 +373,7 @@ export default function AdminSystemPage() {
       key: 'uptime',
       label: 'Uptime',
       render: (_, row) => (
-        <span className="font-medium text-gray-900">{row.uptime}</span>
+        <span className="font-medium text-gray-900">{row.uptime}%</span>
       ),
     },
     {
@@ -479,7 +404,7 @@ export default function AdminSystemPage() {
     },
   ];
 
-  const configColumns: Column[] = [
+  const configColumns: Column<SystemConfig>[] = [
     {
       key: 'name',
       label: 'Configuration',
@@ -508,7 +433,8 @@ export default function AdminSystemPage() {
               {row.type === 'boolean' ? (
                 <select
                   value={
-                    configValues[row.id]?.toString() || row.value.toString()
+                    configValues[row.id]?.toString() ||
+                    row.currentValue.toString()
                   }
                   onChange={e =>
                     setConfigValues({
@@ -523,7 +449,7 @@ export default function AdminSystemPage() {
                 </select>
               ) : row.type === 'select' ? (
                 <select
-                  value={configValues[row.id] || row.value}
+                  value={String(configValues[row.id] || row.currentValue)}
                   onChange={e =>
                     setConfigValues({
                       ...configValues,
@@ -532,7 +458,7 @@ export default function AdminSystemPage() {
                   }
                   className="px-2 py-1 border border-gray-300 rounded text-sm"
                 >
-                  {row.options?.map((option: any) => (
+                  {row.options?.map((option: string) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -541,7 +467,7 @@ export default function AdminSystemPage() {
               ) : (
                 <input
                   type={row.type === 'password' ? 'password' : row.type}
-                  value={configValues[row.id] || row.value}
+                  value={String(configValues[row.id] || row.currentValue)}
                   onChange={e =>
                     setConfigValues({
                       ...configValues,
@@ -558,13 +484,9 @@ export default function AdminSystemPage() {
           ) : (
             <div className="flex items-center gap-2">
               <span className="font-medium text-gray-900">
-                {formatConfigValue(
-                  row.value,
-                  row.type,
-                  row.sensitive && !showSensitive[row.id]
-                )}
+                {formatConfigValue(row.currentValue, row.type, false)}
               </span>
-              {row.sensitive && (
+              {false && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -619,7 +541,7 @@ export default function AdminSystemPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleEditConfig(row.id, row.value)}
+              onClick={() => handleEditConfig(row.id, row.currentValue)}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -629,7 +551,7 @@ export default function AdminSystemPage() {
     },
   ];
 
-  const logColumns: Column[] = [
+  const logColumns: Column<SystemLog>[] = [
     {
       key: 'timestamp',
       label: 'Timestamp',
@@ -669,7 +591,7 @@ export default function AdminSystemPage() {
     },
   ];
 
-  const roleColumns: Column[] = [
+  const roleColumns: Column<UserRole>[] = [
     {
       key: 'name',
       label: 'Role',
@@ -692,7 +614,7 @@ export default function AdminSystemPage() {
       label: 'Permissions',
       render: (_, row) => (
         <div className="flex flex-wrap gap-1">
-          {row.permissions.slice(0, 3).map((permission: any) => (
+          {row.permissions.slice(0, 3).map((permission: string) => (
             <span
               key={permission}
               className="text-xs px-2 py-1 rounded bg-primary-50 text-primary-700"
@@ -943,7 +865,7 @@ export default function AdminSystemPage() {
                 Create Role
               </Button>
             </div>
-            <DataTable columns={roleColumns} data={mockUserRoles} />
+            <DataTable<UserRole> columns={roleColumns} data={mockUserRoles} />
           </Card>
         )}
 

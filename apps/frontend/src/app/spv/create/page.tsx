@@ -87,7 +87,10 @@ export default function SPVCreatePage() {
     'Other Infrastructure',
   ];
 
-  const updateFormData = (field: keyof ProjectFormData, value: any) => {
+  const updateFormData = (
+    field: keyof ProjectFormData,
+    value: string | number
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -180,7 +183,10 @@ export default function SPVCreatePage() {
     field: keyof ProjectFormData,
     file: File | null
   ) => {
-    updateFormData(field, file);
+    setFormData(prev => ({ ...prev, [field]: file }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const submitProject = async () => {

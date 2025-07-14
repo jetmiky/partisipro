@@ -27,32 +27,7 @@ import {
   DataTable,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-
-interface FeeConfig {
-  id: string;
-  name: string;
-  description: string;
-  type: 'percentage' | 'fixed';
-  currentValue: number;
-  proposedValue?: number;
-  currency: 'IDR' | 'percentage';
-  category: 'platform' | 'transaction' | 'service';
-  lastUpdated: string;
-  updatedBy: string;
-  status: 'active' | 'pending' | 'inactive';
-  minValue: number;
-  maxValue: number;
-}
-
-interface FeeRevenue {
-  id: string;
-  feeType: string;
-  projectName: string;
-  amount: number;
-  date: string;
-  transactionId: string;
-  status: 'collected' | 'pending' | 'failed';
-}
+import type { FeeConfig, FeeRevenue } from '@/types';
 
 interface FeeStats {
   totalRevenue: number;
@@ -272,7 +247,7 @@ export default function AdminFeesPage() {
     _feeId;
   };
 
-  const feeConfigColumns: Column[] = [
+  const feeConfigColumns: Column<FeeConfig>[] = [
     {
       key: 'name',
       label: 'Fee Configuration',
@@ -391,7 +366,7 @@ export default function AdminFeesPage() {
     },
   ];
 
-  const revenueColumns: Column[] = [
+  const revenueColumns: Column<FeeRevenue>[] = [
     {
       key: 'feeType',
       label: 'Fee Type',
@@ -556,7 +531,10 @@ export default function AdminFeesPage() {
             </div>
           </div>
 
-          <DataTable columns={feeConfigColumns} data={mockFeeConfigs} />
+          <DataTable<FeeConfig>
+            columns={feeConfigColumns}
+            data={mockFeeConfigs}
+          />
         </Card>
 
         {/* Recent Revenue */}
@@ -582,7 +560,10 @@ export default function AdminFeesPage() {
             </div>
           </div>
 
-          <DataTable columns={revenueColumns} data={mockRevenueData} />
+          <DataTable<FeeRevenue>
+            columns={revenueColumns}
+            data={mockRevenueData}
+          />
         </Card>
 
         {/* Fee Management Actions */}

@@ -30,33 +30,7 @@ import {
   DataTable,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-
-interface AdminProject {
-  id: string;
-  projectName: string;
-  spvName: string;
-  projectType: string;
-  location: string;
-  totalValue: number;
-  fundingProgress: number;
-  fundingTarget: number;
-  investorCount: number;
-  status:
-    | 'draft'
-    | 'review'
-    | 'approved'
-    | 'funding'
-    | 'active'
-    | 'operational'
-    | 'completed'
-    | 'suspended';
-  riskLevel: 'low' | 'medium' | 'high';
-  createdDate: string;
-  launchDate?: string;
-  lastActivity: string;
-  complianceStatus: 'compliant' | 'review_required' | 'non_compliant';
-  flags: string[];
-}
+import type { AdminProject } from '@/types';
 
 interface ProjectStats {
   totalProjects: number;
@@ -290,7 +264,7 @@ export default function AdminProjectsPage() {
     _projectId;
   };
 
-  const projectColumns: Column[] = [
+  const projectColumns: Column<AdminProject>[] = [
     {
       key: 'projectName',
       label: 'Project',
@@ -557,7 +531,10 @@ export default function AdminProjectsPage() {
             </div>
           </div>
 
-          <DataTable columns={projectColumns} data={mockProjects} />
+          <DataTable<AdminProject>
+            columns={projectColumns}
+            data={mockProjects}
+          />
         </Card>
 
         {/* Quick Actions */}

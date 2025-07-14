@@ -54,7 +54,7 @@ interface RecentActivity {
   project?: string;
 }
 
-interface TopProject {
+interface TopProject extends Record<string, unknown> {
   id: string;
   name: string;
   spv: string;
@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
     setIsLoading(false);
   };
 
-  const topProjectColumns: Column[] = [
+  const topProjectColumns: Column<TopProject>[] = [
     {
       key: 'project',
       label: 'Project',
@@ -475,7 +475,10 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <DataTable columns={topProjectColumns} data={mockTopProjects} />
+          <DataTable<TopProject>
+            columns={topProjectColumns}
+            data={mockTopProjects}
+          />
         </Card>
 
         {/* Quick Actions */}

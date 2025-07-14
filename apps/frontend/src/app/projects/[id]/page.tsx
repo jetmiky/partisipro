@@ -23,6 +23,13 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
+import type {
+  Project,
+  FinancialProjection,
+  ProjectRisk,
+  LegalDocument,
+  ProjectUpdate,
+} from '@/types';
 import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
 
@@ -132,7 +139,7 @@ const mockProjectData = {
 export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [project, setProject] = useState<any>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [investmentAmount, setInvestmentAmount] = useState('');
@@ -145,7 +152,7 @@ export default function ProjectDetailPage() {
     setTimeout(() => {
       const projectData =
         mockProjectData[projectId as keyof typeof mockProjectData];
-      setProject(projectData);
+      setProject(projectData as unknown as Project);
       setLoading(false);
     }, 1000);
   }, [params.id]);
@@ -526,25 +533,25 @@ export default function ProjectDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Card className="p-4">
                   <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics.totalPassengers.toLocaleString()}
+                    {project.keyMetrics?.totalPassengers?.toLocaleString()}
                   </div>
                   <div className="text-sm text-gray-600">Annual Passengers</div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics.dailyCapacity.toLocaleString()}
+                    {project.keyMetrics?.dailyCapacity.toLocaleString()}
                   </div>
                   <div className="text-sm text-gray-600">Daily Capacity</div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics.jobsCreated.toLocaleString()}
+                    {project.keyMetrics?.jobsCreated.toLocaleString()}
                   </div>
                   <div className="text-sm text-gray-600">Jobs Created</div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics.carbonReduction.toLocaleString()}t
+                    {project.keyMetrics?.carbonReduction.toLocaleString()}t
                   </div>
                   <div className="text-sm text-gray-600">CO2 Reduction</div>
                 </Card>
@@ -564,8 +571,8 @@ export default function ProjectDetailPage() {
                   Revenue Projections
                 </h3>
                 <div className="space-y-3">
-                  {Object.entries(project.financialProjections).map(
-                    ([year, data]: [string, any]) => (
+                  {Object.entries(project.financialProjections || {}).map(
+                    ([year, data]: [string, FinancialProjection]) => (
                       <div
                         key={year}
                         className="flex justify-between items-center"
@@ -587,8 +594,8 @@ export default function ProjectDetailPage() {
                   Expected Returns
                 </h3>
                 <div className="space-y-3">
-                  {Object.entries(project.financialProjections).map(
-                    ([year, data]: [string, any]) => (
+                  {Object.entries(project.financialProjections || {}).map(
+                    ([year, data]: [string, FinancialProjection]) => (
                       <div
                         key={year}
                         className="flex justify-between items-center"
@@ -614,7 +621,7 @@ export default function ProjectDetailPage() {
               Risk Analysis
             </h2>
             <div className="space-y-4">
-              {project.risks.map((risk: any, index: number) => (
+              {project.risks?.map((risk: ProjectRisk, index: number) => (
                 <Card key={index} className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -649,32 +656,34 @@ export default function ProjectDetailPage() {
               Legal Documents
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {project.legalDocuments.map((doc: any, index: number) => (
-                <Card key={index} className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-red-600" />
+              {project.legalDocuments?.map(
+                (doc: LegalDocument, index: number) => (
+                  <Card key={index} className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-900">
+                            {doc.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {doc.type} • {doc.size}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {doc.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {doc.type} • {doc.size}
-                        </p>
-                      </div>
+                      <Button
+                        variant="secondary"
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </Button>
                     </div>
-                    <Button
-                      variant="secondary"
-                      className="flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                )
+              )}
             </div>
           </div>
         )}
@@ -685,7 +694,7 @@ export default function ProjectDetailPage() {
               Project Updates
             </h2>
             <div className="space-y-6">
-              {project.updates.map((update: any, index: number) => (
+              {project.updates?.map((update: ProjectUpdate, index: number) => (
                 <div key={index} className="flex gap-4">
                   <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                     <MessageSquare className="w-5 h-5 text-primary-600" />

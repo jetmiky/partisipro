@@ -11,7 +11,7 @@ import {
   Card,
 } from '@/components/ui';
 
-interface ClaimableAmount {
+interface ClaimableAmount extends Record<string, unknown> {
   projectId: string;
   projectName: string;
   amount: number;
@@ -20,7 +20,7 @@ interface ClaimableAmount {
   status: 'available' | 'pending' | 'processing';
 }
 
-interface ClaimHistory {
+interface ClaimHistory extends Record<string, unknown> {
   id: string;
   projectName: string;
   amount: number;
@@ -196,23 +196,24 @@ export default function ClaimPage() {
     {
       key: 'amount',
       label: 'Amount',
-      render: (value: number, row: ClaimableAmount) =>
-        `${row.currency} ${value.toLocaleString()}`,
+      render: (value: unknown, row: ClaimableAmount) =>
+        `${row.currency} ${(value as number).toLocaleString()}`,
     },
     {
       key: 'status',
       label: 'Status',
-      render: (value: string) => (
+      render: (value: unknown) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value === 'available'
+            (value as string) === 'available'
               ? 'bg-green-100 text-green-800'
-              : value === 'processing'
+              : (value as string) === 'processing'
                 ? 'bg-yellow-100 text-yellow-800'
                 : 'bg-gray-100 text-gray-800'
           }`}
         >
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+          {(value as string).charAt(0).toUpperCase() +
+            (value as string).slice(1)}
         </span>
       ),
     },
@@ -238,23 +239,24 @@ export default function ClaimPage() {
     {
       key: 'amount',
       label: 'Amount',
-      render: (value: number, row: ClaimHistory) =>
-        `${row.currency} ${value.toLocaleString()}`,
+      render: (value: unknown, row: ClaimHistory) =>
+        `${row.currency} ${(value as number).toLocaleString()}`,
     },
     {
       key: 'status',
       label: 'Status',
-      render: (value: string) => (
+      render: (value: unknown) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value === 'completed'
+            (value as string) === 'completed'
               ? 'bg-green-100 text-green-800'
-              : value === 'failed'
+              : (value as string) === 'failed'
                 ? 'bg-red-100 text-red-800'
                 : 'bg-yellow-100 text-yellow-800'
           }`}
         >
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+          {(value as string).charAt(0).toUpperCase() +
+            (value as string).slice(1)}
         </span>
       ),
     },

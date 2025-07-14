@@ -322,6 +322,56 @@ ProjectToken (ERC-3643)
 - **Existing SPV System**: PlatformRegistry still manages SPV authorization
 - **Fee Structure**: No changes to platform economics
 
+## Business Process Flow Paths (ERC-3643 Model) - Frontend
+
+### Identity-Centric Compliance Model
+
+The platform has adopted the ERC-3643 standard, transforming from an
+**asset-centric** to an **identity-centric** compliance model. This fundamental
+change impacts all user journeys and workflows.
+
+### Key Flow Changes:
+
+- **One-Time KYC**: Users verify identity once for all investments (vs.
+  per-project KYC)
+- **Persistent Identity**: Central IdentityRegistry manages all compliance
+- **Simplified Investment**: No per-project whitelisting required
+- **Enhanced Admin Tools**: New identity management interfaces
+
+### Core User Flow Paths:
+
+#### Retail Investor Journey
+
+```
+/auth → /kyc → /identity → /marketplace → /projects/[id] → /invest/[id] → /dashboard
+```
+
+**Key Change**: One-time KYC creates persistent identity for all investments
+
+#### SPV Project Creation
+
+```
+/spv/auth → /spv/dashboard → /spv/create → /spv/compliance
+```
+
+**Key Change**: Projects automatically link to central IdentityRegistry
+
+#### Admin Identity Management
+
+```
+/admin/dashboard → /admin/identity → /admin/claims → /admin/compliance
+```
+
+**Key Change**: Centralized identity and compliance management
+
+#### Profit Distribution
+
+```
+/dashboard → /claim (with automatic identity verification)
+```
+
+**Key Change**: Identity verification integrated into claiming process
+
 # IMPORTANT NOTE
 
 Altough the Administrator and SPVs intended to use Multi-Signature Wallet for
