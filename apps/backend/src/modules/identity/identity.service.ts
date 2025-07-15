@@ -4,10 +4,12 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { CacheService } from '../../common/services/cache.service';
 import { UsersService } from '../users/users.service';
+import { RealBlockchainService } from '../blockchain/real-blockchain.service';
 import {
   IdentityRegistry,
   IdentityStatus,
@@ -30,7 +32,9 @@ export class IdentityService {
   constructor(
     private firebaseService: FirebaseService,
     private cacheService: CacheService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    @Inject('BLOCKCHAIN_SERVICE')
+    private blockchainService: RealBlockchainService
   ) {}
 
   async registerIdentity(
@@ -96,6 +100,107 @@ export class IdentityService {
       `Identity registered successfully for address: ${userAddress}`
     );
     return identity;
+  }
+
+  /**
+   * Register identity on blockchain (new method)
+   */
+  async registerIdentityOnChain(
+    userAddress: string,
+    identityAddress: string,
+    country: number = 360 // Indonesia country code
+  ): Promise<void> {
+    this.logger.log(
+      `Registering identity on blockchain for address: ${userAddress}`
+    );
+
+    try {
+      // Call blockchain service to register identity
+      // Note: Using existing method name from RealBlockchainService
+      const transaction = await this.blockchainService.deployContract(
+        {
+          projectId: `identity-${userAddress}`,
+          contractType: 'identity',
+          parameters: [userAddress, identityAddress, country],
+        },
+        userAddress
+      );
+
+      // Update local identity record with blockchain transaction
+      await this.updateIdentityBlockchainInfo(userAddress, {
+        blockchainTransactionHash: transaction.transactionHash,
+        blockchainStatus: 'pending',
+        blockchainRegisteredAt: new Date(),
+      });
+
+      this.logger.log(
+        `Identity registration transaction submitted: ${transaction.transactionHash}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to register identity on blockchain: ${error.message}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Check if identity is verified on blockchain
+   */
+  async isIdentityVerifiedOnChain(userAddress: string): Promise<boolean> {
+    try {
+      // Use existing method from RealBlockchainService
+      return await this.blockchainService.isInvestorVerified(userAddress);
+    } catch (error) {
+      this.logger.error(
+        `Error checking blockchain identity verification: ${error.message}`
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Get identity address from blockchain
+   */
+  async getIdentityAddressFromChain(
+    userAddress: string
+  ): Promise<string | null> {
+    try {
+      // For now, return mock identity address as this method isn't implemented yet
+      this.logger.warn(
+        'getUserIdentity not implemented - returning mock address'
+      );
+      return `identity-${userAddress}`;
+    } catch (error) {
+      this.logger.error(
+        `Error getting identity address from blockchain: ${error.message}`
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Update identity with blockchain information
+   */
+  async updateIdentityBlockchainInfo(
+    userAddress: string,
+    blockchainInfo: {
+      blockchainTransactionHash?: string;
+      blockchainStatus?: 'pending' | 'confirmed' | 'failed';
+      blockchainRegisteredAt?: Date;
+    }
+  ): Promise<void> {
+    await this.firebaseService.updateDocument(
+      this.COLLECTION_NAME,
+      userAddress,
+      {
+        ...blockchainInfo,
+        lastUpdated: new Date(),
+      }
+    );
+
+    // Invalidate cache
+    await this.invalidateIdentityCache(userAddress);
   }
 
   async getIdentity(userAddress: string): Promise<IdentityRegistry | null> {
@@ -437,12 +542,12 @@ export class IdentityService {
     operation: string,
     userAddress: string,
     operatorId?: string,
-    metadata?: any
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     try {
       const auditLog: Omit<IdentityAuditLog, 'id'> = {
         timestamp: new Date(),
-        operation: operation as any,
+        operation: operation as IdentityAuditLog['operation'],
         identityId: userAddress,
         operatorId: operatorId || 'system',
         changes: metadata || {},

@@ -4,7 +4,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { appConfig, firebaseConfig, jwtConfig, web3authConfig } from './config';
+import {
+  appConfig,
+  firebaseConfig,
+  jwtConfig,
+  web3authConfig,
+  blockchainConfig,
+} from './config';
 import { CommonModule } from './common/common.module';
 import { SecurityModule } from './common/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -44,7 +50,13 @@ import { MonitoringService } from './common/services/monitoring.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [appConfig, firebaseConfig, jwtConfig, web3authConfig],
+      load: [
+        appConfig,
+        firebaseConfig,
+        jwtConfig,
+        web3authConfig,
+        blockchainConfig,
+      ],
     }),
 
     // Rate limiting

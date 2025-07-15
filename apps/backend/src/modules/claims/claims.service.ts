@@ -4,11 +4,13 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
 import { FirebaseService } from '../../common/services/firebase.service';
 import { CacheService } from '../../common/services/cache.service';
 import { UsersService } from '../users/users.service';
 import { RealtimeService } from '../realtime/realtime.service';
+import { RealBlockchainService } from '../blockchain/real-blockchain.service';
 import {
   Claim,
   ClaimStatus,
@@ -32,7 +34,9 @@ export class ClaimsService {
     private firebaseService: FirebaseService,
     private cacheService: CacheService,
     private usersService: UsersService,
-    private realtimeService: RealtimeService
+    private realtimeService: RealtimeService,
+    @Inject('BLOCKCHAIN_SERVICE')
+    private blockchainService: RealBlockchainService
   ) {}
 
   async issueClaim(
@@ -432,6 +436,159 @@ export class ClaimsService {
       expiresAt: claim.expiresAt,
       status: claim.status,
     };
+  }
+
+  /**
+   * Issue claim on blockchain (new method)
+   */
+  async issueClaimOnChain(
+    _identityAddress: string,
+    _claimTopic: ClaimTopic,
+    _scheme: number,
+    _issuerAddress: string,
+    _signature: string,
+    _data: string,
+    _uri: string
+  ): Promise<void> {
+    this.logger.log(
+      `Issuing claim on blockchain for identity: ${_identityAddress}`
+    );
+
+    try {
+      // Note: This would require a Claims Registry contract with addClaim method
+      // For now, we'll add this as a placeholder for when the contract is available
+      this.logger.warn(
+        'Blockchain claim issuance not yet implemented - contract integration needed'
+      );
+
+      // TODO: Implement when Claims Registry contract is available
+      // const transaction = await this.blockchainService.addClaim(
+      //   identityAddress,
+      //   claimTopic,
+      //   scheme,
+      //   issuerAddress,
+      //   signature,
+      //   data,
+      //   uri
+      // );
+
+      // this.logger.log(`Claim issuance transaction submitted: ${transaction.hash}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to issue claim on blockchain: ${error.message}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Verify claim on blockchain (new method)
+   */
+  async verifyClaimOnChain(
+    _identityAddress: string,
+    _claimTopic: ClaimTopic
+  ): Promise<boolean> {
+    try {
+      // Note: This would require a Claims Registry contract with claimExists method
+      // For now, we'll add this as a placeholder for when the contract is available
+      this.logger.warn(
+        'Blockchain claim verification not yet implemented - contract integration needed'
+      );
+
+      // TODO: Implement when Claims Registry contract is available
+      // return await this.blockchainService.claimExists(identityAddress, claimTopic);
+
+      return false; // Default to false until implemented
+    } catch (error) {
+      this.logger.error(
+        `Error verifying claim on blockchain: ${error.message}`
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Revoke claim on blockchain (new method)
+   */
+  async revokeClaimOnChain(
+    _identityAddress: string,
+    _claimTopic: ClaimTopic
+  ): Promise<void> {
+    this.logger.log(
+      `Revoking claim on blockchain for identity: ${_identityAddress}`
+    );
+
+    try {
+      // Note: This would require a Claims Registry contract with removeClaim method
+      // For now, we'll add this as a placeholder for when the contract is available
+      this.logger.warn(
+        'Blockchain claim revocation not yet implemented - contract integration needed'
+      );
+
+      // TODO: Implement when Claims Registry contract is available
+      // const transaction = await this.blockchainService.removeClaim(
+      //   identityAddress,
+      //   claimTopic
+      // );
+
+      // this.logger.log(`Claim revocation transaction submitted: ${transaction.hash}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to revoke claim on blockchain: ${error.message}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get claim details from blockchain (new method)
+   */
+  async getClaimFromChain(
+    _identityAddress: string,
+    _claimTopic: ClaimTopic
+  ): Promise<{
+    claimType: number;
+    issuer: string;
+    signature: string;
+    data: string;
+    uri: string;
+  } | null> {
+    try {
+      // Note: This would require a Claims Registry contract with getClaim method
+      // For now, we'll add this as a placeholder for when the contract is available
+      this.logger.warn(
+        'Blockchain claim retrieval not yet implemented - contract integration needed'
+      );
+
+      // TODO: Implement when Claims Registry contract is available
+      // return await this.blockchainService.getClaim(identityAddress, claimTopic);
+
+      return null; // Default to null until implemented
+    } catch (error) {
+      this.logger.error(
+        `Error getting claim from blockchain: ${error.message}`
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Synchronize claim with blockchain state (new method)
+   */
+  async syncClaimWithBlockchain(claimId: string): Promise<void> {
+    const claim = await this.getClaim(claimId);
+    if (!claim) {
+      throw new NotFoundException(`Claim not found: ${claimId}`);
+    }
+
+    // For now, just log the sync attempt
+    this.logger.log(`Syncing claim ${claimId} with blockchain state`);
+
+    // TODO: Implement when Claims Registry contract is available
+    // 1. Get claim from blockchain
+    // 2. Compare with local state
+    // 3. Update local state if needed
+    // 4. Update cache
   }
 
   // Private helper methods
