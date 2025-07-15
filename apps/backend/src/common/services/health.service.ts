@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from './firebase.service';
-import Redis from 'ioredis';
 import { JsonRpcProvider } from 'ethers';
 
 export interface HealthCheck {
@@ -12,7 +11,6 @@ export interface HealthCheck {
   environment: string;
   services: {
     database: ServiceHealth;
-    redis: ServiceHealth;
     blockchain: ServiceHealth;
     external: {
       kyc: ServiceHealth;
@@ -38,7 +36,6 @@ interface ServiceHealth {
 
 @Injectable()
 export class HealthService {
-  private redis: Redis;
   private blockchain: JsonRpcProvider;
   private requestCount: number = 0;
   private lastRequestReset: Date = new Date();
@@ -52,16 +49,6 @@ export class HealthService {
   }
 
   private initializeServices(): void {
-    // Initialize Redis connection
-    this.redis = new Redis({
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASSWORD') || undefined,
-      maxRetriesPerRequest: 1,
-      connectTimeout: 5000,
-      lazyConnect: true,
-    });
-
     // Initialize blockchain connection
     const rpcUrl = this.configService.get<string>('ARBITRUM_SEPOLIA_RPC_URL');
     if (rpcUrl) {
@@ -83,10 +70,9 @@ export class HealthService {
 
   async getHealthStatus(): Promise<HealthCheck> {
     // Check all services concurrently
-    const [databaseHealth, redisHealth, blockchainHealth, externalHealth] =
+    const [databaseHealth, blockchainHealth, externalHealth] =
       await Promise.all([
         this.checkDatabaseHealth(),
-        this.checkRedisHealth(),
         this.checkBlockchainHealth(),
         this.checkExternalServicesHealth(),
       ]);
@@ -96,7 +82,6 @@ export class HealthService {
     // Determine overall status
     const allServices = [
       databaseHealth,
-      redisHealth,
       blockchainHealth,
       externalHealth.kyc,
       externalHealth.payments,
@@ -113,7 +98,6 @@ export class HealthService {
       environment: this.configService.get<string>('NODE_ENV', 'development'),
       services: {
         database: databaseHealth,
-        redis: redisHealth,
         blockchain: blockchainHealth,
         external: externalHealth,
       },
@@ -147,31 +131,6 @@ export class HealthService {
           type: 'firebase',
           projectId: this.configService.get<string>('FIREBASE_PROJECT_ID'),
         },
-      };
-    }
-  }
-
-  private async checkRedisHealth(): Promise<ServiceHealth> {
-    const startTime = Date.now();
-
-    try {
-      await this.redis.ping();
-
-      return {
-        status: 'healthy',
-        responseTime: Date.now() - startTime,
-        lastCheck: new Date(),
-        metadata: {
-          host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-          port: this.configService.get<number>('REDIS_PORT', 6379),
-        },
-      };
-    } catch (error) {
-      return {
-        status: 'unhealthy',
-        responseTime: Date.now() - startTime,
-        lastCheck: new Date(),
-        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -269,6 +228,6 @@ export class HealthService {
   }
 
   async onApplicationShutdown(): Promise<void> {
-    await this.redis.quit();
+    // No cleanup needed for in-memory cache
   }
 }

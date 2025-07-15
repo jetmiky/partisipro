@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  # Redis for caching and session management
-  redis:
-    image: redis:7-alpine
-    container_name: partisipro-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - partisipro-network
-
   # PostgreSQL for additional data storage (if needed)
   postgres:
     image: postgres:15-alpine
@@ -66,11 +49,8 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - REDIS_HOST=redis
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/partisipro_dev
     depends_on:
-      redis:
-        condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
@@ -96,7 +76,6 @@ services:
       - partisipro-network
 
 volumes:
-  redis_data:
   postgres_data:
 
 networks:

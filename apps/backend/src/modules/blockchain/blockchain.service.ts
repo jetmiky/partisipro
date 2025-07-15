@@ -6,7 +6,10 @@ import {
   GenerateSignatureDto,
   SubmitTransactionDto,
 } from './dto';
-import { ethers } from 'ethers';
+import {
+  // ethers,
+  solidityPackedKeccak256,
+} from 'ethers';
 import * as crypto from 'crypto';
 
 export interface BlockchainTransaction {
@@ -131,7 +134,7 @@ export class BlockchainService {
     // TODO: Replace with actual signature generation using platform private key
     // For now, we'll create a mock signature
 
-    const message = ethers.solidityPackedKeccak256(
+    const message = solidityPackedKeccak256(
       ['address', 'uint256', 'string', 'uint256', 'string'],
       [
         generateSignatureDto.investorAddress,

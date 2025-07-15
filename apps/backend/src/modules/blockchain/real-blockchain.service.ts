@@ -6,7 +6,15 @@ import {
   GenerateSignatureDto,
   SubmitTransactionDto,
 } from './dto';
-import { ethers } from 'ethers';
+import {
+  // ethers,
+  JsonRpcProvider,
+  Wallet,
+  Contract,
+  parseEther,
+  solidityPackedKeccak256,
+  getBytes,
+} from 'ethers';
 import {
   BlockchainTransaction,
   ContractDeployment,
@@ -70,8 +78,8 @@ export class RealBlockchainService {
   private readonly CONTRACTS_COLLECTION = 'deployed_contracts';
   private readonly EVENTS_COLLECTION = 'blockchain_events';
 
-  private provider: ethers.JsonRpcProvider;
-  private wallet: ethers.Wallet;
+  private provider: JsonRpcProvider;
+  private wallet: Wallet;
   private chainId: number;
 
   // Contract addresses on Arbitrum Sepolia
@@ -110,12 +118,12 @@ export class RealBlockchainService {
   };
 
   // Contract instances
-  private platformRegistry: ethers.Contract;
-  private platformTreasury: ethers.Contract;
-  private projectFactory: ethers.Contract;
-  private identityRegistry: ethers.Contract;
-  private claimTopicsRegistry: ethers.Contract;
-  private trustedIssuersRegistry: ethers.Contract;
+  private platformRegistry: Contract;
+  private platformTreasury: Contract;
+  private projectFactory: Contract;
+  private identityRegistry: Contract;
+  private claimTopicsRegistry: Contract;
+  private trustedIssuersRegistry: Contract;
 
   constructor(
     private configService: ConfigService,
@@ -133,7 +141,7 @@ export class RealBlockchainService {
       const rpcUrl =
         this.configService.get<string>('BLOCKCHAIN_RPC_URL') ||
         'https://sepolia-rollup.arbitrum.io/rpc';
-      this.provider = new ethers.JsonRpcProvider(rpcUrl);
+      this.provider = new JsonRpcProvider(rpcUrl);
 
       // Initialize wallet
       const privateKey = this.configService.get<string>(
@@ -143,7 +151,7 @@ export class RealBlockchainService {
         this.logger.warn('No private key configured - read-only mode');
         this.wallet = null;
       } else {
-        this.wallet = new ethers.Wallet(privateKey, this.provider);
+        this.wallet = new Wallet(privateKey, this.provider);
       }
 
       // Get chain ID
@@ -171,38 +179,38 @@ export class RealBlockchainService {
   private async initializeContracts(): Promise<void> {
     try {
       // Core infrastructure contracts
-      this.platformRegistry = new ethers.Contract(
+      this.platformRegistry = new Contract(
         this.CONTRACT_ADDRESSES.PLATFORM_REGISTRY,
         CONTRACT_ABIS.PlatformRegistry,
         this.wallet || this.provider
       );
 
-      this.platformTreasury = new ethers.Contract(
+      this.platformTreasury = new Contract(
         this.CONTRACT_ADDRESSES.PLATFORM_TREASURY,
         CONTRACT_ABIS.PlatformTreasury,
         this.wallet || this.provider
       );
 
-      this.projectFactory = new ethers.Contract(
+      this.projectFactory = new Contract(
         this.CONTRACT_ADDRESSES.PROJECT_FACTORY,
         CONTRACT_ABIS.ProjectFactory,
         this.wallet || this.provider
       );
 
       // ERC-3643 compliance contracts
-      this.identityRegistry = new ethers.Contract(
+      this.identityRegistry = new Contract(
         this.CONTRACT_ADDRESSES.IDENTITY_REGISTRY,
         CONTRACT_ABIS.IdentityRegistry,
         this.wallet || this.provider
       );
 
-      this.claimTopicsRegistry = new ethers.Contract(
+      this.claimTopicsRegistry = new Contract(
         this.CONTRACT_ADDRESSES.CLAIM_TOPICS_REGISTRY,
         CONTRACT_ABIS.ClaimTopicsRegistry,
         this.wallet || this.provider
       );
 
-      this.trustedIssuersRegistry = new ethers.Contract(
+      this.trustedIssuersRegistry = new Contract(
         this.CONTRACT_ADDRESSES.TRUSTED_ISSUERS_REGISTRY,
         CONTRACT_ABIS.TrustedIssuersRegistry,
         this.wallet || this.provider
@@ -336,7 +344,7 @@ export class RealBlockchainService {
       const projectParams = {
         name: name as string,
         symbol: symbol as string,
-        totalSupply: ethers.parseEther(totalSupply.toString()),
+        totalSupply: parseEther(totalSupply.toString()),
         // Add other parameters as needed
       };
 
@@ -418,7 +426,7 @@ export class RealBlockchainService {
 
     try {
       // Create message hash for signature
-      const messageHash = ethers.solidityPackedKeccak256(
+      const messageHash = solidityPackedKeccak256(
         ['address', 'uint256', 'string', 'uint256', 'string'],
         [
           generateSignatureDto.investorAddress,
@@ -430,9 +438,7 @@ export class RealBlockchainService {
       );
 
       // Sign the message
-      const signature = await this.wallet.signMessage(
-        ethers.getBytes(messageHash)
-      );
+      const signature = await this.wallet.signMessage(getBytes(messageHash));
 
       this.logger.log(
         `Authorization signature generated for project: ${generateSignatureDto.projectId}`

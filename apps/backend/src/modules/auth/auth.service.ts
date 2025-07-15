@@ -2,9 +2,10 @@ import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
-import { User, UserRole } from '../../common/types';
+import { User, UserRole, KYCStatus } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
 import { Web3AuthService } from './web3auth.service';
+import { FirebaseAuthService } from '../../common/services/firebase-auth.service';
 
 export interface JwtPayload {
   sub: string;
@@ -20,6 +21,8 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+  firebaseToken?: string;
+  customClaims?: any;
 }
 
 @Injectable()
@@ -30,7 +33,8 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private usersService: UsersService,
-    private web3AuthService: Web3AuthService
+    private web3AuthService: Web3AuthService,
+    private firebaseAuthService: FirebaseAuthService
   ) {}
 
   async authenticateWithWeb3Auth(loginDto: LoginDto): Promise<AuthResponse> {
@@ -51,12 +55,34 @@ export class AuthService {
       const accessToken = await this.generateAccessToken(user);
       const refreshToken = await this.generateRefreshToken(user.id);
 
+      // Firebase Auth integration
+      let firebaseToken: string | undefined;
+      let customClaims: any;
+
+      try {
+        const firebaseResult =
+          await this.firebaseAuthService.authenticateWithWeb3Auth(
+            loginDto.idToken
+          );
+        firebaseToken = firebaseResult.firebaseToken;
+        customClaims = firebaseResult.customClaims;
+
+        this.logger.log(`Firebase authentication successful: ${user.email}`);
+      } catch (firebaseError) {
+        this.logger.warn(
+          'Firebase authentication failed, continuing with JWT only',
+          firebaseError
+        );
+      }
+
       this.logger.log(`User authenticated successfully: ${user.email}`);
 
       return {
         user,
         accessToken,
         refreshToken,
+        firebaseToken,
+        customClaims,
       };
     } catch (error) {
       this.logger.error('Authentication failed', error);
@@ -93,6 +119,35 @@ export class AuthService {
     // In a production environment, you might want to blacklist the tokens
     // For now, we'll just log the logout
     this.logger.log(`User logged out: ${userId}`);
+  }
+
+  async updateIdentityVerification(
+    userId: string,
+    verified: boolean,
+    kycApproved: boolean
+  ): Promise<void> {
+    try {
+      // Update Firebase Auth custom claims
+      await this.firebaseAuthService.updateIdentityVerification(
+        userId,
+        verified,
+        kycApproved
+      );
+
+      // Update user KYC status in Firestore
+      await this.usersService.updateKYCStatus(
+        userId,
+        kycApproved ? KYCStatus.APPROVED : KYCStatus.PENDING
+      );
+
+      this.logger.log(`Identity verification updated for user: ${userId}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to update identity verification for user: ${userId}`,
+        error
+      );
+      throw error;
+    }
   }
 
   async validateUser(payload: JwtPayload): Promise<User> {

@@ -319,7 +319,6 @@ export class MonitoringService {
       'ECONNREFUSED',
       'ETIMEDOUT',
       'Firebase',
-      'Redis',
       'Database',
       'Payment',
       'KYC',
@@ -564,11 +563,11 @@ export class MonitoringService {
     // Cache recommendations
     if (!cacheHealth.healthy) {
       recommendations.push(
-        'Cache service is unhealthy. Check Redis connection and configuration.'
+        'Cache service is unhealthy. Check in-memory cache configuration.'
       );
     } else if (cacheHealth.latency > 100) {
       recommendations.push(
-        'Cache latency is high. Consider optimizing Redis configuration or network connectivity.'
+        'Cache latency is high. Consider optimizing in-memory cache configuration.'
       );
     }
 

@@ -5,6 +5,7 @@ import { UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthService, JwtPayload } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { Web3AuthService } from './web3auth.service';
+import { FirebaseAuthService } from '../../common/services/firebase-auth.service';
 import { User, UserRole, KYCStatus } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
 
@@ -14,6 +15,7 @@ describe('AuthService', () => {
   let configService: ConfigService;
   let usersService: UsersService;
   let web3AuthService: Web3AuthService;
+  // let firebaseAuthService: FirebaseAuthService;
 
   // Mock data
   const mockUser: User = {
@@ -123,6 +125,15 @@ describe('AuthService', () => {
             verifyIdToken: jest.fn(),
           },
         },
+        {
+          provide: FirebaseAuthService,
+          useValue: {
+            authenticateWithWeb3Auth: jest.fn(),
+            updateIdentityVerification: jest.fn(),
+            updateCustomClaims: jest.fn(),
+            healthCheck: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -131,6 +142,7 @@ describe('AuthService', () => {
     configService = module.get<ConfigService>(ConfigService);
     usersService = module.get<UsersService>(UsersService);
     web3AuthService = module.get<Web3AuthService>(Web3AuthService);
+    // firebaseAuthService = module.get<FirebaseAuthService>(FirebaseAuthService);
 
     // Mock environment
     process.env.NODE_ENV = 'development';

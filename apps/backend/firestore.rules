@@ -1,8 +1,11 @@
+// Firestore Security Rules for Partisipro Platform
+// ERC-3643 Enhanced Identity-Centric Compliance Model
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // Helper functions for authentication and authorization
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -11,88 +14,372 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
     
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
     function isAdmin() {
-      return request.auth.token.role == 'admin';
+      return isAuthenticated() && getUserRole() == 'admin';
     }
     
     function isSPV() {
-      return request.auth.token.role == 'spv';
+      return isAuthenticated() && getUserRole() == 'spv';
+    }
+    
+    function isInvestor() {
+      return isAuthenticated() && getUserRole() == 'investor';
+    }
+    
+    function isVerifiedUser() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.identity.verified == true;
     }
     
     function isKYCApproved() {
-      return request.auth.token.kycStatus == 'approved';
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.identity.kycStatus == 'approved';
     }
     
-    // Users collection
+    function isAuthorizedSPV(spvAddress) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.walletAddress == spvAddress;
+    }
+    
+    function isProjectOwner(projectId) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/projects/$(projectId)).data.createdBy == request.auth.uid;
+    }
+    
+    function isValidTimestamp(timestamp) {
+      return timestamp is timestamp;
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches('.*@.*\\..*');
+    }
+    
+    function isValidRole(role) {
+      return role in ['investor', 'spv', 'admin'];
+    }
+    
+    function isValidKYCStatus(status) {
+      return status in ['pending', 'approved', 'rejected', 'expired'];
+    }
+    
+    function isValidProjectStatus(status) {
+      return status in ['draft', 'submitted', 'approved', 'active', 'completed', 'cancelled'];
+    }
+    
+    function isValidInvestmentStatus(status) {
+      return status in ['pending', 'confirmed', 'cancelled', 'refunded'];
+    }
+    
+    function isValidPaymentStatus(status) {
+      return status in ['pending', 'completed', 'failed', 'refunded'];
+    }
+    
+    function isValidProposalStatus(status) {
+      return status in ['draft', 'active', 'passed', 'rejected', 'executed', 'cancelled'];
+    }
+    
+    function isValidClaimStatus(status) {
+      return status in ['pending', 'approved', 'paid', 'cancelled'];
+    }
+    
+    function isValidVoteChoice(choice) {
+      return choice in ['yes', 'no', 'abstain'];
+    }
+    
+    // USER MANAGEMENT
     match /users/{userId} {
-      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow write: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow create: if isAuthenticated();
+      // Users can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile during registration
+      allow create: if isOwner(userId) && 
+                       isValidEmail(request.resource.data.email) &&
+                       isValidRole(request.resource.data.role) &&
+                       isValidTimestamp(request.resource.data.createdAt) &&
+                       request.resource.data.createdBy == request.auth.uid;
+      
+      // Users can update their own profile (except role and verification status)
+      allow update: if isOwner(userId) && 
+                       // Cannot change role or verification status
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.identity.verified == resource.data.identity.verified &&
+                       // Can only update allowed fields
+                       request.resource.data.keys().hasAll(['updatedAt', 'updatedBy']) &&
+                       request.resource.data.updatedBy == request.auth.uid;
+      
+      // Only admins can delete users
+      allow delete: if isAdmin();
+      
+      // Admin-only operations for user management
+      allow update: if isAdmin() && 
+                       isValidRole(request.resource.data.role) &&
+                       isValidKYCStatus(request.resource.data.identity.kycStatus);
+      
+      // User subcollections security
+      match /investments/{investmentId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      
+      match /claims/{claimId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      
+      match /votes/{voteId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      
+      match /sessions/{sessionId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
     }
     
-    // Projects collection
+    // ERC-3643 IDENTITY CLAIMS
+    match /claims/{claimId} {
+      // Users can read their own claims, admins can read all
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Only trusted issuers and admins can create claims
+      allow create: if isAdmin() && 
+                       isValidTimestamp(request.resource.data.issuedAt) &&
+                       request.resource.data.claimType is number &&
+                       request.resource.data.claimValue is bool;
+      
+      // Only admins can update claims
+      allow update: if isAdmin();
+      
+      // Only admins can delete claims
+      allow delete: if isAdmin();
+    }
+    
+    // TRUSTED ISSUERS REGISTRY
+    match /trusted_issuers/{issuerId} {
+      // Public read access for verification
+      allow read: if isAuthenticated();
+      
+      // Only admins can manage trusted issuers
+      allow create, update, delete: if isAdmin() &&
+                                       request.resource.data.name is string &&
+                                       request.resource.data.address is string &&
+                                       request.resource.data.isActive is bool;
+    }
+    
+    // PROJECT MANAGEMENT
     match /projects/{projectId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && (isSPV() || isAdmin()) && isKYCApproved();
-      allow update: if isAuthenticated() && (resource.data.spvId == request.auth.uid || isAdmin());
+      // Public read access for approved projects
+      allow read: if resource.data.status in ['approved', 'active', 'completed'] ||
+                     isProjectOwner(projectId) || 
+                     isAdmin();
+      
+      // Only authorized SPVs can create projects
+      allow create: if isSPV() && 
+                       isValidProjectStatus(request.resource.data.status) &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidTimestamp(request.resource.data.createdAt);
+      
+      // Project owners can update their own projects (before approval)
+      allow update: if (isProjectOwner(projectId) && resource.data.status in ['draft', 'submitted']) ||
+                       isAdmin();
+      
+      // Only admins can delete projects
       allow delete: if isAdmin();
+      
+      // Project subcollections
+      match /investments/{investmentId} {
+        allow read: if isAuthenticated();
+        allow write: if isAdmin();
+      }
+      
+      match /distributions/{distributionId} {
+        allow read: if isAuthenticated();
+        allow write: if isProjectOwner(projectId) || isAdmin();
+      }
+      
+      match /proposals/{proposalId} {
+        allow read: if isAuthenticated();
+        allow write: if isVerifiedUser() || isAdmin();
+      }
+      
+      match /updates/{updateId} {
+        allow read: if isAuthenticated();
+        allow write: if isProjectOwner(projectId) || isAdmin();
+      }
     }
     
-    // Investments collection
+    // INVESTMENT MANAGEMENT
     match /investments/{investmentId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated() && isKYCApproved();
-      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      // Users can read their own investments, SPVs can read project investments, admins can read all
+      allow read: if isOwner(resource.data.userId) || 
+                     isProjectOwner(resource.data.projectId) || 
+                     isAdmin();
+      
+      // Only verified investors can create investments
+      allow create: if isVerifiedUser() && 
+                       isKYCApproved() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidInvestmentStatus(request.resource.data.status) &&
+                       isValidPaymentStatus(request.resource.data.investment.paymentStatus) &&
+                       isValidTimestamp(request.resource.data.createdAt);
+      
+      // Investment owners and admins can update
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Only admins can delete investments
       allow delete: if isAdmin();
     }
     
-    // Profit distributions collection
+    // PROFIT DISTRIBUTION
     match /profit_distributions/{distributionId} {
+      // Public read access for transparency
       allow read: if isAuthenticated();
+      
+      // Only project owners and admins can create distributions
+      allow create: if (isProjectOwner(request.resource.data.projectId) || isAdmin()) &&
+                       isValidTimestamp(request.resource.data.createdAt);
+      
+      // Only project owners and admins can update
+      allow update: if isProjectOwner(resource.data.projectId) || isAdmin();
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // PROFIT CLAIMS
+    match /profit_claims/{claimId} {
+      // Users can read their own claims, project owners can read project claims, admins can read all
+      allow read: if isOwner(resource.data.userId) || 
+                     isProjectOwner(resource.data.projectId) || 
+                     isAdmin();
+      
+      // Only verified users can create claims
+      allow create: if isVerifiedUser() &&
+                       isKYCApproved() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidClaimStatus(request.resource.data.status) &&
+                       isValidTimestamp(request.resource.data.claimedAt);
+      
+      // Claim owners and admins can update
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // GOVERNANCE PROPOSALS
+    match /governance_proposals/{proposalId} {
+      // Public read access for transparency
+      allow read: if isAuthenticated();
+      
+      // Only verified token holders can create proposals
+      allow create: if isVerifiedUser() && 
+                       isKYCApproved() &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidProposalStatus(request.resource.data.status) &&
+                       isValidTimestamp(request.resource.data.createdAt);
+      
+      // Proposal creators and admins can update
+      allow update: if isOwner(resource.data.createdBy) || isAdmin();
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // VOTES
+    match /votes/{voteId} {
+      // Users can read their own votes, public can read vote counts
+      allow read: if isAuthenticated();
+      
+      // Only verified token holders can vote
+      allow create: if isVerifiedUser() && 
+                       isKYCApproved() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidVoteChoice(request.resource.data.vote.choice) &&
+                       isValidTimestamp(request.resource.data.votedAt);
+      
+      // Vote owners and admins can update
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ANALYTICS (Read-only for most users, write for system)
+    match /analytics/{analyticsId} {
+      // Authenticated users can read analytics
+      allow read: if isAuthenticated();
+      
+      // Only admins can write analytics
       allow write: if isAdmin();
     }
     
-    // Profit claims collection
-    match /profit_claims/{claimId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
-    }
-    
-    // Transactions collection
-    match /transactions/{transactionId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // Notifications collection
-    match /notifications/{notificationId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAdmin();
-      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-    }
-    
-    // Governance proposals collection
-    match /governance_proposals/{proposalId} {
+    // SYSTEM CONFIGURATION
+    match /system_config/{configId} {
+      // Authenticated users can read system config
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isKYCApproved();
-      allow update: if isAuthenticated() && (resource.data.proposerId == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
+      
+      // Only admins can update system configuration
+      allow write: if isAdmin() &&
+                      isValidTimestamp(request.resource.data.updatedAt) &&
+                      request.resource.data.updatedBy == request.auth.uid;
     }
     
-    // System configuration collection (Admin only)
-    match /system_configuration/{configId} {
+    // AUDIT LOGS (Admin only)
+    match /audit_logs/{logId} {
       allow read, write: if isAdmin();
     }
     
-    // Audit logs collection (Admin only)
-    match /audit_logs/{logId} {
-      allow read: if isAdmin();
-      allow write: if false; // Only server can write to audit logs
+    // NOTIFICATIONS
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      
+      // System and admins can create notifications
+      allow create: if isAdmin();
+      
+      // Users can update their own notifications (mark as read)
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Only admins can delete notifications
+      allow delete: if isAdmin();
+    }
+    
+    // SESSIONS (User management)
+    match /sessions/{sessionId} {
+      allow read, write: if isOwner(resource.data.userId) || isAdmin();
+    }
+    
+    // SECURITY EVENTS (Admin only)
+    match /security_events/{eventId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // FILE METADATA (For Firebase Storage integration)
+    match /file_metadata/{fileId} {
+      // Users can read their own file metadata
+      allow read: if isOwner(resource.data.uploadedBy) || isAdmin();
+      
+      // Users can create their own file metadata
+      allow create: if isAuthenticated() && 
+                       request.resource.data.uploadedBy == request.auth.uid &&
+                       isValidTimestamp(request.resource.data.uploadedAt);
+      
+      // File owners and admins can update
+      allow update: if isOwner(resource.data.uploadedBy) || isAdmin();
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // DEFAULT DENY ALL OTHER COLLECTIONS
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -1,6 +1,7 @@
 {
   "projects": {
-    "dev": "partisipro-1b447"
+    "dev": "partisipro-1b447",
+    "default": "partisipro-1b447"
   },
   "targets": {},
   "etags": {}

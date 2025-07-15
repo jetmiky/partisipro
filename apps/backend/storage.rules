@@ -1,0 +1,162 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for Partisipro Platform
+// These rules control access to files stored in Firebase Storage
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user has specific role
+    function hasRole(role) {
+      return request.auth.token.role == role;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    // Helper function to check if user is SPV
+    function isSPV() {
+      return hasRole('spv');
+    }
+    
+    // Helper function to check if user is investor
+    function isInvestor() {
+      return hasRole('investor');
+    }
+    
+    // Helper function to check if user owns the file
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to check if user is verified
+    function isVerified() {
+      return request.auth.token.identity_verified == true;
+    }
+    
+    // Helper function to check file size (max 10MB)
+    function isValidFileSize() {
+      return request.resource.size <= 10 * 1024 * 1024; // 10MB
+    }
+    
+    // Helper function to check if file type is allowed
+    function isAllowedFileType() {
+      return request.resource.contentType in [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/csv'
+      ];
+    }
+    
+    // User documents - users can only access their own files
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow read: if isAuthenticated() && isAdmin(); // Admins can read all user files
+    }
+    
+    // KYC documents - special handling for identity verification
+    match /users/{userId}/kyc-documents/{fileName} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow read: if isAuthenticated() && isAdmin(); // Admins can read KYC documents
+      allow read: if isAuthenticated() && hasRole('kyc_reviewer'); // KYC reviewers can read
+    }
+    
+    // Identity verification documents
+    match /users/{userId}/identity-verification/{fileName} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow read: if isAuthenticated() && isAdmin(); // Admins can read identity documents
+      allow read: if isAuthenticated() && hasRole('identity_reviewer'); // Identity reviewers can read
+    }
+    
+    // Profile assets - more relaxed access
+    match /users/{userId}/profile-assets/{fileName} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow read: if isAuthenticated(); // All authenticated users can read profile assets
+    }
+    
+    // Project documents - access based on project involvement
+    match /projects/{projectId}/{allPaths=**} {
+      allow read: if isAuthenticated() && (isAdmin() || isVerified()); // Verified users can read project documents
+      allow write: if isAuthenticated() && (isAdmin() || (isSPV() && isVerified())); // Only admins and verified SPVs can write
+      allow read, write: if isAuthenticated() && isAdmin(); // Admins have full access
+    }
+    
+    // Project legal documents - restricted access
+    match /projects/{projectId}/legal-documents/{fileName} {
+      allow read: if isAuthenticated() && (isAdmin() || isVerified()); // Verified users can read
+      allow write: if isAuthenticated() && (isAdmin() || (isSPV() && isVerified())); // Only admins and verified SPVs can write
+    }
+    
+    // Project financial reports - restricted access
+    match /projects/{projectId}/financial-reports/{fileName} {
+      allow read: if isAuthenticated() && (isAdmin() || isVerified()); // Verified users can read
+      allow write: if isAuthenticated() && (isAdmin() || (isSPV() && isVerified())); // Only admins and verified SPVs can write
+    }
+    
+    // Project marketing assets - public read access
+    match /projects/{projectId}/marketing-assets/{fileName} {
+      allow read: if true; // Public read access for marketing materials
+      allow write: if isAuthenticated() && (isAdmin() || (isSPV() && isVerified())); // Only admins and verified SPVs can write
+    }
+    
+    // Platform system assets - admin only
+    match /platform/{allPaths=**} {
+      allow read, write: if isAuthenticated() && isAdmin();
+    }
+    
+    // Platform system assets - public read for certain files
+    match /platform/system-assets/{fileName} {
+      allow read: if true; // Public read access for system assets like logos, icons
+      allow write: if isAuthenticated() && isAdmin(); // Only admins can write
+    }
+    
+    // Platform templates - authenticated users can read
+    match /platform/templates/{fileName} {
+      allow read: if isAuthenticated(); // All authenticated users can read templates
+      allow write: if isAuthenticated() && isAdmin(); // Only admins can write
+    }
+    
+    // Platform compliance documents - verified users can read
+    match /platform/compliance-docs/{fileName} {
+      allow read: if isAuthenticated() && isVerified(); // Verified users can read compliance docs
+      allow write: if isAuthenticated() && isAdmin(); // Only admins can write
+    }
+    
+    // Temporary upload directory - user-specific access
+    match /temp/uploads/{userId}/{fileName} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow delete: if isAuthenticated() && isOwner(userId); // Users can delete their temp files
+    }
+    
+    // Temporary upload directory - admin cleanup
+    match /temp/{allPaths=**} {
+      allow read, write, delete: if isAuthenticated() && isAdmin(); // Admins can clean up temp files
+    }
+    
+    // Miscellaneous files - user-specific access
+    match /misc/{userId}/{fileName} {
+      allow read, write: if isAuthenticated() && isOwner(userId) && isValidFileSize() && isAllowedFileType();
+      allow read: if isAuthenticated() && isAdmin(); // Admins can read misc files
+    }
+    
+    // Default deny rule - everything else is denied
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

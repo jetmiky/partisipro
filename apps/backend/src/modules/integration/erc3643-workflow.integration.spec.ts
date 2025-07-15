@@ -23,7 +23,7 @@ import {
 import { ProposalType } from '../governance/dto/create-proposal.dto';
 import { VoteOption } from '../governance/dto/vote-proposal.dto';
 
-describe.skip('ERC-3643 Workflow Integration Tests', () => {
+describe('ERC-3643 Workflow Integration Tests', () => {
   let app: INestApplication;
   let authService: AuthService;
   let usersService: UsersService;

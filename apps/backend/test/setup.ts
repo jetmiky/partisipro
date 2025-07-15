@@ -6,10 +6,17 @@ import * as request from 'supertest';
 const mockFirestoreData = new Map<string, Map<string, any>>();
 
 // Mock Firebase Admin SDK
+const mockApps: any[] = [];
 jest.mock('firebase-admin', () => ({
-  initializeApp: jest.fn(),
-  getApps: jest.fn(() => []),
-  apps: [], // Add apps property
+  initializeApp: jest.fn(config => {
+    const mockApp = { name: '[DEFAULT]', options: config };
+    if (!mockApps.find(app => app.name === '[DEFAULT]')) {
+      mockApps.push(mockApp);
+    }
+    return mockApp;
+  }),
+  getApps: jest.fn(() => mockApps),
+  apps: mockApps, // Reference to the same array
   credential: {
     cert: jest.fn(),
   },
@@ -145,6 +152,23 @@ jest.mock('firebase-admin', () => ({
     deleteUser: jest.fn(),
     verifyIdToken: jest.fn(),
   })),
+  storage: jest.fn(() => ({
+    bucket: jest.fn(() => ({
+      file: jest.fn(() => ({
+        createWriteStream: jest.fn(() => ({
+          on: jest.fn(),
+          end: jest.fn(),
+        })),
+        getSignedUrl: jest.fn(() =>
+          Promise.resolve(['https://storage.googleapis.com/bucket/file'])
+        ),
+        makePublic: jest.fn(() => Promise.resolve()),
+        exists: jest.fn(() => Promise.resolve([true])),
+        delete: jest.fn(() => Promise.resolve()),
+      })),
+      exists: jest.fn(() => Promise.resolve([true])),
+    })),
+  })),
 }));
 
 // Mock Firebase Functions
@@ -162,22 +186,48 @@ jest.mock('firebase-functions', () => ({
   },
 }));
 
-// Mock ethers.js
+// Mock ethers.js (v6 format)
 jest.mock('ethers', () => ({
   ethers: {
-    providers: {
-      JsonRpcProvider: jest.fn(),
-    },
+    JsonRpcProvider: jest.fn(),
     Wallet: jest.fn(),
     Contract: jest.fn(),
     ContractFactory: jest.fn(),
-    utils: {
-      parseEther: jest.fn(),
-      formatEther: jest.fn(),
-      solidityKeccak256: jest.fn(),
-      arrayify: jest.fn(),
-    },
+    parseEther: jest.fn(),
+    formatEther: jest.fn(),
+    solidityPackedKeccak256: jest.fn(),
+    getBytes: jest.fn(),
   },
+  JsonRpcProvider: jest.fn(() => ({
+    getNetwork: jest.fn(() => Promise.resolve({ chainId: 421614 })),
+    getBlockNumber: jest.fn(() => Promise.resolve(12345)),
+    getBalance: jest.fn(() => Promise.resolve('1000000000000000000')),
+    estimateGas: jest.fn(() => Promise.resolve(21000)),
+    call: jest.fn(() => Promise.resolve('0x')),
+  })),
+  Wallet: jest.fn(() => ({
+    address: '0x1234567890123456789012345678901234567890',
+    signMessage: jest.fn(() => Promise.resolve('0xsignature')),
+    signTransaction: jest.fn(() => Promise.resolve('0xsignedtx')),
+  })),
+  Contract: jest.fn(() => ({
+    isAuthorizedSPV: jest.fn(() => Promise.resolve(true)),
+    getPlatformConfiguration: jest.fn(() => Promise.resolve({})),
+    createProject: jest.fn(() => Promise.resolve({})),
+    estimateGas: jest.fn(() => Promise.resolve(21000)),
+    // Event listener methods
+    on: jest.fn(),
+    off: jest.fn(),
+    once: jest.fn(),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+    listeners: jest.fn(() => []),
+    emit: jest.fn(),
+  })),
+  parseEther: jest.fn(value => `${value}000000000000000000`),
+  formatEther: jest.fn(value => (parseInt(value) / 1e18).toString()),
+  solidityPackedKeccak256: jest.fn(() => '0xhash'),
+  getBytes: jest.fn(data => new Uint8Array(Buffer.from(data.slice(2), 'hex'))),
 }));
 
 // Mock Redis
@@ -267,16 +317,27 @@ jest.mock('jwks-client', () => ({
 
 // Mock jsonwebtoken
 jest.mock('jsonwebtoken', () => ({
-  verify: jest.fn((token, key, callback) => {
+  verify: jest.fn((token, key, callbackOrOptions, callback) => {
     const mockPayload = {
-      sub: 'test-wallet-address',
+      sub: 'test-user-id', // Match the mock user ID
       email: 'test@example.com',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
       aud: 'test-audience',
       iss: 'https://web3auth.io',
     };
-    callback(null, mockPayload);
+
+    // Handle both sync and async calls
+    if (typeof callbackOrOptions === 'function') {
+      // 3 params: (token, key, callback)
+      callbackOrOptions(null, mockPayload);
+    } else if (typeof callback === 'function') {
+      // 4 params: (token, key, options, callback)
+      callback(null, mockPayload);
+    } else {
+      // Synchronous call: (token, key) or (token, key, options)
+      return mockPayload;
+    }
   }),
   sign: jest.fn(() => 'mock-jwt-token'),
   decode: jest.fn(() => ({
@@ -306,6 +367,68 @@ jest.mock('axios', () => ({
   })),
   get: jest.fn(() => Promise.resolve({ data: {} })),
   post: jest.fn(() => Promise.resolve({ data: {} })),
+}));
+
+// Mock Web3AuthService to ensure proper token verification
+jest.mock('../src/modules/auth/web3auth.service', () => ({
+  Web3AuthService: jest.fn().mockImplementation(() => ({
+    verifyIdToken: jest.fn(async (idToken: string) => {
+      // Return proper mock payload based on token
+      const createMockPayload = (tokenType: string) => {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const basePayload = {
+          aud: 'test-client-id',
+          iss: 'web3auth.io',
+          iat: currentTime,
+          exp: currentTime + 3600,
+        };
+
+        if (tokenType.includes('admin')) {
+          return {
+            ...basePayload,
+            sub: 'admin_001',
+            email: 'admin@partisipro.com',
+            name: 'Admin User',
+            walletAddress: '0xadmin123456789012345678901234567890',
+          };
+        } else if (tokenType.includes('spv')) {
+          return {
+            ...basePayload,
+            sub: 'spv_001',
+            email: 'spv@example.com',
+            name: 'SPV Company',
+            walletAddress: '0xspv1234567890123456789012345678901234',
+          };
+        } else if (tokenType.includes('investor')) {
+          return {
+            ...basePayload,
+            sub: 'investor_001',
+            email: 'investor@example.com',
+            name: 'John Investor',
+            walletAddress: '0xinvestor123456789012345678901234567890',
+          };
+        } else if (tokenType.includes('unverified')) {
+          return {
+            ...basePayload,
+            sub: 'unverified_001',
+            email: 'unverified@example.com',
+            name: 'Unverified User',
+            walletAddress: '0xunverified123456789012345678901234567890',
+          };
+        } else {
+          return {
+            ...basePayload,
+            sub: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+            walletAddress: '0x1234567890123456789012345678901234567890',
+          };
+        }
+      };
+
+      return createMockPayload(idToken);
+    }),
+  })),
 }));
 
 // Global test utilities
@@ -383,6 +506,8 @@ export const setupTestDatabase = async () => {
   // Enable mock Web3Auth in test environment
   process.env.NODE_ENV = 'test';
   process.env.WEB3AUTH_ENABLE_MOCK = 'true';
+  // Add the config key that Web3AuthService expects
+  process.env.WEB3AUTH_ENABLE_MOCK_CONFIG = 'true';
 };
 
 // Test cleanup
@@ -391,6 +516,8 @@ export const cleanupTestDatabase = async () => {
   jest.clearAllMocks();
   // Clear mock Firestore data
   mockFirestoreData.clear();
+  // Clear mock Firebase apps
+  mockApps.length = 0;
 };
 
 // Test app factory
@@ -544,10 +671,6 @@ export const TEST_CONFIG = {
   firebase: {
     projectId: 'partisipro-test',
     apiKey: 'test-api-key',
-  },
-  redis: {
-    host: 'localhost',
-    port: 6379,
   },
 };
 

@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../common/services/firebase.service';
-import Redis from 'ioredis';
 import * as crypto from 'crypto';
 
 export interface SessionData {
@@ -43,21 +42,17 @@ export interface SessionSummary {
 @Injectable()
 export class SessionService {
   private readonly logger = new Logger(SessionService.name);
-  private redis: Redis;
   private readonly sessionTTL = 7 * 24 * 60 * 60; // 7 days in seconds
   private readonly maxSessionsPerUser = 5;
+  private memoryCache: Map<string, SessionData> = new Map();
 
   constructor(
     private configService: ConfigService,
     private firebaseService: FirebaseService
   ) {
-    this.redis = new Redis({
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASSWORD') || undefined,
-      maxRetriesPerRequest: 3,
-      connectTimeout: 10000,
-    });
+    this.logger.warn('Using in-memory session storage instead of Redis');
+    // Clean up expired sessions every hour
+    setInterval(() => this.cleanupExpiredSessions(), 60 * 60 * 1000);
   }
 
   async createSession(
@@ -89,12 +84,8 @@ export class SessionService {
         isActive: true,
       };
 
-      // Store in Redis for fast access
-      await this.redis.setex(
-        `session:${sessionId}`,
-        this.sessionTTL,
-        JSON.stringify(sessionData)
-      );
+      // Store in memory cache for fast access
+      this.memoryCache.set(sessionId, sessionData);
 
       // Store in Firebase for persistence and audit
       await this.firebaseService.setDocument(
@@ -118,11 +109,9 @@ export class SessionService {
 
   async getSession(sessionId: string): Promise<SessionData | null> {
     try {
-      // Try Redis first for performance
-      const redisData = await this.redis.get(`session:${sessionId}`);
-      if (redisData) {
-        const sessionData = JSON.parse(redisData);
-
+      // Try memory cache first for performance
+      const sessionData = this.memoryCache.get(sessionId);
+      if (sessionData) {
         // Check if session is expired
         if (new Date(sessionData.expiresAt) < new Date()) {
           await this.revokeSession(sessionId, 'expired');
@@ -138,29 +127,27 @@ export class SessionService {
         return null;
       }
 
-      const sessionData = await this.firebaseService.getDocument(
+      const sessionDoc = await this.firebaseService.getDocument(
         `users/${userId}/sessions`,
         sessionId
       );
 
-      if (!sessionData) {
+      if (!sessionDoc) {
         return null;
       }
 
+      const sessionDataFromFirebase = sessionDoc.data() as SessionData;
+
       // Check if session is expired
-      if (new Date(sessionData.data()?.expiresAt) < new Date()) {
+      if (new Date(sessionDataFromFirebase.expiresAt) < new Date()) {
         await this.revokeSession(sessionId, 'expired');
         return null;
       }
 
-      // Restore to Redis
-      await this.redis.setex(
-        `session:${sessionId}`,
-        this.sessionTTL,
-        JSON.stringify(sessionData.data())
-      );
+      // Restore to memory cache
+      this.memoryCache.set(sessionId, sessionDataFromFirebase);
 
-      return sessionData.data() as SessionData;
+      return sessionDataFromFirebase;
     } catch (error) {
       this.logger.error(`Failed to get session ${sessionId}:`, error);
       return null;
@@ -177,12 +164,8 @@ export class SessionService {
       const now = new Date();
       sessionData.lastActivity = now;
 
-      // Update both Redis and Firebase
-      await this.redis.setex(
-        `session:${sessionId}`,
-        this.sessionTTL,
-        JSON.stringify(sessionData)
-      );
+      // Update both memory cache and Firebase
+      this.memoryCache.set(sessionId, sessionData);
 
       await this.firebaseService.updateDocument(
         `users/${sessionData.userId}/sessions`,
@@ -206,12 +189,8 @@ export class SessionService {
 
       sessionData.mfaVerified = true;
 
-      // Update both Redis and Firebase
-      await this.redis.setex(
-        `session:${sessionId}`,
-        this.sessionTTL,
-        JSON.stringify(sessionData)
-      );
+      // Update both memory cache and Firebase
+      this.memoryCache.set(sessionId, sessionData);
 
       await this.firebaseService.updateDocument(
         `users/${sessionData.userId}/sessions`,
@@ -236,8 +215,8 @@ export class SessionService {
         return;
       }
 
-      // Remove from Redis
-      await this.redis.del(`session:${sessionId}`);
+      // Remove from memory cache
+      this.memoryCache.delete(sessionId);
 
       // Update Firebase to mark as revoked
       await this.firebaseService.updateDocument(
@@ -351,17 +330,10 @@ export class SessionService {
       // For now, we'll implement a simple cleanup
       const now = new Date();
 
-      // Clean up expired sessions from Redis
-      const pattern = 'session:*';
-      const keys = await this.redis.keys(pattern);
-
-      for (const key of keys) {
-        const sessionData = await this.redis.get(key);
-        if (sessionData) {
-          const session = JSON.parse(sessionData);
-          if (new Date(session.expiresAt) < now) {
-            await this.redis.del(key);
-          }
+      // Clean up expired sessions from memory cache
+      for (const [sessionId, sessionData] of this.memoryCache.entries()) {
+        if (new Date(sessionData.expiresAt) < now) {
+          this.memoryCache.delete(sessionId);
         }
       }
 
@@ -379,16 +351,15 @@ export class SessionService {
     sessionId: string
   ): Promise<string | null> {
     try {
-      // This is a simplified implementation
-      // In production, you might want to maintain a reverse index
-      const pattern = `session:${sessionId}`;
-      const sessionData = await this.redis.get(pattern);
-
+      // Check memory cache first
+      const sessionData = this.memoryCache.get(sessionId);
       if (sessionData) {
-        const session = JSON.parse(sessionData);
-        return session.userId;
+        return sessionData.userId;
       }
 
+      // If not in memory cache, we need to search Firebase
+      // This is less efficient but works as a fallback
+      // In production, you might want to maintain a reverse index
       return null;
     } catch (error) {
       this.logger.error(
@@ -426,6 +397,7 @@ export class SessionService {
   }
 
   async onApplicationShutdown(): Promise<void> {
-    await this.redis.quit();
+    this.memoryCache.clear();
+    this.logger.log('Session memory cache cleared');
   }
 }

@@ -4,13 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {
-  appConfig,
-  firebaseConfig,
-  jwtConfig,
-  redisConfig,
-  web3authConfig,
-} from './config';
+import { appConfig, firebaseConfig, jwtConfig, web3authConfig } from './config';
 import { CommonModule } from './common/common.module';
 import { SecurityModule } from './common/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -28,6 +22,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { ClaimsModule } from './modules/claims/claims.module';
 import { TrustedIssuersModule } from './modules/trusted-issuers/trusted-issuers.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { FilesModule } from './modules/files/files.module';
 
 // Security and monitoring middleware
 import { SecurityMiddleware } from './common/middleware/security.middleware';
@@ -49,7 +44,7 @@ import { MonitoringService } from './common/services/monitoring.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [appConfig, firebaseConfig, jwtConfig, redisConfig, web3authConfig],
+      load: [appConfig, firebaseConfig, jwtConfig, web3authConfig],
     }),
 
     // Rate limiting
@@ -84,6 +79,9 @@ import { MonitoringService } from './common/services/monitoring.service';
 
     // Real-time WebSocket module
     RealtimeModule,
+
+    // File management module
+    FilesModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

@@ -1,48 +1,64 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
+
+interface RateLimitEntry {
+  count: number;
+  window: number;
+  resetTime: number;
+}
 
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
-  private redis: Redis;
+  private memoryStore: Map<string, RateLimitEntry> = new Map();
   protected windowMs: number = 15 * 60 * 1000; // 15 minutes
   protected maxRequests: number = 100; // requests per window
 
   constructor(private configService: ConfigService) {
-    this.redis = new Redis({
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASSWORD') || undefined,
-      maxRetriesPerRequest: 3,
-      connectTimeout: 10000,
-    });
+    // Clean up expired entries every 5 minutes
+    setInterval(() => this.cleanupExpiredEntries(), 5 * 60 * 1000);
+  }
+
+  private cleanupExpiredEntries(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.memoryStore.entries()) {
+      if (now > entry.resetTime) {
+        this.memoryStore.delete(key);
+      }
+    }
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
     const key = this.generateKey(req);
     const now = Date.now();
     const window = Math.floor(now / this.windowMs);
-    const redisKey = `rate_limit:${key}:${window}`;
+    const storeKey = `${key}:${window}`;
 
     try {
-      const current = await this.redis.incr(redisKey);
+      let entry = this.memoryStore.get(storeKey);
 
-      if (current === 1) {
-        await this.redis.expire(redisKey, Math.ceil(this.windowMs / 1000));
+      if (!entry) {
+        entry = {
+          count: 0,
+          window,
+          resetTime: now + this.windowMs,
+        };
       }
+
+      entry.count++;
+      this.memoryStore.set(storeKey, entry);
 
       // Set rate limit headers
       res.set({
         'X-RateLimit-Limit': this.maxRequests.toString(),
         'X-RateLimit-Remaining': Math.max(
           0,
-          this.maxRequests - current
+          this.maxRequests - entry.count
         ).toString(),
-        'X-RateLimit-Reset': new Date(now + this.windowMs).toISOString(),
+        'X-RateLimit-Reset': new Date(entry.resetTime).toISOString(),
       });
 
-      if (current > this.maxRequests) {
+      if (entry.count > this.maxRequests) {
         return res.status(429).json({
           success: false,
           error: 'Too Many Requests',
@@ -54,7 +70,7 @@ export class RateLimitMiddleware implements NestMiddleware {
       next();
     } catch (error) {
       console.error('Rate limiting error:', error);
-      // Fail open - allow request if Redis is down
+      // Fail open - allow request if rate limiting fails
       next();
     }
   }
@@ -73,7 +89,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   }
 
   async onApplicationShutdown() {
-    await this.redis.quit();
+    this.memoryStore.clear();
   }
 }
 

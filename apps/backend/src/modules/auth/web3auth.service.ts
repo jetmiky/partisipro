@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
-import { JwksClient } from 'jwks-client';
+import { JwksClient } from 'jwks-rsa';
 
 export interface Web3AuthTokenPayload {
   sub: string;
@@ -42,16 +42,19 @@ export class Web3AuthService {
         `Verifying Web3Auth token: ${idToken.substring(0, 10)}...`
       );
 
-      // Check if we're in development mode
+      // Check if we're in development or test mode
       const isDevelopment =
         this.configService.get('NODE_ENV') === 'development';
+      const isTest = this.configService.get('NODE_ENV') === 'test';
       const enableMockAuth = this.configService.get(
         'web3auth.enableMock',
-        isDevelopment
+        isDevelopment || isTest
       );
 
       if (enableMockAuth) {
-        this.logger.debug('Using mock Web3Auth verification for development');
+        this.logger.debug(
+          'Using mock Web3Auth verification for development/test'
+        );
         return this.mockTokenVerification(idToken);
       }
 
