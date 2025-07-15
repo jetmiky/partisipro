@@ -42,7 +42,26 @@ export class FirebaseAuthService {
     private web3AuthService: Web3AuthService,
     private firebaseService: FirebaseService
   ) {
-    this.auth = admin.auth();
+    // Defer Firebase Auth initialization until Firebase is ready
+    this.initializeAuth();
+  }
+
+  private async initializeAuth() {
+    try {
+      // Wait for Firebase to be initialized
+      await new Promise(resolve => setTimeout(resolve, 100));
+      this.auth = admin.auth();
+    } catch (error) {
+      this.logger.error('Failed to initialize Firebase Auth', error);
+      throw error;
+    }
+  }
+
+  private async ensureAuth(): Promise<admin.auth.Auth> {
+    if (!this.auth) {
+      await this.initializeAuth();
+    }
+    return this.auth;
   }
 
   /**
@@ -53,16 +72,17 @@ export class FirebaseAuthService {
     additionalClaims: Partial<CustomClaims> = {}
   ): Promise<FirebaseAuthResult> {
     try {
+      const auth = await this.ensureAuth();
       const uid = this.generateFirebaseUid(web3AuthPayload.sub);
 
       // Check if user exists
       let firebaseUser: admin.auth.UserRecord;
       try {
-        firebaseUser = await this.auth.getUser(uid);
+        firebaseUser = await auth.getUser(uid);
         this.logger.log(`Firebase user exists: ${uid}`);
       } catch (error) {
         // User doesn't exist, create new one
-        firebaseUser = await this.auth.createUser({
+        firebaseUser = await auth.createUser({
           uid,
           email: web3AuthPayload.email,
           displayName: web3AuthPayload.name,
@@ -76,7 +96,7 @@ export class FirebaseAuthService {
         firebaseUser.email !== web3AuthPayload.email ||
         firebaseUser.displayName !== web3AuthPayload.name
       ) {
-        await this.auth.updateUser(uid, {
+        await auth.updateUser(uid, {
           email: web3AuthPayload.email,
           displayName: web3AuthPayload.name,
         });
@@ -96,14 +116,11 @@ export class FirebaseAuthService {
       };
 
       // Set custom claims
-      await this.auth.setCustomUserClaims(uid, customClaims);
+      await auth.setCustomUserClaims(uid, customClaims);
       this.logger.log(`Set custom claims for user: ${uid}`);
 
       // Generate custom token
-      const firebaseToken = await this.auth.createCustomToken(
-        uid,
-        customClaims
-      );
+      const firebaseToken = await auth.createCustomToken(uid, customClaims);
 
       return {
         firebaseToken,
@@ -163,7 +180,8 @@ export class FirebaseAuthService {
    */
   async verifyIdToken(idToken: string): Promise<DecodedIdToken> {
     try {
-      const decodedToken = await this.auth.verifyIdToken(idToken);
+      const auth = await this.ensureAuth();
+      const decodedToken = await auth.verifyIdToken(idToken);
       return decodedToken;
     } catch (error) {
       this.logger.error('Firebase ID token verification failed', error);
@@ -179,8 +197,9 @@ export class FirebaseAuthService {
     claims: Partial<CustomClaims>
   ): Promise<void> {
     try {
+      const auth = await this.ensureAuth();
       // Get current claims
-      const user = await this.auth.getUser(uid);
+      const user = await auth.getUser(uid);
       const currentClaims = (user.customClaims || {}) as CustomClaims;
 
       // Merge with new claims
@@ -194,7 +213,7 @@ export class FirebaseAuthService {
         updatedClaims.permissions = this.getPermissionsForRole(claims.role);
       }
 
-      await this.auth.setCustomUserClaims(uid, updatedClaims);
+      await auth.setCustomUserClaims(uid, updatedClaims);
       this.logger.log(`Updated custom claims for user: ${uid}`);
     } catch (error) {
       this.logger.error(
@@ -243,7 +262,8 @@ export class FirebaseAuthService {
    */
   async getUser(uid: string): Promise<admin.auth.UserRecord> {
     try {
-      return await this.auth.getUser(uid);
+      const auth = await this.ensureAuth();
+      return await auth.getUser(uid);
     } catch (error) {
       this.logger.error(`Failed to get user: ${uid}`, error);
       throw new UnauthorizedException('User not found');
@@ -255,7 +275,8 @@ export class FirebaseAuthService {
    */
   async deleteUser(uid: string): Promise<void> {
     try {
-      await this.auth.deleteUser(uid);
+      const auth = await this.ensureAuth();
+      await auth.deleteUser(uid);
       this.logger.log(`Deleted user: ${uid}`);
     } catch (error) {
       this.logger.error(`Failed to delete user: ${uid}`, error);
@@ -274,7 +295,8 @@ export class FirebaseAuthService {
     nextPageToken?: string;
   }> {
     try {
-      const result = await this.auth.listUsers(maxResults, nextPageToken);
+      const auth = await this.ensureAuth();
+      const result = await auth.listUsers(maxResults, nextPageToken);
       return {
         users: result.users,
         nextPageToken: result.pageToken,
@@ -410,8 +432,9 @@ export class FirebaseAuthService {
    */
   async healthCheck(): Promise<boolean> {
     try {
+      const auth = await this.ensureAuth();
       // Try to list users with limit 1 to check if service is working
-      await this.auth.listUsers(1);
+      await auth.listUsers(1);
       return true;
     } catch (error) {
       this.logger.error('Firebase Auth health check failed', error);

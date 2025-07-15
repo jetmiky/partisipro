@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -66,12 +66,11 @@ async function bootstrap() {
   }
 
   const port = configService.get('app.port');
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  console.log(`
-🚀 Partisipro Backend is running on: http://localhost:${port}
-📚 API Documentation: http://localhost:${port}/api/docs
-🔥 Environment: ${configService.get('app.nodeEnv')}
-  `);
+  const logger = new Logger('Bootstrap');
+  logger.log(`🚀 Partisipro Backend is running on: http://localhost:${port}`);
+  logger.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
+  logger.log(`🔥 Environment: ${configService.get('app.nodeEnv')}`);
 }
 bootstrap();
