@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import {
   TrendingUp,
   Users,
@@ -154,6 +155,7 @@ const formatTimeAgo = (timestamp: string) => {
 };
 
 export default function AdminDashboardPage() {
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(
     null
@@ -161,6 +163,14 @@ export default function AdminDashboardPage() {
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Authentication guard
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+  }, [isAuthenticated, isAdmin]);
 
   // Load dashboard data
   const loadDashboardData = async () => {

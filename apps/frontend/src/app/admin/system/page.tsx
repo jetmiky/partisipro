@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Settings,
   Shield,
@@ -294,6 +295,7 @@ const formatConfigValue = (
 };
 
 export default function AdminSystemPage() {
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [editingConfig, setEditingConfig] = useState<string | null>(null);
   const [configValues, setConfigValues] = useState<
@@ -305,6 +307,14 @@ export default function AdminSystemPage() {
   const [activeTab, setActiveTab] = useState<
     'health' | 'config' | 'logs' | 'roles'
   >('health');
+
+  // Authentication guard
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+  }, [isAuthenticated, isAdmin]);
 
   const handleRefresh = async () => {
     setIsLoading(true);

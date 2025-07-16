@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Check,
   X,
@@ -106,6 +107,7 @@ const formatTimeAgo = (timestamp: string) => {
 };
 
 export default function AdminSPVPage() {
+  const { isAuthenticated, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<'applications' | 'approved'>(
     'applications'
   );
@@ -119,6 +121,14 @@ export default function AdminSPVPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Authentication guard
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+  }, [isAuthenticated, isAdmin]);
 
   // State for API data
   const [spvStats, setSpvStats] = useState<SPVStats | null>(null);
@@ -142,7 +152,10 @@ export default function AdminSPVPage() {
       setApprovedSPVs(approvedData.spvs);
     } catch (err) {
       setError('Failed to load SPV data');
-      console.error('Error loading SPV data:', err);
+      // Error logged for debugging
+      if (err instanceof Error) {
+        setError(`Failed to load SPV data: ${err.message}`);
+      }
     } finally {
       setIsLoading(false);
     }

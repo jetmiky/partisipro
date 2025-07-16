@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   DollarSign,
   TrendingUp,
@@ -210,9 +211,18 @@ const getStatusColor = (status: FeeConfig['status']) => {
 };
 
 export default function AdminFeesPage() {
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [editingFee, setEditingFee] = useState<string | null>(null);
   const [feeValues, setFeeValues] = useState<Record<string, number>>({});
+
+  // Authentication guard
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+  }, [isAuthenticated, isAdmin]);
 
   const handleRefresh = async () => {
     setIsLoading(true);

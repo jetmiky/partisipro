@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Building,
   Eye,
@@ -160,10 +161,19 @@ const formatPercentage = (current: number, target: number) => {
 };
 
 export default function AdminProjectsPage() {
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [error, setError] = useState<string | null>(null);
+
+  // Authentication guard
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      window.location.href = '/auth/signin';
+      return;
+    }
+  }, [isAuthenticated, isAdmin]);
 
   // State for API data
   const [projects, setProjects] = useState<AdminProject[]>([]);
