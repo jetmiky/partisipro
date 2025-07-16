@@ -21,7 +21,6 @@ import { TrustedIssuersService } from '../../src/modules/trusted-issuers/trusted
 import { ProjectsService } from '../../src/modules/projects/projects.service';
 import { InvestmentsService } from '../../src/modules/investments/investments.service';
 import { ProfitsService } from '../../src/modules/profits/profits.service';
-import { Web3AuthService } from '../../src/modules/auth/web3auth.service';
 // import { AdminService } from '../../src/modules/admin/admin.service';
 // import { KYCService } from '../../src/modules/kyc/kyc.service';
 // import { PaymentsService } from '../../src/modules/payments/payments.service';
@@ -147,7 +146,9 @@ describe.skip('Business Flow: Admin Platform Management', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toContain('Platform fees updated successfully');
+      expect(response.body.message).toContain(
+        'Platform fees updated successfully'
+      );
       expect(response.body.data).toBeDefined();
     });
 

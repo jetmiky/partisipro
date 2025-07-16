@@ -167,6 +167,14 @@ describe('ClaimsService', () => {
             broadcastKYCStatusUpdate: jest.fn(),
           },
         },
+        {
+          provide: 'BLOCKCHAIN_SERVICE',
+          useValue: {
+            deployContract: jest.fn(),
+            isInvestorVerified: jest.fn(),
+            getUserIdentity: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

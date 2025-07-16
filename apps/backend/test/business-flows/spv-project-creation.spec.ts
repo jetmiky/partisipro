@@ -19,7 +19,6 @@ import { TrustedIssuersService } from '../../src/modules/trusted-issuers/trusted
 import { ProjectsService } from '../../src/modules/projects/projects.service';
 import { AdminService } from '../../src/modules/admin/admin.service';
 import { BlockchainService } from '../../src/modules/blockchain/blockchain.service';
-import { Web3AuthService } from '../../src/modules/auth/web3auth.service';
 import {
   User,
   UserRole,

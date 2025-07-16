@@ -13,6 +13,12 @@ export const createWeb3AuthMock = () => ({
       console.log(
         `[TEST] Token includes 'admin': ${idToken.includes('admin')}`
       );
+
+      // Handle null/undefined tokens
+      if (!idToken) {
+        throw new Error('idToken is required');
+      }
+
       // Return proper mock payload based on token
       const currentTime = Math.floor(Date.now() / 1000);
       const basePayload = {
@@ -24,7 +30,58 @@ export const createWeb3AuthMock = () => ({
 
       console.log(`[TEST] About to check branches...`);
 
-      if (idToken.includes('admin')) {
+      // Handle specific token patterns used in business flow tests
+      if (
+        idToken === 'mock-retail-investor-token' ||
+        idToken.includes('retail')
+      ) {
+        console.log(`[TEST] Taking retail branch`);
+        const result = {
+          ...basePayload,
+          sub: 'retail_001',
+          email: 'retail@example.com',
+          name: 'Retail Investor',
+          walletAddress: '0xretail123456789012345678901234567890',
+        };
+        console.log(`[TEST] Returning retail result:`, result);
+        return result;
+      } else if (
+        idToken === 'mock-accredited-investor-token' ||
+        idToken.includes('accredited')
+      ) {
+        console.log(`[TEST] Taking accredited branch`);
+        return {
+          ...basePayload,
+          sub: 'accredited_001',
+          email: 'accredited@example.com',
+          name: 'Accredited Investor',
+          walletAddress: '0xaccredited123456789012345678901234567890',
+        };
+      } else if (
+        idToken === 'mock-institutional-investor-token' ||
+        idToken.includes('institutional')
+      ) {
+        console.log(`[TEST] Taking institutional branch`);
+        return {
+          ...basePayload,
+          sub: 'institutional_001',
+          email: 'institutional@example.com',
+          name: 'Institutional Investor',
+          walletAddress: '0xinstitutional123456789012345678901234567890',
+        };
+      } else if (
+        idToken === 'mock-unverified-token' ||
+        idToken.includes('unverified')
+      ) {
+        console.log(`[TEST] Taking unverified branch`);
+        return {
+          ...basePayload,
+          sub: 'unverified_001',
+          email: 'unverified@example.com',
+          name: 'Unverified User',
+          walletAddress: '0xunverified123456789012345678901234567890',
+        };
+      } else if (idToken.includes('admin')) {
         console.log(`[TEST] Taking admin branch`);
         return {
           ...basePayload,
@@ -42,42 +99,8 @@ export const createWeb3AuthMock = () => ({
           name: 'SPV Company',
           walletAddress: '0xspv1234567890123456789012345678901234',
         };
-      } else if (idToken.includes('retail')) {
-        console.log(`[TEST] Taking retail branch`);
-        const result = {
-          ...basePayload,
-          sub: 'retail_001',
-          email: 'retail@example.com',
-          name: 'Retail Investor',
-          walletAddress: '0xretail123456789012345678901234567890',
-        };
-        console.log(`[TEST] Returning retail result:`, result);
-        return result;
-      } else if (idToken.includes('accredited')) {
-        return {
-          ...basePayload,
-          sub: 'accredited_001',
-          email: 'accredited@example.com',
-          name: 'Accredited Investor',
-          walletAddress: '0xaccredited123456789012345678901234567890',
-        };
-      } else if (idToken.includes('institutional')) {
-        return {
-          ...basePayload,
-          sub: 'institutional_001',
-          email: 'institutional@example.com',
-          name: 'Institutional Investor',
-          walletAddress: '0xinstitutional123456789012345678901234567890',
-        };
-      } else if (idToken.includes('unverified')) {
-        return {
-          ...basePayload,
-          sub: 'unverified_001',
-          email: 'unverified@example.com',
-          name: 'Unverified User',
-          walletAddress: '0xunverified123456789012345678901234567890',
-        };
       } else {
+        console.log(`[TEST] Taking default branch for token: ${idToken}`);
         const result = {
           ...basePayload,
           sub: 'test-user-id',

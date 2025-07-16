@@ -399,6 +399,39 @@ jest.mock('../src/modules/auth/web3auth.service', () => ({
             name: 'SPV Company',
             walletAddress: '0xspv1234567890123456789012345678901234',
           };
+        } else if (
+          tokenType === 'mock-retail-investor-token' ||
+          tokenType.includes('retail')
+        ) {
+          return {
+            ...basePayload,
+            sub: 'retail_001',
+            email: 'retail.investor@gmail.com',
+            name: 'Retail Investor',
+            walletAddress: '0xretail1234567890123456789012345678901234567890',
+          };
+        } else if (
+          tokenType === 'mock-accredited-investor-token' ||
+          tokenType.includes('accredited')
+        ) {
+          return {
+            ...basePayload,
+            sub: 'accredited_001',
+            email: 'accredited.investor@wealth.com',
+            name: 'Accredited Investor',
+            walletAddress: '0xaccredited123456789012345678901234567890',
+          };
+        } else if (
+          tokenType === 'mock-institutional-investor-token' ||
+          tokenType.includes('institutional')
+        ) {
+          return {
+            ...basePayload,
+            sub: 'institutional_001',
+            email: 'institutional@fund.com',
+            name: 'Institutional Investor',
+            walletAddress: '0xinstitutional123456789012345678901234567890',
+          };
         } else if (tokenType.includes('investor')) {
           return {
             ...basePayload,

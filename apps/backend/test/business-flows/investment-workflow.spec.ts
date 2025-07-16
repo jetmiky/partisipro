@@ -23,7 +23,6 @@ import { InvestmentsService } from '../../src/modules/investments/investments.se
 import { PaymentsService } from '../../src/modules/payments/payments.service';
 import { BlockchainService } from '../../src/modules/blockchain/blockchain.service';
 import { AdminService } from '../../src/modules/admin/admin.service';
-import { Web3AuthService } from '../../src/modules/auth/web3auth.service';
 import {
   User,
   UserRole,

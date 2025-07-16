@@ -27,8 +27,18 @@ export class Web3AuthService {
       'web3auth.domain',
       'web3auth.io'
     );
+
+    // For Firebase integration, we use Firebase's JWKS endpoint
+    const useFirebaseJWKS = this.configService.get(
+      'web3auth.useFirebaseJWKS',
+      false
+    );
+    const jwksUri = useFirebaseJWKS
+      ? 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
+      : `https://${web3AuthDomain}/.well-known/jwks.json`;
+
     this.jwksClient = new JwksClient({
-      jwksUri: `https://${web3AuthDomain}/.well-known/jwks.json`,
+      jwksUri,
       cache: true,
       cacheMaxAge: 86400000, // 24 hours
       rateLimit: true,
@@ -113,12 +123,53 @@ export class Web3AuthService {
   private async mockTokenVerification(
     idToken: string
   ): Promise<Web3AuthTokenPayload> {
-    this.logger.debug('Using mock Web3Auth verification');
+    this.logger.debug(`Using mock Web3Auth verification for token: ${idToken}`);
 
-    // Mock different scenarios based on token content
+    // Mock different scenarios based on token content (enhanced for business flow tests)
     let mockUser: Partial<Web3AuthTokenPayload>;
 
-    if (idToken.includes('admin')) {
+    // Handle specific business flow test tokens (order matters - most specific first)
+    if (
+      idToken === 'mock-retail-investor-token' ||
+      idToken.includes('retail')
+    ) {
+      mockUser = {
+        sub: 'retail_001',
+        email: 'retail.investor@gmail.com',
+        name: 'Retail Investor',
+        walletAddress: '0xretail1234567890123456789012345678901234567890',
+      };
+    } else if (
+      idToken === 'mock-accredited-investor-token' ||
+      idToken.includes('accredited')
+    ) {
+      mockUser = {
+        sub: 'accredited_001',
+        email: 'accredited.investor@wealth.com',
+        name: 'Accredited Investor',
+        walletAddress: '0xaccredited123456789012345678901234567890',
+      };
+    } else if (
+      idToken === 'mock-institutional-investor-token' ||
+      idToken.includes('institutional')
+    ) {
+      mockUser = {
+        sub: 'institutional_001',
+        email: 'institutional@fund.com',
+        name: 'Institutional Investor',
+        walletAddress: '0xinstitutional123456789012345678901234567890',
+      };
+    } else if (
+      idToken === 'mock-unverified-token' ||
+      idToken.includes('unverified')
+    ) {
+      mockUser = {
+        sub: 'unverified_001',
+        email: 'unverified@example.com',
+        name: 'Unverified User',
+        walletAddress: '0xunverified123456789012345678901234567890',
+      };
+    } else if (idToken.includes('admin')) {
       mockUser = {
         sub: 'admin_001',
         email: 'admin@partisipro.com',
@@ -128,7 +179,7 @@ export class Web3AuthService {
     } else if (idToken.includes('spv')) {
       mockUser = {
         sub: 'spv_001',
-        email: 'spv@example.com',
+        email: 'spv@infrastructure.com',
         name: 'SPV Company',
         walletAddress: '0xspv1234567890123456789012345678901234',
       };
@@ -187,32 +238,56 @@ export class Web3AuthService {
     payload: Web3AuthTokenPayload
   ): Promise<void> {
     const expectedAudience = this.configService.get('web3auth.clientId');
-    const expectedIssuer = this.configService.get(
-      'web3auth.issuer',
-      'web3auth.io'
+    const firebaseProjectId = this.configService.get('firebase.projectId');
+    const useFirebaseJWKS = this.configService.get(
+      'web3auth.useFirebaseJWKS',
+      false
     );
 
-    // Validate audience
-    if (expectedAudience && payload.aud !== expectedAudience) {
-      throw new Error(
-        `Invalid audience. Expected: ${expectedAudience}, Got: ${payload.aud}`
+    // For Firebase tokens, validate against Firebase project ID
+    if (useFirebaseJWKS) {
+      const expectedFirebaseIssuer = `https://securetoken.google.com/${firebaseProjectId}`;
+
+      // Validate Firebase-specific claims
+      if (payload.aud !== firebaseProjectId) {
+        throw new Error(
+          `Invalid Firebase audience. Expected: ${firebaseProjectId}, Got: ${payload.aud}`
+        );
+      }
+
+      if (payload.iss !== expectedFirebaseIssuer) {
+        throw new Error(
+          `Invalid Firebase issuer. Expected: ${expectedFirebaseIssuer}, Got: ${payload.iss}`
+        );
+      }
+    } else {
+      // Original Web3Auth validation
+      const expectedIssuer = this.configService.get(
+        'web3auth.issuer',
+        'web3auth.io'
       );
+
+      // Validate audience
+      if (expectedAudience && payload.aud !== expectedAudience) {
+        throw new Error(
+          `Invalid audience. Expected: ${expectedAudience}, Got: ${payload.aud}`
+        );
+      }
+
+      // Validate issuer
+      if (payload.iss !== expectedIssuer) {
+        throw new Error(
+          `Invalid issuer. Expected: ${expectedIssuer}, Got: ${payload.iss}`
+        );
+      }
     }
 
-    // Validate issuer
-    if (payload.iss !== expectedIssuer) {
-      throw new Error(
-        `Invalid issuer. Expected: ${expectedIssuer}, Got: ${payload.iss}`
-      );
-    }
-
-    // Validate expiration
+    // Common validations for both Firebase and Web3Auth tokens
     const currentTime = Math.floor(Date.now() / 1000);
     if (payload.exp < currentTime) {
       throw new Error('Token has expired');
     }
 
-    // Validate issued at time
     if (payload.iat > currentTime + 300) {
       // Allow 5 minutes skew
       throw new Error('Token used before issued');

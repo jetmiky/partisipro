@@ -21,7 +21,6 @@ import { TrustedIssuersService } from '../../src/modules/trusted-issuers/trusted
 import { KYCService } from '../../src/modules/kyc/kyc.service';
 import { ProjectsService } from '../../src/modules/projects/projects.service';
 import { AdminService } from '../../src/modules/admin/admin.service';
-import { Web3AuthService } from '../../src/modules/auth/web3auth.service';
 import {
   User,
   UserRole,
@@ -287,11 +286,13 @@ describe.skip('Business Flow: Investor Onboarding and KYC', () => {
       // Verify authentication results
       expect(authResult.user).toBeDefined();
       expect(authResult.user.email).toBe('retail.investor@gmail.com');
-      expect(authResult.user.walletAddress).toBe('0xretail1234567890123456789012345678901234567890');
+      expect(authResult.user.walletAddress).toBe(
+        '0xretail1234567890123456789012345678901234567890'
+      );
       expect(authResult.accessToken).toBeDefined();
       expect(authResult.refreshToken).toBeDefined();
       expect(authResult.customClaims).toBeDefined();
-      
+
       // Store the user for subsequent tests
       retailInvestor = authResult.user;
     });

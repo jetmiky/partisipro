@@ -150,9 +150,23 @@ export class FirebaseAuthService {
     web3AuthIdToken: string
   ): Promise<FirebaseAuthResult> {
     try {
+      this.logger.log(
+        `FirebaseAuthService: Verifying Web3Auth token: ${web3AuthIdToken}`
+      );
+
       // Verify Web3Auth token
       const web3AuthPayload =
         await this.web3AuthService.verifyIdToken(web3AuthIdToken);
+
+      this.logger.log(
+        `FirebaseAuthService: Web3Auth verification result:`,
+        web3AuthPayload
+      );
+
+      // Add null check for web3AuthPayload
+      if (!web3AuthPayload) {
+        throw new Error('Web3Auth token verification returned null payload');
+      }
 
       // Get additional user claims from database
       const additionalClaims = await this.getAdditionalUserClaims(
