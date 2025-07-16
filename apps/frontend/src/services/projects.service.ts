@@ -369,6 +369,80 @@ class ProjectsService {
 
     return response.blob();
   }
+
+  /**
+   * Get listing fee information for project creation
+   */
+  async getListingFee(projectData: {
+    totalSupply: number;
+    tokenPrice: number;
+    currency: string;
+  }): Promise<{
+    amount: number;
+    currency: 'IDR' | 'ETH';
+    feePercentage: number;
+    estimatedTotal: number;
+    paymentMethods: string[];
+  }> {
+    return apiClient.post(
+      `${this.BASE_PATH}/listing-fee/calculate`,
+      projectData
+    );
+  }
+
+  /**
+   * Process listing fee payment
+   */
+  async payListingFee(
+    projectId: string,
+    paymentData: {
+      amount: number;
+      currency: 'IDR' | 'ETH';
+      paymentMethod: string;
+      paymentReference?: string;
+    }
+  ): Promise<{
+    paymentId: string;
+    status: 'pending' | 'confirmed' | 'failed';
+    transactionHash?: string;
+    receipt?: unknown;
+  }> {
+    return apiClient.post(
+      `${this.BASE_PATH}/${projectId}/listing-fee/pay`,
+      paymentData
+    );
+  }
+
+  /**
+   * Check listing fee payment status
+   */
+  async getListingFeeStatus(projectId: string): Promise<{
+    paid: boolean;
+    amount: number;
+    currency: 'IDR' | 'ETH';
+    paymentDate?: string;
+    transactionHash?: string;
+    status: 'pending' | 'confirmed' | 'failed';
+  }> {
+    return apiClient.get(`${this.BASE_PATH}/${projectId}/listing-fee/status`);
+  }
+
+  /**
+   * Get listing fee payment history
+   */
+  async getListingFeeHistory(projectId: string): Promise<
+    Array<{
+      paymentId: string;
+      amount: number;
+      currency: 'IDR' | 'ETH';
+      paymentMethod: string;
+      status: 'pending' | 'confirmed' | 'failed';
+      createdAt: string;
+      transactionHash?: string;
+    }>
+  > {
+    return apiClient.get(`${this.BASE_PATH}/${projectId}/listing-fee/history`);
+  }
 }
 
 // Create singleton instance
