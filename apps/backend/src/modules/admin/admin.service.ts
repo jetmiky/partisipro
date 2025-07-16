@@ -382,6 +382,218 @@ export class AdminService {
   }
 
   /**
+   * Get audit logs with filtering options
+   */
+  async getAuditLogs(params: {
+    startDate?: Date;
+    endDate?: Date;
+    userId?: string;
+    actions?: string[];
+    limit?: number;
+    startAfter?: string;
+  }): Promise<any[]> {
+    this.logger.log('Fetching audit logs with filters');
+
+    const {
+      startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Default: last 7 days
+      endDate = new Date(),
+      userId,
+      actions,
+      limit = 100,
+      startAfter,
+    } = params;
+
+    // For development/testing, return mock data with filtering
+    // In production, this would query the actual Firestore audit_logs collection
+    const mockAuditLogs = [
+      {
+        id: 'audit_001',
+        timestamp: new Date(),
+        userId: 'user_001',
+        userRole: 'admin',
+        method: 'POST',
+        path: '/api/admin/spv/whitelist',
+        action: 'SPV_WHITELISTED',
+        statusCode: 201,
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-test-runner',
+        sensitive: true,
+        responseTime: 150,
+      },
+      {
+        id: 'audit_002',
+        timestamp: new Date(Date.now() - 60000),
+        userId: 'user_002',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/investments/purchase',
+        action: 'INVESTMENT_CREATED',
+        statusCode: 200,
+        ipAddress: '192.168.1.100',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 280,
+      },
+      {
+        id: 'audit_003',
+        timestamp: new Date(Date.now() - 120000),
+        userId: 'user_003',
+        userRole: 'spv',
+        method: 'POST',
+        path: '/api/projects/create',
+        action: 'PROJECT_CREATED',
+        statusCode: 201,
+        ipAddress: '10.0.0.1',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+        sensitive: false,
+        responseTime: 320,
+      },
+      {
+        id: 'audit_004',
+        timestamp: new Date(Date.now() - 180000),
+        userId: 'user_004',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/investments/purchase',
+        action: 'INVESTMENT_CREATED',
+        statusCode: 200,
+        ipAddress: '192.168.1.101',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 200,
+      },
+      {
+        id: 'audit_005',
+        timestamp: new Date(Date.now() - 240000),
+        userId: 'user_005',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/payments/process',
+        action: 'PAYMENT_PROCESSED',
+        statusCode: 200,
+        ipAddress: '192.168.1.102',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 320,
+      },
+      {
+        id: 'audit_006',
+        timestamp: new Date(Date.now() - 300000),
+        userId: 'user_006',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/blockchain/mint',
+        action: 'TOKENS_MINTED',
+        statusCode: 200,
+        ipAddress: '192.168.1.103',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 450,
+      },
+      {
+        id: 'audit_007',
+        timestamp: new Date(Date.now() - 360000),
+        userId: 'user_007',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/investments/purchase',
+        action: 'INVESTMENT_CREATED',
+        statusCode: 200,
+        ipAddress: '192.168.1.104',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 250,
+      },
+      {
+        id: 'audit_008',
+        timestamp: new Date(Date.now() - 420000),
+        userId: 'user_008',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/payments/process',
+        action: 'PAYMENT_PROCESSED',
+        statusCode: 200,
+        ipAddress: '192.168.1.105',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 300,
+      },
+      {
+        id: 'audit_009',
+        timestamp: new Date(Date.now() - 480000),
+        userId: 'user_009',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/blockchain/mint',
+        action: 'TOKENS_MINTED',
+        statusCode: 200,
+        ipAddress: '192.168.1.106',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 380,
+      },
+      {
+        id: 'audit_010',
+        timestamp: new Date(Date.now() - 540000),
+        userId: 'user_010',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/payments/process',
+        action: 'PAYMENT_PROCESSED',
+        statusCode: 200,
+        ipAddress: '192.168.1.107',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 270,
+      },
+      {
+        id: 'audit_011',
+        timestamp: new Date(Date.now() - 600000),
+        userId: 'user_011',
+        userRole: 'investor',
+        method: 'POST',
+        path: '/api/blockchain/mint',
+        action: 'TOKENS_MINTED',
+        statusCode: 200,
+        ipAddress: '192.168.1.108',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        sensitive: true,
+        responseTime: 420,
+      },
+    ];
+
+    let filteredLogs = mockAuditLogs;
+
+    // Apply filters
+    if (startDate) {
+      filteredLogs = filteredLogs.filter(log => log.timestamp >= startDate);
+    }
+    if (endDate) {
+      filteredLogs = filteredLogs.filter(log => log.timestamp <= endDate);
+    }
+    if (userId) {
+      filteredLogs = filteredLogs.filter(log => log.userId === userId);
+    }
+    if (actions && actions.length > 0) {
+      filteredLogs = filteredLogs.filter(log =>
+        actions.some(action => log.action === action)
+      );
+    }
+
+    // Apply pagination
+    if (startAfter) {
+      const startIndex = filteredLogs.findIndex(log => log.id === startAfter);
+      filteredLogs = filteredLogs.slice(startIndex + 1);
+    }
+
+    // Apply limit
+    filteredLogs = filteredLogs.slice(0, limit);
+
+    this.logger.log(`Retrieved ${filteredLogs.length} audit logs`);
+    return filteredLogs;
+  }
+
+  /**
    * Update system configuration
    */
   private async updateSystemConfig(

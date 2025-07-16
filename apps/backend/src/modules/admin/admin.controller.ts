@@ -338,4 +338,87 @@ export class AdminController {
       data: configurations,
     };
   }
+
+  @Get('audit/logs')
+  @ApiOperation({ summary: 'Get audit logs with filtering options' })
+  @ApiResponse({
+    status: 200,
+    description: 'Audit logs retrieved successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Start date for filtering (ISO string)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'End date for filtering (ISO string)',
+  })
+  @ApiQuery({
+    name: 'userId',
+    required: false,
+    type: String,
+    description: 'Filter by user ID',
+  })
+  @ApiQuery({
+    name: 'actions',
+    required: false,
+    type: [String],
+    description: 'Filter by action types',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of logs to return',
+  })
+  @ApiQuery({
+    name: 'startAfter',
+    required: false,
+    type: String,
+    description: 'Pagination cursor',
+  })
+  async getAuditLogs(
+    @CurrentUser() user: User,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('userId') userId?: string,
+    @Query('actions') actions?: string | string[],
+    @Query('limit') limit?: number,
+    @Query('startAfter') startAfter?: string
+  ) {
+    this.logger.log(`Fetching audit logs for admin: ${user.id}`);
+
+    // Parse date strings
+    const parsedStartDate = startDate ? new Date(startDate) : undefined;
+    const parsedEndDate = endDate ? new Date(endDate) : undefined;
+
+    // Handle actions parameter (can be string or array)
+    let actionsArray: string[] | undefined;
+    if (actions) {
+      actionsArray = Array.isArray(actions) ? actions : [actions];
+    }
+
+    const auditLogs = await this.adminService.getAuditLogs({
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
+      userId,
+      actions: actionsArray,
+      limit: limit ? parseInt(limit.toString()) : undefined,
+      startAfter,
+    });
+
+    return {
+      success: true,
+      data: auditLogs,
+    };
+  }
 }

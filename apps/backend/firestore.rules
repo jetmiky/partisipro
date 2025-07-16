@@ -50,8 +50,8 @@ service cloud.firestore {
              get(/databases/$(database)/documents/projects/$(projectId)).data.createdBy == request.auth.uid;
     }
     
-    function isValidTimestamp(timestamp) {
-      return timestamp is timestamp;
+    function isValidTimestamp(ts) {
+      return ts is timestamp;
     }
     
     function isValidEmail(email) {
