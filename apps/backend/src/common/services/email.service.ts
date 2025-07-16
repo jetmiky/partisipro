@@ -40,6 +40,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly emailConfig: EmailConfig;
   private readonly retryDelays = [1000, 3000, 9000]; // Exponential backoff
+  private readonly isMockMode: boolean;
 
   constructor(
     private readonly configService: ConfigService,
@@ -48,12 +49,23 @@ export class EmailService {
   ) {
     this.emailConfig = this.configService.get<EmailConfig>('email');
 
-    if (this.emailConfig.apiKey) {
+    // Check if we're in mock mode (development/prototype)
+    // For prototype, use mock mode unless explicitly configured for production
+    this.isMockMode =
+      !this.emailConfig.apiKey ||
+      this.emailConfig.apiKey.includes('mock') ||
+      this.emailConfig.apiKey === 'your_sendgrid_api_key_here' ||
+      process.env.NODE_ENV === 'development' ||
+      process.env.NODE_ENV === 'test' ||
+      // Force mock mode for prototype (override with EMAIL_FORCE_REAL=true)
+      process.env.EMAIL_FORCE_REAL !== 'true';
+
+    if (!this.isMockMode && this.emailConfig.apiKey) {
       sgMail.setApiKey(this.emailConfig.apiKey);
       this.logger.log('SendGrid API initialized');
     } else {
       this.logger.warn(
-        'SendGrid API key not provided - email service will run in mock mode'
+        'Email service running in mock mode - emails will be logged only'
       );
     }
   }
@@ -205,6 +217,11 @@ export class EmailService {
     attempt = 0
   ): Promise<string> {
     const startTime = Date.now();
+
+    // Handle mock mode
+    if (this.isMockMode) {
+      return this.sendMockEmail(msg, templateName);
+    }
 
     try {
       const [response] = await sgMail.send(msg);
@@ -386,5 +403,40 @@ export class EmailService {
     templateType: keyof EmailConfig['templates']
   ): Promise<EmailTemplate> {
     return this.emailConfig.templates[templateType];
+  }
+
+  /**
+   * Mock email sending for development/prototype environment
+   */
+  private async sendMockEmail(
+    msg: sgMail.MailDataRequired,
+    templateName: string
+  ): Promise<string> {
+    const mockMessageId = `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Log mock email details
+    this.logger.log(`📧 MOCK EMAIL SENT: ${templateName}`);
+    this.logger.log(
+      `   To: ${Array.isArray(msg.to) ? msg.to.join(', ') : msg.to}`
+    );
+    this.logger.log(`   Subject: ${msg.subject || 'No Subject'}`);
+    this.logger.log(`   Template: ${msg.templateId || 'No Template'}`);
+    this.logger.log(`   Message ID: ${mockMessageId}`);
+
+    // Log template data if available
+    if (msg.dynamicTemplateData) {
+      this.logger.log(
+        `   Template Data: ${JSON.stringify(msg.dynamicTemplateData, null, 2)}`
+      );
+    }
+
+    // Simulate email processing delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Record mock metrics
+    this.monitoring.recordMetric('email_sent_success', 1);
+    this.monitoring.recordMetric('email_duration', 100);
+
+    return mockMessageId;
   }
 }

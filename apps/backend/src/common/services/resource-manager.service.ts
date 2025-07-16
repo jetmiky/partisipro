@@ -70,7 +70,13 @@ export class ResourceManagerService implements OnModuleDestroy {
 
   constructor(private configService: ConfigService) {
     this.initializeThresholds();
-    this.startResourceMonitoring();
+    this.monitoringEnabled =
+      this.configService.get('MONITORING_ENABLED', 'true') === 'true';
+    if (this.monitoringEnabled) {
+      this.startResourceMonitoring();
+    } else {
+      this.logger.log('Resource monitoring disabled by configuration');
+    }
   }
 
   private initializeThresholds(): void {

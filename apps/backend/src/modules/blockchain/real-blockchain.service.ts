@@ -79,8 +79,16 @@ export class RealBlockchainService {
   private readonly EVENTS_COLLECTION = 'blockchain_events';
 
   private provider: JsonRpcProvider;
+  private backupProvider: JsonRpcProvider;
   private wallet: Wallet;
   private chainId: number;
+
+  // Circuit breaker state
+  private circuitBreakerState: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  private failureCount: number = 0;
+  private lastFailureTime: number = 0;
+  private circuitBreakerTimeout: number;
+  private failureThreshold: number;
 
   // Contract addresses on Arbitrum Sepolia
   private readonly CONTRACT_ADDRESSES = {
@@ -129,6 +137,17 @@ export class RealBlockchainService {
     private configService: ConfigService,
     private firebaseService: FirebaseService
   ) {
+    // Initialize circuit breaker configuration
+    this.failureThreshold = parseInt(
+      this.configService.get<string>(
+        'BLOCKCHAIN_CIRCUIT_BREAKER_FAILURE_THRESHOLD'
+      ) || '5'
+    );
+    this.circuitBreakerTimeout = parseInt(
+      this.configService.get<string>('BLOCKCHAIN_CIRCUIT_BREAKER_TIMEOUT') ||
+        '60000'
+    );
+
     this.initializeProvider();
   }
 
@@ -137,11 +156,46 @@ export class RealBlockchainService {
    */
   private async initializeProvider(): Promise<void> {
     try {
-      // Initialize provider
+      // Initialize primary and backup providers with rate limiting configuration
       const rpcUrl =
-        this.configService.get<string>('BLOCKCHAIN_RPC_URL') ||
+        this.configService.get<string>('ARBITRUM_SEPOLIA_RPC_URL') ||
         'https://sepolia-rollup.arbitrum.io/rpc';
-      this.provider = new JsonRpcProvider(rpcUrl);
+      const backupRpcUrl =
+        this.configService.get<string>('ARBITRUM_SEPOLIA_RPC_URL_BACKUP') ||
+        'https://arb-sepolia.g.alchemy.com/v2/demo';
+
+      // Configure provider with enhanced rate limiting and retry logic
+      const batchSize = parseInt(
+        this.configService.get<string>('BLOCKCHAIN_BATCH_SIZE') || '3'
+      );
+      const batchMaxCount = parseInt(
+        this.configService.get<string>('BLOCKCHAIN_BATCH_MAX_COUNT') || '2'
+      );
+      const cacheTimeout = parseInt(
+        this.configService.get<string>('BLOCKCHAIN_CACHE_TIMEOUT') || '900000'
+      );
+      const pollingInterval = parseInt(
+        this.configService.get<string>('BLOCKCHAIN_POLLING_INTERVAL') || '30000'
+      );
+
+      const providerOptions = {
+        staticNetwork: true,
+        batchStallTime: 5000, // Increased stall time for public endpoints
+        batchMaxSize: batchSize,
+        batchMaxCount: batchMaxCount,
+        cacheTimeout: cacheTimeout, // 15 minutes
+        pollingInterval: pollingInterval, // 30 seconds to avoid rate limits
+      };
+
+      this.provider = new JsonRpcProvider(rpcUrl, undefined, providerOptions);
+      this.backupProvider = new JsonRpcProvider(
+        backupRpcUrl,
+        undefined,
+        providerOptions
+      );
+
+      this.logger.log(`Primary RPC: ${rpcUrl}`);
+      this.logger.log(`Backup RPC: ${backupRpcUrl}`);
 
       // Initialize wallet
       const privateKey = this.configService.get<string>(
@@ -224,73 +278,65 @@ export class RealBlockchainService {
   }
 
   /**
-   * Start listening to blockchain events
+   * Start listening to blockchain events (rate-limited)
    */
   private async startEventListening(): Promise<void> {
     try {
-      // Listen to ProjectFactory events
-      this.projectFactory.on(
-        'ProjectCreated',
-        async (
-          projectId: string,
-          spvAddress: string,
-          tokenAddress: string,
-          offeringAddress: string,
-          treasuryAddress: string,
-          governanceAddress: string,
-          event: any
-        ) => {
-          this.logger.log(`ProjectCreated event: ${projectId}`);
-          await this.handleProjectCreatedEvent({
-            projectId,
-            spvAddress,
-            tokenAddress,
-            offeringAddress,
-            treasuryAddress,
-            governanceAddress,
-            transactionHash: event.transactionHash,
-            blockNumber: event.blockNumber,
-          });
-        }
-      );
+      // Disable event listening for now to reduce RPC calls
+      // This is a temporary measure to prevent rate limiting
+      this.logger.log('Event listening disabled to prevent RPC rate limiting');
 
-      // Listen to IdentityRegistry events
-      this.identityRegistry.on(
-        'IdentityRegistered',
-        async (identity: string, managementKey: string, event: any) => {
-          this.logger.log(`IdentityRegistered event: ${identity}`);
-          await this.handleIdentityRegisteredEvent({
-            identity,
-            managementKey,
-            transactionHash: event.transactionHash,
-            blockNumber: event.blockNumber,
-          });
-        }
-      );
+      // TODO: Implement alternative event monitoring:
+      // 1. Periodic polling instead of real-time listeners
+      // 2. Webhook-based event monitoring
+      // 3. Database triggers for event processing
 
-      // Listen to PlatformTreasury events
-      this.platformTreasury.on(
-        'FeeCollected',
-        async (
-          projectId: string,
-          feeType: string,
-          amount: bigint,
-          event: any
-        ) => {
-          this.logger.log(
-            `FeeCollected event: ${projectId} - ${feeType} - ${amount}`
+      return;
+
+      // COMMENTED OUT - Will be re-enabled with better rate limiting
+      /*
+      const startEventListeningWithRetry = async (retryCount = 0) => {
+        try {
+          // Only listen to critical events to reduce RPC calls
+          this.projectFactory.on(
+            'ProjectCreated',
+            async (
+              projectId: string,
+              spvAddress: string,
+              tokenAddress: string,
+              offeringAddress: string,
+              treasuryAddress: string,
+              governanceAddress: string,
+              event: any
+            ) => {
+              this.logger.log(`ProjectCreated event: ${projectId}`);
+              await this.handleProjectCreatedEvent({
+                projectId,
+                spvAddress,
+                tokenAddress,
+                offeringAddress,
+                treasuryAddress,
+                governanceAddress,
+                transactionHash: event.transactionHash,
+                blockNumber: event.blockNumber,
+              });
+            }
           );
-          await this.handleFeeCollectedEvent({
-            projectId,
-            feeType,
-            amount: amount.toString(),
-            transactionHash: event.transactionHash,
-            blockNumber: event.blockNumber,
-          });
-        }
-      );
 
-      this.logger.log('Blockchain event listeners started');
+          this.logger.log('Critical blockchain event listeners started');
+        } catch (error) {
+          this.logger.error(`Failed to start event listening (attempt ${retryCount + 1}):`, error);
+          if (retryCount < 2) {
+            this.logger.log(`Retrying event listening in ${(retryCount + 1) * 5} seconds...`);
+            setTimeout(() => startEventListeningWithRetry(retryCount + 1), (retryCount + 1) * 5000);
+          } else {
+            this.logger.error('Max retries exceeded for event listening');
+          }
+        }
+      };
+
+      await startEventListeningWithRetry();
+      */
     } catch (error) {
       this.logger.error('Failed to start event listening:', error);
     }
@@ -559,7 +605,9 @@ export class RealBlockchainService {
    */
   async isInvestorVerified(investorAddress: string): Promise<boolean> {
     try {
-      return await this.identityRegistry.isVerified(investorAddress);
+      return await this.makeRPCCallWithRetry(async () => {
+        return await this.identityRegistry.isVerified(investorAddress);
+      });
     } catch (error) {
       this.logger.error('Failed to check investor verification:', error);
       return false;
@@ -571,7 +619,9 @@ export class RealBlockchainService {
    */
   async isSPVAuthorized(spvAddress: string): Promise<boolean> {
     try {
-      return await this.platformRegistry.isAuthorizedSPV(spvAddress);
+      return await this.makeRPCCallWithRetry(async () => {
+        return await this.platformRegistry.isAuthorizedSPV(spvAddress);
+      });
     } catch (error) {
       this.logger.error('Failed to check SPV authorization:', error);
       return false;
@@ -583,7 +633,9 @@ export class RealBlockchainService {
    */
   async getPlatformConfiguration(): Promise<any> {
     try {
-      const config = await this.platformRegistry.getPlatformConfiguration();
+      const config = await this.makeRPCCallWithRetry(async () => {
+        return await this.platformRegistry.getPlatformConfiguration();
+      });
       return {
         listingFee: config.listingFee.toString(),
         managementFeeRate: config.managementFeeRate.toString(),
@@ -594,6 +646,97 @@ export class RealBlockchainService {
     } catch (error) {
       this.logger.error('Failed to get platform configuration:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Helper method to make RPC calls with circuit breaker and retry logic
+   */
+  private async makeRPCCallWithRetry<T>(
+    operation: () => Promise<T>,
+    maxRetries?: number,
+    baseDelay?: number
+  ): Promise<T> {
+    // Check circuit breaker state
+    if (this.circuitBreakerState === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.circuitBreakerTimeout) {
+        this.circuitBreakerState = 'HALF_OPEN';
+        this.logger.log('Circuit breaker state changed to HALF_OPEN');
+      } else {
+        throw new Error(
+          'Circuit breaker is OPEN - blockchain service temporarily unavailable'
+        );
+      }
+    }
+
+    const retries =
+      maxRetries ||
+      parseInt(
+        this.configService.get<string>('BLOCKCHAIN_RPC_MAX_RETRIES') || '3'
+      );
+    const delay =
+      baseDelay ||
+      parseInt(
+        this.configService.get<string>('BLOCKCHAIN_RPC_RETRY_DELAY') || '5000'
+      );
+    let lastError: Error;
+
+    for (let i = 0; i < retries; i++) {
+      try {
+        const result = await operation();
+
+        // Reset circuit breaker on success
+        if (this.circuitBreakerState === 'HALF_OPEN') {
+          this.circuitBreakerState = 'CLOSED';
+          this.failureCount = 0;
+          this.logger.log('Circuit breaker state changed to CLOSED');
+        }
+
+        return result;
+      } catch (error) {
+        lastError = error;
+
+        // Update circuit breaker state
+        this.recordFailure();
+
+        // Check if it's a rate limit error or network error
+        if (
+          error.code === 'TOO_MANY_REQUESTS' ||
+          error.status === 429 ||
+          error.code === 'NETWORK_ERROR' ||
+          error.code === 'TIMEOUT'
+        ) {
+          const backoffDelay = delay * Math.pow(2, i); // Exponential backoff
+          this.logger.warn(
+            `Blockchain RPC error (${error.code}), retrying in ${backoffDelay}ms (attempt ${i + 1}/${retries})`
+          );
+          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        } else {
+          // For other errors, don't retry
+          this.logger.error(`Non-retryable blockchain error: ${error.message}`);
+          throw error;
+        }
+      }
+    }
+
+    this.logger.error(
+      `Max retries (${retries}) exceeded for blockchain operation`
+    );
+    throw lastError;
+  }
+
+  /**
+   * Record failure for circuit breaker
+   */
+  private recordFailure(): void {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+
+    if (this.failureCount >= this.failureThreshold) {
+      this.circuitBreakerState = 'OPEN';
+      this.logger.error(
+        `Circuit breaker opened after ${this.failureCount} failures`
+      );
     }
   }
 
