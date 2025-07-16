@@ -177,7 +177,9 @@ export default function DashboardPage() {
 
   // WebSocket integration for real-time portfolio updates
   const { portfolioData, lastUpdate, isConnected } = usePortfolioWebSocket();
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connected' | 'disconnected' | 'connecting'
+  >('disconnected');
 
   useEffect(() => {
     setConnectionStatus(isConnected ? 'connected' : 'disconnected');
@@ -185,9 +187,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (portfolioData) {
-      console.log('📊 Real-time portfolio update received:', portfolioData);
+      // Real-time portfolio update received
       // Here we would update the portfolio state with real data
-      // For now, we'll just log it since we're using mock data
+      // For now, we'll just skip logging since we're using mock data
     }
   }, [portfolioData]);
 
@@ -1854,7 +1856,7 @@ export default function DashboardPage() {
                 Welcome back! Here&apos;s your portfolio overview.
               </p>
             </div>
-            
+
             {/* Real-time Status Indicator */}
             <div className="flex items-center space-x-4">
               {lastUpdate && (
@@ -1868,8 +1870,8 @@ export default function DashboardPage() {
                     connectionStatus === 'connected'
                       ? 'bg-green-500'
                       : connectionStatus === 'connecting'
-                      ? 'bg-yellow-500 animate-pulse'
-                      : 'bg-red-500'
+                        ? 'bg-yellow-500 animate-pulse'
+                        : 'bg-red-500'
                   }`}
                 />
                 <span className="text-sm text-gray-600 capitalize">

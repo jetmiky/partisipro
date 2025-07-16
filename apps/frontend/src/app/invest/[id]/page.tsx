@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { projectsService, investmentsService } from '@/services';
-import type { Project, InvestmentEligibility, PaymentDetails } from '@/services';
+import type {
+  Project,
+  InvestmentEligibility,
+  PaymentDetails,
+} from '@/services';
 import {
   ArrowLeft,
   CreditCard,
@@ -68,45 +72,64 @@ interface IdentityStatus {
 }
 
 // Mock project data (simplified from project details)
-const mockProjectData = {
-  '1': {
-    id: '1',
-    title: 'Jakarta-Bandung High-Speed Rail Extension',
-    expectedReturn: 12.5,
-    duration: 25,
-    minimumInvestment: 1000000,
-    riskLevel: 'medium',
-    status: 'active',
-  },
-};
+// const mockProjectData = {
+//   '1': {
+//     id: '1',
+//     title: 'Jakarta-Bandung High-Speed Rail Extension',
+//     expectedReturn: 12.5,
+//     duration: 25,
+//     minimumInvestment: 1000000,
+//     riskLevel: 'medium',
+//     status: 'active',
+//   },
+// };
 
 export default function InvestmentFlowPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
+  const { isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [currentStep, setCurrentStep] = useState<InvestmentStep>('identity');
   const [investmentAmount, setInvestmentAmount] = useState('');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingMessage, setProcessingMessage] = useState('');
   const [agreementAccepted, setAgreementAccepted] = useState(false);
   const [riskAcknowledged, setRiskAcknowledged] = useState(false);
-  const [eligibility, setEligibility] = useState<InvestmentEligibility | null>(null);
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
-  const [currentInvestmentId, setCurrentInvestmentId] = useState<string | null>(null);
+  const [eligibility, setEligibility] = useState<InvestmentEligibility | null>(
+    null
+  );
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
+    null
+  );
+  const [currentInvestmentId, setCurrentInvestmentId] = useState<string | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
+
+  paymentDetails;
+  currentInvestmentId;
 
   // Identity status based on authentication state
   const identityStatus: IdentityStatus = {
     isVerified: isIdentityVerified,
     kycStatus: isKYCApproved ? 'approved' : 'pending',
     claims: [
-      { id: '1', type: 'KYC_APPROVED', status: isKYCApproved ? 'active' : 'pending' },
+      {
+        id: '1',
+        type: 'KYC_APPROVED',
+        status: isKYCApproved ? 'active' : 'pending',
+      },
       { id: '2', type: 'INDONESIAN_RESIDENT', status: 'active' },
-      { id: '3', type: 'COMPLIANCE_VERIFIED', status: isIdentityVerified ? 'active' : 'pending' },
+      {
+        id: '3',
+        type: 'COMPLIANCE_VERIFIED',
+        status: isIdentityVerified ? 'active' : 'pending',
+      },
     ],
-    eligibleForInvestment: isAuthenticated && isKYCApproved && isIdentityVerified,
+    eligibleForInvestment:
+      isAuthenticated && isKYCApproved && isIdentityVerified,
   };
 
   const paymentMethods: PaymentMethod[] = [
@@ -190,8 +213,8 @@ export default function InvestmentFlowPage() {
         setLoading(true);
         const projectData = await projectsService.getProject(projectId);
         setProject(projectData);
-      } catch (error: any) {
-        console.error('Failed to load project:', error);
+      } catch (error) {
+        // Error handled by toast notification
         toast.error('Failed to load project. Please try again.');
         router.push('/marketplace');
       } finally {
@@ -210,22 +233,25 @@ export default function InvestmentFlowPage() {
         checkEligibility(amount);
       }
     }
-  }, [project, investmentAmount, currentStep]);
+  }, [project, investmentAmount, currentStep, checkEligibility]);
 
-  const checkEligibility = async (amount: number) => {
-    if (!project) return;
+  const checkEligibility = useCallback(
+    async (amount: number) => {
+      if (!project) return;
 
-    try {
-      const eligibilityResult = await investmentsService.checkEligibility(
-        project.id,
-        amount
-      );
-      setEligibility(eligibilityResult);
-    } catch (error: any) {
-      console.error('Failed to check eligibility:', error);
-      toast.error('Failed to check investment eligibility.');
-    }
-  };
+      try {
+        const eligibilityResult = await investmentsService.checkEligibility(
+          project.id,
+          amount
+        );
+        setEligibility(eligibilityResult);
+      } catch (error) {
+        // Error handled by toast notification
+        toast.error('Failed to check investment eligibility.');
+      }
+    },
+    [project]
+  );
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -244,7 +270,8 @@ export default function InvestmentFlowPage() {
     // Calculate duration in years from offering dates
     const startDate = new Date(project.offeringStartDate);
     const endDate = new Date(project.offeringEndDate);
-    const durationYears = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    const durationYears =
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
     const totalReturn = annualReturn * durationYears;
 
     return {
@@ -319,17 +346,20 @@ export default function InvestmentFlowPage() {
 
       setCurrentInvestmentId(investmentResult.investment.id);
       setPaymentDetails(investmentResult.paymentDetails);
-      
+
       setProcessingMessage('Awaiting payment confirmation...');
-      
+
       // Start monitoring investment status
       monitorInvestmentStatus(investmentResult.investment.id);
-
-    } catch (error: any) {
-      console.error('Investment failed:', error);
+    } catch (error) {
+      // Error handled by toast notification
       setIsProcessing(false);
       setCurrentStep('failed');
-      toast.error(error.message || 'Investment failed. Please try again.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Investment failed. Please try again.'
+      );
     }
   };
 
@@ -339,8 +369,9 @@ export default function InvestmentFlowPage() {
 
     const checkStatus = async () => {
       try {
-        const status = await investmentsService.getInvestmentStatus(investmentId);
-        
+        const status =
+          await investmentsService.getInvestmentStatus(investmentId);
+
         // Update processing message based on current step
         if (status.progress.length > 0) {
           const latestProgress = status.progress[status.progress.length - 1];
@@ -364,12 +395,13 @@ export default function InvestmentFlowPage() {
           setTimeout(checkStatus, 5000); // Check every 5 seconds
         } else {
           // Timeout - redirect to dashboard to check status
-          toast.info('Investment is taking longer than expected. Check your dashboard for updates.');
+          toast.info(
+            'Investment is taking longer than expected. Check your dashboard for updates.'
+          );
           router.push('/dashboard');
         }
-
       } catch (error) {
-        console.error('Failed to check investment status:', error);
+        // Error handled silently during status check
         attempts++;
         if (attempts < maxAttempts) {
           setTimeout(checkStatus, 5000);
@@ -685,12 +717,16 @@ export default function InvestmentFlowPage() {
                   {eligibility.eligible ? (
                     <div className="flex items-center text-green-700 bg-green-50 p-3 rounded-lg">
                       <CheckCircle className="w-5 h-5 mr-2" />
-                      <span className="text-sm">You are eligible to invest this amount</span>
+                      <span className="text-sm">
+                        You are eligible to invest this amount
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center text-red-700 bg-red-50 p-3 rounded-lg">
                       <XCircle className="w-5 h-5 mr-2" />
-                      <span className="text-sm">{eligibility.reason || 'Investment not allowed'}</span>
+                      <span className="text-sm">
+                        {eligibility.reason || 'Investment not allowed'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -724,7 +760,14 @@ export default function InvestmentFlowPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Duration</span>
                   <span className="font-semibold">
-                    {project ? Math.round((new Date(project.offeringEndDate).getTime() - new Date(project.offeringStartDate).getTime()) / (1000 * 60 * 60 * 24 * 365)) : 0} years
+                    {project
+                      ? Math.round(
+                          (new Date(project.offeringEndDate).getTime() -
+                            new Date(project.offeringStartDate).getTime()) /
+                            (1000 * 60 * 60 * 24 * 365)
+                        )
+                      : 0}{' '}
+                    years
                   </span>
                 </div>
 

@@ -104,7 +104,10 @@ class InvestmentsService {
   /**
    * Check investment eligibility for a project
    */
-  async checkEligibility(projectId: string, amount: number): Promise<InvestmentEligibility> {
+  async checkEligibility(
+    projectId: string,
+    amount: number
+  ): Promise<InvestmentEligibility> {
     return apiClient.get(`${this.BASE_PATH}/eligibility`, {
       projectId,
       amount,
@@ -213,7 +216,9 @@ class InvestmentsService {
   /**
    * Get investment analytics
    */
-  async getInvestmentAnalytics(period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<{
+  async getInvestmentAnalytics(
+    period: 'day' | 'week' | 'month' | 'year' = 'month'
+  ): Promise<{
     totalInvested: Array<{ date: string; amount: number }>;
     portfolioValue: Array<{ date: string; value: number }>;
     returns: Array<{ date: string; amount: number }>;
