@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Mail, Layers } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, Mail, Layers, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
+import { authService } from '@/services/auth.service';
 
 export default function PasswordRecoveryPage() {
+  const router = useRouter();
   const [step, setStep] = useState<'email' | 'otp' | 'newPassword'>('email');
   const [formData, setFormData] = useState({
     email: '',
@@ -16,6 +19,11 @@ export default function PasswordRecoveryPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
   // OTP Timer countdown
   useEffect(() => {
@@ -34,52 +42,119 @@ export default function PasswordRecoveryPage() {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (error) setError(null);
+    if (success) setSuccess(null);
   };
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    // TODO: Implement email verification and OTP sending
-    setTimeout(() => {
-      // TODO: Implement OTP sending API call
-      // console.log('Sending OTP to:', formData.email);
+    try {
+      const response = await authService.requestPasswordReset(formData.email);
+      if (response.success) {
+        setSuccess('Password reset instructions sent to your email');
+        setStep('otp');
+        setTimer(119); // 1:59 timer
+      } else {
+        setError('Failed to send reset instructions. Please try again.');
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          'Failed to send reset instructions. Please try again.'
+      );
+    } finally {
       setIsLoading(false);
-      setStep('otp');
-      setTimer(119); // 1:59 timer
-      alert('OTP sent to your email! (This is a mockup)');
-    }, 1500);
+    }
   };
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    // TODO: Implement OTP verification
-    setTimeout(() => {
-      // TODO: Implement OTP verification API call
-      // console.log('Verifying OTP:', formData.otp);
-      setIsLoading(false);
-      if (formData.otp === '123456') {
+    try {
+      // For now, we'll treat the OTP as the reset token
+      // In a real implementation, this would validate the OTP and return a reset token
+      if (formData.otp && formData.otp.length >= 6) {
+        setResetToken(formData.otp);
         setStep('newPassword');
+        setSuccess('OTP verified. You can now set a new password.');
       } else {
-        alert('Invalid OTP. Try 123456 for demo purposes.');
+        setError('Please enter a valid 6-digit OTP');
       }
-    }, 1500);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    // TODO: Implement password reset
-    setTimeout(() => {
-      // TODO: Implement password reset API call
-      // console.log('Resetting password');
+    // Validate password confirmation
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError('Passwords do not match');
       setIsLoading(false);
-      alert('Password reset successful! (This is a mockup)');
-      // Redirect to sign in
-    }, 1500);
+      return;
+    }
+
+    if (formData.newPassword.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await authService.resetPassword(
+        formData.newPassword,
+        resetToken || formData.otp
+      );
+
+      if (response.success) {
+        setSuccess('Password reset successful! Redirecting to sign in...');
+        setTimeout(() => {
+          router.push('/auth/signin');
+        }, 2000);
+      } else {
+        setError('Failed to reset password. Please try again.');
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          'Failed to reset password. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await authService.requestPasswordReset(formData.email);
+      if (response.success) {
+        setSuccess('New OTP sent to your email');
+        setTimer(119); // Reset timer to 1:59
+      } else {
+        setError('Failed to resend OTP. Please try again.');
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || 'Failed to resend OTP. Please try again.'
+      );
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -134,6 +209,35 @@ export default function PasswordRecoveryPage() {
               <p className="text-sm text-gray-600">PPP Platform</p>
             </div>
           </div>
+
+          {/* Error/Success Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Error</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>{error}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-800">
+                    Success
+                  </h3>
+                  <div className="mt-2 text-sm text-green-700">
+                    <p>{success}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Step 1: Email Entry */}
           {step === 'email' && (
@@ -247,11 +351,7 @@ export default function PasswordRecoveryPage() {
                   <div className="text-center">
                     <button
                       type="button"
-                      onClick={() => {
-                        setTimer(119);
-                        // TODO: Resend OTP logic
-                        alert('OTP resent! (This is a mockup)');
-                      }}
+                      onClick={handleResendOTP}
                       className="text-sm text-secondary-600 hover:text-secondary-700 font-medium"
                     >
                       Resend code
@@ -286,15 +386,31 @@ export default function PasswordRecoveryPage() {
                   >
                     New Password
                   </label>
-                  <Input
-                    id="newPassword"
-                    name="newPassword"
-                    type="password"
-                    placeholder="Enter new password"
-                    value={formData.newPassword}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="newPassword"
+                      name="newPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter new password"
+                      value={formData.newPassword}
+                      onChange={handleInputChange}
+                      className="pl-10 pr-10"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -304,15 +420,33 @@ export default function PasswordRecoveryPage() {
                   >
                     Confirm New Password
                   </label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="Confirm new password"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm new password"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="pl-10 pr-10"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <Button

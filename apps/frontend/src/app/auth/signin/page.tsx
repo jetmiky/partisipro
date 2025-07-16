@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, Layers } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SignInPage() {
+  const router = useRouter();
+  const {
+    login,
+    isAuthenticated,
+    isLoading: authLoading,
+    error,
+    clearError,
+  } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -14,6 +25,18 @@ export default function SignInPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
+  // Clear any existing errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -25,24 +48,44 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (isLoading || authLoading) return;
 
-    // TODO: Implement Web3Auth SDK integration
-    // This is a mockup for demonstration
-    setTimeout(() => {
-      // TODO: Implement Web3Auth sign in API call
-      // console.log('Sign in attempt:', formData);
+    setIsLoading(true);
+    clearError();
+
+    try {
+      // For now, we'll simulate Web3Auth ID token generation
+      // In real implementation, this would come from Web3Auth SDK
+      const mockIdToken = `mock_token_${Date.now()}_${formData.email}`;
+
+      await login(mockIdToken);
+      // Navigation will be handled by the useEffect above when isAuthenticated becomes true
+    } catch (err) {
+      // Error handling is managed by useAuth hook
+      console.error('Login failed:', err);
+    } finally {
       setIsLoading(false);
-      // Simulate success/failure for demo
-      alert('Sign in successful! (This is a mockup)');
-    }, 2000);
+    }
   };
 
-  const handleSocialAuth = (provider: string) => {
-    // TODO: Implement Web3Auth social login
-    // TODO: Implement Web3Auth social login
-    // console.log(`Attempting ${provider} login...`);
-    alert(`${provider} login would be handled by Web3Auth SDK`);
+  const handleSocialAuth = async (provider: string) => {
+    if (isLoading || authLoading) return;
+
+    setIsLoading(true);
+    clearError();
+
+    try {
+      // In real implementation, this would integrate with Web3Auth SDK
+      // For now, simulate social login with mock token
+      const mockIdToken = `mock_social_token_${Date.now()}_${provider.toLowerCase()}`;
+
+      await login(mockIdToken);
+      // Navigation will be handled by the useEffect above
+    } catch (err) {
+      console.error(`${provider} login failed:`, err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,6 +138,22 @@ export default function SignInPage() {
               Enter your detail to proceed further
             </p>
           </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">
+                    Authentication Error
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>{error}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Sign In Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -180,9 +239,9 @@ export default function SignInPage() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={isLoading}
+              disabled={isLoading || authLoading}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading || authLoading ? 'Signing In...' : 'Sign In'}
             </Button>
 
             {/* Social Auth Divider */}
@@ -202,7 +261,8 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => handleSocialAuth('Google')}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isLoading || authLoading}
+                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -228,7 +288,8 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => handleSocialAuth('Apple')}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isLoading || authLoading}
+                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   className="w-5 h-5"
@@ -243,7 +304,8 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => handleSocialAuth('Facebook')}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isLoading || authLoading}
+                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
