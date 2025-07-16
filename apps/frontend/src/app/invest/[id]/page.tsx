@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { projectsService, investmentsService } from '@/services';
+import type { Project, InvestmentEligibility, PaymentDetails } from '@/services';
 import {
   ArrowLeft,
   CreditCard,
@@ -18,9 +21,21 @@ import {
   Award,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
-import type { Project } from '@/types';
 import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
+
+// Simple toast replacement for now
+const toast = {
+  success: (message: string) => {
+    alert(`✅ ${message}`);
+  },
+  error: (message: string) => {
+    alert(`❌ ${message}`);
+  },
+  info: (message: string) => {
+    alert(`ℹ️ ${message}`);
+  },
+};
 
 type InvestmentStep =
   | 'identity'
@@ -68,27 +83,31 @@ const mockProjectData = {
 export default function InvestmentFlowPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [currentStep, setCurrentStep] = useState<InvestmentStep>('identity');
   const [investmentAmount, setInvestmentAmount] = useState('');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<string>('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processingMessage, setProcessingMessage] = useState('');
   const [agreementAccepted, setAgreementAccepted] = useState(false);
   const [riskAcknowledged, setRiskAcknowledged] = useState(false);
+  const [eligibility, setEligibility] = useState<InvestmentEligibility | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [currentInvestmentId, setCurrentInvestmentId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // TODO: Mock identity status - replace with actual IdentityRegistry contract integration
-  const [identityStatus] = useState<IdentityStatus>({
-    isVerified: true,
-    kycStatus: 'approved',
+  // Identity status based on authentication state
+  const identityStatus: IdentityStatus = {
+    isVerified: isIdentityVerified,
+    kycStatus: isKYCApproved ? 'approved' : 'pending',
     claims: [
-      { id: '1', type: 'KYC_APPROVED', status: 'active' },
+      { id: '1', type: 'KYC_APPROVED', status: isKYCApproved ? 'active' : 'pending' },
       { id: '2', type: 'INDONESIAN_RESIDENT', status: 'active' },
-      { id: '3', type: 'COMPLIANCE_VERIFIED', status: 'active' },
+      { id: '3', type: 'COMPLIANCE_VERIFIED', status: isIdentityVerified ? 'active' : 'pending' },
     ],
-    eligibleForInvestment: true,
-  });
+    eligibleForInvestment: isAuthenticated && isKYCApproved && isIdentityVerified,
+  };
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -159,13 +178,54 @@ export default function InvestmentFlowPage() {
   useEffect(() => {
     const projectId = params.id as string;
 
-    // Mock API call
-    setTimeout(() => {
-      const projectData =
-        mockProjectData[projectId as keyof typeof mockProjectData];
-      setProject(projectData as unknown as Project);
-    }, 500);
-  }, [params.id]);
+    // Check authentication
+    if (!isAuthenticated) {
+      router.push(`/auth?redirectTo=/invest/${projectId}`);
+      return;
+    }
+
+    // Load project data
+    const loadProjectData = async () => {
+      try {
+        setLoading(true);
+        const projectData = await projectsService.getProject(projectId);
+        setProject(projectData);
+      } catch (error: any) {
+        console.error('Failed to load project:', error);
+        toast.error('Failed to load project. Please try again.');
+        router.push('/marketplace');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjectData();
+  }, [params.id, isAuthenticated, router]);
+
+  // Check eligibility when project and amount change
+  useEffect(() => {
+    if (project && investmentAmount && currentStep === 'amount') {
+      const amount = parseFloat(investmentAmount.replace(/[^\d]/g, ''));
+      if (amount > 0) {
+        checkEligibility(amount);
+      }
+    }
+  }, [project, investmentAmount, currentStep]);
+
+  const checkEligibility = async (amount: number) => {
+    if (!project) return;
+
+    try {
+      const eligibilityResult = await investmentsService.checkEligibility(
+        project.id,
+        amount
+      );
+      setEligibility(eligibilityResult);
+    } catch (error: any) {
+      console.error('Failed to check eligibility:', error);
+      toast.error('Failed to check investment eligibility.');
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -225,28 +285,120 @@ export default function InvestmentFlowPage() {
     }
   };
 
-  const simulatePayment = (result: 'success' | 'failed') => {
+  const processInvestment = async () => {
+    if (!project || !agreementAccepted || !riskAcknowledged) return;
+
+    const amount = parseFloat(investmentAmount.replace(/[^\d]/g, ''));
+    if (!amount || amount <= 0) {
+      toast.error('Please enter a valid investment amount');
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast.error('Please select a payment method');
+      return;
+    }
+
     setIsProcessing(true);
     setCurrentStep('processing');
-    setProcessingMessage('Processing your investment...');
+    setProcessingMessage('Creating investment order...');
 
-    setTimeout(() => {
-      setProcessingMessage('Verifying payment details...');
-    }, 1000);
+    try {
+      // Create investment
+      const investmentResult = await investmentsService.createInvestment({
+        projectId: project.id,
+        amount,
+        paymentMethod: selectedPaymentMethod,
+        acceptTerms: agreementAccepted,
+        acceptRisks: riskAcknowledged,
+      });
 
-    setTimeout(() => {
-      setProcessingMessage('Allocating tokens...');
-    }, 2000);
+      setCurrentInvestmentId(investmentResult.investment.id);
+      setPaymentDetails(investmentResult.paymentDetails);
+      
+      setProcessingMessage('Awaiting payment confirmation...');
+      
+      // Start monitoring investment status
+      monitorInvestmentStatus(investmentResult.investment.id);
 
-    setTimeout(() => {
+    } catch (error: any) {
+      console.error('Investment failed:', error);
       setIsProcessing(false);
-      if (result === 'success') {
-        setCurrentStep('success');
-      } else {
-        setCurrentStep('failed');
-      }
-    }, 3000);
+      setCurrentStep('failed');
+      toast.error(error.message || 'Investment failed. Please try again.');
+    }
   };
+
+  const monitorInvestmentStatus = async (investmentId: string) => {
+    const maxAttempts = 60; // 5 minutes with 5-second intervals
+    let attempts = 0;
+
+    const checkStatus = async () => {
+      try {
+        const status = await investmentsService.getInvestmentStatus(investmentId);
+        
+        // Update processing message based on current step
+        if (status.progress.length > 0) {
+          const latestProgress = status.progress[status.progress.length - 1];
+          setProcessingMessage(latestProgress.message);
+        }
+
+        if (status.status === 'confirmed') {
+          setIsProcessing(false);
+          setCurrentStep('success');
+          toast.success('Investment successful!');
+          return;
+        } else if (status.status === 'failed') {
+          setIsProcessing(false);
+          setCurrentStep('failed');
+          return;
+        }
+
+        // Continue monitoring if still pending
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 5000); // Check every 5 seconds
+        } else {
+          // Timeout - redirect to dashboard to check status
+          toast.info('Investment is taking longer than expected. Check your dashboard for updates.');
+          router.push('/dashboard');
+        }
+
+      } catch (error) {
+        console.error('Failed to check investment status:', error);
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 5000);
+        }
+      }
+    };
+
+    // Start checking after 3 seconds
+    setTimeout(checkStatus, 3000);
+  };
+
+  // Show loading state
+  if (loading || !project) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading project information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check authentication
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderStepIndicator = () => {
     const steps = [
@@ -522,6 +674,23 @@ export default function InvestmentFlowPage() {
                   </Button>
                 ))}
               </div>
+
+              {/* Eligibility feedback */}
+              {eligibility && (
+                <div className="mt-4">
+                  {eligibility.eligible ? (
+                    <div className="flex items-center text-green-700 bg-green-50 p-3 rounded-lg">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      <span className="text-sm">You are eligible to invest this amount</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-red-700 bg-red-50 p-3 rounded-lg">
+                      <XCircle className="w-5 h-5 mr-2" />
+                      <span className="text-sm">{eligibility.reason || 'Investment not allowed'}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -778,23 +947,13 @@ export default function InvestmentFlowPage() {
           <Button onClick={handleBackStep} variant="secondary">
             Back
           </Button>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => simulatePayment('success')}
-              variant="primary"
-              disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
-            >
-              Confirm Investment
-            </Button>
-            <Button
-              onClick={() => simulatePayment('failed')}
-              variant="primary"
-              className="bg-red-600 hover:bg-red-700"
-              disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
-            >
-              Simulate Failure
-            </Button>
-          </div>
+          <Button
+            onClick={processInvestment}
+            variant="primary"
+            disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
+          >
+            {isProcessing ? 'Processing...' : 'Confirm Investment'}
+          </Button>
         </div>
       </div>
     );

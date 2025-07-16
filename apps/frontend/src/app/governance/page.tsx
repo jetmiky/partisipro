@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Vote,
   Users,
@@ -21,162 +22,98 @@ import {
   StatsCard,
   Modal,
 } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { governanceService, GovernanceProposal, VotingPower, GovernanceStats } from '@/services';
 
-interface Proposal {
-  id: string;
-  title: string;
-  description: string;
-  proposer: string;
-  status: 'active' | 'passed' | 'rejected' | 'pending';
-  votingPeriod: {
-    start: string;
-    end: string;
-  };
-  votes: {
-    for: number;
-    against: number;
-    abstain: number;
-  };
-  totalTokens: number;
-  requiredQuorum: number;
-  userVote?: 'for' | 'against' | 'abstain' | null;
-  category: string;
-  projectId?: string;
-  priority: 'high' | 'medium' | 'low';
-}
+// Simple toast replacement for now
+const toast = {
+  success: (message: string) => {
+    alert(`✅ ${message}`);
+  },
+  error: (message: string) => {
+    alert(`❌ ${message}`);
+  },
+  info: (message: string) => {
+    alert(`ℹ️ ${message}`);
+  },
+};
 
-interface UserTokens {
-  projectId: string;
-  projectTitle: string;
-  tokenBalance: number;
-  votingPower: number;
-}
+// Remove old interfaces - now using service types
+// interface Proposal and interface UserTokens have been replaced
+// with GovernanceProposal and VotingPower from the service
 
-const mockProposals: Proposal[] = [
-  {
-    id: '1',
-    title: 'Increase Revenue Distribution Rate to 8%',
-    description:
-      'Proposal to increase the monthly revenue distribution rate from 6% to 8% for the Jakarta-Bandung High-Speed Rail Extension project to provide better returns for token holders.',
-    proposer: '0x1234...5678',
-    status: 'active',
-    votingPeriod: {
-      start: '2024-01-01',
-      end: '2024-01-15',
-    },
-    votes: {
-      for: 12500000,
-      against: 3200000,
-      abstain: 800000,
-    },
-    totalTokens: 25000000,
-    requiredQuorum: 15000000,
-    userVote: null,
-    category: 'Financial',
-    projectId: '1',
-    priority: 'high',
-  },
-  {
-    id: '2',
-    title: 'Approve Additional Infrastructure Investment',
-    description:
-      'Authorize additional investment of 50 billion IDR for enhanced safety systems and passenger amenities in the Soekarno-Hatta Airport Terminal 4 project.',
-    proposer: '0x9876...4321',
-    status: 'active',
-    votingPeriod: {
-      start: '2024-01-05',
-      end: '2024-01-19',
-    },
-    votes: {
-      for: 8900000,
-      against: 5600000,
-      abstain: 1200000,
-    },
-    totalTokens: 20000000,
-    requiredQuorum: 12000000,
-    userVote: 'for',
-    category: 'Investment',
-    projectId: '2',
-    priority: 'medium',
-  },
-  {
-    id: '3',
-    title: 'Implement Quarterly Financial Reporting',
-    description:
-      'Mandate quarterly financial reports for all projects to increase transparency and provide regular updates on project performance and revenue distribution.',
-    proposer: '0x5555...7777',
-    status: 'passed',
-    votingPeriod: {
-      start: '2023-12-01',
-      end: '2023-12-15',
-    },
-    votes: {
-      for: 18500000,
-      against: 2100000,
-      abstain: 900000,
-    },
-    totalTokens: 30000000,
-    requiredQuorum: 18000000,
-    userVote: 'for',
-    category: 'Governance',
-    priority: 'medium',
-  },
-  {
-    id: '4',
-    title: 'Emergency Fund Allocation for Project Delays',
-    description:
-      'Establish emergency fund allocation protocol for handling unexpected project delays and cost overruns to protect investor interests.',
-    proposer: '0x3333...8888',
-    status: 'rejected',
-    votingPeriod: {
-      start: '2023-11-15',
-      end: '2023-11-29',
-    },
-    votes: {
-      for: 6200000,
-      against: 14800000,
-      abstain: 3000000,
-    },
-    totalTokens: 24000000,
-    requiredQuorum: 14400000,
-    userVote: 'against',
-    category: 'Risk Management',
-    priority: 'low',
-  },
-];
-
-const mockUserTokens: UserTokens[] = [
-  {
-    projectId: '1',
-    projectTitle: 'Jakarta-Bandung High-Speed Rail Extension',
-    tokenBalance: 50000,
-    votingPower: 0.2, // 0.2% of total tokens
-  },
-  {
-    projectId: '2',
-    projectTitle: 'Soekarno-Hatta Airport Terminal 4',
-    tokenBalance: 30000,
-    votingPower: 0.15, // 0.15% of total tokens
-  },
-  {
-    projectId: '3',
-    projectTitle: 'Bali Renewable Energy Plant',
-    tokenBalance: 25000,
-    votingPower: 0.125, // 0.125% of total tokens
-  },
-];
+// Remove mock data - now using real API data loaded in loadGovernanceData()
+// const mockProposals: GovernanceProposal[] = [];
+// const mockUserTokens: VotingPower[] = [];
 
 export default function GovernancePage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
+  
   const [selectedTab, setSelectedTab] = useState('active');
   const [filterCategory, setFilterCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
-    null
-  );
+  const [selectedProposal, setSelectedProposal] = useState<GovernanceProposal | null>(null);
   const [votingModalOpen, setVotingModalOpen] = useState(false);
-  const [selectedVote, setSelectedVote] = useState<
-    'for' | 'against' | 'abstain' | ''
-  >('');
+  const [selectedVote, setSelectedVote] = useState<'for' | 'against' | 'abstain' | ''>('');
+  
+  // Data state
+  const [proposals, setProposals] = useState<GovernanceProposal[]>([]);
+  const [votingPowers, setVotingPowers] = useState<VotingPower[]>([]);
+  const [governanceStats, setGovernanceStats] = useState<GovernanceStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [voting, setVoting] = useState(false);
+
+  // Check authentication and eligibility
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth?redirectTo=/governance');
+      return;
+    }
+
+    if (!isKYCApproved || !isIdentityVerified) {
+      toast.error('Complete KYC and identity verification to participate in governance');
+      router.push('/identity');
+      return;
+    }
+
+    loadGovernanceData();
+  }, [isAuthenticated, isKYCApproved, isIdentityVerified, router]);
+
+  const loadGovernanceData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load all governance data in parallel
+      const [proposalsResult, votingPowerResult, statsResult] = await Promise.all([
+        governanceService.getProposals({
+          status: selectedTab === 'all' ? undefined : selectedTab as GovernanceProposal['status'],
+          category: filterCategory === 'all' ? undefined : filterCategory as GovernanceProposal['category'],
+          search: searchTerm || undefined,
+          sortBy: 'created',
+          sortOrder: 'desc',
+        }),
+        governanceService.getVotingPower(),
+        governanceService.getGovernanceStats(),
+      ]);
+
+      setProposals(proposalsResult.proposals);
+      setVotingPowers(votingPowerResult);
+      setGovernanceStats(statsResult);
+    } catch (error: any) {
+      console.error('Failed to load governance data:', error);
+      toast.error('Failed to load governance data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reload when filters change
+  useEffect(() => {
+    if (isAuthenticated && isKYCApproved && isIdentityVerified) {
+      loadGovernanceData();
+    }
+  }, [selectedTab, filterCategory, searchTerm]);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('id-ID').format(num);
@@ -233,13 +170,11 @@ export default function GovernancePage() {
     }
   };
 
-  const calculateVotingProgress = (proposal: Proposal) => {
-    const totalVotes =
-      proposal.votes.for + proposal.votes.against + proposal.votes.abstain;
-    const participation = (totalVotes / proposal.totalTokens) * 100;
-    const approval =
-      totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
-    const quorumReached = totalVotes >= proposal.requiredQuorum;
+  const calculateVotingProgress = (proposal: GovernanceProposal) => {
+    const totalVotes = proposal.votes.total;
+    const participation = proposal.quorum.percentage;
+    const approval = totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
+    const quorumReached = proposal.quorum.met;
 
     return {
       participation: participation.toFixed(1),
@@ -249,7 +184,7 @@ export default function GovernancePage() {
     };
   };
 
-  const isVotingActive = (proposal: Proposal) => {
+  const isVotingActive = (proposal: GovernanceProposal) => {
     const now = new Date();
     const endDate = new Date(proposal.votingPeriod.end);
     return proposal.status === 'active' && now <= endDate;
@@ -257,20 +192,39 @@ export default function GovernancePage() {
 
   const getUserVotingPower = (projectId?: string) => {
     if (!projectId) return 0;
-    const userTokens = mockUserTokens.find(t => t.projectId === projectId);
-    return userTokens?.votingPower || 0;
+    const userPower = votingPowers.find(p => p.projectId === projectId);
+    return userPower?.votingPower || 0;
   };
 
-  const filteredProposals = mockProposals.filter(proposal => {
-    const matchesTab = selectedTab === 'all' || proposal.status === selectedTab;
-    const matchesCategory =
-      filterCategory === 'all' ||
-      proposal.category.toLowerCase() === filterCategory;
-    const matchesSearch =
-      proposal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proposal.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesTab && matchesCategory && matchesSearch;
-  });
+  // Show loading state
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading governance data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Check authentication
+  if (!isAuthenticated) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <p className="text-gray-600">Redirecting to login...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Filter proposals locally for UI responsiveness
+  const filteredProposals = proposals;
 
   const tabs = [
     { id: 'active', label: 'Active Proposals' },
@@ -279,35 +233,60 @@ export default function GovernancePage() {
     { id: 'all', label: 'All Proposals' },
   ];
 
-  const activeProposals = mockProposals.filter(
-    p => p.status === 'active'
-  ).length;
-  const totalVotingPower = mockUserTokens.reduce(
-    (sum, token) => sum + token.votingPower,
+  const activeProposals = governanceStats?.activeProposals || 0;
+  const totalVotingPower = votingPowers.reduce(
+    (sum, power) => sum + power.votingPower,
     0
   );
-  const proposalsVoted = mockProposals.filter(p => p.userVote).length;
-  const participationRate =
-    mockProposals.length > 0
-      ? (proposalsVoted / mockProposals.length) * 100
-      : 0;
+  const proposalsVoted = governanceStats?.userParticipation.proposalsVoted || 0;
+  const participationRate = governanceStats?.userParticipation.participationRate || 0;
 
-  const handleVote = () => {
+  const handleVote = async () => {
     if (!selectedProposal || !selectedVote) return;
 
-    // TODO: Implement actual voting logic with smart contract integration
-    // console.log(`Voting ${selectedVote} on proposal ${selectedProposal.id}`);
+    setVoting(true);
 
-    // Mock vote submission
-    setTimeout(() => {
+    try {
+      const result = await governanceService.vote({
+        proposalId: selectedProposal.id,
+        choice: selectedVote,
+      });
+
+      // Update the proposal with the new vote
+      setProposals(prevProposals =>
+        prevProposals.map(proposal =>
+          proposal.id === selectedProposal.id
+            ? {
+                ...proposal,
+                userVote: {
+                  choice: selectedVote,
+                  votingPower: result.votingPower,
+                  timestamp: new Date().toISOString(),
+                  transactionHash: result.transactionHash,
+                },
+              }
+            : proposal
+        )
+      );
+
       setVotingModalOpen(false);
       setSelectedVote('');
       setSelectedProposal(null);
-      // In real implementation, would refetch data or update state
-    }, 1000);
+      
+      toast.success(`Vote "${selectedVote}" submitted successfully!`);
+      
+      // Refresh governance data to get updated vote counts
+      loadGovernanceData();
+      
+    } catch (error: any) {
+      console.error('Voting failed:', error);
+      toast.error(error.message || 'Failed to submit vote. Please try again.');
+    } finally {
+      setVoting(false);
+    }
   };
 
-  const renderProposalCard = (proposal: Proposal) => {
+  const renderProposalCard = (proposal: GovernanceProposal) => {
     const progress = calculateVotingProgress(proposal);
     const votingActive = isVotingActive(proposal);
     const userVotingPower = getUserVotingPower(proposal.projectId);
@@ -428,7 +407,7 @@ export default function GovernancePage() {
                   <AlertCircle className="w-4 h-4" />
                 )}
                 Quorum {progress.quorumReached ? 'Reached' : 'Required'}:{' '}
-                {formatNumber(proposal.requiredQuorum)}
+                {formatNumber(proposal.quorum.required)}
               </span>
               <span className="text-gray-500">
                 Participation: {progress.participation}%
@@ -438,14 +417,14 @@ export default function GovernancePage() {
               {proposal.userVote && (
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    proposal.userVote === 'for'
+                    proposal.userVote.choice === 'for'
                       ? 'bg-green-100 text-green-800'
-                      : proposal.userVote === 'against'
+                      : proposal.userVote.choice === 'against'
                         ? 'bg-red-100 text-red-800'
                         : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  You voted: {proposal.userVote}
+                  You voted: {proposal.userVote.choice}
                 </span>
               )}
               {votingActive && !proposal.userVote && userVotingPower > 0 && (
@@ -726,7 +705,7 @@ export default function GovernancePage() {
                   <div>
                     <span className="text-gray-500">Required Quorum:</span>
                     <span className="ml-2">
-                      {formatNumber(selectedProposal.requiredQuorum)} tokens
+                      {formatNumber(selectedProposal.quorum.required)} tokens
                     </span>
                   </div>
                 </div>

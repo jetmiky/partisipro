@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FileText,
@@ -28,13 +29,27 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
 import {
+  kycService,
   KYCProvider,
   KYCSession,
-  KYCCheck,
-  AutomatedClaimsIssuance,
-  KYCErrorHandling,
-} from '@/types';
+  KYCInitiationRequest,
+  KYCAnalytics,
+} from '@/services';
+
+// Simple toast replacement for now
+const toast = {
+  success: (message: string) => {
+    alert(`✅ ${message}`);
+  },
+  error: (message: string) => {
+    alert(`❌ ${message}`);
+  },
+  info: (message: string) => {
+    alert(`ℹ️ ${message}`);
+  },
+};
 
 type KYCStep =
   | 'intro'
@@ -70,18 +85,22 @@ interface IdentityClaim {
 }
 
 export default function KYCPage() {
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  
   const [currentStep, setCurrentStep] = useState<KYCStep>('intro');
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
-  const [selectedProvider, setSelectedProvider] = useState<KYCProvider | null>(
-    null
-  );
+  const [selectedProvider, setSelectedProvider] = useState<KYCProvider | null>(null);
   const [kycSession, setKycSession] = useState<KYCSession | null>(null);
   const [pollingActive, setPollingActive] = useState(false);
-  const [claimsIssuance, setClaimsIssuance] =
-    useState<AutomatedClaimsIssuance | null>(null);
-  const [error, setError] = useState<KYCErrorHandling | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Real API state
+  const [providers, setProviders] = useState<KYCProvider[]>([]);
+  const [currentKYCStatus, setCurrentKYCStatus] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -140,6 +159,170 @@ export default function KYCPage() {
       status: 'pending',
     },
   ]);
+
+  // Check authentication and load KYC data
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth?redirectTo=/kyc');
+      return;
+    }
+
+    loadKYCData();
+  }, [isAuthenticated, router]);
+
+  const loadKYCData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Load providers and current KYC status in parallel
+      const [providersResult, statusResult] = await Promise.all([
+        kycService.getProviders(),
+        kycService.getCurrentKYCStatus(),
+      ]);
+
+      setProviders(providersResult);
+      setCurrentKYCStatus(statusResult);
+      
+      // Set current status based on API response
+      if (statusResult.hasActiveSession) {
+        setKycSession(statusResult.currentSession);
+        setKycStatus(statusResult.currentSession?.status || 'pending');
+        // Set appropriate step based on session status
+        if (statusResult.currentSession?.status === 'completed') {
+          setCurrentStep('complete');
+        } else if (statusResult.currentSession?.status === 'processing') {
+          setCurrentStep('processing');
+        } else {
+          setCurrentStep('verification');
+        }
+      } else if (statusResult.latestResults?.overall === 'approved') {
+        setCurrentStep('complete');
+        setKycStatus('approved');
+      }
+    } catch (error: any) {
+      console.error('Failed to load KYC data:', error);
+      toast.error('Failed to load KYC data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInitiateKYC = async () => {
+    if (!selectedProvider || !user) return;
+
+    try {
+      setSubmitting(true);
+      
+      const request: KYCInitiationRequest = {
+        provider: selectedProvider.id,
+        level: 'advanced',
+        investorType: 'retail',
+        personalInfo: {
+          firstName: formData.fullName.split(' ')[0] || '',
+          lastName: formData.fullName.split(' ').slice(1).join(' ') || '',
+          email: user.email || '',
+          dateOfBirth: '', // Would be collected in form
+          nationality: 'ID',
+          residenceCountry: 'ID',
+          phoneNumber: formData.phoneNumber,
+        },
+        preferredLanguage: 'id',
+      };
+
+      const result = await kycService.initiateKYC(request);
+      setKycSession({
+        id: result.sessionId,
+        userId: user.uid || '',
+        provider: selectedProvider.id,
+        status: 'pending',
+        level: 'advanced',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        expiresAt: result.expiresAt,
+        sessionUrl: result.sessionUrl,
+        webhookEvents: [],
+        documents: [],
+        checks: [],
+      });
+      
+      toast.success('KYC verification initiated successfully');
+      setCurrentStep('verification');
+      
+      // Start polling for status updates
+      startStatusPolling(result.sessionId);
+    } catch (error: any) {
+      console.error('Failed to initiate KYC:', error);
+      toast.error('Failed to initiate KYC. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const startStatusPolling = (sessionId: string) => {
+    setPollingActive(true);
+    
+    const pollStatus = async () => {
+      try {
+        const session = await kycService.getSessionStatus(sessionId);
+        setKycSession(session);
+        setKycStatus(session.status);
+        
+        if (session.status === 'completed' || session.status === 'failed') {
+          setPollingActive(false);
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+          }
+          
+          if (session.status === 'completed') {
+            setCurrentStep('identity');
+            toast.success('KYC verification completed successfully!');
+          } else {
+            toast.error('KYC verification failed. Please try again.');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to poll KYC status:', error);
+      }
+    };
+    
+    // Poll every 5 seconds
+    pollingIntervalRef.current = setInterval(pollStatus, 5000);
+    
+    // Also poll immediately
+    pollStatus();
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading KYC data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check authentication
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   const steps = [
     { id: 'intro', label: 'Introduction', icon: AlertCircle },
@@ -1032,7 +1215,7 @@ export default function KYCPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {kycProviders.map(provider => (
+        {providers.map(provider => (
           <div
             key={provider.id}
             className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 ${

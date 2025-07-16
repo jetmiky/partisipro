@@ -1,10 +1,26 @@
 /* eslint-disable no-case-declarations */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { projectsService, CreateProjectRequest } from '@/services/projects.service';
+
+// Simple toast replacement for now
+const toast = {
+  success: (message: string) => {
+    alert(`✅ ${message}`);
+  },
+  error: (message: string) => {
+    alert(`❌ ${message}`);
+  },
+  info: (message: string) => {
+    alert(`ℹ️ ${message}`);
+  },
+};
 
 interface ProjectFormData {
   // Basic Information
@@ -42,8 +58,11 @@ interface ValidationErrors {
 }
 
 export default function SPVCreatePage() {
+  const router = useRouter();
+  const { user, isSPV, isAuthenticated } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedDocuments, setUploadedDocuments] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<ProjectFormData>({
     projectName: '',
     projectType: '',
@@ -66,6 +85,31 @@ export default function SPVCreatePage() {
     managementFeePercentage: 5,
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
+
+  // Check authentication and SPV role
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth?redirectTo=/spv/create');
+      return;
+    }
+    
+    if (isAuthenticated && !isSPV) {
+      toast.error('Only SPVs can create projects');
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isSPV, router]);
+
+  // Show loading if not authenticated or checking user role
+  if (!isAuthenticated || (isAuthenticated && !isSPV)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
 
   const totalSteps = 4;
   const stepTitles = [
@@ -194,19 +238,80 @@ export default function SPVCreatePage() {
 
     setIsSubmitting(true);
 
-    // TODO: Replace with real ProjectFactory contract integration
-    // console.log('Submitting project:', formData);
-
     try {
-      // Simulate project creation
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Prepare project data for API
+      const projectData: CreateProjectRequest = {
+        name: formData.projectName,
+        description: formData.description,
+        totalSupply: formData.tokenSupply,
+        tokenPrice: formData.tokenPrice,
+        currency: 'IDR', // Always IDR for Indonesian projects
+        minimumInvestment: formData.minimumInvestment,
+        maximumInvestment: formData.totalValue, // Using total value as maximum
+        offeringStartDate: formData.offeringStart,
+        offeringEndDate: formData.offeringEnd,
+        projectType: formData.projectType,
+        location: formData.location,
+        expectedReturn: formData.expectedAnnualRevenue / formData.totalValue * 100, // Calculate expected return percentage
+        riskLevel: 'medium', // Default to medium, can be enhanced later
+      };
 
-      // Simulate success
-      alert('Project created successfully! Redirecting to SPV dashboard...');
-      window.location.href = '/spv/dashboard';
-    } catch (error) {
-      // console.error('Project creation failed:', error);
-      alert('Project creation failed. Please try again.');
+      // Create the project via API
+      const createdProject = await projectsService.createProject(projectData);
+      
+      // Upload documents if provided
+      const documentPromises = [];
+      
+      if (formData.businessPlan) {
+        documentPromises.push(
+          projectsService.uploadDocument(createdProject.id, formData.businessPlan, 'prospectus')
+            .catch(err => toast.error(`Failed to upload business plan: ${err.message}`))
+        );
+      }
+      
+      if (formData.feasibilityStudy) {
+        documentPromises.push(
+          projectsService.uploadDocument(createdProject.id, formData.feasibilityStudy, 'technical_report')
+            .catch(err => toast.error(`Failed to upload feasibility study: ${err.message}`))
+        );
+      }
+      
+      if (formData.environmentalImpact) {
+        documentPromises.push(
+          projectsService.uploadDocument(createdProject.id, formData.environmentalImpact, 'legal_document')
+            .catch(err => toast.error(`Failed to upload environmental impact: ${err.message}`))
+        );
+      }
+      
+      if (formData.governmentApproval) {
+        documentPromises.push(
+          projectsService.uploadDocument(createdProject.id, formData.governmentApproval, 'legal_document')
+            .catch(err => toast.error(`Failed to upload government approval: ${err.message}`))
+        );
+      }
+      
+      // Wait for all document uploads
+      await Promise.all(documentPromises);
+      
+      // Deploy smart contracts for the project
+      try {
+        toast.info('Deploying smart contracts...');
+        await projectsService.deployContracts(createdProject.id);
+        toast.success('Smart contracts deployed successfully!');
+      } catch (deployError: any) {
+        toast.error('Failed to deploy contracts. Please try from the dashboard.');
+        console.error('Contract deployment failed:', deployError);
+      }
+
+      // Show success message
+      toast.success('Project created successfully!');
+      
+      // Redirect to SPV dashboard
+      router.push('/spv/dashboard');
+      
+    } catch (error: any) {
+      console.error('Project creation failed:', error);
+      toast.error(error.message || 'Project creation failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

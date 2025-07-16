@@ -28,7 +28,7 @@ import {
   DataTable,
 } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
-import type { GovernanceProposal } from '@/types';
+import { GovernanceProposal } from '@/services';
 
 interface Project {
   id: string;
@@ -50,66 +50,142 @@ const mockProject: Project = {
 const mockProposals: GovernanceProposal[] = [
   {
     id: 'prop-001',
+    projectId: '1',
     title: 'Upgrade Treasury Contract to v2.1',
     description:
       'Upgrade the Treasury smart contract to include new security features and gas optimization improvements.',
-    type: 'contract_upgrade',
+    proposer: '0x1234...5678',
+    proposerName: 'Jakarta Toll Management',
     status: 'active',
-    createdDate: '2025-01-05',
-    votingStart: '2025-01-06',
-    votingEnd: '2025-01-13',
-    totalVotes: 450000,
-    votesFor: 380000,
-    votesAgainst: 70000,
-    quorumRequired: 500000, // 20% of total tokens
-    quorumMet: false,
-    proposer: 'Jakarta Toll Management',
+    type: 'governance_change',
+    category: 'governance',
+    priority: 'high',
+    votingPeriod: {
+      start: '2025-01-06',
+      end: '2025-01-13',
+      duration: 168, // 7 days in hours
+    },
+    votes: {
+      for: 380000,
+      against: 70000,
+      abstain: 0,
+      total: 450000,
+    },
+    quorum: {
+      required: 500000,
+      current: 450000,
+      percentage: 90,
+      met: false,
+    },
+    tokenSupply: {
+      total: 2500000,
+      eligible: 2500000,
+    },
+    metadata: {
+      createdAt: '2025-01-05T00:00:00Z',
+      updatedAt: '2025-01-05T00:00:00Z',
+      tags: ['treasury', 'upgrade', 'security'],
+    },
   },
   {
     id: 'prop-002',
+    projectId: '1',
     title: 'Adjust Revenue Distribution Percentage',
     description:
       'Proposal to increase investor revenue share from 85% to 88% of net profits to improve investor returns.',
-    type: 'parameter_change',
+    proposer: '0x1234...5678',
+    proposerName: 'Jakarta Toll Management',
     status: 'passed',
-    createdDate: '2024-12-20',
-    votingStart: '2024-12-21',
-    votingEnd: '2024-12-28',
-    totalVotes: 620000,
-    votesFor: 560000,
-    votesAgainst: 60000,
-    quorumRequired: 500000,
-    quorumMet: true,
-    proposer: 'Jakarta Toll Management',
-    executionDate: '2024-12-30',
+    type: 'revenue_distribution',
+    category: 'financial',
+    priority: 'medium',
+    votingPeriod: {
+      start: '2024-12-21',
+      end: '2024-12-28',
+      duration: 168,
+    },
+    votes: {
+      for: 560000,
+      against: 60000,
+      abstain: 0,
+      total: 620000,
+    },
+    quorum: {
+      required: 500000,
+      current: 620000,
+      percentage: 124,
+      met: true,
+    },
+    tokenSupply: {
+      total: 2500000,
+      eligible: 2500000,
+    },
+    execution: {
+      executable: true,
+      executedAt: '2024-12-30T00:00:00Z',
+      executedBy: '0x1234...5678',
+      transactionHash: '0xabc123...',
+    },
+    metadata: {
+      createdAt: '2024-12-20T00:00:00Z',
+      updatedAt: '2024-12-30T00:00:00Z',
+      tags: ['revenue', 'distribution'],
+    },
   },
   {
     id: 'prop-003',
+    projectId: '1',
     title: 'Emergency Maintenance Fund Allocation',
     description:
       'Allocate 2% of current treasury balance for emergency road maintenance during rainy season.',
-    type: 'fund_allocation',
+    proposer: '0x1234...5678',
+    proposerName: 'Jakarta Toll Management',
     status: 'executed',
-    createdDate: '2024-11-15',
-    votingStart: '2024-11-16',
-    votingEnd: '2024-11-23',
-    totalVotes: 580000,
-    votesFor: 520000,
-    votesAgainst: 60000,
-    quorumRequired: 500000,
-    quorumMet: true,
-    proposer: 'Jakarta Toll Management',
-    executionDate: '2024-11-25',
+    type: 'investment_decision',
+    category: 'operations',
+    priority: 'high',
+    votingPeriod: {
+      start: '2024-11-16',
+      end: '2024-11-23',
+      duration: 168,
+    },
+    votes: {
+      for: 520000,
+      against: 60000,
+      abstain: 0,
+      total: 580000,
+    },
+    quorum: {
+      required: 500000,
+      current: 580000,
+      percentage: 116,
+      met: true,
+    },
+    tokenSupply: {
+      total: 2500000,
+      eligible: 2500000,
+    },
+    execution: {
+      executable: true,
+      executedAt: '2024-11-25T00:00:00Z',
+      executedBy: '0x1234...5678',
+      transactionHash: '0xdef456...',
+    },
+    metadata: {
+      createdAt: '2024-11-15T00:00:00Z',
+      updatedAt: '2024-11-25T00:00:00Z',
+      tags: ['emergency', 'maintenance', 'fund'],
+    },
   },
 ];
 
 const getProposalTypeIcon = (type: GovernanceProposal['type']) => {
   switch (type) {
-    case 'contract_upgrade':
+    case 'governance_change':
       return <FileText className="h-4 w-4" />;
-    case 'parameter_change':
+    case 'revenue_distribution':
       return <BarChart3 className="h-4 w-4" />;
-    case 'fund_allocation':
+    case 'investment_decision':
       return <Users className="h-4 w-4" />;
     case 'operational_change':
       return <AlertTriangle className="h-4 w-4" />;
@@ -120,7 +196,7 @@ const getProposalTypeIcon = (type: GovernanceProposal['type']) => {
 
 const getStatusIcon = (status: GovernanceProposal['status']) => {
   switch (status) {
-    case 'draft':
+    case 'pending':
       return <Clock className="h-4 w-4" />;
     case 'active':
       return <Vote className="h-4 w-4" />;
@@ -130,6 +206,8 @@ const getStatusIcon = (status: GovernanceProposal['status']) => {
       return <XCircle className="h-4 w-4" />;
     case 'executed':
       return <CheckCircle className="h-4 w-4" />;
+    case 'cancelled':
+      return <XCircle className="h-4 w-4" />;
     default:
       return <AlertTriangle className="h-4 w-4" />;
   }
@@ -137,7 +215,7 @@ const getStatusIcon = (status: GovernanceProposal['status']) => {
 
 const getStatusColor = (status: GovernanceProposal['status']) => {
   switch (status) {
-    case 'draft':
+    case 'pending':
       return 'text-gray-500';
     case 'active':
       return 'text-primary-500';
@@ -147,6 +225,8 @@ const getStatusColor = (status: GovernanceProposal['status']) => {
       return 'text-accent-500';
     case 'executed':
       return 'text-support-600';
+    case 'cancelled':
+      return 'text-accent-600';
     default:
       return 'text-gray-500';
   }
@@ -156,13 +236,13 @@ const formatProposalType = (type: GovernanceProposal['type']) => {
   return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
-const calculateVotingProgress = (votesFor: number, votesAgainst: number) => {
-  const total = votesFor + votesAgainst;
+const calculateVotingProgress = (votes: GovernanceProposal['votes']) => {
+  const total = votes.total;
   if (total === 0) return { forPercentage: 0, againstPercentage: 0 };
 
   return {
-    forPercentage: (votesFor / total) * 100,
-    againstPercentage: (votesAgainst / total) * 100,
+    forPercentage: (votes.for / total) * 100,
+    againstPercentage: (votes.against / total) * 100,
   };
 };
 
@@ -218,7 +298,7 @@ export default function SPVGovernancePage() {
           </div>
           <span className="text-sm text-gray-500">
             {formatProposalType(row.type)} • Created{' '}
-            {new Date(row.createdDate).toLocaleDateString()}
+            {new Date(row.metadata.createdAt).toLocaleDateString()}
           </span>
         </div>
       ),
@@ -239,18 +319,15 @@ export default function SPVGovernancePage() {
       key: 'voting',
       label: 'Voting Results',
       render: (_, row) => {
-        const { forPercentage, againstPercentage } = calculateVotingProgress(
-          row.votesFor,
-          row.votesAgainst
-        );
+        const { forPercentage, againstPercentage } = calculateVotingProgress(row.votes);
         return (
           <div className="flex flex-col">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-support-600">
-                For: {formatTokenCount(row.votesFor)}
+                For: {formatTokenCount(row.votes.for)}
               </span>
               <span className="text-accent-600">
-                Against: {formatTokenCount(row.votesAgainst)}
+                Against: {formatTokenCount(row.votes.against)}
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -266,8 +343,8 @@ export default function SPVGovernancePage() {
               </div>
             </div>
             <span className="text-xs text-gray-500 mt-1">
-              Quorum: {formatTokenCount(row.quorumRequired)}{' '}
-              {row.quorumMet ? '✓' : '✗'}
+              Quorum: {formatTokenCount(row.quorum.required)}{' '}
+              {row.quorum.met ? '✓' : '✗'}
             </span>
           </div>
         );
@@ -279,12 +356,12 @@ export default function SPVGovernancePage() {
       render: (_, row) => (
         <div className="flex flex-col text-sm">
           <span className="text-gray-900">
-            {new Date(row.votingStart).toLocaleDateString()} -{' '}
-            {new Date(row.votingEnd).toLocaleDateString()}
+            {new Date(row.votingPeriod.start).toLocaleDateString()} -{' '}
+            {new Date(row.votingPeriod.end).toLocaleDateString()}
           </span>
-          {row.executionDate && (
+          {row.execution?.executedAt && (
             <span className="text-support-600">
-              Executed: {new Date(row.executionDate).toLocaleDateString()}
+              Executed: {new Date(row.execution.executedAt).toLocaleDateString()}
             </span>
           )}
         </div>
@@ -302,7 +379,7 @@ export default function SPVGovernancePage() {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {row.status === 'passed' && !row.executionDate && (
+          {row.status === 'passed' && !row.execution?.executedAt && (
             <Button size="sm" onClick={() => handleExecuteProposal(row.id)}>
               Execute
             </Button>
@@ -318,7 +395,7 @@ export default function SPVGovernancePage() {
   const passedProposals = mockProposals.filter(
     p => p.status === 'passed'
   ).length;
-  const totalVotes = mockProposals.reduce((sum, p) => sum + p.totalVotes, 0);
+  const totalVotes = mockProposals.reduce((sum, p) => sum + p.votes.total, 0);
   const averageParticipation =
     (totalVotes / mockProposals.length / mockProject.totalTokens) * 100;
 

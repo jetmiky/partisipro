@@ -52,6 +52,55 @@ export type {
   ProjectsListResponse,
 } from './projects.service';
 
+// Export investments service
+export { investmentsService, InvestmentsService } from './investments.service';
+export type {
+  Investment,
+  InvestmentRequest,
+  InvestmentEligibility,
+  PaymentDetails,
+  InvestmentStatus,
+  Portfolio,
+  ProfitClaim,
+} from './investments.service';
+
+// Export governance service
+export { governanceService, GovernanceService } from './governance.service';
+export type {
+  GovernanceProposal,
+  CreateProposalRequest,
+  VoteRequest,
+  VotingPower,
+  GovernanceStats,
+  ProposalVoters,
+  GovernanceActivity,
+} from './governance.service';
+
+// Export identity service
+export { identityService, IdentityService } from './identity.service';
+export type {
+  IdentityClaim,
+  IdentityVerificationStatus,
+  IdentityRegistration,
+  ClaimIssuanceRequest,
+  TrustedIssuer,
+  IdentityAnalytics,
+} from './identity.service';
+
+// Export KYC service
+export { kycService, KYCService } from './kyc.service';
+export type {
+  KYCProvider,
+  KYCSession,
+  KYCResults,
+  KYCDocument,
+  KYCCheck,
+  KYCInitiationRequest,
+  AutomatedClaimsIssuance,
+  KYCErrorHandling,
+  KYCAnalytics,
+} from './kyc.service';
+
 // Service initialization function
 export function initializeServices(): void {
   // Initialize auth state from localStorage

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, Card, DashboardLayout, StatsCard } from '@/components/ui';
 import {
   CheckCircle,
@@ -11,71 +12,146 @@ import {
   Shield,
   User,
   Calendar,
+  RefreshCw,
+  Download,
+  Settings,
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { 
+  identityService, 
+  IdentityClaim, 
+  IdentityVerificationStatus,
+  TrustedIssuer 
+} from '@/services';
 
-interface IdentityClaim {
-  id: string;
-  type: string;
-  value: string;
-  issuer: string;
-  issuedAt: string;
-  expiresAt: string;
-  status: 'active' | 'expired' | 'revoked';
-  verified: boolean;
-}
-
-interface IdentityVerificationStatus {
-  isVerified: boolean;
-  verificationLevel: 'none' | 'basic' | 'advanced' | 'institutional';
-  kycStatus: 'pending' | 'approved' | 'rejected' | 'expired';
-  completedAt?: string;
-  expiresAt?: string;
-  claims: IdentityClaim[];
-}
+// Simple toast replacement for now
+const toast = {
+  success: (message: string) => {
+    alert(`✅ ${message}`);
+  },
+  error: (message: string) => {
+    alert(`❌ ${message}`);
+  },
+  info: (message: string) => {
+    alert(`ℹ️ ${message}`);
+  },
+};
 
 export default function IdentityPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [identityStatus, setIdentityStatus] = useState<IdentityVerificationStatus | null>(null);
+  const [trustedIssuers, setTrustedIssuers] = useState<TrustedIssuer[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // TODO: Mock identity data - replace with actual IdentityRegistry contract integration
-  const identityStatus: IdentityVerificationStatus = {
-    isVerified: true,
-    verificationLevel: 'advanced',
-    kycStatus: 'approved',
-    completedAt: '2024-01-15T10:30:00Z',
-    expiresAt: '2025-01-15T10:30:00Z',
-    claims: [
-      {
-        id: '1',
-        type: 'KYC_APPROVED',
-        value: 'true',
-        issuer: 'Verihubs Indonesia',
-        issuedAt: '2024-01-15T10:30:00Z',
-        expiresAt: '2025-01-15T10:30:00Z',
-        status: 'active',
-        verified: true,
-      },
-      {
-        id: '2',
-        type: 'ACCREDITED_INVESTOR',
-        value: 'true',
-        issuer: 'Partisipro Platform',
-        issuedAt: '2024-01-15T10:35:00Z',
-        expiresAt: '2025-01-15T10:35:00Z',
-        status: 'active',
-        verified: true,
-      },
-      {
-        id: '3',
-        type: 'INDONESIAN_RESIDENT',
-        value: 'true',
-        issuer: 'Verihubs Indonesia',
-        issuedAt: '2024-01-15T10:30:00Z',
-        expiresAt: '2025-01-15T10:30:00Z',
-        status: 'active',
-        verified: true,
-      },
-    ],
+  // Check authentication
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth?redirectTo=/identity');
+      return;
+    }
+
+    loadIdentityData();
+  }, [isAuthenticated, router]);
+
+  const loadIdentityData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Load identity status and trusted issuers in parallel
+      const [statusResult, issuersResult] = await Promise.all([
+        identityService.getIdentityStatus(),
+        identityService.getTrustedIssuers(),
+      ]);
+
+      setIdentityStatus(statusResult);
+      setTrustedIssuers(issuersResult);
+    } catch (error: any) {
+      console.error('Failed to load identity data:', error);
+      toast.error('Failed to load identity data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleRefreshStatus = async () => {
+    try {
+      setRefreshing(true);
+      const result = await identityService.refreshIdentityStatus();
+      setIdentityStatus(result.newStatus);
+      toast.success(`Status refreshed. Updated ${result.updatedClaims} claims.`);
+    } catch (error: any) {
+      console.error('Failed to refresh status:', error);
+      toast.error('Failed to refresh status. Please try again.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleExportData = async (format: 'json' | 'pdf') => {
+    try {
+      const blob = await identityService.exportIdentityData(format);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `identity-data.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(`Identity data exported as ${format.toUpperCase()}`);
+    } catch (error: any) {
+      console.error('Failed to export data:', error);
+      toast.error('Failed to export data. Please try again.');
+    }
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading identity data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Check authentication
+  if (!isAuthenticated) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <p className="text-gray-600">Redirecting to login...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!identityStatus) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Identity Data</h3>
+            <p className="text-gray-600 mb-4">Unable to load your identity verification status.</p>
+            <Button onClick={loadIdentityData}>Try Again</Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Use real claims from identity status
+  const claims = identityStatus.claims;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -146,15 +222,32 @@ export default function IdentityPage() {
               Manage your identity status and verification claims
             </p>
           </div>
-          <Button
-            onClick={handleReVerification}
-            disabled={isLoading}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <FileText className="w-4 h-4" />
-            {isLoading ? 'Processing...' : 'Re-verify Identity'}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleRefreshStatus}
+              disabled={refreshing}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh Status'}
+            </Button>
+            <Button
+              onClick={() => handleExportData('pdf')}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export Data
+            </Button>
+            <Button
+              onClick={() => router.push('/kyc')}
+              className="flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Manage KYC
+            </Button>
+          </div>
         </div>
 
         {/* Identity Status Overview */}
