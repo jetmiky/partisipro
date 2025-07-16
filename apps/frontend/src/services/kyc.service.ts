@@ -378,10 +378,13 @@ class KYCService {
       return apiClient.get(`${this.BASE_PATH}/compliance-report`, otherParams);
     }
 
-    const queryParams = new URLSearchParams({
-      format,
-      ...otherParams,
+    const queryParamsObj: Record<string, string> = { format };
+    Object.entries(otherParams).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParamsObj[key] = String(value);
+      }
     });
+    const queryParams = new URLSearchParams(queryParamsObj);
 
     const response = await fetch(
       `${apiClient.getBaseURL()}${this.BASE_PATH}/compliance-report?${queryParams}`,

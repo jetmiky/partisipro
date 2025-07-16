@@ -132,7 +132,7 @@ export interface GovernanceActivity {
     address: string;
     name?: string;
   };
-  details: any;
+  details: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -183,7 +183,7 @@ class GovernanceService {
 
     // Add attachments
     if (request.attachments) {
-      request.attachments.forEach((file, index) => {
+      request.attachments.forEach((file) => {
         formData.append(`attachments`, file);
       });
     }
@@ -374,10 +374,15 @@ class GovernanceService {
       includeProposals?: boolean;
     }
   ): Promise<Blob> {
-    const queryParams = new URLSearchParams({
-      format,
-      ...(params || {}),
-    });
+    const queryParamsObj: Record<string, string> = { format };
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParamsObj[key] = String(value);
+        }
+      });
+    }
+    const queryParams = new URLSearchParams(queryParamsObj);
 
     const response = await fetch(
       `${apiClient.getBaseURL()}${this.BASE_PATH}/export?${queryParams}`,

@@ -281,7 +281,7 @@ class IdentityService {
     deletedAt: string;
     recoveryPeriod: number; // days before permanent deletion
   }> {
-    return apiClient.delete(`${this.BASE_PATH}/delete`, { confirmation });
+    return apiClient.post(`${this.BASE_PATH}/delete`, { confirmation });
   }
 
   /**

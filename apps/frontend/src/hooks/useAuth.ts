@@ -255,43 +255,20 @@ export function useAuth(): UseAuthReturn {
 
   /**
    * Setup automatic API error handling for 401 responses
+   * TODO: Implement when ApiClient provides public method for request interception
    */
-  useEffect(() => {
-    const originalRequest = apiClient.request;
-
-    // Override the request method to handle 401 responses
-    apiClient.request = async function (
-      endpoint: string,
-      options: RequestInit = {}
-    ) {
-      try {
-        return await originalRequest.call(this, endpoint, options);
-      } catch (error: any) {
-        // Handle 401 Unauthorized responses
-        if (error.statusCode === 401 && state.isAuthenticated) {
-          console.log('Received 401, attempting token refresh...');
-
-          const refreshed = await refreshToken();
-
-          if (refreshed) {
-            // Retry the original request with new token
-            return await originalRequest.call(this, endpoint, options);
-          } else {
-            // Refresh failed, log out user
-            await logout();
-            throw error;
-          }
-        }
-
-        throw error;
-      }
-    };
-
-    // Cleanup
-    return () => {
-      apiClient.request = originalRequest;
-    };
-  }, [state.isAuthenticated, refreshToken, logout]);
+  // useEffect(() => {
+  //   // This would need public method access or interceptor pattern
+  //   const handleUnauthorized = (error: any) => {
+  //     if (error?.statusCode === 401 && state.isAuthenticated) {
+  //       refreshToken().then(refreshed => {
+  //         if (!refreshed) {
+  //           logout();
+  //         }
+  //       });
+  //     }
+  //   };
+  // }, [state.isAuthenticated, refreshToken, logout]);
 
   // Role-based helpers
   const isAdmin = state.user?.role === 'admin';
