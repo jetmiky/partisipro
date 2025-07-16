@@ -17,11 +17,11 @@ import {
   Settings,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  identityService, 
-  IdentityClaim, 
+import {
+  identityService,
+  IdentityClaim,
   IdentityVerificationStatus,
-  TrustedIssuer 
+  TrustedIssuer,
 } from '@/services';
 
 // Simple toast replacement for now
@@ -39,10 +39,12 @@ const toast = {
 
 export default function IdentityPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
-  
+  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } =
+    useAuth();
+
   const [isLoading, setIsLoading] = useState(true);
-  const [identityStatus, setIdentityStatus] = useState<IdentityVerificationStatus | null>(null);
+  const [identityStatus, setIdentityStatus] =
+    useState<IdentityVerificationStatus | null>(null);
   const [trustedIssuers, setTrustedIssuers] = useState<TrustedIssuer[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -59,7 +61,7 @@ export default function IdentityPage() {
   const loadIdentityData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Load identity status and trusted issuers in parallel
       const [statusResult, issuersResult] = await Promise.all([
         identityService.getIdentityStatus(),
@@ -69,7 +71,7 @@ export default function IdentityPage() {
       setIdentityStatus(statusResult);
       setTrustedIssuers(issuersResult);
     } catch (error: any) {
-      console.error('Failed to load identity data:', error);
+      // Error is handled by toast notification
       toast.error('Failed to load identity data. Please try again.');
     } finally {
       setIsLoading(false);
@@ -81,9 +83,11 @@ export default function IdentityPage() {
       setRefreshing(true);
       const result = await identityService.refreshIdentityStatus();
       setIdentityStatus(result.newStatus);
-      toast.success(`Status refreshed. Updated ${result.updatedClaims} claims.`);
+      toast.success(
+        `Status refreshed. Updated ${result.updatedClaims} claims.`
+      );
     } catch (error: any) {
-      console.error('Failed to refresh status:', error);
+      // Error is handled by toast notification
       toast.error('Failed to refresh status. Please try again.');
     } finally {
       setRefreshing(false);
@@ -103,7 +107,7 @@ export default function IdentityPage() {
       URL.revokeObjectURL(url);
       toast.success(`Identity data exported as ${format.toUpperCase()}`);
     } catch (error: any) {
-      console.error('Failed to export data:', error);
+      // Error is handled by toast notification
       toast.error('Failed to export data. Please try again.');
     }
   };
@@ -141,8 +145,12 @@ export default function IdentityPage() {
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
             <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Identity Data</h3>
-            <p className="text-gray-600 mb-4">Unable to load your identity verification status.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No Identity Data
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Unable to load your identity verification status.
+            </p>
             <Button onClick={loadIdentityData}>Try Again</Button>
           </div>
         </div>
@@ -229,7 +237,9 @@ export default function IdentityPage() {
               variant="outline"
               className="flex items-center gap-2"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
+              />
               {refreshing ? 'Refreshing...' : 'Refresh Status'}
             </Button>
             <Button
@@ -426,7 +436,8 @@ export default function IdentityPage() {
                     {claim.status.toUpperCase()}
                   </span>
                   <p className="text-sm text-gray-600 mt-1">
-                    Expires: {claim.expiresAt ? formatDate(claim.expiresAt) : 'Never'}
+                    Expires:{' '}
+                    {claim.expiresAt ? formatDate(claim.expiresAt) : 'Never'}
                   </p>
                 </div>
               </div>

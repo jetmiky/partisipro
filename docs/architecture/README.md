@@ -20,8 +20,9 @@ infrastructure projects through tokenization.
          │                        │                        │
          ▼                        ▼                        ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web3 Wallet   │    │   Database      │    │   Smart         │
-│   Integration   │    │   (MySQL)       │    │   Contracts     │
+│   Web3Auth      │    │   Firebase      │    │   ERC-3643      │
+│   Integration   │    │   (Firestore)   │    │   Smart         │
+│                 │    │   + Storage     │    │   Contracts     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -41,48 +42,75 @@ infrastructure projects through tokenization.
 
 - **Purpose**: API server and business logic
 - **Key Features**:
-  - User authentication and authorization
+  - User authentication and authorization (Web3Auth + JWT)
   - Project management and validation
-  - Blockchain transaction handling
+  - Blockchain transaction handling (ERC-3643 compliant)
   - Integration with external services (KYC, email, etc.)
-- **Technology Stack**: NestJS, TypeScript, MySQL, Redis, Ethers.js
+  - Real-time WebSocket capabilities
+- **Technology Stack**: NestJS, TypeScript, Firebase/Firestore, Redis, Ethers.js, SendGrid
 
 #### Smart Contracts (Solidity)
 
-- **Purpose**: On-chain logic and asset management
-- **Key Components**:
-  - ProjectFactory: Deploy new project contracts
-  - ProjectToken: ERC-20 tokens representing project shares
-  - Offering: Manage token sales and fundraising
-  - Treasury: Handle funds and profit distribution
-  - Governance: Token holder voting and proposals
+- **Purpose**: On-chain logic and asset management with ERC-3643 compliance
+- **Core Infrastructure** (3 contracts):
+  - PlatformRegistry: SPV authorization and platform configuration
+  - PlatformTreasury: Platform fee collection and management
+  - ProjectFactory: Automated project contract deployment
+- **ERC-3643 Compliance** (3 contracts):
+  - ClaimTopicsRegistry: Standardized claim types (KYC, accreditation)
+  - TrustedIssuersRegistry: Authorized KYC provider management
+  - IdentityRegistry: Central identity and claims management
+- **Per-Project Contracts** (4 contracts):
+  - ProjectToken: ERC-3643 compliant tokens with identity verification
+  - ProjectOffering: Token sales with identity-based compliance
+  - ProjectTreasury: Profit distribution to verified holders
+  - ProjectGovernance: Token-weighted voting for verified identities
 
-#### Database (MySQL)
+#### Database (Firebase/Firestore)
 
-- **Purpose**: Store off-chain data and user information
-- **Key Data**:
-  - User profiles and KYC information
-  - Project metadata and documentation
-  - Transaction history and analytics
-  - Notification and communication logs
+- **Purpose**: Store off-chain data and user information with real-time capabilities
+- **Key Collections**:
+  - Users: User profiles with Web3Auth integration
+  - Identity Registry: ERC-3643 identity verification status
+  - Claims: Identity claims and verification records
+  - Trusted Issuers: Authorized KYC providers
+  - Projects: Project metadata and documentation
+  - Investments: Investment tracking and portfolio data
+  - Profit Distributions: Quarterly profit allocations
+  - Governance Proposals: Token holder voting records
+  - Notifications: Real-time system alerts
+- **Additional Services**:
+  - Firebase Storage: Document and file management
+  - Firebase Auth: User authentication integration
+  - Cloud Functions: Serverless backend processing
 
 ### Data Flow
 
-1. **Project Creation Flow**:
+1. **Project Creation Flow** (Enhanced with ERC-3643):
 
    ```
-   SPV → Frontend → Backend → Smart Contracts → Blockchain
+   SPV → Frontend → Backend → PlatformRegistry → ProjectFactory → Blockchain
    ```
 
-2. **Investment Flow**:
+2. **Investment Flow** (Identity-Centric):
 
    ```
-   Investor → Frontend → Wallet → Smart Contracts → Blockchain
+   Investor → Frontend → IdentityRegistry → ProjectOffering → Blockchain
    ```
 
-3. **Profit Distribution Flow**:
+3. **Identity Verification Flow** (One-Time KYC):
    ```
-   SPV → Backend → Smart Contracts → Token Holders
+   Investor → KYC Provider → TrustedIssuersRegistry → IdentityRegistry → Claims
+   ```
+
+4. **Profit Distribution Flow**:
+   ```
+   SPV → Backend → ProjectTreasury → Verified Token Holders
+   ```
+
+5. **Real-time Updates Flow**:
+   ```
+   Blockchain Events → Backend → WebSocket → Frontend → User Interface
    ```
 
 ## Security Considerations
@@ -156,9 +184,10 @@ infrastructure projects through tokenization.
 
 ### Database Scaling
 
-- Read replicas for query optimization
-- Database sharding for large datasets
-- Connection pooling and query optimization
+- Firestore automatic scaling and replication
+- Collection-based data partitioning
+- Realtime database optimization
+- Firebase Functions for serverless processing
 
 ### Application Scaling
 

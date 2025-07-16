@@ -319,7 +319,9 @@ export default function SPVGovernancePage() {
       key: 'voting',
       label: 'Voting Results',
       render: (_, row) => {
-        const { forPercentage, againstPercentage } = calculateVotingProgress(row.votes);
+        const { forPercentage, againstPercentage } = calculateVotingProgress(
+          row.votes
+        );
         return (
           <div className="flex flex-col">
             <div className="flex justify-between text-sm mb-1">
@@ -361,7 +363,8 @@ export default function SPVGovernancePage() {
           </span>
           {row.execution?.executedAt && (
             <span className="text-support-600">
-              Executed: {new Date(row.execution.executedAt).toLocaleDateString()}
+              Executed:{' '}
+              {new Date(row.execution.executedAt).toLocaleDateString()}
             </span>
           )}
         </div>
@@ -497,7 +500,9 @@ export default function SPVGovernancePage() {
 
           <DataTable<GovernanceProposal & Record<string, unknown>>
             columns={proposalColumns}
-            data={mockProposals as (GovernanceProposal & Record<string, unknown>)[]}
+            data={
+              mockProposals as (GovernanceProposal & Record<string, unknown>)[]
+            }
           />
         </Card>
 

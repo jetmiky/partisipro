@@ -12,8 +12,19 @@ export interface GovernanceProposal {
   description: string;
   proposer: string;
   proposerName?: string;
-  status: 'pending' | 'active' | 'passed' | 'rejected' | 'executed' | 'cancelled';
-  type: 'revenue_distribution' | 'investment_decision' | 'operational_change' | 'governance_change' | 'other';
+  status:
+    | 'pending'
+    | 'active'
+    | 'passed'
+    | 'rejected'
+    | 'executed'
+    | 'cancelled';
+  type:
+    | 'revenue_distribution'
+    | 'investment_decision'
+    | 'operational_change'
+    | 'governance_change'
+    | 'other';
   category: 'financial' | 'investment' | 'operations' | 'governance' | 'other';
   priority: 'high' | 'medium' | 'low';
   votingPeriod: {
@@ -123,7 +134,11 @@ export interface ProposalVoters {
 
 export interface GovernanceActivity {
   id: string;
-  type: 'proposal_created' | 'vote_cast' | 'proposal_executed' | 'quorum_reached';
+  type:
+    | 'proposal_created'
+    | 'vote_cast'
+    | 'proposal_executed'
+    | 'quorum_reached';
   proposalId: string;
   proposalTitle: string;
   projectId: string;
@@ -171,19 +186,24 @@ class GovernanceService {
   /**
    * Create new governance proposal (Token holders only)
    */
-  async createProposal(request: CreateProposalRequest): Promise<GovernanceProposal> {
+  async createProposal(
+    request: CreateProposalRequest
+  ): Promise<GovernanceProposal> {
     const formData = new FormData();
-    
+
     // Add basic fields
     Object.entries(request).forEach(([key, value]) => {
       if (key !== 'attachments' && value !== undefined) {
-        formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        formData.append(
+          key,
+          typeof value === 'object' ? JSON.stringify(value) : String(value)
+        );
       }
     });
 
     // Add attachments
     if (request.attachments) {
-      request.attachments.forEach((file) => {
+      request.attachments.forEach(file => {
         formData.append(`attachments`, file);
       });
     }
@@ -239,7 +259,10 @@ class GovernanceService {
   /**
    * Cancel a pending proposal (Proposer only)
    */
-  async cancelProposal(proposalId: string, reason: string): Promise<{
+  async cancelProposal(
+    proposalId: string,
+    reason: string
+  ): Promise<{
     success: boolean;
   }> {
     return apiClient.post(`${this.BASE_PATH}/${proposalId}/cancel`, { reason });
@@ -270,7 +293,11 @@ class GovernanceService {
   async getNotifications(): Promise<{
     notifications: {
       id: string;
-      type: 'proposal_created' | 'voting_reminder' | 'quorum_reached' | 'proposal_executed';
+      type:
+        | 'proposal_created'
+        | 'voting_reminder'
+        | 'quorum_reached'
+        | 'proposal_executed';
       proposalId: string;
       proposalTitle: string;
       message: string;
@@ -339,9 +366,7 @@ class GovernanceService {
   /**
    * Get proposal analytics
    */
-  async getProposalAnalytics(
-    proposalId: string
-  ): Promise<{
+  async getProposalAnalytics(proposalId: string): Promise<{
     timeline: Array<{
       timestamp: string;
       votes: { for: number; against: number; abstain: number };
@@ -349,8 +374,16 @@ class GovernanceService {
     }>;
     demographics: {
       voterTypes: Array<{ type: string; count: number; percentage: number }>;
-      votingPowerDistribution: Array<{ range: string; count: number; power: number }>;
-      geographicDistribution: Array<{ region: string; count: number; percentage: number }>;
+      votingPowerDistribution: Array<{
+        range: string;
+        count: number;
+        power: number;
+      }>;
+      geographicDistribution: Array<{
+        region: string;
+        count: number;
+        percentage: number;
+      }>;
     };
     predictions: {
       estimatedOutcome: 'pass' | 'fail' | 'uncertain';

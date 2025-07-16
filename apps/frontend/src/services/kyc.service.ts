@@ -106,7 +106,13 @@ export interface KYCCheckResult {
 
 export interface KYCDocument {
   id: string;
-  type: 'passport' | 'drivers_license' | 'national_id' | 'utility_bill' | 'bank_statement' | 'other';
+  type:
+    | 'passport'
+    | 'drivers_license'
+    | 'national_id'
+    | 'utility_bill'
+    | 'bank_statement'
+    | 'other';
   name: string;
   uploadedAt: string;
   status: 'uploaded' | 'processing' | 'verified' | 'rejected';
@@ -272,46 +278,69 @@ class KYCService {
     formData.append('file', file);
     formData.append('type', documentType);
 
-    return apiClient.upload(`${this.BASE_PATH}/sessions/${sessionId}/documents`, formData);
+    return apiClient.upload(
+      `${this.BASE_PATH}/sessions/${sessionId}/documents`,
+      formData
+    );
   }
 
   /**
    * Get document verification results
    */
-  async getDocumentResults(sessionId: string, documentId: string): Promise<KYCDocument> {
-    return apiClient.get(`${this.BASE_PATH}/sessions/${sessionId}/documents/${documentId}`);
+  async getDocumentResults(
+    sessionId: string,
+    documentId: string
+  ): Promise<KYCDocument> {
+    return apiClient.get(
+      `${this.BASE_PATH}/sessions/${sessionId}/documents/${documentId}`
+    );
   }
 
   /**
    * Request manual review
    */
-  async requestManualReview(sessionId: string, reason: string): Promise<{
+  async requestManualReview(
+    sessionId: string,
+    reason: string
+  ): Promise<{
     success: boolean;
     reviewId: string;
     estimatedReviewTime: string;
   }> {
-    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/review`, { reason });
+    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/review`, {
+      reason,
+    });
   }
 
   /**
    * Cancel KYC session
    */
-  async cancelSession(sessionId: string, reason: string): Promise<{
+  async cancelSession(
+    sessionId: string,
+    reason: string
+  ): Promise<{
     success: boolean;
     cancelledAt: string;
   }> {
-    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/cancel`, { reason });
+    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/cancel`, {
+      reason,
+    });
   }
 
   /**
    * Retry failed KYC session
    */
-  async retrySession(sessionId: string, newProvider?: KYCProvider['id']): Promise<{
+  async retrySession(
+    sessionId: string,
+    newProvider?: KYCProvider['id']
+  ): Promise<{
     newSessionId: string;
     sessionUrl: string;
     retryCount: number;
   }> {
-    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/retry`, { newProvider });
+    return apiClient.post(`${this.BASE_PATH}/sessions/${sessionId}/retry`, {
+      newProvider,
+    });
   }
 
   /**
@@ -321,7 +350,9 @@ class KYCService {
     from: string;
     to: string;
   }): Promise<KYCAnalytics> {
-    const params = dateRange ? { from: dateRange.from, to: dateRange.to } : undefined;
+    const params = dateRange
+      ? { from: dateRange.from, to: dateRange.to }
+      : undefined;
     return apiClient.get(`${this.BASE_PATH}/analytics`, params);
   }
 
@@ -373,7 +404,7 @@ class KYCService {
     includeDetails: boolean;
   }): Promise<Blob | any> {
     const { format, ...otherParams } = params;
-    
+
     if (format === 'json') {
       return apiClient.get(`${this.BASE_PATH}/compliance-report`, otherParams);
     }
@@ -412,7 +443,10 @@ class KYCService {
   /**
    * Bulk approve KYC sessions (Admin only)
    */
-  async bulkApprove(sessionIds: string[], reviewerComments?: string): Promise<{
+  async bulkApprove(
+    sessionIds: string[],
+    reviewerComments?: string
+  ): Promise<{
     successful: string[];
     failed: Array<{ sessionId: string; error: string }>;
     totalProcessed: number;
@@ -426,9 +460,14 @@ class KYCService {
   /**
    * Get KYC verification certificate
    */
-  async getVerificationCertificate(sessionId: string, format: 'pdf' | 'json'): Promise<Blob | any> {
+  async getVerificationCertificate(
+    sessionId: string,
+    format: 'pdf' | 'json'
+  ): Promise<Blob | any> {
     if (format === 'json') {
-      return apiClient.get(`${this.BASE_PATH}/sessions/${sessionId}/certificate`);
+      return apiClient.get(
+        `${this.BASE_PATH}/sessions/${sessionId}/certificate`
+      );
     }
 
     const response = await fetch(

@@ -24,7 +24,7 @@ export interface WebSocketSubscription {
 class WebSocketService {
   private socket: Socket | null = null;
   private isConnected = false;
-  private eventHandlers: Map<string, Function[]> = new Map();
+  private eventHandlers: Map<string, ((data: any) => void)[]> = new Map();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
@@ -38,7 +38,7 @@ class WebSocketService {
     }
 
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
-    
+
     this.socket = io(wsUrl, {
       auth: {
         token: authToken,
@@ -55,20 +55,20 @@ class WebSocketService {
       }
 
       this.socket.on('connect', () => {
-        console.log('✅ WebSocket connected');
+        // WebSocket connected successfully
         this.isConnected = true;
         this.reconnectAttempts = 0;
         resolve();
       });
 
-      this.socket.on('connect_error', (error) => {
-        console.error('❌ WebSocket connection error:', error);
+      this.socket.on('connect_error', error => {
+        // WebSocket connection error - handled by UI
         this.isConnected = false;
         reject(error);
       });
 
-      this.socket.on('disconnect', (reason) => {
-        console.log('🔌 WebSocket disconnected:', reason);
+      this.socket.on('disconnect', (_reason: any) => {
+        // WebSocket disconnected - handled by UI
         this.isConnected = false;
         this.handleDisconnect();
       });
@@ -86,7 +86,7 @@ class WebSocketService {
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
-      console.log('🔌 WebSocket disconnected');
+      // WebSocket disconnected
     }
   }
 
@@ -95,14 +95,14 @@ class WebSocketService {
    */
   subscribe(userId: string, subscriptions: WebSocketSubscription[]): void {
     if (!this.isConnected || !this.socket) {
-      console.warn('⚠️ Cannot subscribe - WebSocket not connected');
+      // Cannot subscribe - WebSocket not connected
       return;
     }
 
     subscriptions.forEach(subscription => {
       const eventName = `subscribe_${subscription.type}`;
-      console.log(`📡 Subscribing to ${eventName} for user ${userId}`);
-      
+      // Subscribing to event for user
+
       this.socket!.emit(eventName, {
         userId,
         ...subscription.data,
@@ -120,8 +120,8 @@ class WebSocketService {
 
     subscriptions.forEach(subscription => {
       const eventName = `unsubscribe_${subscription}`;
-      console.log(`📡 Unsubscribing from ${eventName} for user ${userId}`);
-      
+      // Unsubscribing from event for user
+
       this.socket!.emit(eventName, { userId });
     });
   }
@@ -129,7 +129,7 @@ class WebSocketService {
   /**
    * Add event handler
    */
-  on(event: string, handler: Function): void {
+  on(event: string, handler: (data: any) => void): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, []);
     }
@@ -139,7 +139,7 @@ class WebSocketService {
   /**
    * Remove event handler
    */
-  off(event: string, handler: Function): void {
+  off(event: string, handler: (data: any) => void): void {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
       const index = handlers.indexOf(handler);
@@ -161,7 +161,7 @@ class WebSocketService {
    */
   emit(event: string, data: any): void {
     if (!this.isConnected || !this.socket) {
-      console.warn(`⚠️ Cannot emit ${event} - WebSocket not connected`);
+      // Cannot emit - WebSocket not connected
       return;
     }
 
@@ -175,50 +175,50 @@ class WebSocketService {
     if (!this.socket) return;
 
     // Portfolio updates
-    this.socket.on('portfolio_update', (data) => {
-      console.log('📊 Portfolio update received:', data);
+    this.socket.on('portfolio_update', data => {
+      // Portfolio update received
       this.triggerHandlers('portfolio_update', data);
     });
 
     // Governance updates
-    this.socket.on('governance_update', (data) => {
-      console.log('🗳️ Governance update received:', data);
+    this.socket.on('governance_update', data => {
+      // Governance update received
       this.triggerHandlers('governance_update', data);
     });
 
     // KYC status updates
-    this.socket.on('kyc_status_update', (data) => {
-      console.log('🆔 KYC status update received:', data);
+    this.socket.on('kyc_status_update', data => {
+      // KYC status update received
       this.triggerHandlers('kyc_status_update', data);
     });
 
     // Project updates
-    this.socket.on('project_update', (data) => {
-      console.log('🏗️ Project update received:', data);
+    this.socket.on('project_update', data => {
+      // Project update received
       this.triggerHandlers('project_update', data);
     });
 
     // Profit distribution
-    this.socket.on('profit_distribution', (data) => {
-      console.log('💰 Profit distribution received:', data);
+    this.socket.on('profit_distribution', data => {
+      // Profit distribution received
       this.triggerHandlers('profit_distribution', data);
     });
 
     // System notifications
-    this.socket.on('system_notification', (data) => {
-      console.log('🔔 System notification received:', data);
+    this.socket.on('system_notification', data => {
+      // System notification received
       this.triggerHandlers('system_notification', data);
     });
 
     // Investment updates
-    this.socket.on('investment_update', (data) => {
-      console.log('💳 Investment update received:', data);
+    this.socket.on('investment_update', data => {
+      // Investment update received
       this.triggerHandlers('investment_update', data);
     });
 
     // Identity updates
-    this.socket.on('identity_update', (data) => {
-      console.log('👤 Identity update received:', data);
+    this.socket.on('identity_update', data => {
+      // Identity update received
       this.triggerHandlers('identity_update', data);
     });
   }
@@ -233,7 +233,7 @@ class WebSocketService {
         try {
           handler(data);
         } catch (error) {
-          console.error(`Error in ${event} handler:`, error);
+          // Error in event handler - silently handled
         }
       });
     }
@@ -245,15 +245,15 @@ class WebSocketService {
   private handleDisconnect(): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`🔄 Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-      
+      // Attempting to reconnect
+
       setTimeout(() => {
         if (this.socket && !this.socket.connected) {
           this.socket.connect();
         }
       }, this.reconnectDelay * this.reconnectAttempts);
     } else {
-      console.error('❌ Max reconnection attempts reached');
+      // Max reconnection attempts reached
     }
   }
 }

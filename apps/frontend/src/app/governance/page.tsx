@@ -24,7 +24,12 @@ import {
   Modal,
 } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { governanceService, GovernanceProposal, VotingPower, GovernanceStats } from '@/services';
+import {
+  governanceService,
+  GovernanceProposal,
+  VotingPower,
+  GovernanceStats,
+} from '@/services';
 
 // Simple toast replacement for now
 const toast = {
@@ -50,18 +55,22 @@ const toast = {
 export default function GovernancePage() {
   const router = useRouter();
   const { isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
-  
+
   const [selectedTab, setSelectedTab] = useState('active');
   const [filterCategory, setFilterCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProposal, setSelectedProposal] = useState<GovernanceProposal | null>(null);
+  const [selectedProposal, setSelectedProposal] =
+    useState<GovernanceProposal | null>(null);
   const [votingModalOpen, setVotingModalOpen] = useState(false);
-  const [selectedVote, setSelectedVote] = useState<'for' | 'against' | 'abstain' | ''>('');
-  
+  const [selectedVote, setSelectedVote] = useState<
+    'for' | 'against' | 'abstain' | ''
+  >('');
+
   // Data state
   const [proposals, setProposals] = useState<GovernanceProposal[]>([]);
   const [votingPowers, setVotingPowers] = useState<VotingPower[]>([]);
-  const [governanceStats, setGovernanceStats] = useState<GovernanceStats | null>(null);
+  const [governanceStats, setGovernanceStats] =
+    useState<GovernanceStats | null>(null);
 
   // WebSocket integration for real-time governance updates
   const { proposals: liveProposals, notifications } = useGovernanceWebSocket();
@@ -73,7 +82,9 @@ export default function GovernancePage() {
       setProposals(prev => {
         const updatedProposals = [...prev];
         liveProposals.forEach(liveProposal => {
-          const index = updatedProposals.findIndex(p => p.id === liveProposal.id);
+          const index = updatedProposals.findIndex(
+            p => p.id === liveProposal.id
+          );
           if (index >= 0) {
             updatedProposals[index] = liveProposal;
           } else {
@@ -105,7 +116,9 @@ export default function GovernancePage() {
     }
 
     if (!isKYCApproved || !isIdentityVerified) {
-      toast.error('Complete KYC and identity verification to participate in governance');
+      toast.error(
+        'Complete KYC and identity verification to participate in governance'
+      );
       router.push('/identity');
       return;
     }
@@ -116,19 +129,26 @@ export default function GovernancePage() {
   const loadGovernanceData = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Load all governance data in parallel
-      const [proposalsResult, votingPowerResult, statsResult] = await Promise.all([
-        governanceService.getProposals({
-          status: selectedTab === 'all' ? undefined : selectedTab as GovernanceProposal['status'],
-          category: filterCategory === 'all' ? undefined : filterCategory as GovernanceProposal['category'],
-          search: searchTerm || undefined,
-          sortBy: 'created',
-          sortOrder: 'desc',
-        }),
-        governanceService.getVotingPower(),
-        governanceService.getGovernanceStats(),
-      ]);
+      const [proposalsResult, votingPowerResult, statsResult] =
+        await Promise.all([
+          governanceService.getProposals({
+            status:
+              selectedTab === 'all'
+                ? undefined
+                : (selectedTab as GovernanceProposal['status']),
+            category:
+              filterCategory === 'all'
+                ? undefined
+                : (filterCategory as GovernanceProposal['category']),
+            search: searchTerm || undefined,
+            sortBy: 'created',
+            sortOrder: 'desc',
+          }),
+          governanceService.getVotingPower(),
+          governanceService.getGovernanceStats(),
+        ]);
 
       setProposals(proposalsResult.proposals);
       setVotingPowers(votingPowerResult);
@@ -146,7 +166,15 @@ export default function GovernancePage() {
     if (isAuthenticated && isKYCApproved && isIdentityVerified) {
       loadGovernanceData();
     }
-  }, [selectedTab, filterCategory, searchTerm, isAuthenticated, isKYCApproved, isIdentityVerified, loadGovernanceData]);
+  }, [
+    selectedTab,
+    filterCategory,
+    searchTerm,
+    isAuthenticated,
+    isKYCApproved,
+    isIdentityVerified,
+    loadGovernanceData,
+  ]);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('id-ID').format(num);
@@ -206,7 +234,8 @@ export default function GovernancePage() {
   const calculateVotingProgress = (proposal: GovernanceProposal) => {
     const totalVotes = proposal.votes.total;
     const participation = proposal.quorum.percentage;
-    const approval = totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
+    const approval =
+      totalVotes > 0 ? (proposal.votes.for / totalVotes) * 100 : 0;
     const quorumReached = proposal.quorum.met;
 
     return {
@@ -272,7 +301,8 @@ export default function GovernancePage() {
     0
   );
   const proposalsVoted = governanceStats?.userParticipation.proposalsVoted || 0;
-  const participationRate = governanceStats?.userParticipation.participationRate || 0;
+  const participationRate =
+    governanceStats?.userParticipation.participationRate || 0;
 
   const handleVote = async () => {
     if (!selectedProposal || !selectedVote) return;
@@ -305,12 +335,11 @@ export default function GovernancePage() {
       setVotingModalOpen(false);
       setSelectedVote('');
       setSelectedProposal(null);
-      
+
       toast.success(`Vote "${selectedVote}" submitted successfully!`);
-      
+
       // Refresh governance data to get updated vote counts
       loadGovernanceData();
-      
     } catch (error: any) {
       // Voting failed - will show user error message
       toast.error(error.message || 'Failed to submit vote. Please try again.');

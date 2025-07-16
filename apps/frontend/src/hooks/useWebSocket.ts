@@ -5,7 +5,11 @@
 
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useAuth } from './useAuth';
-import { webSocketService, WebSocketSubscription, WebSocketEventHandlers } from '../services/websocket.service';
+import {
+  webSocketService,
+  WebSocketSubscription,
+  WebSocketEventHandlers,
+} from '../services/websocket.service';
 
 export interface UseWebSocketOptions {
   subscriptions?: WebSocketSubscription[];
@@ -24,7 +28,9 @@ export interface UseWebSocketReturn {
   emit: (event: string, data: any) => void;
 }
 
-export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketReturn {
+export function useWebSocket(
+  options: UseWebSocketOptions = {}
+): UseWebSocketReturn {
   const { user, isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -66,7 +72,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
       console.log('✅ WebSocket connected and subscribed');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to connect';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to connect';
       setError(errorMessage);
       console.error('❌ WebSocket connection failed:', err);
     } finally {
@@ -89,20 +96,26 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   /**
    * Subscribe to new events
    */
-  const subscribe = useCallback((newSubscriptions: WebSocketSubscription[]) => {
-    if (!user || !isConnected) return;
-    
-    webSocketService.subscribe(user.id, newSubscriptions);
-  }, [user, isConnected]);
+  const subscribe = useCallback(
+    (newSubscriptions: WebSocketSubscription[]) => {
+      if (!user || !isConnected) return;
+
+      webSocketService.subscribe(user.id, newSubscriptions);
+    },
+    [user, isConnected]
+  );
 
   /**
    * Unsubscribe from events
    */
-  const unsubscribe = useCallback((events: string[]) => {
-    if (!user || !isConnected) return;
-    
-    webSocketService.unsubscribe(user.id, events);
-  }, [user, isConnected]);
+  const unsubscribe = useCallback(
+    (events: string[]) => {
+      if (!user || !isConnected) return;
+
+      webSocketService.unsubscribe(user.id, events);
+    },
+    [user, isConnected]
+  );
 
   /**
    * Emit event to server
@@ -133,7 +146,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
    * Auto-connect when authenticated
    */
   useEffect(() => {
-    if (autoConnect && isAuthenticated && user && !isConnected && !isConnecting) {
+    if (
+      autoConnect &&
+      isAuthenticated &&
+      user &&
+      !isConnected &&
+      !isConnecting
+    ) {
       connect();
     }
   }, [autoConnect, isAuthenticated, user, isConnected, isConnecting, connect]);
@@ -199,15 +218,15 @@ export function usePortfolioWebSocket() {
       { type: 'profit_distribution' },
     ],
     eventHandlers: {
-      portfolio_update: (data) => {
+      portfolio_update: data => {
         setPortfolioData(data);
         setLastUpdate(new Date());
       },
-      investment_update: (data) => {
+      investment_update: data => {
         console.log('📈 Investment update:', data);
         setLastUpdate(new Date());
       },
-      profit_distribution: (data) => {
+      profit_distribution: data => {
         console.log('💰 Profit distribution:', data);
         setLastUpdate(new Date());
       },
@@ -229,12 +248,13 @@ export function useGovernanceWebSocket() {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   const { isConnected } = useWebSocket({
-    subscriptions: [
-      { type: 'governance_update' },
-    ],
+    subscriptions: [{ type: 'governance_update' }],
     eventHandlers: {
-      governance_update: (data) => {
-        if (data.type === 'proposal_created' || data.type === 'proposal_updated') {
+      governance_update: data => {
+        if (
+          data.type === 'proposal_created' ||
+          data.type === 'proposal_updated'
+        ) {
           setProposals(prev => {
             const index = prev.findIndex(p => p.id === data.proposal.id);
             if (index >= 0) {
@@ -246,7 +266,7 @@ export function useGovernanceWebSocket() {
             }
           });
         }
-        
+
         setNotifications(prev => [data, ...prev.slice(0, 9)]); // Keep last 10
       },
     },
@@ -267,24 +287,21 @@ export function useKYCWebSocket() {
   const [verificationProgress, setVerificationProgress] = useState<number>(0);
 
   const { isConnected } = useWebSocket({
-    subscriptions: [
-      { type: 'kyc_status_update' },
-      { type: 'identity_update' },
-    ],
+    subscriptions: [{ type: 'kyc_status_update' }, { type: 'identity_update' }],
     eventHandlers: {
-      kyc_status_update: (data) => {
+      kyc_status_update: data => {
         setKycStatus(data);
-        
+
         // Calculate progress based on status
         const progressMap: Record<string, number> = {
-          'pending': 10,
-          'processing': 50,
-          'completed': 100,
-          'failed': 0,
+          pending: 10,
+          processing: 50,
+          completed: 100,
+          failed: 0,
         };
         setVerificationProgress(progressMap[data.status] || 0);
       },
-      identity_update: (data) => {
+      identity_update: data => {
         console.log('🆔 Identity update:', data);
       },
     },

@@ -7,7 +7,12 @@ import { apiClient } from '../lib/api-client';
 
 export interface IdentityClaim {
   id: string;
-  type: 'KYC_APPROVED' | 'ACCREDITED_INVESTOR' | 'AML_CLEARED' | 'INSTITUTIONAL_INVESTOR' | 'RETAIL_QUALIFIED';
+  type:
+    | 'KYC_APPROVED'
+    | 'ACCREDITED_INVESTOR'
+    | 'AML_CLEARED'
+    | 'INSTITUTIONAL_INVESTOR'
+    | 'RETAIL_QUALIFIED';
   value: string;
   issuer: string;
   issuerName?: string;
@@ -151,11 +156,16 @@ class IdentityService {
   /**
    * Revoke a claim (user or issuer can revoke)
    */
-  async revokeClaim(claimId: string, reason: string): Promise<{
+  async revokeClaim(
+    claimId: string,
+    reason: string
+  ): Promise<{
     success: boolean;
     transactionHash: string;
   }> {
-    return apiClient.post(`${this.BASE_PATH}/claims/${claimId}/revoke`, { reason });
+    return apiClient.post(`${this.BASE_PATH}/claims/${claimId}/revoke`, {
+      reason,
+    });
   }
 
   /**
@@ -225,7 +235,9 @@ class IdentityService {
     from: string;
     to: string;
   }): Promise<IdentityAnalytics> {
-    const params = dateRange ? { from: dateRange.from, to: dateRange.to } : undefined;
+    const params = dateRange
+      ? { from: dateRange.from, to: dateRange.to }
+      : undefined;
     return apiClient.get(`${this.BASE_PATH}/analytics`, params);
   }
 
@@ -243,13 +255,19 @@ class IdentityService {
   /**
    * Get identity verification history
    */
-  async getVerificationHistory(): Promise<Array<{
-    id: string;
-    action: 'registration' | 'claim_issued' | 'claim_revoked' | 'status_updated';
-    timestamp: string;
-    details: any;
-    transactionHash?: string;
-  }>> {
+  async getVerificationHistory(): Promise<
+    Array<{
+      id: string;
+      action:
+        | 'registration'
+        | 'claim_issued'
+        | 'claim_revoked'
+        | 'status_updated';
+      timestamp: string;
+      details: any;
+      transactionHash?: string;
+    }>
+  > {
     return apiClient.get(`${this.BASE_PATH}/history`);
   }
 
@@ -298,32 +316,40 @@ class IdentityService {
   /**
    * Get claim renewal suggestions
    */
-  async getClaimRenewalSuggestions(): Promise<Array<{
-    claimId: string;
-    claimType: string;
-    expiresAt: string;
-    daysUntilExpiry: number;
-    renewalRequired: boolean;
-    recommendedAction: string;
-  }>> {
+  async getClaimRenewalSuggestions(): Promise<
+    Array<{
+      claimId: string;
+      claimType: string;
+      expiresAt: string;
+      daysUntilExpiry: number;
+      renewalRequired: boolean;
+      recommendedAction: string;
+    }>
+  > {
     return apiClient.get(`${this.BASE_PATH}/claims/renewal-suggestions`);
   }
 
   /**
    * Set up automatic claim renewal
    */
-  async setupAutoRenewal(claimId: string, settings: {
-    autoRenew: boolean;
-    renewBeforeDays: number;
-    maxRenewals?: number;
-  }): Promise<{
+  async setupAutoRenewal(
+    claimId: string,
+    settings: {
+      autoRenew: boolean;
+      renewBeforeDays: number;
+      maxRenewals?: number;
+    }
+  ): Promise<{
     success: boolean;
     renewalSchedule: {
       nextRenewalDate: string;
       renewalCount: number;
     };
   }> {
-    return apiClient.post(`${this.BASE_PATH}/claims/${claimId}/auto-renewal`, settings);
+    return apiClient.post(
+      `${this.BASE_PATH}/claims/${claimId}/auto-renewal`,
+      settings
+    );
   }
 }
 
