@@ -62,7 +62,7 @@ export default function SignInPage() {
       // Navigation will be handled by the useEffect above when isAuthenticated becomes true
     } catch (err) {
       // Error handling is managed by useAuth hook
-      console.error('Login failed:', err);
+      // Login error is handled by useAuth hook
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +82,7 @@ export default function SignInPage() {
       await login(mockIdToken);
       // Navigation will be handled by the useEffect above
     } catch (err) {
-      console.error(`${provider} login failed:`, err);
+      // Social auth error is handled by useAuth hook
     } finally {
       setIsLoading(false);
     }

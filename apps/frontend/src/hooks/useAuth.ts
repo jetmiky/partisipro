@@ -12,7 +12,7 @@ import {
   useContext,
 } from 'react';
 import { authService, type LoginResponse } from '../services/auth.service';
-import { apiClient } from '../lib/api-client';
+// import { apiClient } from '../lib/api-client';
 
 export interface AuthState {
   user: LoginResponse['user'] | null;
@@ -124,7 +124,7 @@ export function useAuth(): UseAuthReturn {
       setLoading(true);
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      // console.error('Logout error:', error);
       // Continue with local cleanup even if server request fails
     } finally {
       setUser(null);
@@ -149,7 +149,7 @@ export function useAuth(): UseAuthReturn {
 
       return !!response.accessToken;
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      // console.error('Token refresh failed:', error);
       setUser(null);
       return false;
     }
@@ -194,7 +194,7 @@ export function useAuth(): UseAuthReturn {
         }
       }
     } catch (error) {
-      console.error('Auth status check failed:', error);
+      // console.error('Auth status check failed:', error);
 
       // Try refreshing token on auth check failure
       const refreshed = await refreshToken();
@@ -244,7 +244,7 @@ export function useAuth(): UseAuthReturn {
       async () => {
         const refreshed = await refreshToken();
         if (!refreshed) {
-          console.warn('Failed to refresh token, user will be logged out');
+          // console.warn('Failed to refresh token, user will be logged out');
         }
       },
       50 * 60 * 1000
