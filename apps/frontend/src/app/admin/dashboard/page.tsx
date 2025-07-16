@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -24,35 +24,14 @@ import {
   DataTable,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
+import { adminService } from '@/services/admin.service';
+import type {
+  PlatformStats,
+  SystemHealth,
+  RecentActivity,
+} from '@/services/admin.service';
 
-interface PlatformStats {
-  totalProjects: number;
-  totalUsers: number;
-  totalFundingVolume: number;
-  platformRevenue: number;
-  monthlyGrowth: {
-    projects: number;
-    users: number;
-    funding: number;
-    revenue: number;
-  };
-}
-
-interface RecentActivity {
-  id: string;
-  type:
-    | 'spv_registration'
-    | 'project_launch'
-    | 'large_investment'
-    | 'user_signup'
-    | 'system_alert';
-  title: string;
-  description: string;
-  timestamp: string;
-  amount?: number;
-  user?: string;
-  project?: string;
-}
+// Remove duplicate interfaces - using types from admin.service.ts
 
 interface TopProject extends Record<string, unknown> {
   id: string;
@@ -64,69 +43,9 @@ interface TopProject extends Record<string, unknown> {
   roi: number;
 }
 
-interface SystemHealth {
-  activeProjects: number;
-  pendingApprovals: number;
-  systemUptime: number;
-  transactionVolume24h: number;
-}
+// SystemHealth interface now imported from admin.service.ts
 
-const mockPlatformStats: PlatformStats = {
-  totalProjects: 156,
-  totalUsers: 2347,
-  totalFundingVolume: 45200000000000, // 45.2T IDR
-  platformRevenue: 2100000000000, // 2.1T IDR
-  monthlyGrowth: {
-    projects: 12.5,
-    users: 18.3,
-    funding: 24.7,
-    revenue: 15.8,
-  },
-};
-
-const mockRecentActivity: RecentActivity[] = [
-  {
-    id: '1',
-    type: 'spv_registration',
-    title: 'New SPV Registration',
-    description: 'PT Infrastruktur Nusantara applied for platform access',
-    timestamp: '2025-01-10T08:30:00Z',
-    user: 'PT Infrastruktur Nusantara',
-  },
-  {
-    id: '2',
-    type: 'project_launch',
-    title: 'Project Launched',
-    description: 'Bali-Lombok Bridge project went live for investment',
-    timestamp: '2025-01-10T07:15:00Z',
-    project: 'Bali-Lombok Bridge',
-    amount: 3500000000000, // 3.5T IDR
-  },
-  {
-    id: '3',
-    type: 'large_investment',
-    title: 'Large Investment',
-    description:
-      'Institutional investor committed Rp 250B to Jakarta MRT Phase 3',
-    timestamp: '2025-01-10T06:45:00Z',
-    amount: 250000000000, // 250B IDR
-    project: 'Jakarta MRT Phase 3',
-  },
-  {
-    id: '4',
-    type: 'user_signup',
-    title: 'User Milestone',
-    description: '500 new users registered in the last 24 hours',
-    timestamp: '2025-01-10T06:00:00Z',
-  },
-  {
-    id: '5',
-    type: 'system_alert',
-    title: 'System Maintenance',
-    description: 'Scheduled maintenance completed successfully',
-    timestamp: '2025-01-10T02:00:00Z',
-  },
-];
+// Removed unused mock data - now using real API data from adminService
 
 const mockTopProjects: TopProject[] = [
   {
@@ -158,12 +77,7 @@ const mockTopProjects: TopProject[] = [
   },
 ];
 
-const mockSystemHealth: SystemHealth = {
-  activeProjects: 89,
-  pendingApprovals: 12,
-  systemUptime: 99.8,
-  transactionVolume24h: 1250000000000, // 1.25T IDR
-};
+// Removed unused mock system health data - now using real API data
 
 const formatCurrency = (amount: number) => {
   if (amount >= 1000000000000) {
@@ -241,12 +155,42 @@ const formatTimeAgo = (timestamp: string) => {
 
 export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(
+    null
+  );
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load dashboard data
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [statsData, healthData, activityData] = await Promise.all([
+        adminService.getPlatformStats(),
+        adminService.getSystemHealth(),
+        adminService.getRecentActivity(5),
+      ]);
+
+      setPlatformStats(statsData);
+      setSystemHealth(healthData);
+      setRecentActivity(activityData);
+    } catch (err) {
+      setError('Failed to load dashboard data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load data on mount
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
   const handleRefresh = async () => {
-    setIsLoading(true);
-    // Mock API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    await loadDashboardData();
   };
 
   const topProjectColumns: Column<TopProject>[] = [
@@ -334,37 +278,53 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Error Loading Dashboard
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Projects"
-            value={mockPlatformStats.totalProjects.toString()}
+            value={platformStats?.totalProjects.toString() || '0'}
             icon={<Building className="w-4 h-4" />}
-            change={mockPlatformStats.monthlyGrowth.projects}
+            change={platformStats?.monthlyGrowth.projects || 0}
             changeType="increase"
             description="Active platform projects"
           />
           <StatsCard
             title="Total Users"
-            value={mockPlatformStats.totalUsers.toLocaleString()}
+            value={platformStats?.totalUsers.toLocaleString() || '0'}
             icon={<Users className="w-4 h-4" />}
-            change={mockPlatformStats.monthlyGrowth.users}
+            change={platformStats?.monthlyGrowth.users || 0}
             changeType="increase"
             description="Registered investors"
           />
           <StatsCard
             title="Funding Volume"
-            value={formatCurrency(mockPlatformStats.totalFundingVolume)}
+            value={formatCurrency(platformStats?.totalFundingVolume || 0)}
             icon={<DollarSign className="w-4 h-4" />}
-            change={mockPlatformStats.monthlyGrowth.funding}
+            change={platformStats?.monthlyGrowth.funding || 0}
             changeType="increase"
             description="Total platform funding"
           />
           <StatsCard
             title="Platform Revenue"
-            value={formatCurrency(mockPlatformStats.platformRevenue)}
+            value={formatCurrency(platformStats?.platformRevenue || 0)}
             icon={<TrendingUp className="w-4 h-4" />}
-            change={mockPlatformStats.monthlyGrowth.revenue}
+            change={platformStats?.monthlyGrowth.revenue || 0}
             changeType="increase"
             description="Total platform earnings"
           />
@@ -381,25 +341,25 @@ export default function AdminDashboardPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Projects</span>
                 <span className="font-medium">
-                  {mockSystemHealth.activeProjects}
+                  {systemHealth?.activeProjects || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Pending Approvals</span>
                 <span className="font-medium text-primary-500">
-                  {mockSystemHealth.pendingApprovals}
+                  {systemHealth?.pendingApprovals || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">System Uptime</span>
                 <span className="font-medium text-support-500">
-                  {mockSystemHealth.systemUptime}%
+                  {systemHealth?.systemUptime || 0}%
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">24h Volume</span>
                 <span className="font-medium">
-                  {formatCurrency(mockSystemHealth.transactionVolume24h)}
+                  {formatCurrency(systemHealth?.transactionVolume24h || 0)}
                 </span>
               </div>
             </div>
@@ -416,38 +376,46 @@ export default function AdminDashboardPage() {
               </Button>
             </div>
             <div className="space-y-3">
-              {mockRecentActivity.map(activity => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50"
-                >
+              {recentActivity.length > 0 ? (
+                recentActivity.map(activity => (
                   <div
-                    className={`p-2 rounded-lg ${getActivityColor(activity.type)}`}
+                    key={activity.id}
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50"
                   >
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {activity.title}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {activity.description}
-                        </p>
-                        {activity.amount && (
-                          <p className="text-sm font-medium text-primary-600">
-                            {formatCurrency(activity.amount)}
+                    <div
+                      className={`p-2 rounded-lg ${getActivityColor(activity.type)}`}
+                    >
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {activity.title}
                           </p>
-                        )}
+                          <p className="text-sm text-gray-600">
+                            {activity.description}
+                          </p>
+                          {activity.amount && (
+                            <p className="text-sm font-medium text-primary-600">
+                              {formatCurrency(activity.amount)}
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {formatTimeAgo(activity.timestamp)}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {formatTimeAgo(activity.timestamp)}
-                      </span>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {isLoading
+                    ? 'Loading recent activity...'
+                    : 'No recent activity'}
                 </div>
-              ))}
+              )}
             </div>
           </Card>
         </div>

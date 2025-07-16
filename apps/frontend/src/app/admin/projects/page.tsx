@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Building,
@@ -30,7 +30,7 @@ import {
   DataTable,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-import type { AdminProject } from '@/types';
+import { adminService } from '@/services/admin.service';
 
 interface ProjectStats {
   totalProjects: number;
@@ -43,109 +43,34 @@ interface ProjectStats {
   monthlyGrowth: number;
 }
 
-// Mock data
-const mockProjects: AdminProject[] = [
-  {
-    id: '1',
-    projectName: 'Jakarta-Surabaya Toll Road Extension',
-    spvName: 'Jakarta Toll Management',
-    projectType: 'Infrastructure',
-    location: 'East Java',
-    totalValue: 2500000000000, // 2.5T IDR
-    fundingProgress: 1875000000000, // 1.875T IDR (75%)
-    fundingTarget: 2500000000000,
-    investorCount: 1250,
-    status: 'funding',
-    riskLevel: 'medium',
-    createdDate: '2024-01-15',
-    launchDate: '2024-02-01',
-    lastActivity: '2025-01-09',
-    complianceStatus: 'compliant',
-    flags: [],
-  },
-  {
-    id: '2',
-    projectName: 'Bandung Smart Water Management',
-    spvName: 'Bandung Water Solutions',
-    projectType: 'Utilities',
-    location: 'West Java',
-    totalValue: 850000000000, // 850B IDR
-    fundingProgress: 850000000000, // Fully funded
-    fundingTarget: 850000000000,
-    investorCount: 425,
-    status: 'operational',
-    riskLevel: 'low',
-    createdDate: '2023-06-10',
-    launchDate: '2023-07-01',
-    lastActivity: '2025-01-08',
-    complianceStatus: 'compliant',
-    flags: [],
-  },
-  {
-    id: '3',
-    projectName: 'Medan Port Modernization',
-    spvName: 'Medan Port Authority',
-    projectType: 'Transportation',
-    location: 'North Sumatra',
-    totalValue: 1200000000000, // 1.2T IDR
-    fundingProgress: 1200000000000, // Fully funded
-    fundingTarget: 1200000000000,
-    investorCount: 600,
-    status: 'active',
-    riskLevel: 'low',
-    createdDate: '2023-03-20',
-    launchDate: '2023-04-15',
-    lastActivity: '2025-01-07',
-    complianceStatus: 'compliant',
-    flags: [],
-  },
-  {
-    id: '4',
-    projectName: 'Bali Renewable Energy Grid',
-    spvName: 'Bali Green Energy',
-    projectType: 'Energy',
-    location: 'Bali',
-    totalValue: 750000000000, // 750B IDR
-    fundingProgress: 0,
-    fundingTarget: 750000000000,
-    investorCount: 0,
-    status: 'review',
-    riskLevel: 'high',
-    createdDate: '2025-01-05',
-    lastActivity: '2025-01-05',
-    complianceStatus: 'review_required',
-    flags: ['environmental_assessment_pending', 'regulatory_approval_needed'],
-  },
-  {
-    id: '5',
-    projectName: 'Surabaya Digital Infrastructure',
-    spvName: 'East Java Tech Hub',
-    projectType: 'Technology',
-    location: 'East Java',
-    totalValue: 500000000000, // 500B IDR
-    fundingProgress: 100000000000, // 20%
-    fundingTarget: 500000000000,
-    investorCount: 150,
-    status: 'suspended',
-    riskLevel: 'high',
-    createdDate: '2024-09-15',
-    launchDate: '2024-10-01',
-    lastActivity: '2024-12-20',
-    complianceStatus: 'non_compliant',
-    flags: ['kyc_violations', 'financial_irregularities'],
-  },
-];
+interface AdminProject {
+  id: string;
+  projectName: string;
+  spvName: string;
+  projectType: string;
+  location: string;
+  totalValue: number;
+  fundingProgress: number;
+  fundingTarget: number;
+  investorCount: number;
+  status:
+    | 'draft'
+    | 'review'
+    | 'approved'
+    | 'funding'
+    | 'active'
+    | 'operational'
+    | 'completed'
+    | 'suspended';
+  riskLevel: 'low' | 'medium' | 'high';
+  createdDate: string;
+  launchDate?: string;
+  lastActivity: string;
+  complianceStatus: 'compliant' | 'review_required' | 'non_compliant';
+  flags: string[];
+}
 
-const mockStats: ProjectStats = {
-  totalProjects: 5,
-  activeProjects: 3,
-  pendingReview: 1,
-  suspendedProjects: 1,
-  totalFundingVolume: 4050000000000, // 4.05T IDR
-  averageProjectSize: 960000000000, // 960B IDR
-  complianceRate: 80, // 80%
-  monthlyGrowth: 12.5,
-};
+// Removed unused mock data - now using real API data from adminService
 
 const getStatusIcon = (status: AdminProject['status']) => {
   switch (status) {
@@ -238,17 +163,87 @@ export default function AdminProjectsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [error, setError] = useState<string | null>(null);
+
+  // State for API data
+  const [projects, setProjects] = useState<AdminProject[]>([]);
+  const [projectStats, setProjectStats] = useState<ProjectStats | null>(null);
+
+  // Load project oversight data
+  const loadProjectData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [oversightData, statsData] = await Promise.all([
+        adminService.getProjectOversight({
+          status: statusFilter === 'all' ? undefined : statusFilter,
+          limit: 100,
+        }),
+        adminService.getPlatformStats(),
+      ]);
+
+      // Transform oversight data to match AdminProject interface
+      const transformedProjects: AdminProject[] = oversightData.projects.map(
+        p => ({
+          id: p.id,
+          projectName: p.name,
+          spvName: p.spvName,
+          projectType: 'Infrastructure', // Default type
+          location: 'Various', // Default location
+          totalValue: p.totalFunding,
+          fundingProgress: p.totalFunding,
+          fundingTarget: p.totalFunding,
+          investorCount: p.investorCount,
+          status: p.status as AdminProject['status'],
+          riskLevel: p.riskLevel,
+          createdDate: new Date().toISOString().split('T')[0],
+          lastActivity: p.lastActivity,
+          complianceStatus:
+            p.complianceScore > 80 ? 'compliant' : 'review_required',
+          flags: [],
+        })
+      );
+
+      setProjects(transformedProjects);
+
+      // Calculate project stats from platform stats
+      const calculatedStats: ProjectStats = {
+        totalProjects: statsData.totalProjects,
+        activeProjects: oversightData.projects.filter(
+          p => p.status === 'active'
+        ).length,
+        pendingReview: oversightData.projects.filter(p => p.status === 'review')
+          .length,
+        suspendedProjects: oversightData.projects.filter(
+          p => p.status === 'suspended'
+        ).length,
+        totalFundingVolume: statsData.totalFundingVolume,
+        averageProjectSize:
+          statsData.totalFundingVolume / Math.max(statsData.totalProjects, 1),
+        complianceRate: 85, // Mock compliance rate
+        monthlyGrowth: statsData.monthlyGrowth.projects,
+      };
+
+      setProjectStats(calculatedStats);
+    } catch (err) {
+      setError('Failed to load project data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load data on mount and when filter changes
+  useEffect(() => {
+    loadProjectData();
+  }, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRefresh = async () => {
-    setIsLoading(true);
-    // TODO: Fetch latest project data from API
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    await loadProjectData();
   };
 
   const handleViewProject = (_projectId: string) => {
     // TODO: Navigate to project detail page
-    // console.log('View project:', projectId);
     _projectId;
   };
 
@@ -413,19 +408,33 @@ export default function AdminProjectsPage() {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Total Projects"
-            value={mockStats.totalProjects.toString()}
+            value={projectStats?.totalProjects.toString() || '0'}
             icon={<Building className="w-4 h-4" />}
-            change={mockStats.monthlyGrowth}
+            change={projectStats?.monthlyGrowth || 0}
             changeType="increase"
             description="All time projects"
           />
           <StatsCard
             title="Active Projects"
-            value={mockStats.activeProjects.toString()}
+            value={projectStats?.activeProjects.toString() || '0'}
             icon={<Play className="w-4 h-4" />}
             change={0}
             changeType="neutral"
@@ -433,7 +442,7 @@ export default function AdminProjectsPage() {
           />
           <StatsCard
             title="Pending Review"
-            value={mockStats.pendingReview.toString()}
+            value={projectStats?.pendingReview.toString() || '0'}
             icon={<Eye className="w-4 h-4" />}
             change={0}
             changeType="neutral"
@@ -441,7 +450,7 @@ export default function AdminProjectsPage() {
           />
           <StatsCard
             title="Compliance Rate"
-            value={`${mockStats.complianceRate}%`}
+            value={`${projectStats?.complianceRate || 0}%`}
             icon={<Shield className="w-4 h-4" />}
             change={5.2}
             changeType="increase"
@@ -453,7 +462,7 @@ export default function AdminProjectsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatsCard
             title="Total Funding Volume"
-            value={formatCurrency(mockStats.totalFundingVolume)}
+            value={formatCurrency(projectStats?.totalFundingVolume || 0)}
             icon={<DollarSign className="w-4 h-4" />}
             change={15.8}
             changeType="increase"
@@ -461,7 +470,7 @@ export default function AdminProjectsPage() {
           />
           <StatsCard
             title="Average Project Size"
-            value={formatCurrency(mockStats.averageProjectSize)}
+            value={formatCurrency(projectStats?.averageProjectSize || 0)}
             icon={<BarChart3 className="w-4 h-4" />}
             change={-3.2}
             changeType="decrease"
@@ -469,7 +478,7 @@ export default function AdminProjectsPage() {
           />
           <StatsCard
             title="Suspended Projects"
-            value={mockStats.suspendedProjects.toString()}
+            value={projectStats?.suspendedProjects.toString() || '0'}
             icon={<Ban className="w-4 h-4" />}
             change={0}
             changeType="neutral"
@@ -531,10 +540,7 @@ export default function AdminProjectsPage() {
             </div>
           </div>
 
-          <DataTable<AdminProject>
-            columns={projectColumns}
-            data={mockProjects}
-          />
+          <DataTable<AdminProject> columns={projectColumns} data={projects} />
         </Card>
 
         {/* Quick Actions */}

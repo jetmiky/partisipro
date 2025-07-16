@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Check,
   X,
@@ -25,127 +25,16 @@ import {
   Modal,
 } from '@/components/ui';
 import type { Column } from '@/components/ui/DataTable';
-import type { SPVApplication, ApprovedSPV } from '@/types';
+import { adminService } from '@/services/admin.service';
+import type {
+  SPVApplication,
+  ApprovedSPV,
+  SPVStats,
+} from '@/services/admin.service';
 
-interface SPVStats {
-  pendingApplications: number;
-  approvedSPVs: number;
-  totalProjectsCreated: number;
-  totalFundingFacilitated: number;
-}
+// SPVStats interface now imported from admin.service.ts
 
-const mockSPVStats: SPVStats = {
-  pendingApplications: 12,
-  approvedSPVs: 45,
-  totalProjectsCreated: 156,
-  totalFundingFacilitated: 45200000000000, // 45.2T IDR
-};
-
-const mockPendingApplications: SPVApplication[] = [
-  {
-    id: '1',
-    companyName: 'PT Infrastruktur Nusantara',
-    legalEntityType: 'PT (Perseroan Terbatas)',
-    registrationNumber: 'AHU-123456789',
-    contactPerson: 'Budi Santoso',
-    email: 'budi.santoso@infranus.co.id',
-    phone: '+62-21-5551-2345',
-    website: 'https://infranus.co.id',
-    businessType: 'Infrastructure Development',
-    yearsOfOperation: 8,
-    submittedDate: '2025-01-08T10:30:00Z',
-    status: 'pending',
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      auditedFinancials: true,
-      companyProfile: true,
-      bankReference: false,
-    },
-    estimatedProjectValue: 2500000000000, // 2.5T IDR
-  },
-  {
-    id: '2',
-    companyName: 'PT Jembatan Modern',
-    legalEntityType: 'PT (Perseroan Terbatas)',
-    registrationNumber: 'AHU-987654321',
-    contactPerson: 'Sari Dewi',
-    email: 'sari.dewi@jembatanmodern.com',
-    phone: '+62-31-7770-8888',
-    businessType: 'Bridge & Transportation Infrastructure',
-    yearsOfOperation: 12,
-    submittedDate: '2025-01-07T14:15:00Z',
-    status: 'under_review',
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      auditedFinancials: true,
-      companyProfile: true,
-      bankReference: true,
-    },
-    reviewNotes: 'Strong financial profile, reviewing regulatory compliance.',
-    reviewedBy: 'Admin Team',
-    estimatedProjectValue: 4200000000000, // 4.2T IDR
-  },
-  {
-    id: '3',
-    companyName: 'PT Energi Hijau Indonesia',
-    legalEntityType: 'PT (Perseroan Terbatas)',
-    registrationNumber: 'AHU-555666777',
-    contactPerson: 'Ahmad Rahman',
-    email: 'ahmad.rahman@energihijau.id',
-    phone: '+62-21-9999-1111',
-    website: 'https://energihijau.id',
-    businessType: 'Renewable Energy Infrastructure',
-    yearsOfOperation: 5,
-    submittedDate: '2025-01-06T09:20:00Z',
-    status: 'pending',
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      auditedFinancials: false,
-      companyProfile: true,
-      bankReference: true,
-    },
-    estimatedProjectValue: 1800000000000, // 1.8T IDR
-  },
-];
-
-const mockApprovedSPVs: ApprovedSPV[] = [
-  {
-    id: '1',
-    companyName: 'PT Kereta Cepat Indonesia',
-    approvedDate: '2023-06-15',
-    walletAddress: '0x1234...5678',
-    projectsCreated: 3,
-    totalFundingRaised: 12500000000000, // 12.5T IDR
-    status: 'active',
-    lastActivity: '2025-01-09T16:30:00Z',
-    performanceScore: 9.2,
-  },
-  {
-    id: '2',
-    companyName: 'PT Pelabuhan Modern',
-    approvedDate: '2023-08-22',
-    walletAddress: '0xABCD...EFGH',
-    projectsCreated: 2,
-    totalFundingRaised: 5200000000000, // 5.2T IDR
-    status: 'active',
-    lastActivity: '2025-01-08T11:15:00Z',
-    performanceScore: 8.7,
-  },
-  {
-    id: '3',
-    companyName: 'PT Smart City Solutions',
-    approvedDate: '2024-01-10',
-    walletAddress: '0x9876...4321',
-    projectsCreated: 1,
-    totalFundingRaised: 850000000000, // 850B IDR
-    status: 'active',
-    lastActivity: '2025-01-07T14:45:00Z',
-    performanceScore: 8.1,
-  },
-];
+// Removed unused mock data - now using real API data from adminService
 
 const formatCurrency = (amount: number) => {
   if (amount >= 1000000000000) {
@@ -228,6 +117,41 @@ export default function AdminSPVPage() {
   );
   const [reviewNotes, setReviewNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // State for API data
+  const [spvStats, setSpvStats] = useState<SPVStats | null>(null);
+  const [applications, setApplications] = useState<SPVApplication[]>([]);
+  const [approvedSPVs, setApprovedSPVs] = useState<ApprovedSPV[]>([]);
+
+  // Load SPV data
+  const loadSPVData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [statsData, applicationsData, approvedData] = await Promise.all([
+        adminService.getSPVStats(),
+        adminService.getSPVApplications(),
+        adminService.getApprovedSPVs(),
+      ]);
+
+      setSpvStats(statsData);
+      setApplications(applicationsData.applications);
+      setApprovedSPVs(approvedData.spvs);
+    } catch (err) {
+      setError('Failed to load SPV data');
+      console.error('Error loading SPV data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load data on mount
+  useEffect(() => {
+    loadSPVData();
+  }, []);
 
   const handleViewApplication = (application: SPVApplication) => {
     setSelectedApplication(application);
@@ -242,32 +166,48 @@ export default function AdminSPVPage() {
     setReviewAction(action);
     setIsSubmitting(true);
 
-    // Mock API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      await adminService.reviewSPVApplication({
+        applicationId: selectedApplication.id,
+        action,
+        reviewNotes,
+      });
 
-    // TODO: Implement actual API call to update SPV status
-    // console.log(`${action} SPV:`, selectedApplication.id);
-    // console.log('Review notes:', reviewNotes);
-
-    setIsSubmitting(false);
-    setIsReviewModalOpen(false);
-    setSelectedApplication(null);
-    setReviewAction(null);
-    setReviewNotes('');
+      // Refresh data after successful review
+      await loadSPVData();
+    } catch (err) {
+      setError(`Failed to ${action} SPV application`);
+    } finally {
+      setIsSubmitting(false);
+      setIsReviewModalOpen(false);
+      setSelectedApplication(null);
+      setReviewAction(null);
+      setReviewNotes('');
+    }
   };
 
   const handleSuspendSPV = async (spvId: string) => {
-    // TODO: Implement SPV suspension logic
-    // console.log('Suspend SPV:', spvId);
-
-    spvId;
+    try {
+      setIsLoading(true);
+      await adminService.suspendSPV(spvId, 'Suspended by admin');
+      await loadSPVData();
+    } catch (err) {
+      setError('Failed to suspend SPV');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleActivateSPV = async (spvId: string) => {
-    // TODO: Implement SPV activation logic
-    // console.log('Activate SPV:', spvId);
-
-    spvId;
+    try {
+      setIsLoading(true);
+      await adminService.activateSPV(spvId);
+      await loadSPVData();
+    } catch (err) {
+      setError('Failed to activate SPV');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const applicationColumns: Column<SPVApplication>[] = [
@@ -453,8 +393,14 @@ export default function AdminSPVPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
+            <Button
+              variant="outline"
+              onClick={loadSPVData}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+              />
               Refresh
             </Button>
             <Button variant="outline">
@@ -464,11 +410,25 @@ export default function AdminSPVPage() {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
             title="Pending Applications"
-            value={mockSPVStats.pendingApplications.toString()}
+            value={spvStats?.pendingApplications.toString() || '0'}
             icon={<Clock className="w-4 h-4" />}
             change={0}
             changeType="neutral"
@@ -476,7 +436,7 @@ export default function AdminSPVPage() {
           />
           <StatsCard
             title="Approved SPVs"
-            value={mockSPVStats.approvedSPVs.toString()}
+            value={spvStats?.approvedSPVs.toString() || '0'}
             icon={<Shield className="w-4 h-4" />}
             change={8.3}
             changeType="increase"
@@ -484,7 +444,7 @@ export default function AdminSPVPage() {
           />
           <StatsCard
             title="Projects Created"
-            value={mockSPVStats.totalProjectsCreated.toString()}
+            value={spvStats?.totalProjectsCreated.toString() || '0'}
             icon={<Building className="w-4 h-4" />}
             change={12.5}
             changeType="increase"
@@ -492,7 +452,7 @@ export default function AdminSPVPage() {
           />
           <StatsCard
             title="Funding Facilitated"
-            value={formatCurrency(mockSPVStats.totalFundingFacilitated)}
+            value={formatCurrency(spvStats?.totalFundingFacilitated || 0)}
             icon={<Users className="w-4 h-4" />}
             change={24.7}
             changeType="increase"
@@ -511,7 +471,7 @@ export default function AdminSPVPage() {
               }`}
               onClick={() => setActiveTab('applications')}
             >
-              Pending Applications ({mockSPVStats.pendingApplications})
+              Pending Applications ({spvStats?.pendingApplications || 0})
             </button>
             <button
               className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
@@ -521,7 +481,7 @@ export default function AdminSPVPage() {
               }`}
               onClick={() => setActiveTab('approved')}
             >
-              Approved SPVs ({mockSPVStats.approvedSPVs})
+              Approved SPVs ({spvStats?.approvedSPVs || 0})
             </button>
           </nav>
         </div>
@@ -549,7 +509,7 @@ export default function AdminSPVPage() {
 
               <DataTable<SPVApplication>
                 columns={applicationColumns}
-                data={mockPendingApplications}
+                data={applications}
               />
             </div>
           ) : (
@@ -573,7 +533,7 @@ export default function AdminSPVPage() {
 
               <DataTable<ApprovedSPV>
                 columns={approvedSPVColumns}
-                data={mockApprovedSPVs}
+                data={approvedSPVs}
               />
             </div>
           )}
