@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useGovernanceWebSocket } from '@/hooks/useWebSocket';
 import { useRouter } from 'next/navigation';
 import {
   Vote,
@@ -61,6 +62,38 @@ export default function GovernancePage() {
   const [proposals, setProposals] = useState<GovernanceProposal[]>([]);
   const [votingPowers, setVotingPowers] = useState<VotingPower[]>([]);
   const [governanceStats, setGovernanceStats] = useState<GovernanceStats | null>(null);
+
+  // WebSocket integration for real-time governance updates
+  const { proposals: liveProposals, notifications, isConnected } = useGovernanceWebSocket();
+
+  // Update local proposals when real-time updates come in
+  useEffect(() => {
+    if (liveProposals.length > 0) {
+      console.log('🗳️ Real-time governance proposals update:', liveProposals);
+      setProposals(prev => {
+        const updatedProposals = [...prev];
+        liveProposals.forEach(liveProposal => {
+          const index = updatedProposals.findIndex(p => p.id === liveProposal.id);
+          if (index >= 0) {
+            updatedProposals[index] = liveProposal;
+          } else {
+            updatedProposals.unshift(liveProposal);
+          }
+        });
+        return updatedProposals;
+      });
+    }
+  }, [liveProposals]);
+
+  // Show real-time notifications
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const latestNotification = notifications[0];
+      console.log('🔔 Governance notification:', latestNotification);
+      // Here you could show a toast notification
+      // toast.info(`Governance Update: ${latestNotification.message}`);
+    }
+  }, [notifications]);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
 

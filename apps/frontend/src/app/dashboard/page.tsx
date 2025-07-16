@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePortfolioWebSocket } from '@/hooks/useWebSocket';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -173,6 +174,22 @@ export default function DashboardPage() {
   const [selectedTab, setSelectedTab] = useState('overview');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // WebSocket integration for real-time portfolio updates
+  const { portfolioData, lastUpdate, isConnected } = usePortfolioWebSocket();
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+
+  useEffect(() => {
+    setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+  }, [isConnected]);
+
+  useEffect(() => {
+    if (portfolioData) {
+      console.log('📊 Real-time portfolio update received:', portfolioData);
+      // Here we would update the portfolio state with real data
+      // For now, we'll just log it since we're using mock data
+    }
+  }, [portfolioData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -1828,12 +1845,39 @@ export default function DashboardPage() {
       <div className="p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Investment Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Welcome back! Here&apos;s your portfolio overview.
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Investment Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Welcome back! Here&apos;s your portfolio overview.
+              </p>
+            </div>
+            
+            {/* Real-time Status Indicator */}
+            <div className="flex items-center space-x-4">
+              {lastUpdate && (
+                <div className="text-sm text-gray-500">
+                  Last update: {lastUpdate.toLocaleTimeString()}
+                </div>
+              )}
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    connectionStatus === 'connected'
+                      ? 'bg-green-500'
+                      : connectionStatus === 'connecting'
+                      ? 'bg-yellow-500 animate-pulse'
+                      : 'bg-red-500'
+                  }`}
+                />
+                <span className="text-sm text-gray-600 capitalize">
+                  {connectionStatus === 'connected' ? 'Live' : connectionStatus}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}

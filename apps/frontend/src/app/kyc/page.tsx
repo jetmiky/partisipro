@@ -30,6 +30,7 @@ import {
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { useKYCWebSocket } from '@/hooks/useWebSocket';
 import {
   kycService,
   KYCProvider,
@@ -106,6 +107,9 @@ export default function KYCPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<any>(null);
+
+  // WebSocket integration for real-time KYC updates
+  const { kycStatus: liveKycStatus, verificationProgress, isConnected: wsConnected } = useKYCWebSocket();
   
   // Claims issuance state
   const [claimsIssuance, setClaimsIssuance] = useState<{
@@ -175,6 +179,39 @@ export default function KYCPage() {
       status: 'pending',
     },
   ]);
+
+  // Real-time KYC status updates via WebSocket
+  useEffect(() => {
+    if (liveKycStatus) {
+      console.log('🆔 Real-time KYC status update:', liveKycStatus);
+      setKycSession(liveKycStatus);
+      
+      // Update step based on status
+      if (liveKycStatus.status === 'completed') {
+        setKycStatus('success');
+        setCurrentStep('identity');
+      } else if (liveKycStatus.status === 'failed') {
+        setKycStatus('failed');
+      } else if (liveKycStatus.status === 'processing') {
+        setKycStatus('processing');
+        setCurrentStep('processing');
+      }
+      
+      // Stop polling since we're getting real-time updates
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        setPollingActive(false);
+      }
+    }
+  }, [liveKycStatus]);
+
+  // Update progress indicator with real-time data
+  useEffect(() => {
+    if (verificationProgress > 0) {
+      console.log('📊 KYC verification progress:', verificationProgress);
+      // Update any progress bars or indicators here
+    }
+  }, [verificationProgress]);
 
   // Check authentication and load KYC data
   useEffect(() => {

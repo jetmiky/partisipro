@@ -101,6 +101,13 @@ export type {
   KYCAnalytics,
 } from './kyc.service';
 
+// Export WebSocket service
+export { webSocketService, WebSocketService } from './websocket.service';
+export type {
+  WebSocketEventHandlers,
+  WebSocketSubscription,
+} from './websocket.service';
+
 // Service initialization function
 export function initializeServices(): void {
   // Initialize auth state from localStorage
