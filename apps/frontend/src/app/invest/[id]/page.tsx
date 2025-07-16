@@ -225,16 +225,6 @@ export default function InvestmentFlowPage() {
     loadProjectData();
   }, [params.id, isAuthenticated, router]);
 
-  // Check eligibility when project and amount change
-  useEffect(() => {
-    if (project && investmentAmount && currentStep === 'amount') {
-      const amount = parseFloat(investmentAmount.replace(/[^\d]/g, ''));
-      if (amount > 0) {
-        checkEligibility(amount);
-      }
-    }
-  }, [project, investmentAmount, currentStep, checkEligibility]);
-
   const checkEligibility = useCallback(
     async (amount: number) => {
       if (!project) return;
@@ -252,6 +242,16 @@ export default function InvestmentFlowPage() {
     },
     [project]
   );
+
+  // Check eligibility when project and amount change
+  useEffect(() => {
+    if (project && investmentAmount && currentStep === 'amount') {
+      const amount = parseFloat(investmentAmount.replace(/[^\d]/g, ''));
+      if (amount > 0) {
+        checkEligibility(amount);
+      }
+    }
+  }, [project, investmentAmount, currentStep, checkEligibility]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

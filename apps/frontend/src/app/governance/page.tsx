@@ -99,7 +99,7 @@ export default function GovernancePage() {
   // Show real-time notifications
   useEffect(() => {
     if (notifications.length > 0) {
-      const latestNotification = notifications[0];
+      // const latestNotification = notifications[0];
       // Governance notification received
       // Here you could show a toast notification
       // toast.info(`Governance Update: ${latestNotification.message}`);
@@ -107,6 +107,8 @@ export default function GovernancePage() {
   }, [notifications]);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
+
+  voting;
 
   // Check authentication and eligibility
   useEffect(() => {

@@ -41,7 +41,7 @@ export interface RecentActivity {
   project?: string;
 }
 
-export interface SPVApplication {
+export interface SPVApplication extends Record<string, unknown> {
   id: string;
   companyName: string;
   legalEntityType: string;
@@ -66,7 +66,7 @@ export interface SPVApplication {
   estimatedProjectValue: number;
 }
 
-export interface ApprovedSPV {
+export interface ApprovedSPV extends Record<string, unknown> {
   id: string;
   companyName: string;
   approvedDate: string;

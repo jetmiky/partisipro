@@ -19,7 +19,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import {
   identityService,
-  IdentityClaim,
+  // IdentityClaim,
   IdentityVerificationStatus,
   TrustedIssuer,
 } from '@/services';
@@ -39,14 +39,20 @@ const toast = {
 
 export default function IdentityPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } =
-    useAuth();
+  const {
+    // user,
+    isAuthenticated,
+    // isKYCApproved,
+    // isIdentityVerified
+  } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
   const [identityStatus, setIdentityStatus] =
     useState<IdentityVerificationStatus | null>(null);
   const [trustedIssuers, setTrustedIssuers] = useState<TrustedIssuer[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  trustedIssuers;
 
   // Check authentication
   useEffect(() => {
@@ -159,7 +165,7 @@ export default function IdentityPage() {
   }
 
   // Use real claims from identity status
-  const claims = identityStatus.claims;
+  // const claims = identityStatus.claims;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -191,16 +197,16 @@ export default function IdentityPage() {
     }
   };
 
-  const handleReVerification = async () => {
-    setIsLoading(true);
-    // TODO: Implement re-verification workflow
-    setTimeout(() => {
-      setIsLoading(false);
-      alert(
-        'Re-verification process initiated. You will be redirected to the KYC provider.'
-      );
-    }, 1000);
-  };
+  // const handleReVerification = async () => {
+  //   setIsLoading(true);
+  //   // TODO: Implement re-verification workflow
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     alert(
+  //       'Re-verification process initiated. You will be redirected to the KYC provider.'
+  //     );
+  //   }, 1000);
+  // };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {

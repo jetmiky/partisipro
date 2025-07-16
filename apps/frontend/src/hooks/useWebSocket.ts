@@ -70,12 +70,12 @@ export function useWebSocket(
         webSocketService.subscribe(user.id, subscriptions);
       }
 
-      console.log('✅ WebSocket connected and subscribed');
+      // console.log('✅ WebSocket connected and subscribed');
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to connect';
       setError(errorMessage);
-      console.error('❌ WebSocket connection failed:', err);
+      // console.error('❌ WebSocket connection failed:', err);
     } finally {
       setIsConnecting(false);
       connectAttemptRef.current = false;
@@ -223,11 +223,13 @@ export function usePortfolioWebSocket() {
         setLastUpdate(new Date());
       },
       investment_update: data => {
-        console.log('📈 Investment update:', data);
+        data;
+        // console.log('📈 Investment update:', data);
         setLastUpdate(new Date());
       },
       profit_distribution: data => {
-        console.log('💰 Profit distribution:', data);
+        data;
+        // console.log('💰 Profit distribution:', data);
         setLastUpdate(new Date());
       },
     },
@@ -302,7 +304,8 @@ export function useKYCWebSocket() {
         setVerificationProgress(progressMap[data.status] || 0);
       },
       identity_update: data => {
-        console.log('🆔 Identity update:', data);
+        data;
+        // console.log('🆔 Identity update:', data);
       },
     },
   });

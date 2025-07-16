@@ -387,7 +387,6 @@ export default function KYCPage() {
     { id: 'complete', label: 'Complete', icon: CheckCircle },
   ];
 
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {

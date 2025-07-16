@@ -44,7 +44,7 @@ interface ProjectStats {
   monthlyGrowth: number;
 }
 
-interface AdminProject {
+interface AdminProject extends Record<string, unknown> {
   id: string;
   projectName: string;
   spvName: string;
