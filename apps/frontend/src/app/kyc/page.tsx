@@ -36,8 +36,8 @@ import {
   KYCProvider,
   KYCSession,
   KYCInitiationRequest,
-  KYCAnalytics,
-  KYCErrorHandling,
+  // KYCAnalytics,
+  // KYCErrorHandling,
 } from '@/services';
 
 // Simple toast replacement for now
@@ -103,24 +103,16 @@ export default function KYCPage() {
   
   // Real API state
   const [providers, setProviders] = useState<KYCProvider[]>([]);
-  const [currentKYCStatus, setCurrentKYCStatus] = useState<any>(null);
+  const [, setCurrentKYCStatus] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [, setSubmitting] = useState(false);
   const [error, setError] = useState<any>(null);
 
   // WebSocket integration for real-time KYC updates
-  const { kycStatus: liveKycStatus, verificationProgress, isConnected: wsConnected } = useKYCWebSocket();
+  const { kycStatus: liveKycStatus } = useKYCWebSocket();
   
-  // Claims issuance state
-  const [claimsIssuance, setClaimsIssuance] = useState<{
-    issuanceStatus: 'pending' | 'processing' | 'completed' | 'failed';
-    transactionHash?: string;
-    claimsToIssue: Array<{
-      type: string;
-      value: string;
-      issuer: string;
-    }>;
-  } | null>(null);
+  // Claims issuance state (future implementation)
+  // const [claimsIssuance, setClaimsIssuance] = useState<{...}>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',

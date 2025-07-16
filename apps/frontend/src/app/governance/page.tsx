@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGovernanceWebSocket } from '@/hooks/useWebSocket';
 import { useRouter } from 'next/navigation';
 import {
@@ -49,7 +49,7 @@ const toast = {
 
 export default function GovernancePage() {
   const router = useRouter();
-  const { user, isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
+  const { isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
   
   const [selectedTab, setSelectedTab] = useState('active');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -64,12 +64,12 @@ export default function GovernancePage() {
   const [governanceStats, setGovernanceStats] = useState<GovernanceStats | null>(null);
 
   // WebSocket integration for real-time governance updates
-  const { proposals: liveProposals, notifications, isConnected } = useGovernanceWebSocket();
+  const { proposals: liveProposals, notifications } = useGovernanceWebSocket();
 
   // Update local proposals when real-time updates come in
   useEffect(() => {
     if (liveProposals.length > 0) {
-      console.log('🗳️ Real-time governance proposals update:', liveProposals);
+      // Real-time governance proposals update
       setProposals(prev => {
         const updatedProposals = [...prev];
         liveProposals.forEach(liveProposal => {
@@ -89,7 +89,7 @@ export default function GovernancePage() {
   useEffect(() => {
     if (notifications.length > 0) {
       const latestNotification = notifications[0];
-      console.log('🔔 Governance notification:', latestNotification);
+      // Governance notification received
       // Here you could show a toast notification
       // toast.info(`Governance Update: ${latestNotification.message}`);
     }
@@ -113,7 +113,7 @@ export default function GovernancePage() {
     loadGovernanceData();
   }, [isAuthenticated, isKYCApproved, isIdentityVerified, router]);
 
-  const loadGovernanceData = async () => {
+  const loadGovernanceData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -134,19 +134,19 @@ export default function GovernancePage() {
       setVotingPowers(votingPowerResult);
       setGovernanceStats(statsResult);
     } catch (error: any) {
-      console.error('Failed to load governance data:', error);
+      // Failed to load governance data - will show user error message
       toast.error('Failed to load governance data. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedTab, filterCategory, searchTerm]);
 
   // Reload when filters change
   useEffect(() => {
     if (isAuthenticated && isKYCApproved && isIdentityVerified) {
       loadGovernanceData();
     }
-  }, [selectedTab, filterCategory, searchTerm]);
+  }, [selectedTab, filterCategory, searchTerm, isAuthenticated, isKYCApproved, isIdentityVerified, loadGovernanceData]);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('id-ID').format(num);
@@ -312,7 +312,7 @@ export default function GovernancePage() {
       loadGovernanceData();
       
     } catch (error: any) {
-      console.error('Voting failed:', error);
+      // Voting failed - will show user error message
       toast.error(error.message || 'Failed to submit vote. Please try again.');
     } finally {
       setVoting(false);
