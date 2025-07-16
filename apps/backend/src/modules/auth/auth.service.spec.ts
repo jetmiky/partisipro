@@ -174,6 +174,8 @@ describe('AuthService', () => {
         user: mockUser,
         accessToken: mockAccessToken,
         refreshToken: mockRefreshToken,
+        customClaims: expect.any(Object),
+        firebaseToken: undefined,
       });
 
       expect(usersService.findOrCreateUser).toHaveBeenCalledWith({
@@ -266,6 +268,8 @@ describe('AuthService', () => {
         user: mockUser,
         accessToken: mockAccessToken,
         refreshToken: mockRefreshToken,
+        customClaims: expect.any(Object),
+        firebaseToken: undefined,
       });
 
       // Verify that findOrCreateUser was called with dynamic values

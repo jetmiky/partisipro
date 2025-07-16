@@ -5,7 +5,7 @@ import { UsersService } from '../users/users.service';
 import { User, UserRole, KYCStatus } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
 import { Web3AuthService } from './web3auth.service';
-import { FirebaseAuthService } from '../../common/services/firebase-auth.service';
+// Removed FirebaseAuthService import - using simplified authentication flow
 
 export interface JwtPayload {
   sub: string;
@@ -33,47 +33,47 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private usersService: UsersService,
-    private web3AuthService: Web3AuthService,
-    private firebaseAuthService: FirebaseAuthService
+    private web3AuthService: Web3AuthService
   ) {}
 
   async authenticateWithWeb3Auth(loginDto: LoginDto): Promise<AuthResponse> {
     try {
-      // Verify Web3Auth ID token using dedicated service
+      this.logger.log(
+        `Starting Web3Auth + Firebase authentication flow for token: ${loginDto.idToken}`
+      );
+
+      // Step 1: Verify the token (could be Firebase ID token or Web3Auth token)
       const web3AuthUser = await this.web3AuthService.verifyIdToken(
         loginDto.idToken
       );
 
-      // Get or create user in Firestore
+      if (!web3AuthUser || !web3AuthUser.email) {
+        throw new UnauthorizedException('Invalid token: missing user email');
+      }
+
+      this.logger.log(
+        `Token verified for user: ${web3AuthUser.email}, wallet: ${web3AuthUser.walletAddress}`
+      );
+
+      // Step 2: Get or create user in Firestore
       const user = await this.usersService.findOrCreateUser({
         email: web3AuthUser.email,
         walletAddress: web3AuthUser.walletAddress,
         web3AuthId: web3AuthUser.sub,
       });
 
-      // Generate JWT tokens
+      // Step 3: Generate JWT tokens for our application
       const accessToken = await this.generateAccessToken(user);
       const refreshToken = await this.generateRefreshToken(user.id);
 
-      // Firebase Auth integration
-      let firebaseToken: string | undefined;
-      let customClaims: any;
-
-      try {
-        const firebaseResult =
-          await this.firebaseAuthService.authenticateWithWeb3Auth(
-            loginDto.idToken
-          );
-        firebaseToken = firebaseResult.firebaseToken;
-        customClaims = firebaseResult.customClaims;
-
-        this.logger.log(`Firebase authentication successful: ${user.email}`);
-      } catch (firebaseError) {
-        this.logger.warn(
-          'Firebase authentication failed, continuing with JWT only',
-          firebaseError
-        );
-      }
+      // Step 4: Create custom claims for the user
+      const customClaims = {
+        role: user.role || 'investor',
+        identity_verified: user.kyc?.status === 'approved',
+        kyc_approved: user.kyc?.status === 'approved',
+        wallet_address: user.walletAddress,
+        permissions: this.getUserPermissions(user.role),
+      };
 
       this.logger.log(`User authenticated successfully: ${user.email}`);
 
@@ -81,12 +81,25 @@ export class AuthService {
         user,
         accessToken,
         refreshToken,
-        firebaseToken,
+        firebaseToken: undefined, // Not needed in this simplified flow
         customClaims,
       };
     } catch (error) {
       this.logger.error('Authentication failed', error);
       throw new UnauthorizedException('Authentication failed');
+    }
+  }
+
+  private getUserPermissions(role: string): string[] {
+    switch (role) {
+      case 'admin':
+        return ['read', 'write', 'admin', 'manage_users', 'manage_projects'];
+      case 'spv':
+        return ['read', 'write', 'create_projects', 'manage_own_projects'];
+      case 'investor':
+        return ['read', 'invest', 'governance'];
+      default:
+        return ['read'];
     }
   }
 
@@ -127,13 +140,6 @@ export class AuthService {
     kycApproved: boolean
   ): Promise<void> {
     try {
-      // Update Firebase Auth custom claims
-      await this.firebaseAuthService.updateIdentityVerification(
-        userId,
-        verified,
-        kycApproved
-      );
-
       // Update user KYC status in Firestore
       await this.usersService.updateKYCStatus(
         userId,
