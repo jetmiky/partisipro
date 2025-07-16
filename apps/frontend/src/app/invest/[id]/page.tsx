@@ -241,7 +241,11 @@ export default function InvestmentFlowPage() {
     if (!amount || !project) return null;
 
     const annualReturn = (amount * project.expectedReturn) / 100;
-    const totalReturn = annualReturn * project.duration;
+    // Calculate duration in years from offering dates
+    const startDate = new Date(project.offeringStartDate);
+    const endDate = new Date(project.offeringEndDate);
+    const durationYears = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    const totalReturn = annualReturn * durationYears;
 
     return {
       annual: annualReturn,
@@ -720,7 +724,7 @@ export default function InvestmentFlowPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Duration</span>
                   <span className="font-semibold">
-                    {project?.duration} years
+                    {project ? Math.round((new Date(project.offeringEndDate).getTime() - new Date(project.offeringStartDate).getTime()) / (1000 * 60 * 60 * 24 * 365)) : 0} years
                   </span>
                 </div>
 
@@ -865,7 +869,7 @@ export default function InvestmentFlowPage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Project</span>
-                <span className="font-medium">{project?.title}</span>
+                <span className="font-medium">{project?.name}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Investment Amount</span>
@@ -1114,7 +1118,7 @@ export default function InvestmentFlowPage() {
                 </span>
               </div>
             </div>
-            <div className="text-sm text-gray-500">{project.title}</div>
+            <div className="text-sm text-gray-500">{project.name}</div>
           </div>
         </div>
       </div>

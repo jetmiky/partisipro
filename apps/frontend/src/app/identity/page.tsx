@@ -426,7 +426,7 @@ export default function IdentityPage() {
                     {claim.status.toUpperCase()}
                   </span>
                   <p className="text-sm text-gray-600 mt-1">
-                    Expires: {formatDate(claim.expiresAt)}
+                    Expires: {claim.expiresAt ? formatDate(claim.expiresAt) : 'Never'}
                   </p>
                 </div>
               </div>

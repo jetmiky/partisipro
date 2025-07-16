@@ -495,9 +495,9 @@ export default function SPVGovernancePage() {
             </div>
           </div>
 
-          <DataTable<GovernanceProposal>
+          <DataTable<GovernanceProposal & Record<string, unknown>>
             columns={proposalColumns}
-            data={mockProposals}
+            data={mockProposals as (GovernanceProposal & Record<string, unknown>)[]}
           />
         </Card>
 

@@ -36,6 +36,7 @@ import {
   KYCSession,
   KYCInitiationRequest,
   KYCAnalytics,
+  KYCErrorHandling,
 } from '@/services';
 
 // Simple toast replacement for now
@@ -63,9 +64,12 @@ type KYCStep =
 type KYCStatus =
   | 'pending'
   | 'processing'
-  | 'success'
+  | 'completed'
   | 'failed'
+  | 'expired'
+  | 'success'
   | 'manual_review'
+  | 'approved'
   | 'retry_required';
 
 interface DocumentUpload {
@@ -101,6 +105,18 @@ export default function KYCPage() {
   const [currentKYCStatus, setCurrentKYCStatus] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<any>(null);
+  
+  // Claims issuance state
+  const [claimsIssuance, setClaimsIssuance] = useState<{
+    issuanceStatus: 'pending' | 'processing' | 'completed' | 'failed';
+    transactionHash?: string;
+    claimsToIssue: Array<{
+      type: string;
+      value: string;
+      issuer: string;
+    }>;
+  } | null>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -185,7 +201,7 @@ export default function KYCPage() {
       
       // Set current status based on API response
       if (statusResult.hasActiveSession) {
-        setKycSession(statusResult.currentSession);
+        setKycSession(statusResult.currentSession || null);
         setKycStatus(statusResult.currentSession?.status || 'pending');
         // Set appropriate step based on session status
         if (statusResult.currentSession?.status === 'completed') {
@@ -232,7 +248,7 @@ export default function KYCPage() {
       const result = await kycService.initiateKYC(request);
       setKycSession({
         id: result.sessionId,
-        userId: user.uid || '',
+        userId: user.id || '',
         provider: selectedProvider.id,
         status: 'pending',
         level: 'advanced',
@@ -335,57 +351,76 @@ export default function KYCPage() {
     { id: 'complete', label: 'Complete', icon: CheckCircle },
   ];
 
-  // Mock KYC providers data
+  // Mock KYC providers data  
   const kycProviders: KYCProvider[] = [
     {
       id: 'verihubs',
       name: 'Verihubs Indonesia',
-      description:
-        'Leading Indonesian KYC provider with government integration',
+      description: 'Leading Indonesian KYC provider with government integration',
       processingTime: '2-5 minutes',
-      supportedCountries: ['Indonesia'],
-      documentTypes: ['KTP', 'Passport', 'SIM', 'Selfie'],
+      accuracy: 98.5,
+      isAvailable: true,
+      regions: ['Indonesia'],
+      supportedDocuments: ['KTP', 'Passport', 'SIM', 'Selfie'],
       features: [
         'Real-time verification',
         'Government database check',
         'Biometric matching',
         'AML screening',
       ],
+      pricing: {
+        basic: 25000,
+        premium: 50000,
+        currency: 'IDR',
+      },
+      languages: ['Indonesian', 'English'],
       logo: '/logos/verihubs.png',
-      status: 'active',
     },
     {
       id: 'sumsub',
       name: 'Sum&Substance',
       description: 'Global KYC platform with advanced AI verification',
       processingTime: '1-3 minutes',
-      supportedCountries: ['Indonesia', 'Singapore', 'Malaysia', 'Thailand'],
-      documentTypes: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
+      accuracy: 99.5,
+      isAvailable: true,
+      regions: ['Indonesia', 'Singapore', 'Malaysia', 'Thailand'],
+      supportedDocuments: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
       features: [
         'AI-powered verification',
         'Liveness detection',
         'Global AML database',
         '99.5% accuracy',
       ],
+      pricing: {
+        basic: 30000,
+        premium: 60000,
+        currency: 'IDR',
+      },
+      languages: ['Indonesian', 'English', 'Thai', 'Malay'],
       logo: '/logos/sumsub.png',
-      status: 'active',
     },
     {
       id: 'jumio',
       name: 'Jumio Netverify',
-      description:
-        'Enterprise-grade identity verification with machine learning',
+      description: 'Enterprise-grade identity verification with machine learning',
       processingTime: '30 seconds - 2 minutes',
-      supportedCountries: ['Indonesia', 'Global coverage'],
-      documentTypes: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
+      accuracy: 99.1,
+      isAvailable: true,
+      regions: ['Indonesia', 'Global coverage'],
+      supportedDocuments: ['ID Card', 'Passport', 'Driving License', 'Selfie'],
       features: [
         'Instant verification',
         'Fraud detection',
         'Identity extraction',
         'Global reach',
       ],
+      pricing: {
+        basic: 35000,
+        premium: 70000,
+        currency: 'IDR',
+      },
+      languages: ['Indonesian', 'English'],
       logo: '/logos/jumio.png',
-      status: 'active',
     },
   ];
 
@@ -442,193 +477,16 @@ export default function KYCPage() {
   };
 
   // Enhanced KYC processing with provider integration
-  const initializeKYCSession = async (provider: KYCProvider) => {
-    setError(null);
-    const mockSession: KYCSession = {
-      id: `session_${Date.now()}`,
-      provider: provider.id,
-      status: 'created',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-      checks: [
-        {
-          id: 'doc_check',
-          type: 'document',
-          status: 'pending',
-        },
-        {
-          id: 'face_check',
-          type: 'facial_similarity',
-          status: 'pending',
-        },
-        {
-          id: 'liveness_check',
-          type: 'liveness',
-          status: 'pending',
-        },
-        {
-          id: 'aml_check',
-          type: 'aml',
-          status: 'pending',
-        },
-      ],
-      documents: [],
-    };
 
-    setKycSession(mockSession);
-    setSelectedProvider(provider);
-    return mockSession;
-  };
 
-  // Real-time status polling simulation
-  const startStatusPolling = (sessionId: string) => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-    }
-
-    setPollingActive(true);
-    let checkCount = 0;
-
-    pollingIntervalRef.current = setInterval(() => {
-      checkCount++;
-
-      // Simulate progressive status updates
-      if (checkCount === 1) {
-        updateSessionStatus('initialized');
-      } else if (checkCount === 2) {
-        updateSessionStatus('pending');
-        updateCheckStatus('doc_check', 'processing');
-      } else if (checkCount === 4) {
-        updateCheckStatus('doc_check', 'completed', 'approved', 0.95);
-        updateCheckStatus('face_check', 'processing');
-      } else if (checkCount === 6) {
-        updateCheckStatus('face_check', 'completed', 'approved', 0.92);
-        updateCheckStatus('liveness_check', 'processing');
-      } else if (checkCount === 8) {
-        updateCheckStatus('liveness_check', 'completed', 'approved', 0.88);
-        updateCheckStatus('aml_check', 'processing');
-      } else if (checkCount === 10) {
-        updateCheckStatus('aml_check', 'completed', 'approved', 0.98);
-        updateSessionStatus('completed');
-
-        // Start automated claims issuance
-        initiateClaimsIssuance(sessionId);
-
-        setPollingActive(false);
-        clearInterval(pollingIntervalRef.current!);
-      }
-    }, 2000); // Poll every 2 seconds
-  };
-
-  const updateSessionStatus = (status: KYCSession['status']) => {
-    setKycSession(prev =>
-      prev ? { ...prev, status, updatedAt: new Date().toISOString() } : null
-    );
-
-    if (status === 'completed') {
-      setKycStatus('success');
-    } else if (status === 'failed') {
-      setKycStatus('failed');
-    } else if (status === 'processing') {
-      setKycStatus('processing');
-    }
-  };
-
-  const updateCheckStatus = (
-    checkId: string,
-    status: KYCCheck['status'],
-    result?: KYCCheck['result'],
-    confidence?: number
-  ) => {
-    setKycSession(prev => {
-      if (!prev) return null;
-
-      const updatedChecks = prev.checks.map(check => {
-        if (check.id === checkId) {
-          return {
-            ...check,
-            status,
-            result,
-            confidence,
-            completedAt:
-              status === 'completed' ? new Date().toISOString() : undefined,
-          };
-        }
-        return check;
-      });
-
-      return {
-        ...prev,
-        checks: updatedChecks,
-        updatedAt: new Date().toISOString(),
-      };
-    });
-  };
-
-  // Automated claims issuance
-  const initiateClaimsIssuance = async (sessionId: string) => {
-    const claimsData: AutomatedClaimsIssuance = {
-      sessionId,
-      identityAddress: '0x1234...5678', // Mock address
-      claimsToIssue: [
-        {
-          type: 'KYC_APPROVED',
-          value: 'true',
-          issuer: selectedProvider?.name || 'KYC Provider',
-        },
-        {
-          type: 'Indonesian_CITIZEN',
-          value: 'true',
-          issuer: 'Verihubs Indonesia',
-        },
-      ],
-      issuanceStatus: 'pending',
-    };
-
-    setClaimsIssuance(claimsData);
-
-    // Simulate claims issuance process
-    setTimeout(() => {
-      setClaimsIssuance(prev =>
-        prev
-          ? {
-              ...prev,
-              issuanceStatus: 'processing',
-            }
-          : null
-      );
-    }, 1000);
-
-    setTimeout(() => {
-      setClaimsIssuance(prev =>
-        prev
-          ? {
-              ...prev,
-              issuanceStatus: 'completed',
-              transactionHash: '0xabcd...1234',
-              issuedAt: new Date().toISOString(),
-            }
-          : null
-      );
-
-      // Update identity claims
-      setIdentityClaims(prev =>
-        prev.map(claim => ({ ...claim, status: 'issued' as const }))
-      );
-
-      setCurrentStep('identity');
-    }, 3000);
-  };
 
   // Enhanced error handling
   const handleKYCError = (errorCode: string, retryable: boolean = true) => {
-    const errorData: KYCErrorHandling = {
+    const errorData = {
       errorCode,
       errorType: 'provider',
       message: `KYC verification failed: ${errorCode}`,
-      userMessage:
-        'There was an issue with your verification. Please try again.',
+      userMessage: 'There was an issue with your verification. Please try again.',
       retryable,
       suggestedAction: retryable ? 'retry' : 'contact_support',
       supportReference: `REF-${Date.now()}`,
@@ -672,7 +530,9 @@ export default function KYCPage() {
     } else if (result === 'manual_review') {
       setTimeout(() => {
         setKycStatus('manual_review');
-        updateSessionStatus('processing');
+        setKycSession(prev =>
+          prev ? { ...prev, status: 'processing', updatedAt: new Date().toISOString() } : null
+        );
       }, 2000);
     }
   };
@@ -1239,13 +1099,13 @@ export default function KYCPage() {
                   <div className="flex items-center mt-1">
                     <div
                       className={`w-2 h-2 rounded-full mr-2 ${
-                        provider.status === 'active'
+                        provider.isAvailable
                           ? 'bg-green-500'
                           : 'bg-yellow-500'
                       }`}
                     />
                     <span className="text-xs text-gray-500 capitalize">
-                      {provider.status}
+                      {provider.isAvailable ? 'available' : 'unavailable'}
                     </span>
                   </div>
                 </div>
@@ -1305,7 +1165,7 @@ export default function KYCPage() {
                 Supported Documents:
               </h4>
               <ul className="space-y-1">
-                {selectedProvider.documentTypes.map((docType, index) => (
+                {selectedProvider.supportedDocuments.map((docType, index) => (
                   <li key={index} className="flex items-center text-blue-800">
                     <CheckCircle className="w-4 h-4 text-blue-600 mr-2" />
                     <span>{docType}</span>
@@ -1335,7 +1195,7 @@ export default function KYCPage() {
               </span>
             </div>
             <p className="text-blue-800">
-              {selectedProvider.supportedCountries.join(', ')}
+              {selectedProvider.regions.join(', ')}
             </p>
           </div>
         </div>
@@ -1348,8 +1208,7 @@ export default function KYCPage() {
         <Button
           onClick={async () => {
             if (selectedProvider) {
-              await initializeKYCSession(selectedProvider);
-              handleStepNext();
+              await handleInitiateKYC();
             }
           }}
           variant="primary"
@@ -1448,9 +1307,9 @@ export default function KYCPage() {
                     <h5 className="font-medium text-gray-900 capitalize">
                       {check.type.replace('_', ' ')} Check
                     </h5>
-                    {check.confidence && (
+                    {check.result?.score && (
                       <p className="text-sm text-gray-500">
-                        Confidence: {(check.confidence * 100).toFixed(1)}%
+                        Score: {(check.result.score * 100).toFixed(1)}%
                       </p>
                     )}
                   </div>
