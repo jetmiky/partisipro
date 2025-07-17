@@ -535,7 +535,7 @@ export const setupTestDatabase = async () => {
   // Mock Firebase emulator setup
   process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
   process.env.FIREBASE_AUTH_EMULATOR_HOST = 'localhost:9099';
-  process.env.FIREBASE_PROJECT_ID = 'partisipro-test';
+  process.env._FIREBASE_PROJECT_ID = 'partisipro-test';
   // Enable mock Web3Auth in test environment
   process.env.NODE_ENV = 'test';
   process.env.WEB3AUTH_ENABLE_MOCK = 'true';

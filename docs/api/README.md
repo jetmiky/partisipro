@@ -418,9 +418,9 @@ PORT=3001
 JWT_SECRET=your_jwt_secret
 
 # Firebase
-FIREBASE_PROJECT_ID=partisipro-dev
-FIREBASE_PRIVATE_KEY=your_private_key
-FIREBASE_CLIENT_EMAIL=your_client_email
+_FIREBASE_PROJECT_ID=partisipro-dev
+_FIREBASE_PRIVATE_KEY=your_private_key
+_FIREBASE_CLIENT_EMAIL=your_client_email
 
 # External Services
 SENDGRID_API_KEY=your_sendgrid_key

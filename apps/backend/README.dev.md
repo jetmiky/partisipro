@@ -173,7 +173,7 @@ apps/backend/
 ### Firebase Configuration
 
 ```env
-FIREBASE_PROJECT_ID=partisipro-dev
+_FIREBASE_PROJECT_ID=partisipro-dev
 FIRESTORE_EMULATOR_HOST=localhost:8080
 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
 ```

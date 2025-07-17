@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "concurrently \"npm run emulators:start\" \"npm run start:dev\"",
-    "build": "nest build",
-    "build:functions": "nest build && cp package*.json dist/",
+    "build": "nest build --config tsconfig.build.json",
+    "build:functions": "rm *.tsbuildinfo || true && nest build --tsc --config tsconfig.build.json && cp package.json dist/",
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

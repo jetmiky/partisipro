@@ -165,8 +165,8 @@ npm run commit                 # Interactive conventional commits
 
 ### Required Environment Variables
 
-- **Firebase**: `FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`,
-  `FIREBASE_CLIENT_EMAIL`
+- **Firebase**: `_FIREBASE_PROJECT_ID`, `_FIREBASE_PRIVATE_KEY`,
+  `_FIREBASE_CLIENT_EMAIL`
 - **Blockchain**: `ARBITRUM_SEPOLIA_RPC_URL`, `PRIVATE_KEY`, `ARBISCAN_API_KEY`
 - **Security**: `JWT_SECRET`
 - **Services**: KYC provider keys, email service, Web3Auth API keys

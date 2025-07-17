@@ -6,5 +6,5 @@
 // Export test functions for initial verification
 export * from './test-functions';
 
-// Export main NestJS functions (uncomment when ready)
-// export * from './firebase-functions';
+// Export main NestJS functions
+export * from './firebase-functions';

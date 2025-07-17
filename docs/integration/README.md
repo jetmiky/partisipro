@@ -954,9 +954,9 @@ NODE_ENV=production
 PORT=3001
 
 # Firebase Production
-FIREBASE_PROJECT_ID=partisipro-prod
-FIREBASE_PRIVATE_KEY="production_private_key"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@partisipro-prod.iam.gserviceaccount.com
+_FIREBASE_PROJECT_ID=partisipro-prod
+_FIREBASE_PRIVATE_KEY="production_private_key"
+_FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@partisipro-prod.iam.gserviceaccount.com
 
 # Production blockchain
 PRIVATE_KEY=production_ethereum_private_key

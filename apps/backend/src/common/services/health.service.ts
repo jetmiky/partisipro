@@ -118,7 +118,7 @@ export class HealthService {
         lastCheck: new Date(),
         metadata: {
           type: 'firebase',
-          projectId: this.configService.get<string>('FIREBASE_PROJECT_ID'),
+          projectId: this.configService.get<string>('_FIREBASE_PROJECT_ID'),
         },
       };
     } catch (error) {
@@ -129,7 +129,7 @@ export class HealthService {
         error: error instanceof Error ? error.message : 'Unknown error',
         metadata: {
           type: 'firebase',
-          projectId: this.configService.get<string>('FIREBASE_PROJECT_ID'),
+          projectId: this.configService.get<string>('_FIREBASE_PROJECT_ID'),
         },
       };
     }
