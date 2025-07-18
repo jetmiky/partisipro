@@ -155,6 +155,31 @@ POST   /api/governance/proposals/:id/execute // Execute proposal
 GET    /api/governance/analytics         // Governance analytics
 ```
 
+### Investor Profiling (13 endpoints) ✨
+
+```typescript
+// Core Profiling
+POST   /api/profiling/submit              // Submit profile questionnaire
+GET    /api/profiling/profile/:userId     // Get user profile
+PATCH  /api/profiling/profile/:userId     // Update profile
+DELETE /api/profiling/profile/:userId     // Delete profile
+
+// Analytics & Recommendations
+GET    /api/profiling/risk-assessment/:userId    // Risk assessment
+GET    /api/profiling/recommendations/:userId    // Investment recommendations
+GET    /api/profiling/analytics/:userId          // Profile analytics
+GET    /api/profiling/completion/:userId         // Completion status
+GET    /api/profiling/report/:userId             // Comprehensive report
+
+// Admin Operations
+GET    /api/profiling/admin/statistics           // Profile statistics
+POST   /api/profiling/admin/bulk-import          // Bulk import
+GET    /api/profiling/admin/completion-funnel    // Completion funnel
+
+// Compliance & Export
+GET    /api/profiling/export/:userId             // Export profile data
+```
+
 ### KYC & Payments (14 endpoints)
 
 ```typescript
@@ -345,6 +370,14 @@ headers: {
 'INSUFFICIENT_BALANCE'; // Insufficient token balance
 'KYC_VERIFICATION_PENDING'; // KYC verification required
 'PAYMENT_PROCESSING_FAILED'; // Payment processing failed
+
+// Profiling Errors
+'PROFILE_NOT_FOUND'; // Profile not found
+'PROFILE_ALREADY_EXISTS'; // Profile already exists
+'PROFILE_VALIDATION_FAILED'; // Invalid profile data
+'PROFILE_INCOMPLETE'; // Incomplete profile data
+'PROFILE_RISK_ASSESSMENT_FAILED'; // Risk assessment failed
+'PROFILE_EXTERNAL_API_ERROR'; // External API unavailable
 ```
 
 ## Rate Limiting
@@ -427,6 +460,24 @@ SENDGRID_API_KEY=your_sendgrid_key
 WEB3AUTH_CLIENT_ID=your_web3auth_id
 REDIS_URL=redis://localhost:6379
 ```
+
+## Detailed Endpoint Documentation
+
+For comprehensive documentation of specific endpoint categories, refer to:
+
+- **[Profiling Endpoints](./profiling-endpoints.md)** - Complete investor
+  profiling API specification
+- **[Complete API Contracts](../api-contracts.md)** - Full API specification
+  with examples
+
+## Additional Resources
+
+- **[Data Models & Schemas](../data-models-schemas.md)** - Database schemas and
+  validation
+- **[Integration Architecture](../integration-architecture.md)** - System
+  architecture and deployment
+- **[Testing Scenarios](../integration-testing-scenarios.md)** - API testing and
+  validation
 
 This API documentation provides comprehensive coverage of all backend endpoints
 and real-time features, enabling seamless integration with frontend and

@@ -123,6 +123,485 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
+## Investor Profiling Endpoints
+
+### POST /profiling/submit
+
+**Purpose**: Submit investor profiling questionnaire **Auth**: Required
+
+```json
+// Request
+{
+  "age": "26-35",
+  "income": "10.1-20M",
+  "experience": "1-3years",
+  "knownInvestments": ["savings", "mutual_funds", "stocks"],
+  "investmentGoal": "long_term_growth",
+  "riskTolerance": "moderate",
+  "marketReaction": "worry_wait",
+  "holdingPeriod": "3-5years",
+  "projectDetailImportance": "important",
+  "tokenTypes": ["debt_token", "hybrid_token"]
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "profileId": "profile_uuid",
+    "userId": "user_uuid",
+    "riskAssessment": {
+      "riskLevel": "medium",
+      "riskScore": 65,
+      "suitableProducts": ["debt_token", "hybrid_token", "revenue_token"],
+      "recommendations": [
+        "Campurkan token utang dan ekuitas untuk keseimbangan",
+        "Pertimbangkan token hibrida untuk fleksibilitas",
+        "Alokasikan 60-70% pada token konservatif"
+      ]
+    },
+    "nextStep": "/kyc",
+    "completedAt": "2024-01-14T10:00:00Z"
+  },
+  "message": "Profil investor berhasil disimpan"
+}
+```
+
+### GET /profiling/profile/:userId
+
+**Purpose**: Get investor profile by user ID **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "id": "profile_uuid",
+    "userId": "user_uuid",
+    "age": "26-35",
+    "income": "10.1-20M",
+    "experience": "1-3years",
+    "knownInvestments": ["savings", "mutual_funds", "stocks"],
+    "investmentGoal": "long_term_growth",
+    "riskTolerance": "moderate",
+    "marketReaction": "worry_wait",
+    "holdingPeriod": "3-5years",
+    "projectDetailImportance": "important",
+    "tokenTypes": ["debt_token", "hybrid_token"],
+    "riskAssessment": {
+      "riskLevel": "medium",
+      "riskScore": 65,
+      "suitableProducts": ["debt_token", "hybrid_token", "revenue_token"],
+      "recommendations": [
+        "Campurkan token utang dan ekuitas untuk keseimbangan",
+        "Pertimbangkan token hibrida untuk fleksibilitas"
+      ]
+    },
+    "createdAt": "2024-01-14T10:00:00Z",
+    "updatedAt": "2024-01-14T10:00:00Z",
+    "completedAt": "2024-01-14T10:00:00Z"
+  }
+}
+```
+
+### PATCH /profiling/profile/:userId
+
+**Purpose**: Update investor profile **Auth**: Required
+
+```json
+// Request
+{
+  "riskTolerance": "aggressive",
+  "tokenTypes": ["equity_token", "hybrid_token"],
+  "investmentGoal": "diversification"
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "profileId": "profile_uuid",
+    "updatedFields": ["riskTolerance", "tokenTypes", "investmentGoal"],
+    "newRiskAssessment": {
+      "riskLevel": "high",
+      "riskScore": 78,
+      "suitableProducts": ["equity_token", "hybrid_token", "revenue_token"],
+      "recommendations": [
+        "Eksplor token ekuitas untuk potensi capital gain",
+        "Pertimbangkan proyek inovatif dengan potensi tinggi"
+      ]
+    },
+    "updatedAt": "2024-01-14T10:00:00Z"
+  },
+  "message": "Profil investor berhasil diperbarui"
+}
+```
+
+### GET /profiling/risk-assessment/:userId
+
+**Purpose**: Get risk assessment for a profile **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "riskLevel": "medium",
+    "riskScore": 65,
+    "suitableProducts": ["debt_token", "hybrid_token", "revenue_token"],
+    "recommendations": [
+      "Campurkan token utang dan ekuitas untuk keseimbangan",
+      "Pertimbangkan token hibrida untuk fleksibilitas",
+      "Alokasikan 60-70% pada token konservatif"
+    ],
+    "calculatedAt": "2024-01-14T10:00:00Z",
+    "basedOnProfile": {
+      "age": "26-35",
+      "income": "10.1-20M",
+      "experience": "1-3years",
+      "riskTolerance": "moderate",
+      "marketReaction": "worry_wait",
+      "holdingPeriod": "3-5years"
+    }
+  }
+}
+```
+
+### GET /profiling/recommendations/:userId
+
+**Purpose**: Get investment recommendations **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": [
+    {
+      "tokenType": "debt_token",
+      "allocationPercentage": 40,
+      "reasoning": "Sesuai dengan profil risiko moderat dan preferensi stabilitas",
+      "riskLevel": "low",
+      "expectedReturn": "8-12% per tahun",
+      "priority": "high"
+    },
+    {
+      "tokenType": "hybrid_token",
+      "allocationPercentage": 35,
+      "reasoning": "Memberikan keseimbangan antara stabilitas dan pertumbuhan",
+      "riskLevel": "medium",
+      "expectedReturn": "10-15% per tahun",
+      "priority": "high"
+    },
+    {
+      "tokenType": "revenue_token",
+      "allocationPercentage": 25,
+      "reasoning": "Cocok untuk tujuan investasi jangka panjang",
+      "riskLevel": "medium",
+      "expectedReturn": "12-18% per tahun",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+### GET /profiling/analytics/:userId
+
+**Purpose**: Get profile analytics **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "completionRate": 100,
+    "sectionCompletionStatus": {
+      "demographics": true,
+      "preferences": true
+    },
+    "riskAssessment": {
+      "riskLevel": "medium",
+      "riskScore": 65,
+      "suitableProducts": ["debt_token", "hybrid_token", "revenue_token"],
+      "recommendations": [
+        "Campurkan token utang dan ekuitas untuk keseimbangan"
+      ]
+    },
+    "recommendations": [
+      {
+        "tokenType": "debt_token",
+        "allocationPercentage": 40,
+        "reasoning": "Sesuai dengan profil risiko moderat",
+        "riskLevel": "low",
+        "expectedReturn": "8-12% per tahun"
+      }
+    ],
+    "profileStrength": {
+      "score": 95,
+      "factors": {
+        "completeness": 100,
+        "consistency": 95,
+        "riskAlignment": 90
+      }
+    },
+    "matchingProjects": 42,
+    "potentialReturns": {
+      "conservative": "8-12%",
+      "moderate": "12-18%",
+      "aggressive": "18-25%"
+    }
+  }
+}
+```
+
+### GET /profiling/completion/:userId
+
+**Purpose**: Check if profile is complete **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "completed": true,
+    "completionRate": 100,
+    "missingFields": [],
+    "requiredSections": {
+      "demographics": true,
+      "preferences": true
+    },
+    "lastUpdated": "2024-01-14T10:00:00Z"
+  }
+}
+```
+
+### DELETE /profiling/profile/:userId
+
+**Purpose**: Delete investor profile **Auth**: Required
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "deletedProfileId": "profile_uuid",
+    "userId": "user_uuid",
+    "deletedAt": "2024-01-14T10:00:00Z"
+  },
+  "message": "Profil investor berhasil dihapus"
+}
+```
+
+### GET /profiling/export/:userId
+
+**Purpose**: Export profile data (for compliance) **Auth**: Required
+
+```json
+// Query Parameters
+{
+  "format": "json|csv|pdf"
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "exportId": "export_uuid",
+    "downloadUrl": "https://storage.example.com/exports/profile-data.pdf",
+    "expiresAt": "2024-01-21T10:00:00Z",
+    "fileSize": "245 KB",
+    "format": "pdf",
+    "status": "ready"
+  }
+}
+```
+
+## Admin Profiling Endpoints
+
+### GET /profiling/admin/statistics
+
+**Purpose**: Get profile statistics (for admin) **Auth**: Required (Admin role)
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "totalProfiles": 1250,
+    "completedProfiles": 1180,
+    "completionRate": 94.4,
+    "riskDistribution": {
+      "low": 320,
+      "medium": 650,
+      "high": 210
+    },
+    "popularInvestmentTypes": {
+      "debt_token": 850,
+      "hybrid_token": 720,
+      "revenue_token": 680,
+      "equity_token": 450
+    },
+    "ageDistribution": {
+      "<=25": 125,
+      "26-35": 485,
+      "36-45": 390,
+      "46-55": 180,
+      ">55": 70
+    },
+    "incomeDistribution": {
+      "<=5M": 185,
+      "5.1-10M": 320,
+      "10.1-20M": 425,
+      "20.1-50M": 250,
+      ">50M": 70
+    },
+    "experienceDistribution": {
+      "never": 145,
+      "<1year": 265,
+      "1-3years": 420,
+      "3-5years": 285,
+      ">5years": 135
+    },
+    "averageRiskScore": 58.5,
+    "profilesCreatedToday": 12,
+    "profilesUpdatedToday": 34,
+    "topInvestmentGoals": {
+      "long_term_growth": 485,
+      "regular_income": 320,
+      "diversification": 285,
+      "inflation_hedge": 160
+    }
+  }
+}
+```
+
+### POST /profiling/admin/bulk-import
+
+**Purpose**: Bulk import profiles (for admin) **Auth**: Required (Admin role)
+
+```json
+// Request (multipart/form-data)
+{
+  "file": "File object",
+  "format": "csv|json"
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "imported": 450,
+    "failed": 12,
+    "skipped": 5,
+    "errors": [
+      {
+        "row": 15,
+        "error": "Invalid age range value",
+        "data": { "age": "invalid_age" }
+      }
+    ],
+    "summary": {
+      "totalRows": 467,
+      "successRate": 96.4,
+      "processingTime": "2.3 seconds"
+    }
+  }
+}
+```
+
+### GET /profiling/admin/completion-funnel
+
+**Purpose**: Get profile completion funnel data **Auth**: Required (Admin role)
+
+```json
+// Response
+{
+  "success": true,
+  "data": {
+    "started": 1450,
+    "section1Completed": 1320,
+    "section2Completed": 1180,
+    "fullyCompleted": 1180,
+    "conversionRate": 81.4,
+    "dropoffPoints": {
+      "section1": 130,
+      "section2": 140,
+      "final_submit": 0
+    },
+    "averageCompletionTime": "4.2 minutes",
+    "completionTrends": [
+      {
+        "date": "2024-01-14",
+        "started": 45,
+        "completed": 38,
+        "conversionRate": 84.4
+      }
+    ]
+  }
+}
+```
+
+### GET /profiling/report/:userId
+
+**Purpose**: Generate comprehensive profile report **Auth**: Required
+
+```json
+// Query Parameters
+{
+  "includeRecommendations": true
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "profile": {
+      "id": "profile_uuid",
+      "userId": "user_uuid",
+      "age": "26-35",
+      "income": "10.1-20M",
+      "experience": "1-3years",
+      "completedAt": "2024-01-14T10:00:00Z"
+    },
+    "riskAssessment": {
+      "riskLevel": "medium",
+      "riskScore": 65,
+      "suitableProducts": ["debt_token", "hybrid_token", "revenue_token"],
+      "recommendations": [
+        "Campurkan token utang dan ekuitas untuk keseimbangan"
+      ]
+    },
+    "recommendations": [
+      {
+        "tokenType": "debt_token",
+        "allocationPercentage": 40,
+        "reasoning": "Sesuai dengan profil risiko moderat",
+        "riskLevel": "low",
+        "expectedReturn": "8-12% per tahun"
+      }
+    ],
+    "analytics": {
+      "completionRate": 100,
+      "profileStrength": {
+        "score": 95,
+        "factors": {
+          "completeness": 100,
+          "consistency": 95,
+          "riskAlignment": 90
+        }
+      },
+      "matchingProjects": 42,
+      "potentialReturns": {
+        "conservative": "8-12%",
+        "moderate": "12-18%",
+        "aggressive": "18-25%"
+      }
+    },
+    "generatedAt": "2024-01-14T10:00:00Z",
+    "reportId": "report_uuid"
+  }
+}
+```
+
 ## Identity & KYC Endpoints
 
 ### GET /identity/status
@@ -956,6 +1435,29 @@ wss://api.partisipro.com/v1/ws?token=jwt_token
 - `GOV_002`: Proposal not active
 - `GOV_003`: Already voted
 - `GOV_004`: Voting period ended
+
+### Profiling Errors
+
+- `PROFILE_001`: Profile not found
+- `PROFILE_002`: Profile already exists
+- `PROFILE_003`: Invalid age range
+- `PROFILE_004`: Invalid income range
+- `PROFILE_005`: Invalid experience level
+- `PROFILE_006`: Invalid investment type
+- `PROFILE_007`: Invalid investment goal
+- `PROFILE_008`: Invalid risk tolerance
+- `PROFILE_009`: Invalid market reaction
+- `PROFILE_010`: Invalid holding period
+- `PROFILE_011`: Invalid project detail importance
+- `PROFILE_012`: Invalid token type
+- `PROFILE_013`: Incomplete profile data
+- `PROFILE_014`: Risk assessment failed
+- `PROFILE_015`: Profile validation failed
+- `PROFILE_016`: External API unavailable
+- `PROFILE_017`: Profile export failed
+- `PROFILE_018`: Bulk import failed
+- `PROFILE_019`: Profile locked for editing
+- `PROFILE_020`: Profile submission timeout
 
 ### System Errors
 

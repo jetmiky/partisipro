@@ -94,7 +94,6 @@ export default function SPVCreatePage() {
       router.push('/auth?redirectTo=/spv/create');
       return;
     }
-
     if (isAuthenticated && !isSPV) {
       toast.error('Only SPVs can create projects');
       router.push('/dashboard');

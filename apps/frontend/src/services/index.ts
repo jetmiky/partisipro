@@ -108,6 +108,27 @@ export type {
   WebSocketSubscription,
 } from './websocket.service';
 
+// Export profiling service
+export { profilingService } from './profiling.service';
+export type {
+  ProfileFormData,
+  InvestorProfile,
+  ProfileSubmissionResponse,
+  ProfileAnalytics,
+  RiskAssessmentResult,
+  InvestmentRecommendation,
+  AgeRange,
+  IncomeRange,
+  ExperienceLevel,
+  InvestmentType,
+  InvestmentGoal,
+  RiskTolerance,
+  MarketReaction,
+  HoldingPeriod,
+  ProjectDetailImportance,
+  TokenType,
+} from '../types/profiling';
+
 // Service initialization function
 export function initializeServices(): void {
   // Initialize auth state from localStorage
