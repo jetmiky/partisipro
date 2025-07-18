@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { MFAService } from './mfa.service';
 import { SessionService } from './session.service';
 import { Web3AuthService } from './web3auth.service';
+import { FirebaseAuthService } from './firebase-auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
@@ -33,6 +34,7 @@ import { CommonModule } from '../../common/common.module';
     MFAService,
     SessionService,
     Web3AuthService,
+    FirebaseAuthService,
     JwtStrategy,
   ],
   exports: [
@@ -40,6 +42,7 @@ import { CommonModule } from '../../common/common.module';
     MFAService,
     SessionService,
     Web3AuthService,
+    FirebaseAuthService,
     JwtStrategy,
   ],
 })

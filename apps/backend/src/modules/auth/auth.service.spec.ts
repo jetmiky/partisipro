@@ -5,7 +5,7 @@ import { UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthService, JwtPayload } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { Web3AuthService } from './web3auth.service';
-import { FirebaseAuthService } from '../../common/services/firebase-auth.service';
+import { FirebaseAuthService } from './firebase-auth.service';
 import { User, UserRole, KYCStatus } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
 
@@ -23,6 +23,7 @@ describe('AuthService', () => {
     email: 'test@example.com',
     walletAddress: '0x1234567890123456789012345678901234567890',
     web3AuthId: 'web3auth-test-id',
+    firebaseUid: 'firebase-test-uid',
     role: UserRole.INVESTOR,
     profile: {
       firstName: 'Test',
@@ -128,10 +129,11 @@ describe('AuthService', () => {
         {
           provide: FirebaseAuthService,
           useValue: {
-            authenticateWithWeb3Auth: jest.fn(),
-            updateIdentityVerification: jest.fn(),
-            updateCustomClaims: jest.fn(),
-            healthCheck: jest.fn(),
+            verifyIdToken: jest.fn(),
+            setCustomClaims: jest.fn(),
+            createUser: jest.fn(),
+            updateUser: jest.fn(),
+            deleteUser: jest.fn(),
           },
         },
       ],

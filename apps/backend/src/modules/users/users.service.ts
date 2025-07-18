@@ -13,7 +13,8 @@ export class UsersService {
   async findOrCreateUser(userData: {
     email: string;
     walletAddress: string;
-    web3AuthId: string;
+    web3AuthId?: string;
+    firebaseUid?: string;
   }): Promise<User> {
     // First, try to find user by email
     const existingUsers = await this.firebaseService.getDocumentsByField(
@@ -47,6 +48,7 @@ export class UsersService {
       email: userData.email,
       walletAddress: userData.walletAddress,
       web3AuthId: userData.web3AuthId,
+      firebaseUid: userData.firebaseUid,
       profile: {
         firstName: '',
         lastName: '',

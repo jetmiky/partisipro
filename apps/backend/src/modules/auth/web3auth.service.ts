@@ -22,17 +22,17 @@ export class Web3AuthService {
   private jwksClient: JwksClient;
 
   constructor(private configService: ConfigService) {
-    // Initialize JWKS client for Web3Auth
+    // Initialize JWKS client for Web3Auth and Firebase
     const web3AuthDomain = this.configService.get(
       'web3auth.domain',
       'web3auth.io'
     );
 
+    // Determine authentication mode: 'firebase', 'web3auth', or 'hybrid'
+    const authMode = this.configService.get('auth.mode', 'hybrid');
+
     // For Firebase integration, we use Firebase's JWKS endpoint
-    const useFirebaseJWKS = this.configService.get(
-      'web3auth.useFirebaseJWKS',
-      false
-    );
+    const useFirebaseJWKS = authMode === 'firebase' || authMode === 'hybrid';
     const jwksUri = useFirebaseJWKS
       ? 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
       : `https://${web3AuthDomain}/.well-known/jwks.json`;
@@ -44,13 +44,13 @@ export class Web3AuthService {
       rateLimit: true,
       jwksRequestsPerMinute: 10,
     });
+
+    this.logger.log(`Web3Auth service initialized with auth mode: ${authMode}`);
   }
 
   async verifyIdToken(idToken: string): Promise<Web3AuthTokenPayload> {
     try {
-      this.logger.debug(
-        `Verifying Web3Auth token: ${idToken.substring(0, 10)}...`
-      );
+      this.logger.debug(`Verifying token: ${idToken.substring(0, 10)}...`);
 
       // Check if we're in development or test mode
       const isDevelopment =
@@ -62,24 +62,85 @@ export class Web3AuthService {
       );
 
       if (enableMockAuth) {
-        this.logger.debug(
-          'Using mock Web3Auth verification for development/test'
-        );
+        this.logger.debug('Using mock authentication for development/test');
         return this.mockTokenVerification(idToken);
       }
 
-      // Real Web3Auth verification
-      return await this.realTokenVerification(idToken);
+      // Detect token type and use appropriate verification method
+      const authMode = this.configService.get('auth.mode', 'hybrid');
+
+      if (authMode === 'firebase') {
+        return await this.verifyFirebaseToken(idToken);
+      } else if (authMode === 'web3auth') {
+        return await this.verifyWeb3AuthToken(idToken);
+      } else {
+        // Hybrid mode - try to detect token type
+        return await this.verifyHybridToken(idToken);
+      }
     } catch (error) {
-      this.logger.error('Web3Auth token verification failed', error);
-      throw new UnauthorizedException('Invalid Web3Auth token');
+      this.logger.error('Token verification failed', error);
+      throw new UnauthorizedException('Invalid authentication token');
     }
   }
 
-  private async realTokenVerification(
+  private async verifyFirebaseToken(
     idToken: string
   ): Promise<Web3AuthTokenPayload> {
     try {
+      this.logger.debug('Verifying Firebase token');
+
+      // Decode token without verification to get header
+      const decodedToken = jwt.decode(idToken, { complete: true });
+
+      if (
+        !decodedToken ||
+        typeof decodedToken === 'string' ||
+        !decodedToken.header
+      ) {
+        throw new Error('Invalid token format');
+      }
+
+      const { kid } = decodedToken.header;
+
+      if (!kid) {
+        throw new Error('Token missing key ID');
+      }
+
+      // Get signing key from Firebase JWKS
+      const key = await this.getSigningKey(kid);
+
+      // Verify token
+      const payload = jwt.verify(idToken, key) as any;
+
+      // Validate Firebase token claims
+      await this.validateFirebaseTokenClaims(payload);
+
+      // Convert Firebase payload to Web3Auth format
+      const web3AuthPayload: Web3AuthTokenPayload = {
+        sub: payload.sub,
+        email: payload.email || payload.firebase?.identities?.email?.[0],
+        name: payload.name || payload.firebase?.identities?.name?.[0],
+        walletAddress:
+          payload.walletAddress || this.deriveWalletFromSub(payload.sub),
+        aud: payload.aud,
+        iss: payload.iss,
+        iat: payload.iat,
+        exp: payload.exp,
+      };
+
+      return web3AuthPayload;
+    } catch (error) {
+      this.logger.error('Firebase token verification failed', error);
+      throw new UnauthorizedException('Firebase token verification failed');
+    }
+  }
+
+  private async verifyWeb3AuthToken(
+    idToken: string
+  ): Promise<Web3AuthTokenPayload> {
+    try {
+      this.logger.debug('Verifying Web3Auth token');
+
       // Decode token without verification to get header
       const decodedToken = jwt.decode(idToken, { complete: true });
 
@@ -103,8 +164,8 @@ export class Web3AuthService {
       // Verify token
       const payload = jwt.verify(idToken, key) as Web3AuthTokenPayload;
 
-      // Validate token claims
-      await this.validateTokenClaims(payload);
+      // Validate Web3Auth token claims
+      await this.validateWeb3AuthTokenClaims(payload);
 
       // Extract wallet address from payload or derive from sub
       const walletAddress =
@@ -115,8 +176,48 @@ export class Web3AuthService {
         walletAddress,
       };
     } catch (error) {
-      this.logger.error('Real Web3Auth verification failed', error);
-      throw new UnauthorizedException('Token verification failed');
+      this.logger.error('Web3Auth token verification failed', error);
+      throw new UnauthorizedException('Web3Auth token verification failed');
+    }
+  }
+
+  private async verifyHybridToken(
+    idToken: string
+  ): Promise<Web3AuthTokenPayload> {
+    try {
+      this.logger.debug('Verifying hybrid token - detecting token type');
+
+      // Decode token to determine issuer
+      const decodedToken = jwt.decode(idToken, { complete: true });
+
+      if (
+        !decodedToken ||
+        typeof decodedToken === 'string' ||
+        !decodedToken.payload
+      ) {
+        throw new Error('Invalid token format');
+      }
+
+      const payload = decodedToken.payload as any;
+      const issuer = payload.iss;
+
+      // Determine token type based on issuer
+      if (issuer && issuer.includes('securetoken.google.com')) {
+        this.logger.debug('Detected Firebase token');
+        return await this.verifyFirebaseToken(idToken);
+      } else if (issuer && issuer.includes('web3auth.io')) {
+        this.logger.debug('Detected Web3Auth token');
+        return await this.verifyWeb3AuthToken(idToken);
+      } else {
+        // Default to Web3Auth verification
+        this.logger.debug(
+          'Unknown issuer, defaulting to Web3Auth verification'
+        );
+        return await this.verifyWeb3AuthToken(idToken);
+      }
+    } catch (error) {
+      this.logger.error('Hybrid token verification failed', error);
+      throw new UnauthorizedException('Hybrid token verification failed');
     }
   }
 
@@ -234,55 +335,64 @@ export class Web3AuthService {
     }
   }
 
-  private async validateTokenClaims(
+  private async validateFirebaseTokenClaims(payload: any): Promise<void> {
+    const firebaseProjectId = this.configService.get('firebase.projectId');
+    const expectedFirebaseIssuer = `https://securetoken.google.com/${firebaseProjectId}`;
+
+    // Validate Firebase-specific claims
+    if (payload.aud !== firebaseProjectId) {
+      throw new Error(
+        `Invalid Firebase audience. Expected: ${firebaseProjectId}, Got: ${payload.aud}`
+      );
+    }
+
+    if (payload.iss !== expectedFirebaseIssuer) {
+      throw new Error(
+        `Invalid Firebase issuer. Expected: ${expectedFirebaseIssuer}, Got: ${payload.iss}`
+      );
+    }
+
+    // Common validations
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (payload.exp < currentTime) {
+      throw new Error('Token has expired');
+    }
+
+    if (payload.iat > currentTime + 300) {
+      // Allow 5 minutes skew
+      throw new Error('Token used before issued');
+    }
+
+    // Validate required fields
+    if (!payload.sub) {
+      throw new Error('Token missing required claims');
+    }
+  }
+
+  private async validateWeb3AuthTokenClaims(
     payload: Web3AuthTokenPayload
   ): Promise<void> {
     const expectedAudience = this.configService.get('web3auth.clientId');
-    const firebaseProjectId = this.configService.get('firebase.projectId');
-    const useFirebaseJWKS = this.configService.get(
-      'web3auth.useFirebaseJWKS',
-      false
+    const expectedIssuer = this.configService.get(
+      'web3auth.issuer',
+      'web3auth.io'
     );
 
-    // For Firebase tokens, validate against Firebase project ID
-    if (useFirebaseJWKS) {
-      const expectedFirebaseIssuer = `https://securetoken.google.com/${firebaseProjectId}`;
-
-      // Validate Firebase-specific claims
-      if (payload.aud !== firebaseProjectId) {
-        throw new Error(
-          `Invalid Firebase audience. Expected: ${firebaseProjectId}, Got: ${payload.aud}`
-        );
-      }
-
-      if (payload.iss !== expectedFirebaseIssuer) {
-        throw new Error(
-          `Invalid Firebase issuer. Expected: ${expectedFirebaseIssuer}, Got: ${payload.iss}`
-        );
-      }
-    } else {
-      // Original Web3Auth validation
-      const expectedIssuer = this.configService.get(
-        'web3auth.issuer',
-        'web3auth.io'
+    // Validate audience
+    if (expectedAudience && payload.aud !== expectedAudience) {
+      throw new Error(
+        `Invalid audience. Expected: ${expectedAudience}, Got: ${payload.aud}`
       );
-
-      // Validate audience
-      if (expectedAudience && payload.aud !== expectedAudience) {
-        throw new Error(
-          `Invalid audience. Expected: ${expectedAudience}, Got: ${payload.aud}`
-        );
-      }
-
-      // Validate issuer
-      if (payload.iss !== expectedIssuer) {
-        throw new Error(
-          `Invalid issuer. Expected: ${expectedIssuer}, Got: ${payload.iss}`
-        );
-      }
     }
 
-    // Common validations for both Firebase and Web3Auth tokens
+    // Validate issuer
+    if (payload.iss !== expectedIssuer) {
+      throw new Error(
+        `Invalid issuer. Expected: ${expectedIssuer}, Got: ${payload.iss}`
+      );
+    }
+
+    // Common validations
     const currentTime = Math.floor(Date.now() / 1000);
     if (payload.exp < currentTime) {
       throw new Error('Token has expired');

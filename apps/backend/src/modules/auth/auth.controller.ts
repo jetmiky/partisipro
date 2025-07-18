@@ -50,6 +50,24 @@ export class AuthController {
     return this.authService.authenticateWithWeb3Auth(loginDto);
   }
 
+  @Post('firebase/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with Firebase Auth' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async loginWithFirebase(@Body() loginDto: LoginDto): Promise<AuthResponse> {
+    return this.authService.authenticateWithFirebase(loginDto);
+  }
+
+  @Post('hybrid/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with Hybrid Auth (Web3Auth + Firebase)' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async loginHybrid(@Body() loginDto: LoginDto): Promise<AuthResponse> {
+    return this.authService.authenticateHybrid(loginDto);
+  }
+
   @Post('web3auth/refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })

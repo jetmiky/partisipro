@@ -1,9 +1,19 @@
 /**
  * Authentication Service
- * Handles user authentication with the backend API
+ * Handles user authentication with Web3Auth and backend API
  */
 
 import { apiClient } from '../lib/api-client';
+import {
+  initWeb3Auth,
+  loginWithWeb3Auth,
+  loginWithSocialProvider,
+  loginWithEmailPassword,
+  logoutFromWeb3Auth,
+  getWalletAddress,
+  isMockAuthEnabled,
+  mockWeb3AuthLogin,
+} from '../lib/web3auth';
 
 export interface LoginRequest {
   idToken: string;
@@ -23,6 +33,15 @@ export interface LoginResponse {
     createdAt: string;
     updatedAt: string;
   };
+  firebaseToken?: string;
+  customClaims?: any;
+}
+
+export interface Web3AuthLoginResult {
+  provider: any;
+  user: any;
+  idToken: string;
+  accessToken: string;
 }
 
 export interface RefreshTokenRequest {
@@ -52,6 +71,28 @@ export interface MfaVerificationResponse {
 
 class AuthService {
   private readonly BASE_PATH = '/api/auth';
+  private web3AuthInitialized = false;
+
+  /**
+   * Initialize Web3Auth (call once on app startup)
+   */
+  async initializeWeb3Auth(): Promise<void> {
+    if (this.web3AuthInitialized) return;
+
+    try {
+      await initWeb3Auth();
+      this.web3AuthInitialized = true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to initialize Web3Auth:', error);
+      // Continue without Web3Auth in development mode
+      if (isMockAuthEnabled()) {
+        this.web3AuthInitialized = true;
+      } else {
+        throw error;
+      }
+    }
+  }
 
   /**
    * Login with Web3Auth ID token
@@ -72,6 +113,157 @@ class AuthService {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Login failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Login with Web3Auth (full flow)
+   */
+  async loginWithWeb3Auth(): Promise<LoginResponse> {
+    try {
+      // In development mode, use mock authentication
+      if (isMockAuthEnabled()) {
+        const mockResult = await mockWeb3AuthLogin('google');
+        return await this.login({
+          idToken: mockResult.idToken,
+          walletAddress: undefined,
+        });
+      }
+
+      // In production, use real Web3Auth
+      await this.initializeWeb3Auth();
+      const web3AuthResult = await loginWithWeb3Auth();
+      // Get wallet address
+      const walletAddress = await getWalletAddress();
+
+      // Login with backend
+      return await this.login({
+        idToken: web3AuthResult.idToken,
+        walletAddress: walletAddress || undefined,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Web3Auth login failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Login with social provider
+   */
+  async loginWithSocialProvider(
+    provider: 'google' | 'facebook' | 'apple'
+  ): Promise<LoginResponse> {
+    try {
+      await this.initializeWeb3Auth();
+
+      let web3AuthResult: Web3AuthLoginResult;
+
+      if (isMockAuthEnabled()) {
+        // Use mock authentication for development
+        web3AuthResult = await mockWeb3AuthLogin(provider);
+      } else {
+        // Use real Web3Auth
+        web3AuthResult = await loginWithSocialProvider(provider);
+      }
+
+      // Get wallet address
+      const walletAddress = await getWalletAddress();
+
+      // Login with backend
+      const loginRequest: LoginRequest = {
+        idToken: web3AuthResult.idToken,
+        walletAddress: walletAddress || undefined,
+      };
+
+      return await this.login(loginRequest);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`${provider} login failed:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Login with email/password
+   */
+  async loginWithEmailPassword(
+    email: string,
+    password: string
+  ): Promise<LoginResponse> {
+    try {
+      await this.initializeWeb3Auth();
+
+      let web3AuthResult: Web3AuthLoginResult;
+
+      if (isMockAuthEnabled()) {
+        // Use mock authentication for development
+        web3AuthResult = await mockWeb3AuthLogin('email');
+      } else {
+        // Use real Web3Auth
+        web3AuthResult = await loginWithEmailPassword(email, password);
+      }
+
+      // Get wallet address
+      const walletAddress = await getWalletAddress();
+
+      // Login with backend
+      const loginRequest: LoginRequest = {
+        idToken: web3AuthResult.idToken,
+        walletAddress: walletAddress || undefined,
+      };
+
+      return await this.login(loginRequest);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Email/password login failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Login with Firebase Auth
+   */
+  async loginWithFirebase(idToken: string): Promise<LoginResponse> {
+    try {
+      const response = await apiClient.post<LoginResponse>(
+        `${this.BASE_PATH}/firebase/login`,
+        { idToken }
+      );
+
+      // Store tokens
+      if (response.accessToken) {
+        this.setTokens(response.accessToken, response.refreshToken);
+      }
+
+      return response;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Firebase login failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Login with hybrid authentication (auto-detect token type)
+   */
+  async loginWithHybridAuth(idToken: string): Promise<LoginResponse> {
+    try {
+      const response = await apiClient.post<LoginResponse>(
+        `${this.BASE_PATH}/hybrid/login`,
+        { idToken }
+      );
+
+      // Store tokens
+      if (response.accessToken) {
+        this.setTokens(response.accessToken, response.refreshToken);
+      }
+
+      return response;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Hybrid auth login failed:', error);
       throw error;
     }
   }
@@ -108,11 +300,23 @@ class AuthService {
    */
   async logout(): Promise<void> {
     try {
+      // Logout from backend
       await apiClient.post(`${this.BASE_PATH}/logout`);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Logout request failed:', error);
       // Continue with local cleanup even if server request fails
+    }
+
+    try {
+      // Logout from Web3Auth if connected
+      if (this.web3AuthInitialized && !isMockAuthEnabled()) {
+        await logoutFromWeb3Auth();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Web3Auth logout failed:', error);
+      // Continue with local cleanup even if Web3Auth logout fails
     } finally {
       this.clearTokens();
     }

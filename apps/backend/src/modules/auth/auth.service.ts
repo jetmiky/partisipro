@@ -5,7 +5,7 @@ import { UsersService } from '../users/users.service';
 import { User, UserRole, KYCStatus } from '../../common/types';
 import { LoginDto, RefreshTokenDto } from './dto';
 import { Web3AuthService } from './web3auth.service';
-// Removed FirebaseAuthService import - using simplified authentication flow
+import { FirebaseAuthService } from './firebase-auth.service';
 
 export interface JwtPayload {
   sub: string;
@@ -33,7 +33,8 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private usersService: UsersService,
-    private web3AuthService: Web3AuthService
+    private web3AuthService: Web3AuthService,
+    private firebaseAuthService: FirebaseAuthService
   ) {}
 
   async authenticateWithWeb3Auth(loginDto: LoginDto): Promise<AuthResponse> {
@@ -87,6 +88,122 @@ export class AuthService {
     } catch (error) {
       this.logger.error('Authentication failed', error);
       throw new UnauthorizedException('Authentication failed');
+    }
+  }
+
+  async authenticateWithFirebase(loginDto: LoginDto): Promise<AuthResponse> {
+    try {
+      this.logger.log(
+        `Starting Firebase authentication flow for token: ${loginDto.idToken}`
+      );
+
+      // Step 1: Verify Firebase ID token
+      const firebaseUser = await this.firebaseAuthService.verifyIdToken(
+        loginDto.idToken
+      );
+
+      if (!firebaseUser || !firebaseUser.email) {
+        throw new UnauthorizedException(
+          'Invalid Firebase token: missing user email'
+        );
+      }
+
+      this.logger.log(
+        `Firebase token verified for user: ${firebaseUser.email}`
+      );
+
+      // Step 2: Get or create user in Firestore
+      const user = await this.usersService.findOrCreateUser({
+        email: firebaseUser.email,
+        walletAddress: this.deriveWalletFromFirebaseUid(firebaseUser.uid),
+        firebaseUid: firebaseUser.uid,
+      });
+
+      // Step 3: Generate JWT tokens for our application
+      const accessToken = await this.generateAccessToken(user);
+      const refreshToken = await this.generateRefreshToken(user.id);
+
+      // Step 4: Create custom claims for the user
+      const customClaims = {
+        role: user.role || 'investor',
+        identity_verified: user.kyc?.status === 'approved',
+        kyc_approved: user.kyc?.status === 'approved',
+        wallet_address: user.walletAddress,
+        permissions: this.getUserPermissions(user.role),
+      };
+
+      // Step 5: Set custom claims in Firebase Auth
+      await this.firebaseAuthService.setCustomClaims(
+        firebaseUser.uid,
+        customClaims
+      );
+
+      this.logger.log(`User authenticated successfully: ${user.email}`);
+
+      return {
+        user,
+        accessToken,
+        refreshToken,
+        firebaseToken: loginDto.idToken,
+        customClaims,
+      };
+    } catch (error) {
+      this.logger.error('Firebase authentication failed', error);
+      throw new UnauthorizedException('Firebase authentication failed');
+    }
+  }
+
+  async authenticateHybrid(loginDto: LoginDto): Promise<AuthResponse> {
+    try {
+      this.logger.log(
+        `Starting hybrid authentication flow for token: ${loginDto.idToken}`
+      );
+
+      // Determine token type based on issuer or use Web3Auth service hybrid mode
+      const web3AuthUser = await this.web3AuthService.verifyIdToken(
+        loginDto.idToken
+      );
+
+      if (!web3AuthUser || !web3AuthUser.email) {
+        throw new UnauthorizedException('Invalid token: missing user email');
+      }
+
+      this.logger.log(
+        `Hybrid token verified for user: ${web3AuthUser.email}, wallet: ${web3AuthUser.walletAddress}`
+      );
+
+      // Get or create user in Firestore
+      const user = await this.usersService.findOrCreateUser({
+        email: web3AuthUser.email,
+        walletAddress: web3AuthUser.walletAddress,
+        web3AuthId: web3AuthUser.sub,
+      });
+
+      // Generate JWT tokens for our application
+      const accessToken = await this.generateAccessToken(user);
+      const refreshToken = await this.generateRefreshToken(user.id);
+
+      // Create custom claims for the user
+      const customClaims = {
+        role: user.role || 'investor',
+        identity_verified: user.kyc?.status === 'approved',
+        kyc_approved: user.kyc?.status === 'approved',
+        wallet_address: user.walletAddress,
+        permissions: this.getUserPermissions(user.role),
+      };
+
+      this.logger.log(`User authenticated successfully: ${user.email}`);
+
+      return {
+        user,
+        accessToken,
+        refreshToken,
+        firebaseToken: loginDto.idToken,
+        customClaims,
+      };
+    } catch (error) {
+      this.logger.error('Hybrid authentication failed', error);
+      throw new UnauthorizedException('Hybrid authentication failed');
     }
   }
 
@@ -206,5 +323,15 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  private deriveWalletFromFirebaseUid(uid: string): string {
+    // In a real implementation, you might derive this from the Firebase UID
+    // This is a simplified implementation for prototype purposes
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { createHash } = require('crypto');
+    const hash = createHash('sha256').update(uid).digest('hex');
+    return `0x${hash.substring(0, 40)}`;
   }
 }

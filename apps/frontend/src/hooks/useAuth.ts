@@ -23,6 +23,14 @@ export interface AuthState {
 
 export interface AuthActions {
   login: (idToken: string) => Promise<LoginResponse | null>;
+  loginWithWeb3Auth: () => Promise<LoginResponse | null>;
+  loginWithSocialProvider: (
+    provider: 'google' | 'facebook' | 'apple'
+  ) => Promise<LoginResponse | null>;
+  loginWithEmailPassword: (
+    email: string,
+    password: string
+  ) => Promise<LoginResponse | null>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<boolean>;
   clearError: () => void;
@@ -109,6 +117,80 @@ export function useAuth(): UseAuthReturn {
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Login failed';
+        setError(errorMessage);
+        return null;
+      }
+    },
+    [setLoading, clearError, setUser, setError]
+  );
+
+  /**
+   * Login with Web3Auth (full flow)
+   */
+  const loginWithWeb3Auth =
+    useCallback(async (): Promise<LoginResponse | null> => {
+      try {
+        setLoading(true);
+        clearError();
+
+        const response = await authService.loginWithWeb3Auth();
+
+        setUser(response.user);
+        return response;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Web3Auth login failed';
+        setError(errorMessage);
+        return null;
+      }
+    }, [setLoading, clearError, setUser, setError]);
+
+  /**
+   * Login with social provider
+   */
+  const loginWithSocialProvider = useCallback(
+    async (
+      provider: 'google' | 'facebook' | 'apple'
+    ): Promise<LoginResponse | null> => {
+      try {
+        setLoading(true);
+        clearError();
+
+        const response = await authService.loginWithSocialProvider(provider);
+
+        setUser(response.user);
+        return response;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : `${provider} login failed`;
+        setError(errorMessage);
+        return null;
+      }
+    },
+    [setLoading, clearError, setUser, setError]
+  );
+
+  /**
+   * Login with email/password
+   */
+  const loginWithEmailPassword = useCallback(
+    async (email: string, password: string): Promise<LoginResponse | null> => {
+      try {
+        setLoading(true);
+        clearError();
+
+        const response = await authService.loginWithEmailPassword(
+          email,
+          password
+        );
+
+        setUser(response.user);
+        return response;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Email/password login failed';
         setError(errorMessage);
         return null;
       }
@@ -289,6 +371,9 @@ export function useAuth(): UseAuthReturn {
 
     // Actions
     login,
+    loginWithWeb3Auth,
+    loginWithSocialProvider,
+    loginWithEmailPassword,
     logout,
     refreshToken,
     clearError,

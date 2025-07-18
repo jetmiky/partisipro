@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User, Layers } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
+import { Layers } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 export default function SignUpPage() {
   const router = useRouter();
   const {
-    login,
+    loginWithSocialProvider,
+    loginWithEmailPassword,
     isAuthenticated,
     isLoading: authLoading,
     error,
@@ -22,8 +24,8 @@ export default function SignUpPage() {
     fullName: '',
     email: '',
     password: '',
+    role: 'investor',
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already authenticated
@@ -54,15 +56,15 @@ export default function SignUpPage() {
     clearError();
 
     try {
-      // For now, simulate Web3Auth registration flow
-      // In real implementation, this would create embedded wallet and user profile
-      const mockIdToken = `mock_signup_token_${Date.now()}_${formData.email}`;
-
-      await login(mockIdToken);
+      // Use Web3Auth email/password registration
+      await loginWithEmailPassword(formData.email, formData.password);
+      toast.success('Registration successful!', {
+        message: 'Welcome to Partisipro',
+        duration: 3000,
+      });
       // Navigation will be handled by the useEffect above when isAuthenticated becomes true
     } catch (err) {
       // Error handling is managed by useAuth hook
-      // Signup error is handled by useAuth hook
     } finally {
       setIsLoading(false);
     }
@@ -75,11 +77,14 @@ export default function SignUpPage() {
     clearError();
 
     try {
-      // In real implementation, this would integrate with Web3Auth SDK for social signup
-      // Should create embedded wallet and user profile
-      const mockIdToken = `mock_social_signup_token_${Date.now()}_${provider.toLowerCase()}`;
-
-      await login(mockIdToken);
+      // Use Web3Auth social registration
+      await loginWithSocialProvider(
+        provider.toLowerCase() as 'google' | 'facebook' | 'apple'
+      );
+      toast.success(`${provider} registration successful!`, {
+        message: 'Welcome to Partisipro',
+        duration: 3000,
+      });
       // Navigation will be handled by the useEffect above
     } catch (err) {
       // Social auth error is handled by useAuth hook
@@ -90,6 +95,8 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-background flex relative overflow-hidden">
+      {/* Toast Provider for notifications */}
+      <ToastProvider />
       {/* Fluid Background Shapes */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="fluid-shape-1 top-20 left-16"></div>
@@ -124,7 +131,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Welcome Content */}
-        <div className="flex flex-col justify-center items-center text-center text-white p-12 relative z-10">
+        <div className="w-full flex flex-col justify-center items-center text-center text-white p-12 relative z-10">
           <div className="max-w-md animate-fade-in-up animate-delay-300">
             <h2 className="text-3xl font-bold mb-4">Join the Future!</h2>
             <p className="text-lg text-white/90 mb-6">
@@ -192,93 +199,58 @@ export default function SignUpPage() {
           >
             {/* Full Name Input */}
             <div className="space-y-2">
-              <label
-                htmlFor="fullName"
-                className="text-sm font-medium text-foreground"
-              >
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  placeholder="Enter your name"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="pl-10 input hover-glow"
-                  required
-                />
-              </div>
+              <AnimatedInput
+                id="fullName"
+                name="fullName"
+                type="text"
+                label="Full Name"
+                placeholder="Enter your name"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                required
+              />
             </div>
 
             {/* Email Input */}
             <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-foreground"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="pl-10 input hover-glow"
-                  required
-                />
-              </div>
+              <AnimatedInput
+                id="email"
+                name="email"
+                type="email"
+                label="Email"
+                placeholder="john@example.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
             </div>
 
             {/* Password Input */}
             <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-foreground"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Create password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="pl-10 pr-10 input hover-glow"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary-600 transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
+              <AnimatedInput
+                id="password"
+                name="password"
+                type="password"
+                label="Password"
+                placeholder="Create password"
+                value={formData.password}
+                onChange={handleInputChange}
+                showPasswordToggle={true}
+                required
+              />
             </div>
 
             {/* Sign Up Button */}
-            <Button
+            <AnimatedButton
               type="submit"
               variant="primary"
-              className="w-full btn-modern btn-modern-primary hover-lift"
-              disabled={isLoading || authLoading}
+              size="lg"
+              className="w-full"
+              loading={isLoading || authLoading}
+              ripple
             >
-              {isLoading || authLoading ? 'Creating Account...' : 'Sign Up'}
-            </Button>
+              Sign Up
+            </AnimatedButton>
 
             {/* Social Auth Divider */}
             <div className="relative">

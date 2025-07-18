@@ -50,7 +50,8 @@ export interface User {
   id: string;
   email: string;
   walletAddress: string;
-  web3AuthId: string;
+  web3AuthId?: string;
+  firebaseUid?: string;
   profile: UserProfile;
   kyc: KYCData;
   role: UserRole;

@@ -177,6 +177,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             onBlur={handleBlur}
             onChange={handleChange}
             {...props}
+            placeholder={label ? '' : props.placeholder}
           />
 
           {/* Floating Label */}
