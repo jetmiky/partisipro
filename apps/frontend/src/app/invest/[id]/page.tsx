@@ -24,22 +24,12 @@ import {
   UserCheck,
   Award,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Card } from '@/components/ui';
-
-// Simple toast replacement for now
-const toast = {
-  success: (message: string) => {
-    alert(`✅ ${message}`);
-  },
-  error: (message: string) => {
-    alert(`❌ ${message}`);
-  },
-  info: (message: string) => {
-    alert(`ℹ️ ${message}`);
-  },
-};
+// Import animated components
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 
 type InvestmentStep =
   | 'identity'
@@ -416,10 +406,24 @@ export default function InvestmentFlowPage() {
   // Show loading state
   if (loading || !project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading project information...</p>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center relative overflow-hidden">
+        {/* Fluid background shapes */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+          <div className="absolute top-1/4 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+          <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-25 animate-[float_5s_ease-in-out_infinite] blur-sm"></div>
+        </div>
+
+        <div className="text-center relative z-10">
+          <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-2">
+            Loading Project
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we load the project information...
+          </p>
         </div>
       </div>
     );
@@ -428,9 +432,23 @@ export default function InvestmentFlowPage() {
   // Check authentication
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Redirecting to login...</p>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center relative overflow-hidden">
+        {/* Fluid background shapes */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+          <div className="absolute top-1/4 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+        </div>
+
+        <div className="text-center relative z-10">
+          <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <ArrowLeft className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-2">
+            Redirecting
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we redirect you to login...
+          </p>
         </div>
       </div>
     );
@@ -447,241 +465,311 @@ export default function InvestmentFlowPage() {
     ];
 
     return (
-      <div className="flex items-center justify-center mb-8">
-        {steps.map((step, index) => {
-          const isActive = step.id === currentStep;
-          const isCompleted =
-            steps.findIndex(s => s.id === currentStep) > index;
+      <ScrollReveal animation="fade" delay={0}>
+        <div className="flex items-center justify-center mb-8">
+          <div className="glass-modern rounded-full p-6 shadow-lg">
+            <StaggeredList
+              className="flex items-center"
+              itemDelay={100}
+              animation="fade"
+            >
+              {steps.map((step, index) => {
+                const isActive = step.id === currentStep;
+                const isCompleted =
+                  steps.findIndex(s => s.id === currentStep) > index;
 
-          return (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                  isActive
-                    ? 'border-primary-500 bg-primary-50'
-                    : isCompleted
-                      ? 'border-primary-500 bg-primary-500'
-                      : 'border-gray-300 bg-gray-50'
-                }`}
-              >
-                <span
-                  className={`text-xs font-medium ${
-                    isActive
-                      ? 'text-primary-500'
-                      : isCompleted
-                        ? 'text-white'
-                        : 'text-gray-400'
-                  }`}
-                >
-                  {index + 1}
-                </span>
-              </div>
-              <span
-                className={`ml-2 text-sm font-medium ${
-                  isActive
-                    ? 'text-primary-600'
-                    : isCompleted
-                      ? 'text-primary-500'
-                      : 'text-gray-500'
-                }`}
-              >
-                {step.label}
-              </span>
-              {index < steps.length - 1 && (
-                <div
-                  className={`w-8 h-0.5 mx-2 ${
-                    isCompleted ? 'bg-primary-500' : 'bg-gray-300'
-                  }`}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div
+                      className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+                        isActive
+                          ? 'border-primary-500 bg-gradient-to-br from-primary-100 to-primary-200 shadow-lg'
+                          : isCompleted
+                            ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg'
+                            : 'border-gray-300 bg-gray-50'
+                      }`}
+                    >
+                      <span
+                        className={`text-sm font-bold ${
+                          isActive
+                            ? 'text-primary-600'
+                            : isCompleted
+                              ? 'text-white'
+                              : 'text-gray-400'
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                    </div>
+                    <span
+                      className={`ml-2 text-sm font-semibold ${
+                        isActive
+                          ? 'text-primary-600'
+                          : isCompleted
+                            ? 'text-primary-500'
+                            : 'text-gray-500'
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`w-12 h-1 mx-4 rounded-full transition-all duration-300 ${
+                          isCompleted
+                            ? 'bg-gradient-to-r from-primary-500 to-primary-600'
+                            : 'bg-gray-300'
+                        }`}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </StaggeredList>
+          </div>
+        </div>
+      </ScrollReveal>
     );
   };
 
   const renderIdentityStep = () => (
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Shield className="w-8 h-8 text-primary-600" />
+      <ScrollReveal animation="fade" delay={0}>
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <Shield className="w-10 h-10 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
+            Identity Verification
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Your identity will be verified automatically using the ERC-3643
+            Identity Registry
+          </p>
         </div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          Identity Verification
-        </h2>
-        <p className="text-gray-600">
-          Your identity will be verified automatically using the ERC-3643
-          Identity Registry
-        </p>
-      </div>
+      </ScrollReveal>
 
       {identityStatus.eligibleForInvestment ? (
-        <div className="space-y-6">
-          <Card className="p-6 border-green-200 bg-green-50">
-            <div className="flex items-center mb-4">
-              <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
-              <h3 className="text-lg font-semibold text-green-900">
-                Identity Verification Successful
-              </h3>
-            </div>
-            <p className="text-green-800 mb-4">
-              Your identity has been verified and you are eligible to invest in
-              this project. No additional verification is required.
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-green-700 font-medium">KYC Status:</span>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                {identityStatus.kycStatus.toUpperCase()}
-              </span>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Your Active Identity Claims
-            </h3>
-            <div className="space-y-3">
-              {identityStatus.claims.map(claim => (
-                <div
-                  key={claim.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center">
-                    <Award className="w-5 h-5 text-blue-600 mr-3" />
-                    <span className="font-medium text-gray-900">
-                      {claim.type.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      claim.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {claim.status.toUpperCase()}
-                  </span>
+        <StaggeredList
+          className="space-y-6"
+          itemDelay={150}
+          animation="slide-up"
+        >
+          <ScrollReveal animation="slide-up" delay={100}>
+            <div className="glass-modern p-6 border border-green-200 bg-gradient-to-br from-green-50 to-green-100">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                  <CheckCircle className="w-6 h-6 text-white" />
                 </div>
-              ))}
+                <h3 className="text-xl font-bold text-green-900">
+                  Identity Verification Successful
+                </h3>
+              </div>
+              <p className="text-green-800 mb-4 text-lg">
+                Your identity has been verified and you are eligible to invest
+                in this project. No additional verification is required.
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-green-700 font-semibold">
+                  KYC Status:
+                </span>
+                <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full text-sm font-bold shadow-lg">
+                  {identityStatus.kycStatus.toUpperCase()}
+                </span>
+              </div>
             </div>
-          </Card>
+          </ScrollReveal>
 
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <UserCheck className="w-6 h-6 text-blue-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Investment Benefits
+          <ScrollReveal animation="slide-up" delay={200}>
+            <div className="glass-modern p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Your Active Identity Claims
               </h3>
+              <StaggeredList
+                className="space-y-4"
+                itemDelay={100}
+                animation="slide-up"
+              >
+                {identityStatus.claims.map(claim => (
+                  <div
+                    key={claim.id}
+                    className="glass-feature p-4 rounded-xl hover:scale-105 transition-transform duration-300"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                          <Award className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="font-semibold text-gray-900 text-lg">
+                          {claim.type.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-bold shadow-lg ${
+                          claim.status === 'active'
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                            : 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white'
+                        }`}
+                      >
+                        {claim.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </StaggeredList>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center text-gray-700">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                <span>Instant investment approval</span>
-              </div>
-              <div className="flex items-center text-gray-700">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                <span>Access to all project tiers</span>
-              </div>
-              <div className="flex items-center text-gray-700">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                <span>Automated profit distribution</span>
-              </div>
-              <div className="flex items-center text-gray-700">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                <span>Governance voting rights</span>
-              </div>
-            </div>
-          </Card>
+          </ScrollReveal>
 
-          <div className="flex justify-center">
-            <Button onClick={handleNextStep} variant="primary" className="px-8">
-              Proceed to Investment
-            </Button>
-          </div>
-        </div>
+          <ScrollReveal animation="slide-up" delay={300}>
+            <div className="glass-modern p-6">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                  <UserCheck className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Investment Benefits
+                </h3>
+              </div>
+              <StaggeredList
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                itemDelay={100}
+                animation="slide-up"
+              >
+                {[
+                  'Instant investment approval',
+                  'Access to all project tiers',
+                  'Automated profit distribution',
+                  'Governance voting rights',
+                ].map((benefit, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-3 glass-feature rounded-lg hover:scale-105 transition-transform duration-300"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-800">{benefit}</span>
+                  </div>
+                ))}
+              </StaggeredList>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal animation="scale" delay={400}>
+            <div className="flex justify-center">
+              <AnimatedButton
+                onClick={handleNextStep}
+                variant="primary"
+                size="lg"
+                ripple={true}
+              >
+                Proceed to Investment
+              </AnimatedButton>
+            </div>
+          </ScrollReveal>
+        </StaggeredList>
       ) : (
-        <div className="space-y-6">
-          <Card className="p-6 border-red-200 bg-red-50">
-            <div className="flex items-center mb-4">
-              <XCircle className="w-6 h-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-semibold text-red-900">
-                Identity Verification Required
+        <StaggeredList
+          className="space-y-6"
+          itemDelay={150}
+          animation="slide-up"
+        >
+          <ScrollReveal animation="slide-up" delay={100}>
+            <div className="glass-modern p-6 border border-red-200 bg-gradient-to-br from-red-50 to-red-100">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                  <XCircle className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-red-900">
+                  Identity Verification Required
+                </h3>
+              </div>
+              <p className="text-red-800 mb-4 text-lg">
+                Your identity needs to be verified before you can invest in this
+                project. Please complete the KYC process to continue.
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-red-700 font-semibold">KYC Status:</span>
+                <span className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-sm font-bold shadow-lg">
+                  {identityStatus.kycStatus.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal animation="slide-up" delay={200}>
+            <div className="glass-modern p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Required Steps
               </h3>
+              <StaggeredList
+                className="space-y-4"
+                itemDelay={100}
+                animation="slide-up"
+              >
+                {[
+                  'Complete KYC verification',
+                  'Obtain required identity claims',
+                  'Wait for identity registry approval',
+                ].map((step, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center p-3 glass-feature rounded-lg"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                      <AlertTriangle className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-medium text-gray-800">{step}</span>
+                  </div>
+                ))}
+              </StaggeredList>
             </div>
-            <p className="text-red-800 mb-4">
-              Your identity needs to be verified before you can invest in this
-              project. Please complete the KYC process to continue.
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-red-700 font-medium">KYC Status:</span>
-              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                {identityStatus.kycStatus.toUpperCase()}
-              </span>
-            </div>
-          </Card>
+          </ScrollReveal>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Required Steps
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center text-gray-700">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
-                <span>Complete KYC verification</span>
-              </div>
-              <div className="flex items-center text-gray-700">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
-                <span>Obtain required identity claims</span>
-              </div>
-              <div className="flex items-center text-gray-700">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3" />
-                <span>Wait for identity registry approval</span>
-              </div>
+          <ScrollReveal animation="scale" delay={300}>
+            <div className="flex justify-center gap-4">
+              <Link href="/kyc">
+                <AnimatedButton variant="primary" size="lg" ripple={true}>
+                  Start KYC Process
+                </AnimatedButton>
+              </Link>
+              <Link href="/identity">
+                <AnimatedButton variant="secondary" size="lg">
+                  Check Identity Status
+                </AnimatedButton>
+              </Link>
             </div>
-          </Card>
-
-          <div className="flex justify-center gap-4">
-            <Link href="/kyc">
-              <Button variant="primary" className="px-8">
-                Start KYC Process
-              </Button>
-            </Link>
-            <Link href="/identity">
-              <Button variant="secondary" className="px-8">
-                Check Identity Status
-              </Button>
-            </Link>
-          </div>
-        </div>
+          </ScrollReveal>
+        </StaggeredList>
       )}
     </div>
   );
 
   const renderAmountStep = () => (
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          Investment Amount
-        </h2>
-        <p className="text-gray-600">
-          Enter the amount you want to invest in this project
-        </p>
-      </div>
+      <ScrollReveal animation="fade" delay={0}>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
+            Investment Amount
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Enter the amount you want to invest in this project
+          </p>
+        </div>
+      </ScrollReveal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
+        <ScrollReveal animation="slide-left" delay={100}>
+          <div className="glass-modern p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
               Investment Details
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Investment Amount
                 </label>
-                <Input
+                <AnimatedInput
                   type="text"
                   value={
                     investmentAmount
@@ -692,74 +780,94 @@ export default function InvestmentFlowPage() {
                   placeholder={`Min. ${formatCurrency(project?.minimumInvestment || 0)}`}
                   className="text-lg"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-2">
                   Minimum investment:{' '}
-                  {formatCurrency(project?.minimumInvestment || 0)}
+                  <span className="font-semibold text-primary-600">
+                    {formatCurrency(project?.minimumInvestment || 0)}
+                  </span>
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <StaggeredList
+                className="grid grid-cols-3 gap-2"
+                itemDelay={100}
+                animation="scale"
+              >
                 {[1000000, 5000000, 10000000].map(amount => (
-                  <Button
+                  <AnimatedButton
                     key={amount}
                     variant="secondary"
-                    className="text-xs"
+                    size="sm"
                     onClick={() => setInvestmentAmount(amount.toString())}
                   >
                     {formatCurrency(amount)}
-                  </Button>
+                  </AnimatedButton>
                 ))}
-              </div>
+              </StaggeredList>
 
               {/* Eligibility feedback */}
               {eligibility && (
-                <div className="mt-4">
-                  {eligibility.eligible ? (
-                    <div className="flex items-center text-green-700 bg-green-50 p-3 rounded-lg">
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      <span className="text-sm">
-                        You are eligible to invest this amount
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-red-700 bg-red-50 p-3 rounded-lg">
-                      <XCircle className="w-5 h-5 mr-2" />
-                      <span className="text-sm">
-                        {eligibility.reason || 'Investment not allowed'}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <ScrollReveal animation="scale" delay={200}>
+                  <div className="mt-4">
+                    {eligibility.eligible ? (
+                      <div className="flex items-center p-4 glass-feature rounded-xl bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                          <CheckCircle className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-sm font-semibold text-green-800">
+                          You are eligible to invest this amount
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center p-4 glass-feature rounded-xl bg-gradient-to-r from-red-50 to-red-100 border border-red-200">
+                        <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                          <XCircle className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-sm font-semibold text-red-800">
+                          {eligibility.reason || 'Investment not allowed'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </ScrollReveal>
               )}
             </div>
-          </Card>
-        </div>
+          </div>
+        </ScrollReveal>
 
-        <div>
-          <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
+        <ScrollReveal animation="slide-right" delay={200}>
+          <div className="glass-modern p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
               Investment Summary
             </h3>
 
             {calculateReturns() && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Investment Amount</span>
-                  <span className="font-semibold">
+              <StaggeredList
+                className="space-y-4"
+                itemDelay={100}
+                animation="slide-up"
+              >
+                <div className="flex justify-between items-center p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">
+                    Investment Amount
+                  </span>
+                  <span className="font-bold text-gray-900">
                     {formatCurrency(parseFloat(investmentAmount))}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Expected Annual Return</span>
-                  <span className="font-semibold text-primary-600">
+                <div className="flex justify-between items-center p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">
+                    Expected Annual Return
+                  </span>
+                  <span className="font-bold text-primary-600">
                     {project?.expectedReturn}%
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Duration</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">Duration</span>
+                  <span className="font-bold text-gray-900">
                     {project
                       ? Math.round(
                           (new Date(project.offeringEndDate).getTime() -
@@ -771,117 +879,147 @@ export default function InvestmentFlowPage() {
                   </span>
                 </div>
 
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Annual Return</span>
-                    <span className="font-semibold">
+                <div className="border-t-2 border-gray-200 pt-4">
+                  <div className="flex justify-between items-center mb-3 p-3 glass-feature rounded-lg">
+                    <span className="text-gray-600 font-medium">
+                      Annual Return
+                    </span>
+                    <span className="font-bold text-gray-900">
                       {formatCurrency(calculateReturns()!.annual)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Total Return</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center mb-3 p-3 glass-feature rounded-lg">
+                    <span className="text-gray-600 font-medium">
+                      Total Return
+                    </span>
+                    <span className="font-bold text-gray-900">
                       {formatCurrency(calculateReturns()!.total)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center border-t pt-2">
-                    <span className="font-semibold text-gray-900">
+                  <div className="flex justify-between items-center p-4 glass-modern rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200">
+                    <span className="font-bold text-gray-900 text-lg">
                       Final Value
                     </span>
-                    <span className="font-bold text-primary-600 text-lg">
+                    <span className="font-bold text-primary-600 text-xl">
                       {formatCurrency(calculateReturns()!.finalValue)}
                     </span>
                   </div>
                 </div>
-              </div>
+              </StaggeredList>
             )}
-          </Card>
-        </div>
+          </div>
+        </ScrollReveal>
       </div>
 
-      <div className="flex justify-between mt-8">
-        <Button onClick={handleBackStep} variant="secondary">
-          Back
-        </Button>
-        <Button
-          onClick={handleNextStep}
-          variant="primary"
-          disabled={
-            !investmentAmount ||
-            parseFloat(investmentAmount) < (project?.minimumInvestment || 0)
-          }
-        >
-          Continue to Payment
-        </Button>
-      </div>
+      <ScrollReveal animation="fade" delay={300}>
+        <div className="flex justify-between mt-8">
+          <AnimatedButton
+            onClick={handleBackStep}
+            variant="secondary"
+            size="lg"
+          >
+            Back
+          </AnimatedButton>
+          <AnimatedButton
+            onClick={handleNextStep}
+            variant="primary"
+            size="lg"
+            disabled={
+              !investmentAmount ||
+              parseFloat(investmentAmount) < (project?.minimumInvestment || 0)
+            }
+            ripple={true}
+          >
+            Continue to Payment
+          </AnimatedButton>
+        </div>
+      </ScrollReveal>
     </div>
   );
 
   const renderPaymentStep = () => (
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-          Select Payment Method
-        </h2>
-        <p className="text-gray-600">
-          Choose how you want to pay for your investment
-        </p>
-      </div>
+      <ScrollReveal animation="fade" delay={0}>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
+            Select Payment Method
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Choose how you want to pay for your investment
+          </p>
+        </div>
+      </ScrollReveal>
 
-      <div className="space-y-4">
+      <StaggeredList className="space-y-4" itemDelay={100} animation="slide-up">
         {paymentMethods.map(method => (
-          <Card
+          <div
             key={method.id}
-            className={`p-4 cursor-pointer transition-all ${
+            className={`glass-modern p-6 cursor-pointer transition-all duration-300 hover:scale-105 ${
               selectedPaymentMethod === method.id
-                ? 'border-primary-500 bg-primary-50'
-                : 'hover:border-gray-300'
+                ? 'border-2 border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100'
+                : 'border border-gray-200 hover:border-primary-300'
             }`}
-            onClick={() => setSelectedPaymentMethod(method.id)}
+            onClick={() => {
+              setSelectedPaymentMethod(method.id);
+              toast.success('Payment method selected', {
+                message: `Selected ${method.name}`,
+                duration: 2000,
+              });
+            }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div
-                  className={`p-2 rounded-lg ${
+                  className={`p-3 rounded-xl shadow-lg ${
                     method.type === 'bank'
-                      ? 'bg-blue-100'
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600'
                       : method.type === 'ewallet'
-                        ? 'bg-green-100'
-                        : 'bg-purple-100'
+                        ? 'bg-gradient-to-br from-green-500 to-green-600'
+                        : 'bg-gradient-to-br from-purple-500 to-purple-600'
                   }`}
                 >
-                  {method.icon}
+                  <div className="text-white">{method.icon}</div>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">{method.name}</h3>
-                  <p className="text-sm text-gray-500">{method.description}</p>
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    {method.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{method.description}</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-bold text-gray-900">
                   {method.fee > 0 ? formatCurrency(method.fee) : 'Free'}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 font-medium">
                   {method.processingTime}
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         ))}
-      </div>
+      </StaggeredList>
 
-      <div className="flex justify-between mt-8">
-        <Button onClick={handleBackStep} variant="secondary">
-          Back
-        </Button>
-        <Button
-          onClick={handleNextStep}
-          variant="primary"
-          disabled={!selectedPaymentMethod}
-        >
-          Continue to Confirmation
-        </Button>
-      </div>
+      <ScrollReveal animation="fade" delay={300}>
+        <div className="flex justify-between mt-8">
+          <AnimatedButton
+            onClick={handleBackStep}
+            variant="secondary"
+            size="lg"
+          >
+            Back
+          </AnimatedButton>
+          <AnimatedButton
+            onClick={handleNextStep}
+            variant="primary"
+            size="lg"
+            disabled={!selectedPaymentMethod}
+            ripple={true}
+          >
+            Continue to Confirmation
+          </AnimatedButton>
+        </div>
+      </ScrollReveal>
     </div>
   );
 
@@ -894,292 +1032,410 @@ export default function InvestmentFlowPage() {
 
     return (
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Confirm Investment
-          </h2>
-          <p className="text-gray-600">
-            Please review your investment details before proceeding
-          </p>
-        </div>
+        <ScrollReveal animation="fade" delay={0}>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
+              Confirm Investment
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Please review your investment details before proceeding
+            </p>
+          </div>
+        </ScrollReveal>
 
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
-              Investment Summary
-            </h3>
+        <StaggeredList
+          className="space-y-6"
+          itemDelay={150}
+          animation="slide-up"
+        >
+          <ScrollReveal animation="slide-up" delay={100}>
+            <div className="glass-modern p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Investment Summary
+              </h3>
 
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Project</span>
-                <span className="font-medium">{project?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Investment Amount</span>
-                <span className="font-medium">{formatCurrency(amount)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Payment Method</span>
-                <span className="font-medium">{selectedMethod?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Processing Fee</span>
-                <span className="font-medium">
-                  {formatCurrency(selectedMethod?.fee || 0)}
-                </span>
-              </div>
-              <div className="border-t pt-3">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-900">
-                    Total Amount
-                  </span>
-                  <span className="font-bold text-lg">
-                    {formatCurrency(totalAmount)}
+              <StaggeredList
+                className="space-y-4"
+                itemDelay={100}
+                animation="slide-up"
+              >
+                <div className="flex justify-between p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">Project</span>
+                  <span className="font-bold text-gray-900">
+                    {project?.name}
                   </span>
                 </div>
-              </div>
+                <div className="flex justify-between p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">
+                    Investment Amount
+                  </span>
+                  <span className="font-bold text-gray-900">
+                    {formatCurrency(amount)}
+                  </span>
+                </div>
+                <div className="flex justify-between p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">
+                    Payment Method
+                  </span>
+                  <span className="font-bold text-gray-900">
+                    {selectedMethod?.name}
+                  </span>
+                </div>
+                <div className="flex justify-between p-3 glass-feature rounded-lg">
+                  <span className="text-gray-600 font-medium">
+                    Processing Fee
+                  </span>
+                  <span className="font-bold text-gray-900">
+                    {formatCurrency(selectedMethod?.fee || 0)}
+                  </span>
+                </div>
+                <div className="border-t-2 border-gray-200 pt-4">
+                  <div className="flex justify-between p-4 glass-modern rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200">
+                    <span className="font-bold text-gray-900 text-lg">
+                      Total Amount
+                    </span>
+                    <span className="font-bold text-primary-600 text-xl">
+                      {formatCurrency(totalAmount)}
+                    </span>
+                  </div>
+                </div>
+              </StaggeredList>
             </div>
-          </Card>
+          </ScrollReveal>
 
-          <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
-              Terms and Conditions
-            </h3>
+          <ScrollReveal animation="slide-up" delay={200}>
+            <div className="glass-modern p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Terms and Conditions
+              </h3>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="agreement"
-                  checked={agreementAccepted}
-                  onChange={e => setAgreementAccepted(e.target.checked)}
-                  className="mt-1"
-                />
-                <label htmlFor="agreement" className="text-sm text-gray-700">
-                  I agree to the{' '}
-                  <Link
-                    href="/legal"
-                    className="text-primary-600 hover:underline"
+              <StaggeredList
+                className="space-y-6"
+                itemDelay={150}
+                animation="slide-up"
+              >
+                <div className="flex items-start gap-4 p-4 glass-feature rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="agreement"
+                    checked={agreementAccepted}
+                    onChange={e => setAgreementAccepted(e.target.checked)}
+                    className="mt-1 w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                  <label
+                    htmlFor="agreement"
+                    className="text-sm text-gray-700 font-medium"
                   >
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link
-                    href="/legal"
-                    className="text-primary-600 hover:underline"
-                  >
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
+                    I agree to the{' '}
+                    <Link
+                      href="/legal"
+                      className="text-primary-600 hover:underline font-semibold"
+                    >
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      href="/legal"
+                      className="text-primary-600 hover:underline font-semibold"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
 
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="risk"
-                  checked={riskAcknowledged}
-                  onChange={e => setRiskAcknowledged(e.target.checked)}
-                  className="mt-1"
-                />
-                <label htmlFor="risk" className="text-sm text-gray-700">
-                  I understand the risks involved in this investment and
-                  acknowledge that returns are not guaranteed
-                </label>
-              </div>
+                <div className="flex items-start gap-4 p-4 glass-feature rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="risk"
+                    checked={riskAcknowledged}
+                    onChange={e => setRiskAcknowledged(e.target.checked)}
+                    className="mt-1 w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                  <label
+                    htmlFor="risk"
+                    className="text-sm text-gray-700 font-medium"
+                  >
+                    I understand the risks involved in this investment and
+                    acknowledge that returns are not guaranteed
+                  </label>
+                </div>
+              </StaggeredList>
             </div>
-          </Card>
-        </div>
+          </ScrollReveal>
+        </StaggeredList>
 
-        <div className="flex justify-between mt-8">
-          <Button onClick={handleBackStep} variant="secondary">
-            Back
-          </Button>
-          <Button
-            onClick={processInvestment}
-            variant="primary"
-            disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
-          >
-            {isProcessing ? 'Processing...' : 'Confirm Investment'}
-          </Button>
-        </div>
+        <ScrollReveal animation="fade" delay={300}>
+          <div className="flex justify-between mt-8">
+            <AnimatedButton
+              onClick={handleBackStep}
+              variant="secondary"
+              size="lg"
+            >
+              Back
+            </AnimatedButton>
+            <AnimatedButton
+              onClick={processInvestment}
+              variant="primary"
+              size="lg"
+              disabled={!agreementAccepted || !riskAcknowledged || isProcessing}
+              loading={isProcessing}
+              ripple={true}
+            >
+              {isProcessing ? 'Processing...' : 'Confirm Investment'}
+            </AnimatedButton>
+          </div>
+        </ScrollReveal>
       </div>
     );
   };
 
   const renderProcessingStep = () => (
     <div className="max-w-md mx-auto text-center">
-      <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <Clock className="w-10 h-10 text-primary-600 animate-spin" />
-      </div>
-
-      <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-        Processing Investment
-      </h2>
-      <p className="text-gray-600 mb-6">
-        Please wait while we process your investment
-      </p>
-
-      <div className="bg-gray-50 rounded-lg p-4">
-        <p className="text-sm text-gray-700">{processingMessage}</p>
-        <div className="mt-4 bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-primary-500 h-2 rounded-full animate-pulse"
-            style={{ width: '60%' }}
-          ></div>
+      <ScrollReveal animation="scale" delay={0}>
+        <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <Clock className="w-12 h-12 text-white animate-spin" />
         </div>
-      </div>
+      </ScrollReveal>
+
+      <ScrollReveal animation="fade" delay={100}>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
+          Processing Investment
+        </h2>
+        <p className="text-gray-600 mb-6 text-lg">
+          Please wait while we process your investment
+        </p>
+      </ScrollReveal>
+
+      <ScrollReveal animation="slide-up" delay={200}>
+        <div className="glass-modern p-6 rounded-xl">
+          <p className="text-sm text-gray-700 font-medium mb-4">
+            {processingMessage}
+          </p>
+          <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full animate-pulse"
+              style={{ width: '60%' }}
+            ></div>
+          </div>
+        </div>
+      </ScrollReveal>
     </div>
   );
 
   const renderSuccessStep = () => (
     <div className="max-w-md mx-auto text-center">
-      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <CheckCircle className="w-10 h-10 text-green-600" />
-      </div>
-
-      <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-        Investment Successful!
-      </h2>
-      <p className="text-gray-600 mb-6">
-        Your investment has been processed successfully
-      </p>
-
-      <Card className="p-6 text-left mb-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Investment Details</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Amount Invested</span>
-            <span className="font-medium">
-              {formatCurrency(parseFloat(investmentAmount))}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Transaction ID</span>
-            <span className="font-medium">TXN-{Date.now()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Date</span>
-            <span className="font-medium">
-              {new Date().toLocaleDateString('id-ID')}
-            </span>
-          </div>
+      <ScrollReveal animation="scale" delay={0}>
+        <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <CheckCircle className="w-12 h-12 text-white" />
         </div>
-      </Card>
+      </ScrollReveal>
 
-      <div className="flex flex-col gap-3">
-        <Link href="/dashboard">
-          <Button variant="primary" className="w-full">
-            View Dashboard
-          </Button>
-        </Link>
-        <Link href="/marketplace">
-          <Button variant="secondary" className="w-full">
-            Browse More Projects
-          </Button>
-        </Link>
-      </div>
+      <ScrollReveal animation="fade" delay={100}>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent mb-3">
+          Investment Successful!
+        </h2>
+        <p className="text-gray-600 mb-6 text-lg">
+          Your investment has been processed successfully
+        </p>
+      </ScrollReveal>
+
+      <ScrollReveal animation="slide-up" delay={200}>
+        <div className="glass-modern p-6 text-left mb-6">
+          <h3 className="font-bold text-gray-900 mb-4 text-lg">
+            Investment Details
+          </h3>
+          <StaggeredList
+            className="space-y-3"
+            itemDelay={100}
+            animation="slide-up"
+          >
+            <div className="flex justify-between p-3 glass-feature rounded-lg">
+              <span className="text-gray-600 font-medium">Amount Invested</span>
+              <span className="font-bold text-gray-900">
+                {formatCurrency(parseFloat(investmentAmount))}
+              </span>
+            </div>
+            <div className="flex justify-between p-3 glass-feature rounded-lg">
+              <span className="text-gray-600 font-medium">Transaction ID</span>
+              <span className="font-bold text-gray-900">TXN-{Date.now()}</span>
+            </div>
+            <div className="flex justify-between p-3 glass-feature rounded-lg">
+              <span className="text-gray-600 font-medium">Date</span>
+              <span className="font-bold text-gray-900">
+                {new Date().toLocaleDateString('id-ID')}
+              </span>
+            </div>
+          </StaggeredList>
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal animation="fade" delay={300}>
+        <StaggeredList
+          className="flex flex-col gap-3"
+          itemDelay={100}
+          animation="scale"
+        >
+          <Link href="/dashboard">
+            <AnimatedButton
+              variant="primary"
+              size="lg"
+              className="w-full"
+              ripple={true}
+            >
+              View Dashboard
+            </AnimatedButton>
+          </Link>
+          <Link href="/marketplace">
+            <AnimatedButton variant="secondary" size="lg" className="w-full">
+              Browse More Projects
+            </AnimatedButton>
+          </Link>
+        </StaggeredList>
+      </ScrollReveal>
     </div>
   );
 
   const renderFailedStep = () => (
     <div className="max-w-md mx-auto text-center">
-      <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <XCircle className="w-10 h-10 text-red-600" />
-      </div>
+      <ScrollReveal animation="scale" delay={0}>
+        <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <XCircle className="w-12 h-12 text-white" />
+        </div>
+      </ScrollReveal>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-        Investment Failed
-      </h2>
-      <p className="text-gray-600 mb-6">
-        There was an issue processing your investment
-      </p>
+      <ScrollReveal animation="fade" delay={100}>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent mb-3">
+          Investment Failed
+        </h2>
+        <p className="text-gray-600 mb-6 text-lg">
+          There was an issue processing your investment
+        </p>
+      </ScrollReveal>
 
-      <Card className="p-6 text-left mb-6">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-gray-900 mb-1">
-              Payment could not be processed
-            </h3>
-            <p className="text-sm text-gray-600">
-              This could be due to insufficient funds, network issues, or
-              payment method restrictions.
-            </p>
+      <ScrollReveal animation="slide-up" delay={200}>
+        <div className="glass-modern p-6 text-left mb-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
+              <AlertTriangle className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2 text-lg">
+                Payment could not be processed
+              </h3>
+              <p className="text-sm text-gray-600">
+                This could be due to insufficient funds, network issues, or
+                payment method restrictions.
+              </p>
+            </div>
           </div>
         </div>
-      </Card>
+      </ScrollReveal>
 
-      <div className="flex flex-col gap-3">
-        <Button
-          onClick={() => setCurrentStep('payment')}
-          variant="primary"
-          className="w-full"
+      <ScrollReveal animation="fade" delay={300}>
+        <StaggeredList
+          className="flex flex-col gap-3"
+          itemDelay={100}
+          animation="scale"
         >
-          Try Again
-        </Button>
-        <Link href="/marketplace">
-          <Button variant="secondary" className="w-full">
-            Back to Marketplace
-          </Button>
-        </Link>
-      </div>
+          <AnimatedButton
+            onClick={() => setCurrentStep('payment')}
+            variant="primary"
+            size="lg"
+            className="w-full"
+            ripple={true}
+          >
+            Try Again
+          </AnimatedButton>
+          <Link href="/marketplace">
+            <AnimatedButton variant="secondary" size="lg" className="w-full">
+              Back to Marketplace
+            </AnimatedButton>
+          </Link>
+        </StaggeredList>
+      </ScrollReveal>
     </div>
   );
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading investment details...</p>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center relative overflow-hidden">
+        {/* Fluid background shapes */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+          <div className="absolute bottom-20 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+        </div>
+
+        <div className="text-center relative z-10">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+          </div>
+          <p className="text-gray-600 font-medium">
+            Loading investment details...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => router.push(`/projects/${project.id}`)}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Project
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-white" />
+    <PageTransition type="fade" duration={300} transitionKey={currentStep}>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 relative overflow-hidden">
+        {/* Fluid background shapes */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+          <div className="absolute top-1/4 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+          <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-25 animate-[float_5s_ease-in-out_infinite] blur-sm"></div>
+          <div className="absolute bottom-10 right-10 w-36 h-36 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-20 animate-[float_6s_ease-in-out_infinite_reverse] blur-sm"></div>
+        </div>
+
+        {/* Header */}
+        <ScrollReveal animation="slide-down" delay={0}>
+          <div className="glass-modern border-b border-white/20 relative z-10">
+            <div className="max-w-4xl mx-auto px-4 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <AnimatedButton
+                    onClick={() => router.push(`/projects/${project.id}`)}
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Project
+                  </AnimatedButton>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Layers className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      Investment
+                    </span>
+                  </div>
                 </div>
-                <span className="text-lg font-semibold text-gray-900">
-                  Investment
-                </span>
+                <div className="text-sm text-gray-600 font-medium">
+                  {project.name}
+                </div>
               </div>
             </div>
-            <div className="text-sm text-gray-500">{project.name}</div>
           </div>
-        </div>
-      </div>
+        </ScrollReveal>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          {renderStepIndicator()}
+        {/* Main Content */}
+        <ScrollReveal animation="slide-up" delay={100}>
+          <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
+            <div className="glass-modern p-8 shadow-xl">
+              {renderStepIndicator()}
 
-          {currentStep === 'identity' && renderIdentityStep()}
-          {currentStep === 'amount' && renderAmountStep()}
-          {currentStep === 'payment' && renderPaymentStep()}
-          {currentStep === 'confirmation' && renderConfirmationStep()}
-          {currentStep === 'processing' && renderProcessingStep()}
-          {currentStep === 'success' && renderSuccessStep()}
-          {currentStep === 'failed' && renderFailedStep()}
-        </div>
+              {currentStep === 'identity' && renderIdentityStep()}
+              {currentStep === 'amount' && renderAmountStep()}
+              {currentStep === 'payment' && renderPaymentStep()}
+              {currentStep === 'confirmation' && renderConfirmationStep()}
+              {currentStep === 'processing' && renderProcessingStep()}
+              {currentStep === 'success' && renderSuccessStep()}
+              {currentStep === 'failed' && renderFailedStep()}
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
-    </div>
+    </PageTransition>
   );
 }

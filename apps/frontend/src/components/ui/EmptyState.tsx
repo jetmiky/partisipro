@@ -25,7 +25,7 @@ const EmptyState = ({
 }: EmptyStateProps) => {
   const defaultIllustration = (
     <svg
-      className="w-48 h-48 text-gray-300"
+      className="w-48 h-48 text-primary-300"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -41,23 +41,23 @@ const EmptyState = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center py-12 px-4 text-center ${className}`}
+      className={`flex flex-col items-center justify-center py-12 px-4 text-center glass-performance rounded-xl ${className}`}
     >
       {/* Icon/Illustration */}
       <div className="mb-6">{illustration || icon || defaultIllustration}</div>
 
       {/* Title */}
-      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-primary-900 mb-2">{title}</h3>
 
       {/* Description */}
-      <p className="text-gray-500 max-w-md mb-6">{description}</p>
+      <p className="text-primary-600 max-w-md mb-6">{description}</p>
 
       {/* Action Button */}
       {action && (
         <Button
           onClick={action.onClick}
           variant={action.variant || 'primary'}
-          className="min-w-[120px]"
+          className="min-w-[120px] shadow-lg"
         >
           {action.label}
         </Button>

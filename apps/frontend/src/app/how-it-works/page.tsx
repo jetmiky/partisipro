@@ -255,12 +255,20 @@ export default function HowItWorksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
+
       <Header />
 
-      <main className="pt-24">
+      <main className="pt-24 relative z-10">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-16 md:py-24">
+        <section className="gradient-brand-light py-16 md:py-24 relative">
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
@@ -271,15 +279,15 @@ export default function HowItWorksPage() {
                 blockchain yang aman dan transparan
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <CheckCircle className="w-5 h-5 text-success-500" />
                   <span className="text-sm font-medium">Proses Sederhana</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Shield className="w-5 h-5 text-primary-500" />
                   <span className="text-sm font-medium">Aman & Transparan</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Clock className="w-5 h-5 text-secondary-500" />
                   <span className="text-sm font-medium">
                     Mulai dalam 5 Menit

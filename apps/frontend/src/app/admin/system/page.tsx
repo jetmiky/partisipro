@@ -27,13 +27,11 @@ import {
   Cpu,
   MemoryStick,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  StatsCard,
-  DashboardLayout,
-  DataTable,
-} from '@/components/ui';
+import { Button, StatsCard, DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { Column } from '@/components/ui/DataTable';
 import type { SystemHealth, SystemConfig, SystemLog, UserRole } from '@/types';
 
@@ -321,6 +319,9 @@ export default function AdminSystemPage() {
     // TODO: Fetch latest system data
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+    toast.success('System data refreshed', {
+      message: 'All system metrics updated successfully.',
+    });
   };
 
   const handleEditConfig = (
@@ -336,6 +337,9 @@ export default function AdminSystemPage() {
     // console.log('Updating config:', configId, 'to value:', configValues[configId]);
     _configId;
     setEditingConfig(null);
+    toast.success('Configuration updated', {
+      message: 'System configuration saved successfully.',
+    });
   };
 
   const handleCancelEdit = (configId: string) => {
@@ -349,11 +353,19 @@ export default function AdminSystemPage() {
   const handleToggleMaintenanceMode = () => {
     // TODO: Toggle maintenance mode
     // console.log('Toggle maintenance mode');
+    toast.warning('Maintenance mode toggled', {
+      message: 'System maintenance mode has been activated.',
+      persistent: true,
+    });
   };
 
   const handleRestartSystem = () => {
     // TODO: Restart system components
     // console.log('Restart system');
+    toast.info('System restart initiated', {
+      message: 'All services will be restarted shortly...',
+      persistent: true,
+    });
   };
 
   const healthColumns: Column<SystemHealth>[] = [
@@ -536,25 +548,31 @@ export default function AdminSystemPage() {
         <div className="flex gap-2">
           {editingConfig === row.id ? (
             <>
-              <Button size="sm" onClick={() => handleSaveConfig(row.id)}>
+              <AnimatedButton
+                size="sm"
+                onClick={() => handleSaveConfig(row.id)}
+                ripple
+              >
                 <Save className="h-4 w-4" />
-              </Button>
-              <Button
+              </AnimatedButton>
+              <AnimatedButton
                 variant="outline"
                 size="sm"
                 onClick={() => handleCancelEdit(row.id)}
+                ripple
               >
                 <X className="h-4 w-4" />
-              </Button>
+              </AnimatedButton>
             </>
           ) : (
-            <Button
+            <AnimatedButton
               variant="outline"
               size="sm"
               onClick={() => handleEditConfig(row.id, row.currentValue)}
+              ripple
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       ),
@@ -660,9 +678,14 @@ export default function AdminSystemPage() {
       key: 'actions',
       label: 'Actions',
       render: (_, row) => (
-        <Button variant="outline" size="sm" disabled={row.isSystemRole}>
+        <AnimatedButton
+          variant="outline"
+          size="sm"
+          disabled={row.isSystemRole}
+          ripple
+        >
           <Edit className="h-4 w-4" />
-        </Button>
+        </AnimatedButton>
       ),
     },
   ];
@@ -680,275 +703,364 @@ export default function AdminSystemPage() {
 
   return (
     <DashboardLayout userType="admin">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              System Configuration
-            </h1>
-            <p className="text-gray-600">
-              Platform-wide settings and system management
-            </p>
+      <PageTransition type="fade" duration={300}>
+        <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 relative overflow-hidden">
+          {/* Fluid background shapes */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+            <div className="absolute top-1/4 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+            <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-25 animate-[float_5s_ease-in-out_infinite] blur-sm"></div>
+            <div className="absolute bottom-10 right-10 w-36 h-36 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-20 animate-[float_6s_ease-in-out_infinite_reverse] blur-sm"></div>
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
+
+          <div className="space-y-6 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      System Configuration
+                    </h1>
+                    <p className="text-gray-600 text-lg">
+                      Platform-wide settings and system management
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={handleRefresh}
+                      loading={isLoading}
+                      ripple
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Refresh
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="accent"
+                      onClick={handleToggleMaintenanceMode}
+                      ripple
+                    >
+                      <Pause className="h-4 w-4" />
+                      Maintenance Mode
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={handleRestartSystem}
+                      ripple
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Restart Services
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* System Stats */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={100}
             >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+              <StatsCard
+                title="Healthy Components"
+                value={healthyComponents.toString()}
+                icon={<CheckCircle className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Operating normally"
               />
-              Refresh
-            </Button>
-            <Button variant="outline" onClick={handleToggleMaintenanceMode}>
-              <Pause className="h-4 w-4 mr-2" />
-              Maintenance Mode
-            </Button>
-            <Button variant="outline" onClick={handleRestartSystem}>
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Restart Services
-            </Button>
+              <StatsCard
+                title="Warning Components"
+                value={warningComponents.toString()}
+                icon={<AlertTriangle className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Need attention"
+              />
+              <StatsCard
+                title="Critical Issues"
+                value={criticalComponents.toString()}
+                icon={<AlertTriangle className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Require immediate action"
+              />
+              <StatsCard
+                title="User Roles"
+                value={totalRoles.toString()}
+                icon={<Users className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Active role configurations"
+              />
+            </StaggeredList>
+
+            {/* Navigation Tabs */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-modern p-4 rounded-xl">
+                <nav className="flex space-x-8">
+                  {[
+                    {
+                      id: 'health',
+                      label: 'System Health',
+                      icon: <Activity className="h-4 w-4" />,
+                    },
+                    {
+                      id: 'config',
+                      label: 'Configuration',
+                      icon: <Settings className="h-4 w-4" />,
+                    },
+                    {
+                      id: 'logs',
+                      label: 'System Logs',
+                      icon: <FileText className="h-4 w-4" />,
+                    },
+                    {
+                      id: 'roles',
+                      label: 'User Roles',
+                      icon: <Users className="h-4 w-4" />,
+                    },
+                  ].map(tab => (
+                    <AnimatedButton
+                      key={tab.id}
+                      variant={activeTab === tab.id ? 'primary' : 'ghost'}
+                      onClick={() =>
+                        setActiveTab(
+                          tab.id as 'health' | 'config' | 'logs' | 'roles'
+                        )
+                      }
+                      className="flex items-center gap-2"
+                      ripple
+                    >
+                      {tab.icon}
+                      {tab.label}
+                    </AnimatedButton>
+                  ))}
+                </nav>
+              </div>
+            </ScrollReveal>
+
+            {/* Tab Content */}
+            {activeTab === 'health' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-modern p-6 rounded-xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                        System Health
+                      </h2>
+                      <p className="text-gray-600">
+                        Monitor system components and performance
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() =>
+                        toast.info('Exporting health report', {
+                          message: 'Generating system health report...',
+                        })
+                      }
+                      ripple
+                    >
+                      <Download className="h-4 w-4" />
+                      Export Report
+                    </AnimatedButton>
+                  </div>
+                  <DataTable columns={healthColumns} data={mockSystemHealth} />
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'config' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-modern p-6 rounded-xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                        System Configuration
+                      </h2>
+                      <p className="text-gray-600">
+                        Manage platform settings and parameters
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() =>
+                        toast.info('Exporting configuration', {
+                          message: 'Downloading system configuration...',
+                        })
+                      }
+                      ripple
+                    >
+                      <Download className="h-4 w-4" />
+                      Export Config
+                    </AnimatedButton>
+                  </div>
+                  <DataTable columns={configColumns} data={mockSystemConfigs} />
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'logs' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-modern p-6 rounded-xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                        System Logs
+                      </h2>
+                      <p className="text-gray-600">
+                        View system events and error logs
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <AnimatedButton
+                        variant="secondary"
+                        onClick={() =>
+                          toast.info('Refreshing logs', {
+                            message: 'Loading latest system logs...',
+                          })
+                        }
+                        ripple
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                        Refresh
+                      </AnimatedButton>
+                      <AnimatedButton
+                        variant="secondary"
+                        onClick={() =>
+                          toast.info('Exporting logs', {
+                            message: 'Preparing log export...',
+                          })
+                        }
+                        ripple
+                      >
+                        <Download className="h-4 w-4" />
+                        Export Logs
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                  <DataTable columns={logColumns} data={mockSystemLogs} />
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'roles' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-modern p-6 rounded-xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                        User Roles
+                      </h2>
+                      <p className="text-gray-600">
+                        Manage user roles and permissions
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="primary"
+                      onClick={() =>
+                        toast.info('Creating new role', {
+                          message: 'Opening role creation form...',
+                        })
+                      }
+                      ripple
+                    >
+                      <Users className="h-4 w-4" />
+                      Create Role
+                    </AnimatedButton>
+                  </div>
+                  <DataTable<UserRole>
+                    columns={roleColumns}
+                    data={mockUserRoles}
+                  />
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* System Resources */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+            >
+              <StatsCard
+                title="CPU Usage"
+                value="45%"
+                icon={<Cpu className="w-4 h-4" />}
+                change={-5.2}
+                changeType="decrease"
+                description="Average across servers"
+              />
+              <StatsCard
+                title="Memory Usage"
+                value="62%"
+                icon={<MemoryStick className="w-4 h-4" />}
+                change={8.1}
+                changeType="increase"
+                description="System memory utilization"
+              />
+              <StatsCard
+                title="Disk Usage"
+                value="34%"
+                icon={<HardDrive className="w-4 h-4" />}
+                change={2.3}
+                changeType="increase"
+                description="Storage utilization"
+              />
+              <StatsCard
+                title="Network Status"
+                value="Optimal"
+                icon={<Wifi className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Network connectivity"
+              />
+            </StaggeredList>
+
+            {/* TODO: Mock Implementation Notes */}
+            <ScrollReveal animation="fade" delay={400}>
+              <div className="glass-modern p-6 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                    <AlertTriangle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-900 mb-2">
+                      TODO: Mock Implementation Notes
+                    </h3>
+                    <ul className="text-sm text-primary-800 space-y-1">
+                      <li>
+                        • Mock system health monitoring with real-time metrics
+                        collection
+                      </li>
+                      <li>
+                        • Mock configuration management with blockchain
+                        parameter updates
+                      </li>
+                      <li>
+                        • Mock centralized logging system with log aggregation
+                        and analysis
+                      </li>
+                      <li>
+                        • Mock user role management with permission-based access
+                        control
+                      </li>
+                      <li>
+                        • Mock maintenance mode with graceful service shutdown
+                      </li>
+                      <li>
+                        • Mock system restart capabilities with service
+                        orchestration
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
-
-        {/* System Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Healthy Components"
-            value={healthyComponents.toString()}
-            icon={<CheckCircle className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Operating normally"
-          />
-          <StatsCard
-            title="Warning Components"
-            value={warningComponents.toString()}
-            icon={<AlertTriangle className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Need attention"
-          />
-          <StatsCard
-            title="Critical Issues"
-            value={criticalComponents.toString()}
-            icon={<AlertTriangle className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Require immediate action"
-          />
-          <StatsCard
-            title="User Roles"
-            value={totalRoles.toString()}
-            icon={<Users className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Active role configurations"
-          />
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              {
-                id: 'health',
-                label: 'System Health',
-                icon: <Activity className="h-4 w-4" />,
-              },
-              {
-                id: 'config',
-                label: 'Configuration',
-                icon: <Settings className="h-4 w-4" />,
-              },
-              {
-                id: 'logs',
-                label: 'System Logs',
-                icon: <FileText className="h-4 w-4" />,
-              },
-              {
-                id: 'roles',
-                label: 'User Roles',
-                icon: <Users className="h-4 w-4" />,
-              },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() =>
-                  setActiveTab(tab.id as 'health' | 'config' | 'logs' | 'roles')
-                }
-                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'health' && (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  System Health
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Monitor system components and performance
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export Report
-              </Button>
-            </div>
-            <DataTable columns={healthColumns} data={mockSystemHealth} />
-          </Card>
-        )}
-
-        {activeTab === 'config' && (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  System Configuration
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Manage platform settings and parameters
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export Config
-              </Button>
-            </div>
-            <DataTable columns={configColumns} data={mockSystemConfigs} />
-          </Card>
-        )}
-
-        {activeTab === 'logs' && (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  System Logs
-                </h2>
-                <p className="text-sm text-gray-600">
-                  View system events and error logs
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Logs
-                </Button>
-              </div>
-            </div>
-            <DataTable columns={logColumns} data={mockSystemLogs} />
-          </Card>
-        )}
-
-        {activeTab === 'roles' && (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  User Roles
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Manage user roles and permissions
-                </p>
-              </div>
-              <Button>
-                <Users className="h-4 w-4 mr-2" />
-                Create Role
-              </Button>
-            </div>
-            <DataTable<UserRole> columns={roleColumns} data={mockUserRoles} />
-          </Card>
-        )}
-
-        {/* System Resources */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="CPU Usage"
-            value="45%"
-            icon={<Cpu className="w-4 h-4" />}
-            change={-5.2}
-            changeType="decrease"
-            description="Average across servers"
-          />
-          <StatsCard
-            title="Memory Usage"
-            value="62%"
-            icon={<MemoryStick className="w-4 h-4" />}
-            change={8.1}
-            changeType="increase"
-            description="System memory utilization"
-          />
-          <StatsCard
-            title="Disk Usage"
-            value="34%"
-            icon={<HardDrive className="w-4 h-4" />}
-            change={2.3}
-            changeType="increase"
-            description="Storage utilization"
-          />
-          <StatsCard
-            title="Network Status"
-            value="Optimal"
-            icon={<Wifi className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Network connectivity"
-          />
-        </div>
-
-        {/* TODO: Mock Implementation Notes */}
-        <Card className="p-6 bg-primary-50 border-primary-200">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-primary-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary-900 mb-2">
-                TODO: Mock Implementation Notes
-              </h3>
-              <ul className="text-sm text-primary-800 space-y-1">
-                <li>
-                  • Mock system health monitoring with real-time metrics
-                  collection
-                </li>
-                <li>
-                  • Mock configuration management with blockchain parameter
-                  updates
-                </li>
-                <li>
-                  • Mock centralized logging system with log aggregation and
-                  analysis
-                </li>
-                <li>
-                  • Mock user role management with permission-based access
-                  control
-                </li>
-                <li>• Mock maintenance mode with graceful service shutdown</li>
-                <li>
-                  • Mock system restart capabilities with service orchestration
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Card>
-      </div>
+      </PageTransition>
     </DashboardLayout>
   );
 }

@@ -20,13 +20,11 @@ import {
   BarChart3,
   ArrowLeft,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  StatsCard,
-  DashboardLayout,
-  DataTable,
-} from '@/components/ui';
+import { StatsCard, DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 import { Column } from '@/components/ui/DataTable';
 import { GovernanceProposal } from '@/services';
 
@@ -267,11 +265,21 @@ export default function SPVGovernancePage() {
     // TODO: Fetch latest governance data from blockchain
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+
+    toast.success('Governance Data Updated!', {
+      message: 'Latest proposals and voting data have been refreshed.',
+      duration: 4000,
+    });
   };
 
   const handleCreateProposal = () => {
     // TODO: Navigate to proposal creation page
     // console.log('Create new proposal for project:', projectId);
+
+    toast.info('Proposal Creation', {
+      message: 'Redirecting to proposal creation wizard...',
+      duration: 3000,
+    });
   };
 
   const handleViewProposal = (_proposalId: string) => {
@@ -284,6 +292,11 @@ export default function SPVGovernancePage() {
     // TODO: Execute passed proposal on blockchain
     // console.log('Execute proposal:', proposalId);
     _proposalId;
+
+    toast.success('Proposal Executed!', {
+      message: 'The proposal has been executed successfully on the blockchain.',
+      duration: 5000,
+    });
   };
 
   const proposalColumns: Column<GovernanceProposal>[] = [
@@ -375,17 +388,22 @@ export default function SPVGovernancePage() {
       label: 'Actions',
       render: (_, row) => (
         <div className="flex gap-2">
-          <Button
+          <AnimatedButton
             variant="outline"
             size="sm"
             onClick={() => handleViewProposal(row.id)}
+            ripple
           >
             <Eye className="h-4 w-4" />
-          </Button>
+          </AnimatedButton>
           {row.status === 'passed' && !row.execution?.executedAt && (
-            <Button size="sm" onClick={() => handleExecuteProposal(row.id)}>
+            <AnimatedButton
+              size="sm"
+              onClick={() => handleExecuteProposal(row.id)}
+              ripple
+            >
               Execute
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       ),
@@ -403,188 +421,256 @@ export default function SPVGovernancePage() {
     (totalVotes / mockProposals.length / mockProject.totalTokens) * 100;
 
   return (
-    <DashboardLayout userType="spv">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link href="/spv/dashboard">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Governance Management
-              </h1>
-              <p className="text-gray-600">{mockProject.name}</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
-              />
-              Refresh
-            </Button>
-            <Button onClick={handleCreateProposal}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Proposal
-            </Button>
-          </div>
-        </div>
-
-        {/* Project Governance Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Token Holders"
-            value={mockProject.activeTokenHolders.toLocaleString()}
-            icon={<Users className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Eligible voters"
-          />
-          <StatsCard
-            title="Active Proposals"
-            value={activeProposals.toString()}
-            icon={<Vote className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Currently voting"
-          />
-          <StatsCard
-            title="Passed Proposals"
-            value={passedProposals.toString()}
-            icon={<CheckCircle className="w-4 h-4" />}
-            change={16.7}
-            changeType="increase"
-            description="Successfully executed"
-          />
-          <StatsCard
-            title="Avg. Participation"
-            value={`${averageParticipation.toFixed(1)}%`}
-            icon={<BarChart3 className="w-4 h-4" />}
-            change={-2.3}
-            changeType="decrease"
-            description="Voter turnout rate"
-          />
-        </div>
-
-        {/* Governance Proposals Table */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Governance Proposals
-              </h2>
-              <p className="text-sm text-gray-600">
-                Create and manage governance proposals for your project
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-
-          <DataTable<GovernanceProposal & Record<string, unknown>>
-            columns={proposalColumns}
-            data={
-              mockProposals as (GovernanceProposal & Record<string, unknown>)[]
-            }
-          />
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Plus className="h-8 w-8 text-primary-500 bg-primary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Create Proposal
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Submit a new governance proposal for voting
-                </p>
-              </div>
-            </div>
-            <Button className="w-full" onClick={handleCreateProposal}>
-              Get Started
-            </Button>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <BarChart3 className="h-8 w-8 text-secondary-500 bg-secondary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Voting Analytics
-                </h3>
-                <p className="text-sm text-gray-600">
-                  View detailed voting patterns and participation
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              View Analytics
-            </Button>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Calendar className="h-8 w-8 text-support-500 bg-support-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Proposal Calendar
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Track voting deadlines and execution dates
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              View Calendar
-            </Button>
-          </Card>
-        </div>
-
-        {/* TODO: Mock Implementation Notes */}
-        <Card className="p-6 bg-primary-50 border-primary-200">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-primary-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary-900 mb-2">
-                TODO: Mock Implementation Notes
-              </h3>
-              <ul className="text-sm text-primary-800 space-y-1">
-                <li>
-                  • Mock governance contract integration for proposal creation
-                </li>
-                <li>
-                  • Mock voting mechanism with token-weighted voting power
-                </li>
-                <li>• Mock proposal execution via smart contract calls</li>
-                <li>• Mock real-time voting updates and quorum tracking</li>
-                <li>
-                  • Mock proposal creation wizard with parameter validation
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Card>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
       </div>
-    </DashboardLayout>
+
+      <DashboardLayout userType="spv">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-6 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="glass-feature p-6 rounded-xl hover-lift transition-all duration-300">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <Link href="/spv/dashboard">
+                      <AnimatedButton
+                        className="flex items-center gap-2"
+                        variant="secondary"
+                        ripple
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Dashboard
+                      </AnimatedButton>
+                    </Link>
+                    <div>
+                      <h1 className="text-3xl font-bold text-gradient">
+                        Governance Management
+                      </h1>
+                      <p className="text-primary-600 text-lg">
+                        {mockProject.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <AnimatedButton
+                      className="flex items-center gap-2"
+                      variant="secondary"
+                      onClick={handleRefresh}
+                      disabled={isLoading}
+                      loading={isLoading}
+                      ripple
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+                      />
+                      Refresh
+                    </AnimatedButton>
+                    <AnimatedButton
+                      className="flex items-center gap-2"
+                      onClick={handleCreateProposal}
+                      ripple
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Proposal
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Project Governance Stats */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <StatsCard
+                title="Total Token Holders"
+                value={mockProject.activeTokenHolders.toLocaleString()}
+                icon={<Users className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Eligible voters"
+              />
+              <StatsCard
+                title="Active Proposals"
+                value={activeProposals.toString()}
+                icon={<Vote className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Currently voting"
+              />
+              <StatsCard
+                title="Passed Proposals"
+                value={passedProposals.toString()}
+                icon={<CheckCircle className="w-4 h-4" />}
+                change={16.7}
+                changeType="increase"
+                description="Successfully executed"
+              />
+              <StatsCard
+                title="Avg. Participation"
+                value={`${averageParticipation.toFixed(1)}%`}
+                icon={<BarChart3 className="w-4 h-4" />}
+                change={-2.3}
+                changeType="decrease"
+                description="Voter turnout rate"
+              />
+            </StaggeredList>
+
+            {/* Governance Proposals Table */}
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div className="glass-feature p-6 hover-lift transition-all duration-300">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gradient">
+                      Governance Proposals
+                    </h2>
+                    <p className="text-sm text-primary-600">
+                      Create and manage governance proposals for your project
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <AnimatedButton
+                      className="flex items-center gap-2"
+                      variant="secondary"
+                      ripple
+                    >
+                      <Filter className="h-4 w-4" />
+                      Filter
+                    </AnimatedButton>
+                    <AnimatedButton
+                      className="flex items-center gap-2"
+                      variant="secondary"
+                      ripple
+                    >
+                      <Download className="h-4 w-4" />
+                      Export
+                    </AnimatedButton>
+                  </div>
+                </div>
+
+                <DataTable<GovernanceProposal & Record<string, unknown>>
+                  columns={proposalColumns}
+                  data={
+                    mockProposals as (GovernanceProposal &
+                      Record<string, unknown>)[]
+                  }
+                />
+              </div>
+            </ScrollReveal>
+
+            {/* Quick Actions */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={100}
+              animation="slide-up"
+            >
+              <div className="glass-feature p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Plus className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gradient">
+                      Create Proposal
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Submit a new governance proposal for voting
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  className="w-full"
+                  onClick={handleCreateProposal}
+                  ripple
+                >
+                  Get Started
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-feature p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gradient">
+                      Voting Analytics
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      View detailed voting patterns and participation
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton className="w-full" variant="secondary" ripple>
+                  View Analytics
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-feature p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Calendar className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gradient">
+                      Proposal Calendar
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Track voting deadlines and execution dates
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton className="w-full" variant="secondary" ripple>
+                  View Calendar
+                </AnimatedButton>
+              </div>
+            </StaggeredList>
+
+            {/* TODO: Mock Implementation Notes */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-hero p-6 bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 hover-lift transition-all duration-300">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                    <AlertTriangle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-900 mb-2">
+                      TODO: Mock Implementation Notes
+                    </h3>
+                    <ul className="text-sm text-primary-800 space-y-1">
+                      <li>
+                        • Mock governance contract integration for proposal
+                        creation
+                      </li>
+                      <li>
+                        • Mock voting mechanism with token-weighted voting power
+                      </li>
+                      <li>
+                        • Mock proposal execution via smart contract calls
+                      </li>
+                      <li>
+                        • Mock real-time voting updates and quorum tracking
+                      </li>
+                      <li>
+                        • Mock proposal creation wizard with parameter
+                        validation
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

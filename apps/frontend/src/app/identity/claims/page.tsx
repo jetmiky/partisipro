@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Card, DashboardLayout, DataTable } from '@/components/ui';
+import { Card, DashboardLayout, DataTable } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
 import {
   CheckCircle,
@@ -12,6 +12,10 @@ import {
   Eye,
   RefreshCw,
 } from 'lucide-react';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 interface ClaimDetail {
   id: string;
@@ -147,9 +151,11 @@ export default function ClaimsPage() {
     // TODO: Implement claim renewal workflow
     setTimeout(() => {
       setIsLoading(false);
-      alert(
-        'Claim renewal process initiated. You will be contacted by the issuer.'
-      );
+      toast.success('Renewal Initiated', {
+        message:
+          'Claim renewal process initiated. You will be contacted by the issuer.',
+        duration: 4000,
+      });
     }, 1000);
   };
 
@@ -237,26 +243,29 @@ export default function ClaimsPage() {
       key: 'actions',
       render: (_, row) => (
         <div className="flex items-center gap-2">
-          <Button
+          <AnimatedButton
             size="sm"
             variant="outline"
             onClick={() => handleViewProof(row.actions)}
             className="flex items-center gap-1"
+            ripple
           >
             <Eye className="w-3 h-3" />
             View
-          </Button>
+          </AnimatedButton>
           {row.renewalRequired && (
-            <Button
+            <AnimatedButton
               size="sm"
               variant="outline"
               onClick={() => handleRenewal(row.id)}
               disabled={isLoading}
+              loading={isLoading}
               className="flex items-center gap-1"
+              ripple
             >
               <RefreshCw className="w-3 h-3" />
               Renew
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       ),
@@ -264,245 +273,283 @@ export default function ClaimsPage() {
   ];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Identity Claims
-            </h1>
-            <p className="text-gray-600">
-              Manage your identity claims and certifications
-            </p>
-          </div>
-          <Button
-            onClick={() => (window.location.href = '/identity')}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Shield className="w-4 h-4" />
-            Back to Identity
-          </Button>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Toast Provider for notifications */}
+      <ToastProvider />
+
+      {/* Page Transition Wrapper */}
+      <PageTransition
+        type="fade"
+        duration={300}
+        transitionKey="identity-claims"
+      >
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
         </div>
 
-        {/* Claims Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Active Claims
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {claims.filter(c => c.status === 'active').length}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-50 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Expiring Soon
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {
-                    claims.filter(c => getDaysUntilExpiry(c.expiresAt) <= 30)
-                      .length
-                  }
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <RefreshCw className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Renewal Required
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {claims.filter(c => c.renewalRequired).length}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Shield className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  Verified Claims
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {claims.filter(c => c.verified).length}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Claims Table */}
-        <Card className="p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">All Claims</h2>
-            <p className="text-gray-600">
-              Complete list of your identity claims and their status
-            </p>
-          </div>
-          <DataTable data={claimsTableData} columns={columns} />
-        </Card>
-
-        {/* Claim Detail Modal */}
-        {selectedClaim && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Claim Details
-                </h2>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedClaim(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ×
-                </Button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Claim Type
-                    </label>
-                    <p className="text-gray-900">
-                      {selectedClaim.type.replace('_', ' ')}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status
-                    </label>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(selectedClaim.status)}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedClaim.status)}`}
-                      >
-                        {selectedClaim.status.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
+        <DashboardLayout>
+          <div className="space-y-6 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0}>
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <p className="text-gray-900">{selectedClaim.description}</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Issuer
-                    </label>
-                    <p className="text-gray-900">{selectedClaim.issuer}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Issuer Address
-                    </label>
-                    <p className="text-gray-900 font-mono text-sm">
-                      {selectedClaim.issuerAddress}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Issued At
-                    </label>
-                    <p className="text-gray-900">
-                      {formatDate(selectedClaim.issuedAt)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Expires At
-                    </label>
-                    <p className="text-gray-900">
-                      {formatDate(selectedClaim.expiresAt)}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Proof Hash
-                  </label>
-                  <p className="text-gray-900 font-mono text-sm break-all bg-gray-50 p-3 rounded-lg">
-                    {selectedClaim.proofHash}
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    Identity Claims
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Manage your identity claims and certifications
                   </p>
                 </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-gray-700">Verified</span>
-                  </div>
-                  {selectedClaim.renewalRequired && (
-                    <div className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-gray-700">
-                        Renewal Required
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedClaim.renewalRequired && (
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                      <span className="font-medium text-yellow-800">
-                        Renewal Required
-                      </span>
-                    </div>
-                    <p className="text-sm text-yellow-700 mb-3">
-                      This claim requires renewal before it expires. Contact the
-                      issuer to begin the renewal process.
-                    </p>
-                    <Button
-                      onClick={() => handleRenewal(selectedClaim.id)}
-                      disabled={isLoading}
-                      className="flex items-center gap-2"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      {isLoading ? 'Processing...' : 'Start Renewal'}
-                    </Button>
-                  </div>
-                )}
+                <AnimatedButton
+                  onClick={() => (window.location.href = '/identity')}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  ripple
+                >
+                  <Shield className="w-4 h-4" />
+                  Back to Identity
+                </AnimatedButton>
               </div>
-            </div>
+            </ScrollReveal>
+
+            {/* Claims Statistics */}
+            <ScrollReveal animation="slide-up" delay={100}>
+              <StaggeredList
+                className="grid grid-cols-1 md:grid-cols-4 gap-4"
+                itemDelay={100}
+              >
+                <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary-600">
+                        Active Claims
+                      </p>
+                      <p className="text-2xl font-bold text-gradient">
+                        {claims.filter(c => c.status === 'active').length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary-600">
+                        Expiring Soon
+                      </p>
+                      <p className="text-2xl font-bold text-gradient">
+                        {
+                          claims.filter(
+                            c => getDaysUntilExpiry(c.expiresAt) <= 30
+                          ).length
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center">
+                      <RefreshCw className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary-600">
+                        Renewal Required
+                      </p>
+                      <p className="text-2xl font-bold text-gradient">
+                        {claims.filter(c => c.renewalRequired).length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary-600">
+                        Verified Claims
+                      </p>
+                      <p className="text-2xl font-bold text-gradient">
+                        {claims.filter(c => c.verified).length}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </StaggeredList>
+            </ScrollReveal>
+
+            {/* Claims Table */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <Card className="glass-feature p-8 hover-lift transition-all duration-300">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-semibold text-gradient mb-2">
+                    All Claims
+                  </h2>
+                  <p className="text-primary-600">
+                    Complete list of your identity claims and their status
+                  </p>
+                </div>
+                <DataTable data={claimsTableData} columns={columns} />
+              </Card>
+            </ScrollReveal>
+
+            {/* Claim Detail Modal */}
+            {selectedClaim && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="glass-feature rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-semibold text-gradient">
+                      Claim Details
+                    </h2>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setSelectedClaim(null)}
+                      className="text-primary-500 hover:text-primary-700"
+                      ripple
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Claim Type
+                        </label>
+                        <p className="text-gray-900">
+                          {selectedClaim.type.replace('_', ' ')}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Status
+                        </label>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(selectedClaim.status)}
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedClaim.status)}`}
+                          >
+                            {selectedClaim.status.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <p className="text-gray-900">
+                        {selectedClaim.description}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Issuer
+                        </label>
+                        <p className="text-gray-900">{selectedClaim.issuer}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Issuer Address
+                        </label>
+                        <p className="text-gray-900 font-mono text-sm">
+                          {selectedClaim.issuerAddress}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Issued At
+                        </label>
+                        <p className="text-gray-900">
+                          {formatDate(selectedClaim.issuedAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Expires At
+                        </label>
+                        <p className="text-gray-900">
+                          {formatDate(selectedClaim.expiresAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Proof Hash
+                      </label>
+                      <p className="text-gray-900 font-mono text-sm break-all bg-gray-50 p-3 rounded-lg">
+                        {selectedClaim.proofHash}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-700">Verified</span>
+                      </div>
+                      {selectedClaim.renewalRequired && (
+                        <div className="flex items-center gap-2">
+                          <RefreshCw className="w-4 h-4 text-yellow-500" />
+                          <span className="text-sm text-gray-700">
+                            Renewal Required
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedClaim.renewalRequired && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                          <span className="font-medium text-yellow-800">
+                            Renewal Required
+                          </span>
+                        </div>
+                        <p className="text-sm text-yellow-700 mb-3">
+                          This claim requires renewal before it expires. Contact
+                          the issuer to begin the renewal process.
+                        </p>
+                        <AnimatedButton
+                          onClick={() => handleRenewal(selectedClaim.id)}
+                          disabled={isLoading}
+                          loading={isLoading}
+                          className="flex items-center gap-2"
+                          ripple
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          {isLoading ? 'Processing...' : 'Start Renewal'}
+                        </AnimatedButton>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </DashboardLayout>
+        </DashboardLayout>
+      </PageTransition>
+    </div>
   );
 }

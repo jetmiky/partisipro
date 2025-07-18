@@ -23,13 +23,12 @@ import {
   FileText,
   BarChart3,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  StatsCard,
-  DashboardLayout,
-  DataTable,
-} from '@/components/ui';
+import { StatsCard, DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { Column } from '@/components/ui/DataTable';
 import { adminService } from '@/services/admin.service';
 
@@ -249,24 +248,29 @@ export default function AdminProjectsPage() {
   }, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRefresh = async () => {
+    toast.info('Refreshing project data...');
     await loadProjectData();
+    toast.success('Project data refreshed successfully!');
   };
 
   const handleViewProject = (_projectId: string) => {
     // TODO: Navigate to project detail page
     _projectId;
+    toast.info('Opening project details...');
   };
 
   const handleSuspendProject = (_projectId: string) => {
     // TODO: Suspend project and notify stakeholders
     // console.log('Suspend project:', projectId);
     _projectId;
+    toast.info('Suspending project...');
   };
 
   const handleApproveProject = (_projectId: string) => {
     // TODO: Approve project for funding
     // console.log('Approve project:', projectId);
     _projectId;
+    toast.success('Project approved for funding!');
   };
 
   const projectColumns: Column<AdminProject>[] = [
@@ -365,26 +369,32 @@ export default function AdminProjectsPage() {
       label: 'Actions',
       render: (_, row) => (
         <div className="flex gap-2">
-          <Button
+          <AnimatedButton
             variant="outline"
             size="sm"
             onClick={() => handleViewProject(row.id)}
+            ripple
           >
             <Eye className="h-4 w-4" />
-          </Button>
+          </AnimatedButton>
           {row.status === 'review' && (
-            <Button size="sm" onClick={() => handleApproveProject(row.id)}>
+            <AnimatedButton
+              size="sm"
+              onClick={() => handleApproveProject(row.id)}
+              ripple
+            >
               Approve
-            </Button>
+            </AnimatedButton>
           )}
           {(row.status === 'funding' || row.status === 'active') && (
-            <Button
+            <AnimatedButton
               variant="outline"
               size="sm"
               onClick={() => handleSuspendProject(row.id)}
+              ripple
             >
               <Pause className="h-4 w-4" />
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       ),
@@ -392,248 +402,308 @@ export default function AdminProjectsPage() {
   ];
 
   return (
-    <DashboardLayout userType="admin">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Project Oversight
-            </h1>
-            <p className="text-gray-600">
-              Monitor and manage all platform projects
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
-              />
-              Refresh
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
+      <DashboardLayout userType="admin">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0} duration={800}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    Project Oversight
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Monitor and manage all platform projects
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <AnimatedButton
+                    onClick={handleRefresh}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    ripple
+                    className="btn-modern btn-modern-secondary hover-lift"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+                    />
+                    Refresh
+                  </AnimatedButton>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Error Display */}
+            {error && (
+              <div className="glass-modern p-4 rounded-xl bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-accent-800">
+                      Error
+                    </h3>
+                    <div className="mt-2 text-sm text-accent-700">
+                      <p>{error}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Stats Cards */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <StatsCard
+                title="Total Projects"
+                value={projectStats?.totalProjects.toString() || '0'}
+                icon={<Building className="w-4 h-4" />}
+                change={projectStats?.monthlyGrowth || 0}
+                changeType="increase"
+                description="All time projects"
+              />
+              <StatsCard
+                title="Active Projects"
+                value={projectStats?.activeProjects.toString() || '0'}
+                icon={<Play className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Currently operational"
+              />
+              <StatsCard
+                title="Pending Review"
+                value={projectStats?.pendingReview.toString() || '0'}
+                icon={<Eye className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Awaiting approval"
+              />
+              <StatsCard
+                title="Compliance Rate"
+                value={`${projectStats?.complianceRate || 0}%`}
+                icon={<Shield className="w-4 h-4" />}
+                change={5.2}
+                changeType="increase"
+                description="Regulatory compliance"
+              />
+            </StaggeredList>
+
+            {/* Additional Stats */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <StatsCard
+                title="Total Funding Volume"
+                value={formatCurrency(projectStats?.totalFundingVolume || 0)}
+                icon={<DollarSign className="w-4 h-4" />}
+                change={15.8}
+                changeType="increase"
+                description="Across all projects"
+              />
+              <StatsCard
+                title="Average Project Size"
+                value={formatCurrency(projectStats?.averageProjectSize || 0)}
+                icon={<BarChart3 className="w-4 h-4" />}
+                change={-3.2}
+                changeType="decrease"
+                description="Project value average"
+              />
+              <StatsCard
+                title="Suspended Projects"
+                value={projectStats?.suspendedProjects.toString() || '0'}
+                icon={<Ban className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Due to compliance issues"
+              />
+            </StaggeredList>
+
+            {/* Search and Filters */}
+            <ScrollReveal animation="slide-up" delay={200} duration={600}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <AnimatedInput
+                        placeholder="Search projects, SPVs, or locations..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <select
+                      value={statusFilter}
+                      onChange={e => setStatusFilter(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="review">Under Review</option>
+                      <option value="funding">Funding</option>
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                    </select>
+                    <AnimatedButton variant="outline" size="sm" ripple>
+                      <Filter className="h-4 w-4 mr-2" />
+                      More Filters
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Projects Table */}
+            <ScrollReveal animation="slide-up" delay={300} duration={600}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      All Projects
+                    </h2>
+                    <p className="text-gray-600">
+                      Comprehensive oversight of platform projects
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <AnimatedButton
+                      ripple
+                      className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Export
+                    </AnimatedButton>
+                  </div>
+                </div>
+
+                <DataTable<AdminProject>
+                  columns={projectColumns}
+                  data={projects}
+                />
+              </div>
+            </ScrollReveal>
+
+            {/* Quick Actions */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Compliance Reports
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Generate regulatory compliance reports
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  ripple
+                  className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white w-full"
+                >
+                  Generate Report
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Platform Analytics
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      View detailed platform performance metrics
+                    </p>
+                  </div>
+                </div>
+                <Link href="/admin/dashboard">
+                  <AnimatedButton
+                    ripple
+                    className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white w-full"
+                  >
+                    View Analytics
+                  </AnimatedButton>
+                </Link>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <AlertTriangle className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Risk Management
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Monitor and manage project risks
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  ripple
+                  className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white w-full"
+                >
+                  Risk Dashboard
+                </AnimatedButton>
+              </div>
+            </StaggeredList>
+
+            {/* TODO: Mock Implementation Notes */}
+            <div className="glass-modern p-6 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                  <AlertTriangle className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-primary-900 mb-2">
+                    TODO: Mock Implementation Notes
+                  </h3>
+                  <ul className="text-sm text-primary-800 space-y-1">
+                    <li>
+                      • Mock project monitoring API with real-time status
+                      updates
+                    </li>
+                    <li>
+                      • Mock risk assessment algorithms and compliance checking
+                    </li>
+                    <li>
+                      • Mock project approval workflow with multi-step
+                      verification
+                    </li>
+                    <li>• Mock notification system for flagged projects</li>
+                    <li>
+                      • Mock automated compliance reporting and audit trails
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Projects"
-            value={projectStats?.totalProjects.toString() || '0'}
-            icon={<Building className="w-4 h-4" />}
-            change={projectStats?.monthlyGrowth || 0}
-            changeType="increase"
-            description="All time projects"
-          />
-          <StatsCard
-            title="Active Projects"
-            value={projectStats?.activeProjects.toString() || '0'}
-            icon={<Play className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Currently operational"
-          />
-          <StatsCard
-            title="Pending Review"
-            value={projectStats?.pendingReview.toString() || '0'}
-            icon={<Eye className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Awaiting approval"
-          />
-          <StatsCard
-            title="Compliance Rate"
-            value={`${projectStats?.complianceRate || 0}%`}
-            icon={<Shield className="w-4 h-4" />}
-            change={5.2}
-            changeType="increase"
-            description="Regulatory compliance"
-          />
-        </div>
-
-        {/* Additional Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="Total Funding Volume"
-            value={formatCurrency(projectStats?.totalFundingVolume || 0)}
-            icon={<DollarSign className="w-4 h-4" />}
-            change={15.8}
-            changeType="increase"
-            description="Across all projects"
-          />
-          <StatsCard
-            title="Average Project Size"
-            value={formatCurrency(projectStats?.averageProjectSize || 0)}
-            icon={<BarChart3 className="w-4 h-4" />}
-            change={-3.2}
-            changeType="decrease"
-            description="Project value average"
-          />
-          <StatsCard
-            title="Suspended Projects"
-            value={projectStats?.suspendedProjects.toString() || '0'}
-            icon={<Ban className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Due to compliance issues"
-          />
-        </div>
-
-        {/* Search and Filters */}
-        <Card className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search projects, SPVs, or locations..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="review">Under Review</option>
-                <option value="funding">Funding</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-              </select>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Projects Table */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                All Projects
-              </h2>
-              <p className="text-sm text-gray-600">
-                Comprehensive oversight of platform projects
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-
-          <DataTable<AdminProject> columns={projectColumns} data={projects} />
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <FileText className="h-8 w-8 text-primary-500 bg-primary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Compliance Reports
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Generate regulatory compliance reports
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              Generate Report
-            </Button>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="h-8 w-8 text-secondary-500 bg-secondary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Platform Analytics
-                </h3>
-                <p className="text-sm text-gray-600">
-                  View detailed platform performance metrics
-                </p>
-              </div>
-            </div>
-            <Link href="/admin/dashboard">
-              <Button variant="outline" className="w-full">
-                View Analytics
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <AlertTriangle className="h-8 w-8 text-accent-500 bg-accent-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Risk Management
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Monitor and manage project risks
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              Risk Dashboard
-            </Button>
-          </Card>
-        </div>
-
-        {/* TODO: Mock Implementation Notes */}
-        <Card className="p-6 bg-primary-50 border-primary-200">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-primary-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary-900 mb-2">
-                TODO: Mock Implementation Notes
-              </h3>
-              <ul className="text-sm text-primary-800 space-y-1">
-                <li>
-                  • Mock project monitoring API with real-time status updates
-                </li>
-                <li>
-                  • Mock risk assessment algorithms and compliance checking
-                </li>
-                <li>
-                  • Mock project approval workflow with multi-step verification
-                </li>
-                <li>• Mock notification system for flagged projects</li>
-                <li>• Mock automated compliance reporting and audit trails</li>
-              </ul>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </DashboardLayout>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

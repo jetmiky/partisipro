@@ -170,27 +170,27 @@ const Sidebar = ({
       {/* Sidebar */}
       <aside
         className={`
-        fixed top-0 left-0 z-50 h-full bg-gray-900 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+        fixed top-0 left-0 z-50 h-full glass-sidebar transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         w-64 flex flex-col
       `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-primary-200/30">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
               <Layers className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Partisipro</h1>
-              <p className="text-xs text-gray-400">PPP Platform</p>
+              <h1 className="text-xl font-bold text-primary-900">Partisipro</h1>
+              <p className="text-xs text-primary-600">PPP Platform</p>
             </div>
           </div>
 
           {/* Close button for mobile */}
           <button
             onClick={onClose}
-            className="lg:hidden p-1 text-gray-400 hover:text-white"
+            className="lg:hidden p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50/50 rounded-lg transition-colors"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -204,11 +204,11 @@ const Sidebar = ({
               <a
                 href={item.href}
                 className={`
-                  flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
                   ${
                     isActive(item.href)
-                      ? 'bg-primary-500 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                      : 'text-primary-600 hover:bg-primary-50/50 hover:text-primary-800'
                   }
                 `}
               >
@@ -220,10 +220,10 @@ const Sidebar = ({
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-800">
-          <div className="flex items-center gap-3 text-xs text-gray-400">
+        <div className="p-4 border-t border-primary-200/30">
+          <div className="flex items-center gap-3 text-xs text-primary-600">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+              <div className="w-2 h-2 bg-success-500 rounded-full mr-1 animate-pulse"></div>
               <span>Online</span>
             </div>
             <span>•</span>
@@ -231,7 +231,7 @@ const Sidebar = ({
           </div>
 
           {/* Version info */}
-          <div className="mt-2 text-gray-500">
+          <div className="mt-2 text-primary-500">
             <p className="text-xs">Version 0.1.0</p>
             <p className="text-xs">©2025 Partisipro</p>
           </div>

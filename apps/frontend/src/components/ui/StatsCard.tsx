@@ -25,17 +25,17 @@ const StatsCard = ({
   const getColorClasses = () => {
     switch (color) {
       case 'green':
-        return 'bg-support-50 border-support-200 text-support-600';
+        return 'glass-light border-support-200 text-support-600';
       case 'purple':
-        return 'bg-secondary-50 border-secondary-200 text-secondary-600';
+        return 'glass-light border-secondary-200 text-secondary-600';
       case 'red':
-        return 'bg-accent-50 border-accent-200 text-accent-600';
+        return 'glass-light border-accent-200 text-accent-600';
       case 'yellow':
-        return 'bg-primary-50 border-primary-200 text-primary-600';
+        return 'glass-light border-primary-200 text-primary-600';
       case 'cyan':
-        return 'bg-support-50 border-support-200 text-support-600';
+        return 'glass-light border-support-200 text-support-600';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-600';
+        return 'glass-light border-primary-200 text-primary-600';
     }
   };
 
@@ -62,18 +62,18 @@ const StatsCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+    <div className="glass-performance rounded-xl border border-primary-200/30 p-6 hover:shadow-xl hover:glass-animate transition-all duration-300">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
+        <h3 className="text-sm font-medium text-primary-600">{title}</h3>
         {icon && (
-          <div className={`p-2 rounded-lg ${getColorClasses()}`}>{icon}</div>
+          <div className={`p-3 rounded-xl ${getColorClasses()}`}>{icon}</div>
         )}
       </div>
 
       <div className="space-y-2">
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
+        <div className="text-2xl font-bold text-primary-900">{value}</div>
 
-        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+        {subtitle && <p className="text-sm text-primary-600">{subtitle}</p>}
 
         {change !== undefined && (
           <div className="flex items-center gap-1">
@@ -82,7 +82,7 @@ const StatsCard = ({
               {change > 0 ? '+' : ''}
               {change}%
             </span>
-            <span className="text-sm text-gray-500">vs last month</span>
+            <span className="text-sm text-primary-500">vs last month</span>
           </div>
         )}
       </div>

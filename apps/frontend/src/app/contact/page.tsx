@@ -64,12 +64,19 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-40 left-10"></div>
+        <div className="fluid-shape-2 top-3/4 right-20"></div>
+        <div className="fluid-shape-3 bottom-20 left-1/3"></div>
+      </div>
+
       <Header />
 
-      <main className="pt-24">
+      <main className="pt-24 relative z-10">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-16 md:py-24">
+        <section className="gradient-brand-light py-16 md:py-24 relative">
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
@@ -80,17 +87,17 @@ export default function ContactPage() {
                 pertanyaan investasi dan teknis.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Clock className="w-5 h-5 text-primary-500" />
                   <span className="text-sm font-medium">Response Cepat</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Shield className="w-5 h-5 text-success-500" />
                   <span className="text-sm font-medium">
                     Data Aman & Terenkripsi
                   </span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
+                <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <MessageCircle className="w-5 h-5 text-secondary-500" />
                   <span className="text-sm font-medium">Support 24/7</span>
                 </div>
@@ -254,7 +261,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full btn btn-primary btn-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full btn-modern btn-modern-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
@@ -283,7 +290,7 @@ export default function ContactPage() {
 
                 {/* Contact Methods */}
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4 p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
+                  <div className="flex items-start gap-4 p-6 glass-modern rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
                     <div className="feature-icon">
                       <MessageCircle className="w-6 h-6" />
                     </div>
@@ -301,7 +308,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
+                  <div className="flex items-start gap-4 p-6 glass-modern rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
                     <div className="feature-icon">
                       <Mail className="w-6 h-6" />
                     </div>
@@ -319,7 +326,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
+                  <div className="flex items-start gap-4 p-6 glass-modern rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
                     <div className="feature-icon">
                       <Phone className="w-6 h-6" />
                     </div>
@@ -337,7 +344,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
+                  <div className="flex items-start gap-4 p-6 glass-modern rounded-xl border border-gray-200 hover:border-primary-300 transition-colors">
                     <div className="feature-icon">
                       <MapPin className="w-6 h-6" />
                     </div>

@@ -36,7 +36,8 @@ export function useApi<T>(
     } finally {
       setLoading(false);
     }
-  }, dependencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dependencies]);
 
   useEffect(() => {
     fetchData();
@@ -134,6 +135,7 @@ export function usePaginatedApi<T>(
 
   useEffect(() => {
     fetchData(1, limit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadMore = useCallback(() => {

@@ -22,14 +22,12 @@ import {
   Trash2,
   Shield,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  DashboardLayout,
-  StatsCard,
-  Modal,
-  Input,
-} from '@/components/ui';
+import { Card, DashboardLayout, StatsCard, Modal } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 
 interface ProjectFinancials {
   projectId: string;
@@ -297,6 +295,11 @@ export default function SPVFinancialsPage() {
     // console.log('Distributing', distributionAmount, 'IDR to token holders');
     setDistributionModalOpen(false);
     setDistributionAmount('');
+
+    toast.success('Distribution Executed!', {
+      message: `Profit distribution of ${distributionAmount} IDR has been processed successfully.`,
+      duration: 5000,
+    });
   };
 
   const handleExpenseSubmit = () => {
@@ -308,6 +311,11 @@ export default function SPVFinancialsPage() {
       amount: '',
       description: '',
       date: new Date().toISOString().split('T')[0],
+    });
+
+    toast.success('Expense Submitted!', {
+      message: 'Your expense has been submitted for approval.',
+      duration: 4000,
     });
   };
 
@@ -338,7 +346,11 @@ export default function SPVFinancialsPage() {
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Financial Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StaggeredList
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        itemDelay={150}
+        animation="slide-up"
+      >
         <StatsCard
           title="Current Period Revenue"
           value={formatCurrency(financials.currentPeriod.revenue)}
@@ -367,49 +379,59 @@ export default function SPVFinancialsPage() {
           change={18.5}
           changeType="increase"
         />
-      </div>
+      </StaggeredList>
 
       {/* Treasury Balance */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Treasury Balance</h3>
-          <Button variant="secondary" className="flex items-center gap-2">
-            <Wallet className="w-4 h-4" />
-            Manage Treasury
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
-              {formatCurrency(financials.treasuryBalance.operational)}
-            </div>
-            <div className="text-sm text-blue-800">Operational Fund</div>
+      <ScrollReveal animation="slide-up" delay={100}>
+        <Card className="p-6 glass-feature hover-lift transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-gradient">Treasury Balance</h3>
+            <AnimatedButton
+              variant="secondary"
+              className="flex items-center gap-2"
+              ripple
+            >
+              <Wallet className="w-4 h-4" />
+              Manage Treasury
+            </AnimatedButton>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(financials.treasuryBalance.distribution)}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">
+                {formatCurrency(financials.treasuryBalance.operational)}
+              </div>
+              <div className="text-sm text-blue-800">Operational Fund</div>
             </div>
-            <div className="text-sm text-green-800">Distribution Fund</div>
-          </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">
-              {formatCurrency(financials.treasuryBalance.reserve)}
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(financials.treasuryBalance.distribution)}
+              </div>
+              <div className="text-sm text-green-800">Distribution Fund</div>
             </div>
-            <div className="text-sm text-purple-800">Reserve Fund</div>
-          </div>
-          <div className="text-center p-4 bg-primary-50 rounded-lg">
-            <div className="text-2xl font-bold text-primary-600">
-              {formatCurrency(financials.treasuryBalance.total)}
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">
+                {formatCurrency(financials.treasuryBalance.reserve)}
+              </div>
+              <div className="text-sm text-purple-800">Reserve Fund</div>
             </div>
-            <div className="text-sm text-primary-800">Total Balance</div>
+            <div className="text-center p-4 bg-primary-50 rounded-lg">
+              <div className="text-2xl font-bold text-primary-600">
+                {formatCurrency(financials.treasuryBalance.total)}
+              </div>
+              <div className="text-sm text-primary-800">Total Balance</div>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </ScrollReveal>
 
       {/* Performance Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">
+      <StaggeredList
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        itemDelay={100}
+        animation="slide-up"
+      >
+        <div className="glass-modern p-6 hover-lift transition-all duration-300">
+          <h3 className="text-xl font-bold text-gradient mb-6">
             Key Performance Metrics
           </h3>
           <div className="space-y-4">
@@ -438,10 +460,10 @@ export default function SPVFinancialsPage() {
               </span>
             </div>
           </div>
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">
+        <Card className="p-6 glass-feature hover-lift transition-all duration-300">
+          <h3 className="font-semibold text-gradient mb-4">
             Recent Distribution History
           </h3>
           <div className="space-y-3">
@@ -472,7 +494,7 @@ export default function SPVFinancialsPage() {
             ))}
           </div>
         </Card>
-      </div>
+      </StaggeredList>
     </div>
   );
 
@@ -484,14 +506,15 @@ export default function SPVFinancialsPage() {
           <h3 className="font-semibold text-gray-900">
             Execute Profit Distribution
           </h3>
-          <Button
+          <AnimatedButton
             variant="primary"
             onClick={() => setDistributionModalOpen(true)}
             className="flex items-center gap-2"
+            ripple
           >
             <Send className="w-4 h-4" />
             Distribute Profits
-          </Button>
+          </AnimatedButton>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-green-50 rounded-lg">
@@ -582,9 +605,9 @@ export default function SPVFinancialsPage() {
           </table>
         </div>
         <div className="mt-4 text-center">
-          <Button variant="secondary" className="text-sm">
+          <AnimatedButton variant="secondary" className="text-sm" ripple>
             View All {financials.tokenHolders.length} Holders
-          </Button>
+          </AnimatedButton>
         </div>
       </Card>
 
@@ -647,14 +670,15 @@ export default function SPVFinancialsPage() {
             Track and manage project operational expenses
           </p>
         </div>
-        <Button
+        <AnimatedButton
           variant="primary"
           onClick={() => setExpenseModalOpen(true)}
           className="flex items-center gap-2"
+          ripple
         >
           <Plus className="w-4 h-4" />
           Add Expense
-        </Button>
+        </AnimatedButton>
       </div>
 
       {/* Expense Summary */}
@@ -690,12 +714,12 @@ export default function SPVFinancialsPage() {
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
+            <AnimatedInput
               type="text"
               placeholder="Search expenses..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-10 pr-4 py-2"
             />
           </div>
           <select
@@ -774,24 +798,40 @@ export default function SPVFinancialsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <Button variant="secondary" className="text-sm p-2">
+                      <AnimatedButton
+                        variant="secondary"
+                        className="text-sm p-2"
+                        ripple
+                      >
                         <Eye className="w-4 h-4" />
-                      </Button>
+                      </AnimatedButton>
                       {expense.status === 'pending' && (
                         <>
-                          <Button variant="secondary" className="text-sm p-2">
+                          <AnimatedButton
+                            variant="secondary"
+                            className="text-sm p-2"
+                            ripple
+                          >
                             <Edit3 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="accent" className="text-sm p-2">
+                          </AnimatedButton>
+                          <AnimatedButton
+                            variant="accent"
+                            className="text-sm p-2"
+                            ripple
+                          >
                             <Trash2 className="w-4 h-4" />
-                          </Button>
+                          </AnimatedButton>
                         </>
                       )}
                       {expense.receipt && (
-                        <Button variant="secondary" className="text-sm">
+                        <AnimatedButton
+                          variant="secondary"
+                          className="text-sm"
+                          ripple
+                        >
                           <Receipt className="w-4 h-4 mr-1" />
                           Receipt
-                        </Button>
+                        </AnimatedButton>
                       )}
                     </div>
                   </td>
@@ -951,33 +991,49 @@ export default function SPVFinancialsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Amount (IDR)
               </label>
-              <Input type="number" placeholder="Enter amount" />
+              <AnimatedInput type="number" placeholder="Enter amount" />
             </div>
-            <Button variant="primary" className="w-full">
+            <AnimatedButton variant="primary" className="w-full" ripple>
               Transfer Funds
-            </Button>
+            </AnimatedButton>
           </div>
         </Card>
 
         <Card className="p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <Button variant="secondary" className="w-full justify-start">
+            <AnimatedButton
+              variant="secondary"
+              className="w-full justify-start"
+              ripple
+            >
               <Upload className="w-4 h-4 mr-2" />
               Deposit Revenue
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
+            </AnimatedButton>
+            <AnimatedButton
+              variant="secondary"
+              className="w-full justify-start"
+              ripple
+            >
               <Download className="w-4 h-4 mr-2" />
               Withdraw Funds
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
+            </AnimatedButton>
+            <AnimatedButton
+              variant="secondary"
+              className="w-full justify-start"
+              ripple
+            >
               <Calculator className="w-4 h-4 mr-2" />
               Calculate Fees
-            </Button>
-            <Button variant="secondary" className="w-full justify-start">
+            </AnimatedButton>
+            <AnimatedButton
+              variant="secondary"
+              className="w-full justify-start"
+              ripple
+            >
               <FileText className="w-4 h-4 mr-2" />
               Generate Report
-            </Button>
+            </AnimatedButton>
           </div>
         </Card>
       </div>
@@ -995,14 +1051,15 @@ export default function SPVFinancialsPage() {
             Generate and download financial reports
           </p>
         </div>
-        <Button
+        <AnimatedButton
           variant="primary"
           onClick={() => setReportModalOpen(true)}
           className="flex items-center gap-2"
+          ripple
         >
           <FileText className="w-4 h-4" />
           Generate Report
-        </Button>
+        </AnimatedButton>
       </div>
 
       {/* Performance Analytics */}
@@ -1146,13 +1203,14 @@ export default function SPVFinancialsPage() {
                   {report.status === 'ready' ? 'Ready' : 'Processing'}
                 </span>
                 {report.status === 'ready' && (
-                  <Button
+                  <AnimatedButton
                     variant="secondary"
                     className="text-sm flex items-center gap-1"
+                    ripple
                   >
                     <Download className="w-4 h-4" />
                     Download
-                  </Button>
+                  </AnimatedButton>
                 )}
               </div>
             </div>
@@ -1163,281 +1221,309 @@ export default function SPVFinancialsPage() {
   );
 
   return (
-    <DashboardLayout userType="spv">
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {financials.projectTitle}
-          </h1>
-          <p className="text-gray-600">
-            Financial management and reporting dashboard
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="flex space-x-8">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'distribution' && renderDistribution()}
-        {activeTab === 'expenses' && renderExpenses()}
-        {activeTab === 'treasury' && renderTreasury()}
-        {activeTab === 'reports' && renderReports()}
-
-        {/* Distribution Modal */}
-        {distributionModalOpen && (
-          <Modal
-            isOpen={distributionModalOpen}
-            onClose={() => setDistributionModalOpen(false)}
-            title="Execute Profit Distribution"
-          >
-            <div className="p-6">
+      <DashboardLayout userType="spv">
+        <PageTransition type="fade" duration={300}>
+          <div className="p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
               <div className="mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-medium text-blue-900 mb-2">
-                    Distribution Summary
-                  </h4>
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <p>
-                      Available for distribution:{' '}
-                      {formatCurrency(
-                        financials.currentPeriod.distributionAmount
-                      )}
-                    </p>
-                    <p>
-                      Number of recipients: {financials.tokenHolders.length}
-                    </p>
-                    <p>
-                      Platform fee (10%):{' '}
-                      {formatCurrency(
-                        financials.currentPeriod.distributionAmount * 0.1
-                      )}
-                    </p>
+                <h1 className="text-2xl font-bold text-gradient">
+                  {financials.projectTitle}
+                </h1>
+                <p className="text-primary-600">
+                  Financial management and reporting dashboard
+                </p>
+              </div>
+            </ScrollReveal>
+
+            {/* Tabs */}
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div className="border-b border-gray-200 mb-6">
+                <nav className="flex space-x-8">
+                  {tabs.map(tab => (
+                    <AnimatedButton
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      variant={activeTab === tab.id ? 'primary' : 'ghost'}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === tab.id
+                          ? 'border-primary-500 text-primary-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                      ripple
+                    >
+                      {tab.label}
+                    </AnimatedButton>
+                  ))}
+                </nav>
+              </div>
+            </ScrollReveal>
+
+            {/* Tab Content */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              {activeTab === 'overview' && renderOverview()}
+              {activeTab === 'distribution' && renderDistribution()}
+              {activeTab === 'expenses' && renderExpenses()}
+              {activeTab === 'treasury' && renderTreasury()}
+              {activeTab === 'reports' && renderReports()}
+            </ScrollReveal>
+
+            {/* Distribution Modal */}
+            {distributionModalOpen && (
+              <Modal
+                isOpen={distributionModalOpen}
+                onClose={() => setDistributionModalOpen(false)}
+                title="Execute Profit Distribution"
+              >
+                <div className="p-6">
+                  <div className="mb-6">
+                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                      <h4 className="font-medium text-blue-900 mb-2">
+                        Distribution Summary
+                      </h4>
+                      <div className="text-sm text-blue-800 space-y-1">
+                        <p>
+                          Available for distribution:{' '}
+                          {formatCurrency(
+                            financials.currentPeriod.distributionAmount
+                          )}
+                        </p>
+                        <p>
+                          Number of recipients: {financials.tokenHolders.length}
+                        </p>
+                        <p>
+                          Platform fee (10%):{' '}
+                          {formatCurrency(
+                            financials.currentPeriod.distributionAmount * 0.1
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Distribution Amount (IDR)
+                      </label>
+                      <AnimatedInput
+                        type="number"
+                        value={distributionAmount}
+                        onChange={e => setDistributionAmount(e.target.value)}
+                        placeholder={financials.currentPeriod.distributionAmount.toString()}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Maximum available:{' '}
+                        {formatCurrency(
+                          financials.currentPeriod.distributionAmount
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() => setDistributionModalOpen(false)}
+                      className="flex-1"
+                      ripple
+                    >
+                      Cancel
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="primary"
+                      onClick={handleDistribution}
+                      className="flex-1"
+                      ripple
+                    >
+                      Execute Distribution
+                    </AnimatedButton>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Distribution Amount (IDR)
-                  </label>
-                  <Input
-                    type="number"
-                    value={distributionAmount}
-                    onChange={e => setDistributionAmount(e.target.value)}
-                    placeholder={financials.currentPeriod.distributionAmount.toString()}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Maximum available:{' '}
-                    {formatCurrency(
-                      financials.currentPeriod.distributionAmount
+              </Modal>
+            )}
+
+            {/* Expense Modal */}
+            {expenseModalOpen && (
+              <Modal
+                isOpen={expenseModalOpen}
+                onClose={() => setExpenseModalOpen(false)}
+                title="Add New Expense"
+              >
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category
+                    </label>
+                    <select
+                      value={expenseForm.category}
+                      onChange={e =>
+                        setExpenseForm(prev => ({
+                          ...prev,
+                          category: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">Select category</option>
+                      {expenseCategories.map(category => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Amount (IDR)
+                    </label>
+                    <AnimatedInput
+                      type="number"
+                      value={expenseForm.amount}
+                      onChange={e =>
+                        setExpenseForm(prev => ({
+                          ...prev,
+                          amount: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter amount"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      value={expenseForm.description}
+                      onChange={e =>
+                        setExpenseForm(prev => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter expense description"
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <AnimatedInput
+                      type="date"
+                      value={expenseForm.date}
+                      onChange={e =>
+                        setExpenseForm(prev => ({
+                          ...prev,
+                          date: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Receipt (optional)
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleFileUpload}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                    {expenseForm.receipt && (
+                      <p className="text-sm text-green-600 mt-1">
+                        File selected: {expenseForm.receipt.name}
+                      </p>
                     )}
-                  </p>
+                  </div>
+                  <div className="flex items-center gap-3 pt-4">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() => setExpenseModalOpen(false)}
+                      className="flex-1"
+                      ripple
+                    >
+                      Cancel
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="primary"
+                      onClick={handleExpenseSubmit}
+                      className="flex-1"
+                      ripple
+                    >
+                      Submit Expense
+                    </AnimatedButton>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="secondary"
-                  onClick={() => setDistributionModalOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleDistribution}
-                  className="flex-1"
-                >
-                  Execute Distribution
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
+              </Modal>
+            )}
 
-        {/* Expense Modal */}
-        {expenseModalOpen && (
-          <Modal
-            isOpen={expenseModalOpen}
-            onClose={() => setExpenseModalOpen(false)}
-            title="Add New Expense"
-          >
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <select
-                  value={expenseForm.category}
-                  onChange={e =>
-                    setExpenseForm(prev => ({
-                      ...prev,
-                      category: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  <option value="">Select category</option>
-                  {expenseCategories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount (IDR)
-                </label>
-                <Input
-                  type="number"
-                  value={expenseForm.amount}
-                  onChange={e =>
-                    setExpenseForm(prev => ({
-                      ...prev,
-                      amount: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter amount"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={expenseForm.description}
-                  onChange={e =>
-                    setExpenseForm(prev => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter expense description"
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date
-                </label>
-                <Input
-                  type="date"
-                  value={expenseForm.date}
-                  onChange={e =>
-                    setExpenseForm(prev => ({ ...prev, date: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Receipt (optional)
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={handleFileUpload}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                {expenseForm.receipt && (
-                  <p className="text-sm text-green-600 mt-1">
-                    File selected: {expenseForm.receipt.name}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-3 pt-4">
-                <Button
-                  variant="secondary"
-                  onClick={() => setExpenseModalOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleExpenseSubmit}
-                  className="flex-1"
-                >
-                  Submit Expense
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
-
-        {/* Report Generation Modal */}
-        {reportModalOpen && (
-          <Modal
-            isOpen={reportModalOpen}
-            onClose={() => setReportModalOpen(false)}
-            title="Generate Financial Report"
-          >
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Report Type
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  <option value="financial">Financial Statement</option>
-                  <option value="distribution">Distribution Report</option>
-                  <option value="expenses">Expense Report</option>
-                  <option value="treasury">Treasury Report</option>
-                  <option value="compliance">Compliance Report</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Period
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  <option value="current-quarter">Current Quarter</option>
-                  <option value="last-quarter">Last Quarter</option>
-                  <option value="ytd">Year to Date</option>
-                  <option value="last-year">Last Year</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Format
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  <option value="pdf">PDF Report</option>
-                  <option value="excel">Excel Spreadsheet</option>
-                  <option value="csv">CSV Data</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-3 pt-4">
-                <Button
-                  variant="secondary"
-                  onClick={() => setReportModalOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button variant="primary" className="flex-1">
-                  Generate Report
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
-      </div>
-    </DashboardLayout>
+            {/* Report Generation Modal */}
+            {reportModalOpen && (
+              <Modal
+                isOpen={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                title="Generate Financial Report"
+              >
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Report Type
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                      <option value="financial">Financial Statement</option>
+                      <option value="distribution">Distribution Report</option>
+                      <option value="expenses">Expense Report</option>
+                      <option value="treasury">Treasury Report</option>
+                      <option value="compliance">Compliance Report</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Period
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                      <option value="current-quarter">Current Quarter</option>
+                      <option value="last-quarter">Last Quarter</option>
+                      <option value="ytd">Year to Date</option>
+                      <option value="last-year">Last Year</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Format
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                      <option value="pdf">PDF Report</option>
+                      <option value="excel">Excel Spreadsheet</option>
+                      <option value="csv">CSV Data</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-3 pt-4">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() => setReportModalOpen(false)}
+                      className="flex-1"
+                      ripple
+                    >
+                      Cancel
+                    </AnimatedButton>
+                    <AnimatedButton variant="primary" className="flex-1" ripple>
+                      Generate Report
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </Modal>
+            )}
+          </div>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

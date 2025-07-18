@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 import DataTable, { Column } from '@/components/ui/DataTable';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { toast } from '@/components/ui/AnimatedNotification';
+import { DashboardLayout } from '@/components/ui';
 import {
   TrustedIssuer,
   TrustedIssuerTableRow,
@@ -297,22 +302,28 @@ export default function TrustedIssuersPage() {
       label: 'Actions',
       render: (_, row) => (
         <div className="flex space-x-2">
-          <button
+          <AnimatedButton
             onClick={() =>
               setSelectedIssuer(
                 trustedIssuers.find(issuer => issuer.id === row.id) || null
               )
             }
+            variant="outline"
+            size="sm"
+            ripple
             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
             View
-          </button>
-          <button
+          </AnimatedButton>
+          <AnimatedButton
             onClick={() => handleSuspendIssuer(row.id)}
+            variant="outline"
+            size="sm"
+            ripple
             className="text-red-600 hover:text-red-700 text-sm font-medium"
           >
             {row.status === 'active' ? 'Suspend' : 'Activate'}
-          </button>
+          </AnimatedButton>
         </div>
       ),
     },
@@ -434,6 +445,7 @@ export default function TrustedIssuersPage() {
     // TODO: Implement issuer suspension logic
     // This would call TrustedIssuersRegistry contract to suspend/activate issuer
     void issuerId; // Temporary to avoid unused parameter warning
+    toast.success('Issuer status updated successfully');
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -447,472 +459,531 @@ export default function TrustedIssuersPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Trusted Issuers</h1>
-          <p className="text-gray-600">
-            Manage KYC providers and identity verification issuers
-          </p>
-        </div>
-        <button
-          onClick={handleAddIssuer}
-          className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
-        >
-          Add Issuer
-        </button>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Active Issuers
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {trustedIssuers.filter(i => i.status === 'active').length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Total Verifications
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {trustedIssuers
-                  .reduce((sum, issuer) => sum + issuer.verificationsIssued, 0)
-                  .toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <svg
-                className="w-6 h-6 text-yellow-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Avg Success Rate
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {(
-                  trustedIssuers
-                    .filter(i => i.status === 'active')
-                    .reduce((sum, issuer) => sum + issuer.successRate, 0) /
-                  trustedIssuers.filter(i => i.status === 'active').length
-                ).toFixed(1)}
-                %
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <svg
-                className="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Avg Processing Time
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                {(
-                  trustedIssuers
-                    .filter(i => i.status === 'active')
-                    .reduce(
-                      (sum, issuer) => sum + issuer.averageProcessingTime,
-                      0
-                    ) / trustedIssuers.filter(i => i.status === 'active').length
-                ).toFixed(0)}
-                h
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: 'issuers', label: 'Issuers', count: trustedIssuers.length },
-            { id: 'activity', label: 'Activity', count: issuerActivity.length },
-            {
-              id: 'claimTypes',
-              label: 'Claim Types',
-              count: claimTypes.length,
-            },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setView(tab.id as typeof view)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                view === tab.id
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              {tab.label}
-              <span className="ml-2 py-0.5 px-2 text-xs bg-gray-100 rounded-full">
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Content based on selected view */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        {view === 'issuers' && (
-          <DataTable
-            data={issuersTableData}
-            columns={issuersColumns}
-            searchable={true}
-          />
-        )}
-
-        {view === 'activity' && (
-          <DataTable
-            data={issuerActivity}
-            columns={activityColumns}
-            searchable={true}
-          />
-        )}
-
-        {view === 'claimTypes' && (
-          <DataTable
-            data={claimTypes}
-            columns={claimTypesColumns}
-            searchable={true}
-          />
-        )}
-      </div>
-
-      {/* Issuer Detail Modal */}
-      {selectedIssuer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {selectedIssuer.name}
-                  </h2>
-                  <p className="text-gray-600">{selectedIssuer.description}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedIssuer(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+      <DashboardLayout>
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0} duration={800}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      Trusted Issuers
+                    </h1>
+                    <p className="text-gray-600 text-lg">
+                      Manage KYC providers and identity verification issuers
+                    </p>
+                  </div>
+                  <AnimatedButton
+                    onClick={handleAddIssuer}
+                    ripple
+                    className="btn-modern bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                    Add Issuer
+                  </AnimatedButton>
+                </div>
               </div>
+            </ScrollReveal>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Basic Information
-                  </h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Status
-                      </label>
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(selectedIssuer.status)}`}
-                      >
-                        {selectedIssuer.status.charAt(0).toUpperCase() +
-                          selectedIssuer.status.slice(1)}
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Wallet Address
-                      </label>
-                      <p className="text-sm text-gray-900 font-mono">
-                        {selectedIssuer.address}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Email
-                      </label>
-                      <p className="text-sm text-gray-900">
-                        {selectedIssuer.email}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Country
-                      </label>
-                      <p className="text-sm text-gray-900">
-                        {selectedIssuer.country}
-                      </p>
-                    </div>
-                    {selectedIssuer.website && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Website
-                        </label>
-                        <a
-                          href={selectedIssuer.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:text-blue-700"
-                        >
-                          {selectedIssuer.website}
-                        </a>
-                      </div>
-                    )}
+            {/* Statistics Cards */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">
+                      Active Issuers
+                    </p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      {trustedIssuers.filter(i => i.status === 'active').length}
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Performance Metrics */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Performance Metrics
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Verifications Issued
-                      </span>
-                      <span className="text-sm text-gray-900">
-                        {selectedIssuer.verificationsIssued.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Active Verifications
-                      </span>
-                      <span className="text-sm text-gray-900">
-                        {selectedIssuer.activeVerifications.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Success Rate
-                      </span>
-                      <span className="text-sm text-gray-900">
-                        {selectedIssuer.successRate.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Avg Processing Time
-                      </span>
-                      <span className="text-sm text-gray-900">
-                        {selectedIssuer.averageProcessingTime}h
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        Compliance Score
-                      </span>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Verifications
+                    </p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      {trustedIssuers
+                        .reduce(
+                          (sum, issuer) => sum + issuer.verificationsIssued,
+                          0
+                        )
+                        .toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">
+                      Avg Success Rate
+                    </p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      {(
+                        trustedIssuers
+                          .filter(i => i.status === 'active')
+                          .reduce(
+                            (sum, issuer) => sum + issuer.successRate,
+                            0
+                          ) /
+                        trustedIssuers.filter(i => i.status === 'active').length
+                      ).toFixed(1)}
+                      %
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">
+                      Avg Processing Time
+                    </p>
+                    <p className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      {(
+                        trustedIssuers
+                          .filter(i => i.status === 'active')
+                          .reduce(
+                            (sum, issuer) => sum + issuer.averageProcessingTime,
+                            0
+                          ) /
+                        trustedIssuers.filter(i => i.status === 'active').length
+                      ).toFixed(0)}
+                      h
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </StaggeredList>
+
+            {/* Navigation Tabs */}
+            <ScrollReveal animation="slide-up" delay={200} duration={600}>
+              <div className="glass-modern p-4 rounded-xl">
+                <nav className="flex space-x-8">
+                  {[
+                    {
+                      id: 'issuers',
+                      label: 'Issuers',
+                      count: trustedIssuers.length,
+                    },
+                    {
+                      id: 'activity',
+                      label: 'Activity',
+                      count: issuerActivity.length,
+                    },
+                    {
+                      id: 'claimTypes',
+                      label: 'Claim Types',
+                      count: claimTypes.length,
+                    },
+                  ].map(tab => (
+                    <AnimatedButton
+                      key={tab.id}
+                      onClick={() => setView(tab.id as typeof view)}
+                      ripple
+                      className={`py-3 px-4 rounded-lg font-medium text-sm transition-all ${
+                        view === tab.id
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                          : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'
+                      }`}
+                    >
+                      {tab.label}
                       <span
-                        className={`text-sm font-medium ${
-                          selectedIssuer.complianceScore >= 90
-                            ? 'text-green-600'
-                            : selectedIssuer.complianceScore >= 70
-                              ? 'text-yellow-600'
-                              : 'text-red-600'
+                        className={`ml-2 py-1 px-2 text-xs rounded-full ${
+                          view === tab.id
+                            ? 'bg-white/20 text-white'
+                            : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                        {selectedIssuer.complianceScore.toFixed(1)}
+                        {tab.count}
                       </span>
+                    </AnimatedButton>
+                  ))}
+                </nav>
+              </div>
+            </ScrollReveal>
+
+            {/* Content based on selected view */}
+            <ScrollReveal animation="slide-up" delay={300} duration={600}>
+              <div className="glass-modern p-6 rounded-xl">
+                {view === 'issuers' && (
+                  <DataTable
+                    data={issuersTableData}
+                    columns={issuersColumns}
+                    searchable={true}
+                  />
+                )}
+
+                {view === 'activity' && (
+                  <DataTable
+                    data={issuerActivity}
+                    columns={activityColumns}
+                    searchable={true}
+                  />
+                )}
+
+                {view === 'claimTypes' && (
+                  <DataTable
+                    data={claimTypes}
+                    columns={claimTypesColumns}
+                    searchable={true}
+                  />
+                )}
+              </div>
+            </ScrollReveal>
+
+            {/* Issuer Detail Modal */}
+            {selectedIssuer && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="glass-modern max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                          {selectedIssuer.name}
+                        </h2>
+                        <p className="text-gray-600">
+                          {selectedIssuer.description}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedIssuer(null)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Basic Information */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Basic Information
+                        </h3>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Status
+                            </label>
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(selectedIssuer.status)}`}
+                            >
+                              {selectedIssuer.status.charAt(0).toUpperCase() +
+                                selectedIssuer.status.slice(1)}
+                            </span>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Wallet Address
+                            </label>
+                            <p className="text-sm text-gray-900 font-mono">
+                              {selectedIssuer.address}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Email
+                            </label>
+                            <p className="text-sm text-gray-900">
+                              {selectedIssuer.email}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              Country
+                            </label>
+                            <p className="text-sm text-gray-900">
+                              {selectedIssuer.country}
+                            </p>
+                          </div>
+                          {selectedIssuer.website && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">
+                                Website
+                              </label>
+                              <a
+                                href={selectedIssuer.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:text-blue-700"
+                              >
+                                {selectedIssuer.website}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Performance Metrics */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Performance Metrics
+                        </h3>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              Verifications Issued
+                            </span>
+                            <span className="text-sm text-gray-900">
+                              {selectedIssuer.verificationsIssued.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              Active Verifications
+                            </span>
+                            <span className="text-sm text-gray-900">
+                              {selectedIssuer.activeVerifications.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              Success Rate
+                            </span>
+                            <span className="text-sm text-gray-900">
+                              {selectedIssuer.successRate.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              Avg Processing Time
+                            </span>
+                            <span className="text-sm text-gray-900">
+                              {selectedIssuer.averageProcessingTime}h
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-700">
+                              Compliance Score
+                            </span>
+                            <span
+                              className={`text-sm font-medium ${
+                                selectedIssuer.complianceScore >= 90
+                                  ? 'text-green-600'
+                                  : selectedIssuer.complianceScore >= 70
+                                    ? 'text-yellow-600'
+                                    : 'text-red-600'
+                              }`}
+                            >
+                              {selectedIssuer.complianceScore.toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Claim Types */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Authorized Claim Types
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedIssuer.claimTypes.map((type, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full"
+                            >
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Permissions */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Permissions
+                        </h3>
+                        <div className="space-y-2">
+                          {Object.entries(selectedIssuer.permissions).map(
+                            ([key, value]) => (
+                              <div
+                                key={key}
+                                className="flex items-center justify-between"
+                              >
+                                <span className="text-sm text-gray-700">
+                                  {key
+                                    .replace(/([A-Z])/g, ' $1')
+                                    .replace(/^./, str => str.toUpperCase())}
+                                </span>
+                                <span
+                                  className={`text-sm font-medium ${value ? 'text-green-600' : 'text-red-600'}`}
+                                >
+                                  {value ? 'Enabled' : 'Disabled'}
+                                </span>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                      <AnimatedButton
+                        onClick={() => setSelectedIssuer(null)}
+                        variant="outline"
+                        ripple
+                        className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all"
+                      >
+                        Close
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={() => handleSuspendIssuer(selectedIssuer.id)}
+                        ripple
+                        className={`btn-modern px-6 py-3 rounded-xl text-white hover:shadow-lg transition-all ${
+                          selectedIssuer.status === 'active'
+                            ? 'bg-gradient-to-r from-accent-500 to-accent-600'
+                            : 'bg-gradient-to-r from-support-500 to-support-600'
+                        }`}
+                      >
+                        {selectedIssuer.status === 'active'
+                          ? 'Suspend Issuer'
+                          : 'Activate Issuer'}
+                      </AnimatedButton>
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Claim Types */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Authorized Claim Types
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedIssuer.claimTypes.map((type, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full"
+            {/* Add Issuer Modal - TODO: Implement form */}
+            {showAddModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="glass-modern max-w-2xl w-full">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                        Add Trusted Issuer
+                      </h2>
+                      <AnimatedButton
+                        onClick={() => setShowAddModal(false)}
+                        variant="outline"
+                        size="sm"
+                        ripple
+                        className="text-gray-400 hover:text-gray-600"
                       >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Permissions */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Permissions
-                  </h3>
-                  <div className="space-y-2">
-                    {Object.entries(selectedIssuer.permissions).map(
-                      ([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between"
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <span className="text-sm text-gray-700">
-                            {key
-                              .replace(/([A-Z])/g, ' $1')
-                              .replace(/^./, str => str.toUpperCase())}
-                          </span>
-                          <span
-                            className={`text-sm font-medium ${value ? 'text-green-600' : 'text-red-600'}`}
-                          >
-                            {value ? 'Enabled' : 'Disabled'}
-                          </span>
-                        </div>
-                      )
-                    )}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </AnimatedButton>
+                    </div>
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">
+                        Add Issuer form implementation pending...
+                      </p>
+                      <p className="text-sm text-gray-400 mt-2">
+                        This will include fields for issuer details,
+                        permissions, and claim type authorization.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => setSelectedIssuer(null)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => handleSuspendIssuer(selectedIssuer.id)}
-                  className={`px-4 py-2 rounded-lg text-white ${
-                    selectedIssuer.status === 'active'
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-green-600 hover:bg-green-700'
-                  }`}
-                >
-                  {selectedIssuer.status === 'active'
-                    ? 'Suspend Issuer'
-                    : 'Activate Issuer'}
-                </button>
-              </div>
-            </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Add Issuer Modal - TODO: Implement form */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Add Trusted Issuer
-                </h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="text-center py-8">
-                <p className="text-gray-500">
-                  Add Issuer form implementation pending...
-                </p>
-                <p className="text-sm text-gray-400 mt-2">
-                  This will include fields for issuer details, permissions, and
-                  claim type authorization.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        </PageTransition>
+      </DashboardLayout>
     </div>
   );
 }

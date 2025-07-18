@@ -17,7 +17,12 @@ import {
   RefreshCw,
   ExternalLink,
 } from 'lucide-react';
-import { Button, Card, DashboardLayout, Modal } from '@/components/ui';
+import { DashboardLayout } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 
 interface Transaction {
   id: string;
@@ -374,6 +379,10 @@ export default function HistoryPage() {
     //   `Exporting ${exportFormat} for ${exportDateRange} transactions`
     // );
     setExportModalOpen(false);
+    toast.success('Export Started!', {
+      message: `Your ${exportFormat.toUpperCase()} export is being processed.`,
+      duration: 4000,
+    });
   };
 
   const resetFilters = () => {
@@ -386,593 +395,728 @@ export default function HistoryPage() {
     });
     setSearchTerm('');
     setCurrentPage(1);
+    toast.info('Filters Reset', {
+      message: 'All filters have been cleared.',
+      duration: 3000,
+    });
   };
 
   return (
-    <DashboardLayout userType="investor">
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Transaction History
-            </h1>
-            <p className="text-gray-600">
-              View and manage all your investment transactions
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setExportModalOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Search and Filter Bar */}
-        <Card className="p-4 mb-6">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search transactions, projects, or transaction IDs..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-            <Button
-              variant={showFilters ? 'primary' : 'secondary'}
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-            </Button>
-            {(searchTerm ||
-              Object.values(filters).some(v => v !== 'all' && v !== '')) && (
-              <Button variant="secondary" onClick={resetFilters}>
-                Clear All
-              </Button>
+      <DashboardLayout userType="investor">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    Transaction History
+                  </h1>
+                  <p className="text-muted-foreground">
+                    View and manage all your investment transactions
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => setExportModalOpen(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </AnimatedButton>
+                  <AnimatedButton
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() =>
+                      toast.info('Refreshing data...', { duration: 2000 })
+                    }
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh
+                  </AnimatedButton>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Search and Filter Bar */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary-400" />
+                    <AnimatedInput
+                      type="text"
+                      placeholder="Search transactions, projects, or transaction IDs..."
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      className="w-full pl-10"
+                    />
+                  </div>
+                  <AnimatedButton
+                    variant={showFilters ? 'primary' : 'outline'}
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    Filters
+                  </AnimatedButton>
+                  {(searchTerm ||
+                    Object.values(filters).some(
+                      v => v !== 'all' && v !== ''
+                    )) && (
+                    <AnimatedButton variant="outline" onClick={resetFilters}>
+                      Clear All
+                    </AnimatedButton>
+                  )}
+                </div>
+
+                {/* Advanced Filters */}
+                {showFilters && (
+                  <ScrollReveal animation="slide-down" delay={100}>
+                    <div className="mt-6 pt-6 border-t border-primary-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Type
+                          </label>
+                          <select
+                            value={filters.type}
+                            onChange={e =>
+                              setFilters({ ...filters, type: e.target.value })
+                            }
+                            className="w-full px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                          >
+                            <option value="all">All Types</option>
+                            <option value="investment">Investment</option>
+                            <option value="return">Return</option>
+                            <option value="claim">Claim</option>
+                            <option value="withdrawal">Withdrawal</option>
+                            <option value="fee">Fee</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Status
+                          </label>
+                          <select
+                            value={filters.status}
+                            onChange={e =>
+                              setFilters({ ...filters, status: e.target.value })
+                            }
+                            className="w-full px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                          >
+                            <option value="all">All Status</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="failed">Failed</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Date Range
+                          </label>
+                          <select
+                            value={filters.dateRange}
+                            onChange={e =>
+                              setFilters({
+                                ...filters,
+                                dateRange: e.target.value,
+                              })
+                            }
+                            className="w-full px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                          >
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">Last Week</option>
+                            <option value="month">Last Month</option>
+                            <option value="year">Last Year</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Project
+                          </label>
+                          <select
+                            value={filters.project}
+                            onChange={e =>
+                              setFilters({
+                                ...filters,
+                                project: e.target.value,
+                              })
+                            }
+                            className="w-full px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                          >
+                            <option value="all">All Projects</option>
+                            {uniqueProjects.map(project => (
+                              <option key={project.id} value={project.id}>
+                                {project.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Amount Range (IDR)
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              placeholder="Min amount"
+                              value={filters.amountRange.min}
+                              onChange={e =>
+                                setFilters({
+                                  ...filters,
+                                  amountRange: {
+                                    ...filters.amountRange,
+                                    min: e.target.value,
+                                  },
+                                })
+                              }
+                              className="flex-1 px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                            />
+                            <span className="text-primary-600 font-medium">
+                              to
+                            </span>
+                            <input
+                              type="number"
+                              placeholder="Max amount"
+                              value={filters.amountRange.max}
+                              onChange={e =>
+                                setFilters({
+                                  ...filters,
+                                  amountRange: {
+                                    ...filters.amountRange,
+                                    max: e.target.value,
+                                  },
+                                })
+                              }
+                              className="flex-1 px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                )}
+              </div>
+            </ScrollReveal>
+
+            {/* Results Summary */}
+            <ScrollReveal animation="fade" delay={300}>
+              <div className="mb-6 flex items-center justify-between text-sm">
+                <span className="text-primary-600 font-medium">
+                  Showing {paginatedTransactions.length} of{' '}
+                  {filteredTransactions.length} transactions
+                </span>
+                <span className="text-primary-600 font-medium">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </div>
+            </ScrollReveal>
+
+            {/* Transactions Table */}
+            <ScrollReveal animation="slide-up" delay={400}>
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-gradient mb-2">
+                    Transaction History
+                  </h2>
+                  <p className="text-primary-600">
+                    Complete record of all your investment activities
+                  </p>
+                </div>
+                <div className="glass-modern rounded-xl overflow-hidden">
+                  {paginatedTransactions.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gradient-to-r from-primary-50 to-primary-100">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Type
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Project
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Amount
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white/50 backdrop-blur-sm divide-y divide-primary-100">
+                          {paginatedTransactions.map(transaction => (
+                            <tr
+                              key={transaction.id}
+                              className="hover:bg-primary-50/30 hover-glow transition-all duration-300"
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-3">
+                                  {getTransactionIcon(transaction.type)}
+                                  <div>
+                                    <div className="font-semibold text-primary-800">
+                                      {getTransactionTypeLabel(
+                                        transaction.type
+                                      )}
+                                    </div>
+                                    <div className="text-sm text-primary-600 font-mono">
+                                      {transaction.transactionId}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                  <div className="font-semibold text-primary-800">
+                                    {transaction.projectTitle}
+                                  </div>
+                                  <div className="text-sm text-primary-600">
+                                    {transaction.category}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                  <div
+                                    className={`font-bold ${
+                                      [
+                                        'investment',
+                                        'fee',
+                                        'withdrawal',
+                                      ].includes(transaction.type)
+                                        ? 'text-accent-600'
+                                        : 'text-success-600'
+                                    }`}
+                                  >
+                                    {[
+                                      'investment',
+                                      'fee',
+                                      'withdrawal',
+                                    ].includes(transaction.type)
+                                      ? '-'
+                                      : '+'}
+                                    {formatCurrency(transaction.amount)}
+                                  </div>
+                                  {transaction.feeAmount && (
+                                    <div className="text-sm text-primary-600">
+                                      Fee:{' '}
+                                      {formatCurrency(transaction.feeAmount)}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                  <div className="text-primary-800 font-semibold">
+                                    {formatDate(transaction.date)}
+                                  </div>
+                                  <div className="text-sm text-primary-600">
+                                    {new Date(
+                                      transaction.date
+                                    ).toLocaleTimeString('id-ID', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-3 py-2 rounded-xl text-xs font-bold ${getStatusColor(transaction.status)}`}
+                                >
+                                  {getStatusLabel(transaction.status)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <AnimatedButton
+                                  variant="outline"
+                                  onClick={() =>
+                                    setSelectedTransaction(transaction)
+                                  }
+                                  className="text-sm flex items-center gap-2"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  Details
+                                </AnimatedButton>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="p-16 text-center">
+                      <div className="w-20 h-20 feature-icon mx-auto mb-8 hover-scale">
+                        <FileText className="w-10 h-10" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gradient mb-4">
+                        No Transactions Found
+                      </h3>
+                      <p className="text-primary-600 mb-8 max-w-md mx-auto">
+                        {searchTerm ||
+                        Object.values(filters).some(
+                          v => v !== 'all' && v !== ''
+                        )
+                          ? 'Try adjusting your search or filter criteria.'
+                          : "You haven't made any transactions yet."}
+                      </p>
+                      {!searchTerm &&
+                        !Object.values(filters).some(
+                          v => v !== 'all' && v !== ''
+                        ) && (
+                          <Link href="/marketplace">
+                            <AnimatedButton>Browse Projects</AnimatedButton>
+                          </Link>
+                        )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <ScrollReveal animation="slide-up" delay={500}>
+                <div className="mt-8 flex items-center justify-between glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                  <div className="text-sm text-primary-600 font-medium">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+                    {Math.min(
+                      currentPage * ITEMS_PER_PAGE,
+                      filteredTransactions.length
+                    )}{' '}
+                    of {filteredTransactions.length} results
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </AnimatedButton>
+                    <div className="flex items-center gap-2">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          const page = i + 1;
+                          return (
+                            <AnimatedButton
+                              key={page}
+                              variant={
+                                currentPage === page ? 'primary' : 'outline'
+                              }
+                              onClick={() => setCurrentPage(page)}
+                              className="w-10 h-10 p-0"
+                            >
+                              {page}
+                            </AnimatedButton>
+                          );
+                        }
+                      )}
+                      {totalPages > 5 && (
+                        <span className="text-primary-500 font-medium">
+                          ...
+                        </span>
+                      )}
+                    </div>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* Transaction Details Modal */}
+            {selectedTransaction && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gradient mb-2">
+                        Transaction Details
+                      </h2>
+                      <p className="text-primary-600">
+                        Complete transaction information and blockchain data
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setSelectedTransaction(null)}
+                      className="w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 pb-6 border-b border-primary-200">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                        {getTransactionIcon(selectedTransaction.type)}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gradient mb-1">
+                          {getTransactionTypeLabel(selectedTransaction.type)}
+                        </h3>
+                        <p className="text-primary-600">
+                          {selectedTransaction.description}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-3 py-2 rounded-xl text-sm font-bold ${getStatusColor(selectedTransaction.status)}`}
+                      >
+                        {getStatusLabel(selectedTransaction.status)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-semibold text-primary-700 mb-3">
+                          Transaction ID
+                        </label>
+                        <p className="text-primary-800 font-mono font-bold">
+                          {selectedTransaction.transactionId}
+                        </p>
+                      </div>
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-semibold text-primary-700 mb-3">
+                          Date & Time
+                        </label>
+                        <p className="text-primary-800 font-medium">
+                          {formatDateTime(selectedTransaction.date)}
+                        </p>
+                      </div>
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-semibold text-primary-700 mb-3">
+                          Project
+                        </label>
+                        <p className="text-primary-800 font-medium">
+                          {selectedTransaction.projectTitle}
+                        </p>
+                      </div>
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-semibold text-primary-700 mb-3">
+                          Category
+                        </label>
+                        <p className="text-primary-800 font-medium">
+                          {selectedTransaction.category}
+                        </p>
+                      </div>
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-semibold text-primary-700 mb-3">
+                          Amount
+                        </label>
+                        <p
+                          className={`text-xl font-bold ${
+                            ['investment', 'fee', 'withdrawal'].includes(
+                              selectedTransaction.type
+                            )
+                              ? 'text-accent-600'
+                              : 'text-success-600'
+                          }`}
+                        >
+                          {['investment', 'fee', 'withdrawal'].includes(
+                            selectedTransaction.type
+                          )
+                            ? '-'
+                            : '+'}
+                          {formatCurrency(selectedTransaction.amount)}
+                        </p>
+                      </div>
+                      {selectedTransaction.feeAmount && (
+                        <div className="glass-modern rounded-xl p-6">
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Fee
+                          </label>
+                          <p className="text-primary-800 font-medium">
+                            {formatCurrency(selectedTransaction.feeAmount)}
+                          </p>
+                        </div>
+                      )}
+                      {selectedTransaction.exchangeRate && (
+                        <div className="glass-modern rounded-xl p-6">
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Exchange Rate
+                          </label>
+                          <p className="text-primary-800 font-medium">
+                            IDR{' '}
+                            {selectedTransaction.exchangeRate.toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {selectedTransaction.paymentMethod && (
+                        <div className="glass-modern rounded-xl p-6">
+                          <label className="block text-sm font-semibold text-primary-700 mb-3">
+                            Payment Method
+                          </label>
+                          <p className="text-primary-800 font-medium">
+                            {selectedTransaction.paymentMethod}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedTransaction.blockchainHash && (
+                      <div className="glass-modern rounded-xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <label className="block text-sm font-semibold text-primary-700">
+                            Blockchain Hash
+                          </label>
+                          <AnimatedButton
+                            variant="outline"
+                            className="text-xs flex items-center gap-2"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            View on Explorer
+                          </AnimatedButton>
+                        </div>
+                        <p className="text-sm font-mono text-primary-800 break-all bg-primary-50 p-3 rounded-lg">
+                          {selectedTransaction.blockchainHash}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Export Modal */}
+            {exportModalOpen && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gradient mb-2">
+                        Export Transaction History
+                      </h2>
+                      <p className="text-primary-600">
+                        Download your transaction data in your preferred format
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setExportModalOpen(false)}
+                      className="w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="glass-modern rounded-xl p-6">
+                      <label className="block text-sm font-semibold text-primary-700 mb-4">
+                        Export Format
+                      </label>
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-3 p-3 glass-hero rounded-lg hover-glow transition-all duration-300 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="format"
+                            value="csv"
+                            checked={exportFormat === 'csv'}
+                            onChange={e => setExportFormat(e.target.value)}
+                            className="text-primary-600"
+                          />
+                          <span className="text-primary-800 font-medium">
+                            CSV (Excel Compatible)
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-3 p-3 glass-hero rounded-lg hover-glow transition-all duration-300 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="format"
+                            value="pdf"
+                            checked={exportFormat === 'pdf'}
+                            onChange={e => setExportFormat(e.target.value)}
+                            className="text-primary-600"
+                          />
+                          <span className="text-primary-800 font-medium">
+                            PDF Report
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="glass-modern rounded-xl p-6">
+                      <label className="block text-sm font-semibold text-primary-700 mb-4">
+                        Date Range
+                      </label>
+                      <select
+                        value={exportDateRange}
+                        onChange={e => setExportDateRange(e.target.value)}
+                        className="w-full px-3 py-2 glass-modern border-primary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-400 hover-glow transition-all duration-300"
+                      >
+                        <option value="all">All Transactions</option>
+                        <option value="year">Last Year</option>
+                        <option value="month">Last Month</option>
+                        <option value="week">Last Week</option>
+                      </select>
+                    </div>
+
+                    <div className="glass-modern rounded-xl p-6">
+                      <p className="text-primary-600 mb-6 text-center">
+                        This will export{' '}
+                        <span className="font-bold text-gradient">
+                          {filteredTransactions.length} transactions
+                        </span>{' '}
+                        matching your current filters.
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <AnimatedButton
+                          variant="outline"
+                          onClick={() => setExportModalOpen(false)}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </AnimatedButton>
+                        <AnimatedButton
+                          onClick={handleExport}
+                          className="flex-1 flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Export {exportFormat.toUpperCase()}
+                        </AnimatedButton>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-
-          {/* Advanced Filters */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
-                  </label>
-                  <select
-                    value={filters.type}
-                    onChange={e =>
-                      setFilters({ ...filters, type: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="all">All Types</option>
-                    <option value="investment">Investment</option>
-                    <option value="return">Return</option>
-                    <option value="claim">Claim</option>
-                    <option value="withdrawal">Withdrawal</option>
-                    <option value="fee">Fee</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={filters.status}
-                    onChange={e =>
-                      setFilters({ ...filters, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="failed">Failed</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date Range
-                  </label>
-                  <select
-                    value={filters.dateRange}
-                    onChange={e =>
-                      setFilters({ ...filters, dateRange: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="all">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">Last Week</option>
-                    <option value="month">Last Month</option>
-                    <option value="year">Last Year</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Project
-                  </label>
-                  <select
-                    value={filters.project}
-                    onChange={e =>
-                      setFilters({ ...filters, project: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="all">All Projects</option>
-                    {uniqueProjects.map(project => (
-                      <option key={project.id} value={project.id}>
-                        {project.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Amount Range (IDR)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min amount"
-                      value={filters.amountRange.min}
-                      onChange={e =>
-                        setFilters({
-                          ...filters,
-                          amountRange: {
-                            ...filters.amountRange,
-                            min: e.target.value,
-                          },
-                        })
-                      }
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                    <span className="text-gray-500">to</span>
-                    <input
-                      type="number"
-                      placeholder="Max amount"
-                      value={filters.amountRange.max}
-                      onChange={e =>
-                        setFilters({
-                          ...filters,
-                          amountRange: {
-                            ...filters.amountRange,
-                            max: e.target.value,
-                          },
-                        })
-                      }
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Results Summary */}
-        <div className="mb-4 flex items-center justify-between text-sm text-gray-600">
-          <span>
-            Showing {paginatedTransactions.length} of{' '}
-            {filteredTransactions.length} transactions
-          </span>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-        </div>
-
-        {/* Transactions Table */}
-        <Card className="overflow-hidden">
-          {paginatedTransactions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Project
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedTransactions.map(transaction => (
-                    <tr key={transaction.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          {getTransactionIcon(transaction.type)}
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {getTransactionTypeLabel(transaction.type)}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {transaction.transactionId}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {transaction.projectTitle}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {transaction.category}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div
-                            className={`font-medium ${
-                              ['investment', 'fee', 'withdrawal'].includes(
-                                transaction.type
-                              )
-                                ? 'text-red-600'
-                                : 'text-green-600'
-                            }`}
-                          >
-                            {['investment', 'fee', 'withdrawal'].includes(
-                              transaction.type
-                            )
-                              ? '-'
-                              : '+'}
-                            {formatCurrency(transaction.amount)}
-                          </div>
-                          {transaction.feeAmount && (
-                            <div className="text-sm text-gray-500">
-                              Fee: {formatCurrency(transaction.feeAmount)}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-gray-900">
-                            {formatDate(transaction.date)}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {new Date(transaction.date).toLocaleTimeString(
-                              'id-ID',
-                              {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              }
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}
-                        >
-                          {getStatusLabel(transaction.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Button
-                          variant="secondary"
-                          onClick={() => setSelectedTransaction(transaction)}
-                          className="text-sm flex items-center gap-1"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Details
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-12 text-center">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Transactions Found
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm ||
-                Object.values(filters).some(v => v !== 'all' && v !== '')
-                  ? 'Try adjusting your search or filter criteria.'
-                  : "You haven't made any transactions yet."}
-              </p>
-              {!searchTerm &&
-                !Object.values(filters).some(v => v !== 'all' && v !== '') && (
-                  <Link href="/marketplace">
-                    <Button variant="primary">Browse Projects</Button>
-                  </Link>
-                )}
-            </div>
-          )}
-        </Card>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
-              {Math.min(
-                currentPage * ITEMS_PER_PAGE,
-                filteredTransactions.length
-              )}{' '}
-              of {filteredTransactions.length} results
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex items-center gap-1"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? 'primary' : 'secondary'}
-                      onClick={() => setCurrentPage(page)}
-                      className="w-8 h-8 p-0"
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
-                {totalPages > 5 && <span className="text-gray-500">...</span>}
-              </div>
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-1"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Transaction Details Modal */}
-        {selectedTransaction && (
-          <Modal
-            isOpen={!!selectedTransaction}
-            onClose={() => setSelectedTransaction(null)}
-            title="Transaction Details"
-          >
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b">
-                  {getTransactionIcon(selectedTransaction.type)}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
-                      {getTransactionTypeLabel(selectedTransaction.type)}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {selectedTransaction.description}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTransaction.status)}`}
-                  >
-                    {getStatusLabel(selectedTransaction.status)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500">Transaction ID:</span>
-                    <span className="ml-2 font-mono">
-                      {selectedTransaction.transactionId}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Date & Time:</span>
-                    <span className="ml-2">
-                      {formatDateTime(selectedTransaction.date)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Project:</span>
-                    <span className="ml-2">
-                      {selectedTransaction.projectTitle}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Category:</span>
-                    <span className="ml-2">{selectedTransaction.category}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Amount:</span>
-                    <span
-                      className={`ml-2 font-medium ${
-                        ['investment', 'fee', 'withdrawal'].includes(
-                          selectedTransaction.type
-                        )
-                          ? 'text-red-600'
-                          : 'text-green-600'
-                      }`}
-                    >
-                      {['investment', 'fee', 'withdrawal'].includes(
-                        selectedTransaction.type
-                      )
-                        ? '-'
-                        : '+'}
-                      {formatCurrency(selectedTransaction.amount)}
-                    </span>
-                  </div>
-                  {selectedTransaction.feeAmount && (
-                    <div>
-                      <span className="text-gray-500">Fee:</span>
-                      <span className="ml-2">
-                        {formatCurrency(selectedTransaction.feeAmount)}
-                      </span>
-                    </div>
-                  )}
-                  {selectedTransaction.exchangeRate && (
-                    <div>
-                      <span className="text-gray-500">Exchange Rate:</span>
-                      <span className="ml-2">
-                        IDR {selectedTransaction.exchangeRate.toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                  {selectedTransaction.paymentMethod && (
-                    <div>
-                      <span className="text-gray-500">Payment Method:</span>
-                      <span className="ml-2">
-                        {selectedTransaction.paymentMethod}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedTransaction.blockchainHash && (
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        Blockchain Hash:
-                      </span>
-                      <Button
-                        variant="secondary"
-                        className="text-xs flex items-center gap-1"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        View on Explorer
-                      </Button>
-                    </div>
-                    <p className="text-sm font-mono text-gray-900 mt-1 break-all">
-                      {selectedTransaction.blockchainHash}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Modal>
-        )}
-
-        {/* Export Modal */}
-        {exportModalOpen && (
-          <Modal
-            isOpen={exportModalOpen}
-            onClose={() => setExportModalOpen(false)}
-            title="Export Transaction History"
-          >
-            <div className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Export Format
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="format"
-                        value="csv"
-                        checked={exportFormat === 'csv'}
-                        onChange={e => setExportFormat(e.target.value)}
-                        className="text-primary-600"
-                      />
-                      <span>CSV (Excel Compatible)</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="format"
-                        value="pdf"
-                        checked={exportFormat === 'pdf'}
-                        onChange={e => setExportFormat(e.target.value)}
-                        className="text-primary-600"
-                      />
-                      <span>PDF Report</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Range
-                  </label>
-                  <select
-                    value={exportDateRange}
-                    onChange={e => setExportDateRange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="all">All Transactions</option>
-                    <option value="year">Last Year</option>
-                    <option value="month">Last Month</option>
-                    <option value="week">Last Week</option>
-                  </select>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-gray-600 mb-4">
-                    This will export {filteredTransactions.length} transactions
-                    matching your current filters.
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="secondary"
-                      onClick={() => setExportModalOpen(false)}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={handleExport}
-                      className="flex-1 flex items-center justify-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Export {exportFormat.toUpperCase()}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Modal>
-        )}
-      </div>
-    </DashboardLayout>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

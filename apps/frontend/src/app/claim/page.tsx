@@ -1,15 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  DashboardLayout,
-  StatsCard,
-  DataTable,
-  Button,
-  Modal,
-  Input,
-  Card,
-} from '@/components/ui';
+import { DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
+import { DollarSign, CheckCircle, Clock } from 'lucide-react';
 
 interface ClaimableAmount extends Record<string, unknown> {
   projectId: string;
@@ -177,6 +175,11 @@ export default function ClaimPage() {
     setClaimHistory(prev => [newHistoryItem, ...prev]);
     setIsClaimModalOpen(false);
     setSelectedClaim(null);
+
+    toast.success('Claim Processed!', {
+      message: `Your claim for ${selectedClaim.currency} ${selectedClaim.amount.toLocaleString()} has been submitted for processing.`,
+      duration: 5000,
+    });
   };
 
   const handleBankAccountSave = async () => {
@@ -188,6 +191,11 @@ export default function ClaimPage() {
 
     setBankAccount(bankForm);
     setIsBankModalOpen(false);
+
+    toast.success('Bank Account Saved!', {
+      message: 'Your bank account information has been updated successfully.',
+      duration: 4000,
+    });
   };
 
   const claimableColumns = [
@@ -204,12 +212,12 @@ export default function ClaimPage() {
       label: 'Status',
       render: (value: unknown) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
+          className={`px-3 py-1 rounded-xl text-xs font-bold ${
             (value as string) === 'available'
-              ? 'bg-green-100 text-green-800'
+              ? 'bg-gradient-to-r from-success-100 to-success-200 text-success-700'
               : (value as string) === 'processing'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-gray-100 text-gray-800'
+                ? 'bg-gradient-to-r from-secondary-100 to-secondary-200 text-secondary-700'
+                : 'bg-gradient-to-r from-muted-100 to-muted-200 text-muted-700'
           }`}
         >
           {(value as string).charAt(0).toUpperCase() +
@@ -221,14 +229,14 @@ export default function ClaimPage() {
       key: 'actions',
       label: 'Actions',
       render: (_: unknown, row: ClaimableAmount) => (
-        <Button
+        <AnimatedButton
           size="sm"
           onClick={() => handleClaim(row)}
           disabled={row.status !== 'available'}
-          className="bg-primary-500 hover:bg-primary-600"
+          ripple={row.status === 'available'}
         >
           {row.status === 'available' ? 'Claim' : 'Processing'}
-        </Button>
+        </AnimatedButton>
       ),
     },
   ];
@@ -247,12 +255,12 @@ export default function ClaimPage() {
       label: 'Status',
       render: (value: unknown) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
+          className={`px-3 py-1 rounded-xl text-xs font-bold ${
             (value as string) === 'completed'
-              ? 'bg-green-100 text-green-800'
+              ? 'bg-gradient-to-r from-success-100 to-success-200 text-success-700'
               : (value as string) === 'failed'
-                ? 'bg-red-100 text-red-800'
-                : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-gradient-to-r from-accent-100 to-accent-200 text-accent-700'
+                : 'bg-gradient-to-r from-secondary-100 to-secondary-200 text-secondary-700'
           }`}
         >
           {(value as string).charAt(0).toUpperCase() +
@@ -264,244 +272,432 @@ export default function ClaimPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-gray-200 h-32 rounded-lg"></div>
-            ))}
-          </div>
-          <div className="bg-gray-200 h-96 rounded-lg"></div>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
         </div>
-      </DashboardLayout>
+
+        <DashboardLayout userType="investor">
+          <div className="animate-pulse space-y-8 p-6 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="glass-feature h-32 rounded-2xl"></div>
+              ))}
+            </div>
+            <div className="glass-feature h-96 rounded-2xl"></div>
+          </div>
+        </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout userType="investor">
-      <div className="space-y-8 p-6">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profit Claims</h1>
-            <p className="text-gray-600 mt-1">
-              Claim your profit distributions from infrastructure investments
-            </p>
-          </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-          <Button
-            onClick={() => setIsBankModalOpen(true)}
-            variant="outline"
-            className="border-primary-500 text-primary-600 hover:bg-primary-50"
-          >
-            {bankAccount ? 'Update Bank Account' : 'Add Bank Account'}
-          </Button>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="Total Claimable"
-            value={`IDR ${totalClaimable.toLocaleString()}`}
-            subtitle="Available for withdrawal"
-            changeType="increase"
-          />
-          <StatsCard
-            title="Total Claimed"
-            value={`IDR ${totalClaimed.toLocaleString()}`}
-            subtitle="Successfully withdrawn"
-            changeType="neutral"
-          />
-          <StatsCard
-            title="Active Claims"
-            value={claimableAmounts
-              .filter(c => c.status === 'processing')
-              .length.toString()}
-            subtitle="Currently processing"
-            changeType="neutral"
-          />
-        </div>
-
-        {/* Bank Account Info */}
-        {bankAccount && (
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Withdrawal Bank Account
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="text-gray-500">Bank:</span>
-                <p className="font-medium">{bankAccount.bankName}</p>
-              </div>
-              <div>
-                <span className="text-gray-500">Account Number:</span>
-                <p className="font-medium">
-                  ****{bankAccount.accountNumber.slice(-4)}
-                </p>
-              </div>
-              <div>
-                <span className="text-gray-500">Account Holder:</span>
-                <p className="font-medium">{bankAccount.accountHolder}</p>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Claimable Amounts */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Available Claims
-          </h3>
-          {claimableAmounts.length > 0 ? (
-            <DataTable data={claimableAmounts} columns={claimableColumns} />
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No claimable amounts available
-            </div>
-          )}
-        </Card>
-
-        {/* Claim History */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Claim History
-          </h3>
-          {claimHistory.length > 0 ? (
-            <DataTable data={claimHistory} columns={historyColumns} />
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No claim history available
-            </div>
-          )}
-        </Card>
-
-        {/* Bank Account Modal */}
-        <Modal
-          isOpen={isBankModalOpen}
-          onClose={() => setIsBankModalOpen(false)}
-          title="Bank Account Information"
-        >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="bankName">Bank Name</label>
-              <Input
-                id="bankName"
-                value={bankForm.bankName}
-                onChange={e =>
-                  setBankForm(prev => ({ ...prev, bankName: e.target.value }))
-                }
-                placeholder="e.g., Bank Central Asia"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="accountNumber">Account Number</label>
-              <Input
-                id="accountNumber"
-                value={bankForm.accountNumber}
-                onChange={e =>
-                  setBankForm(prev => ({
-                    ...prev,
-                    accountNumber: e.target.value,
-                  }))
-                }
-                placeholder="Enter your account number"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="accountName">Account Holder Name</label>
-              <Input
-                id="Account Holder Name"
-                value={bankForm.accountHolder}
-                onChange={e =>
-                  setBankForm(prev => ({
-                    ...prev,
-                    accountHolder: e.target.value,
-                  }))
-                }
-                placeholder="Enter account holder name"
-              />
-            </div>
-            <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleBankAccountSave}
-                disabled={
-                  !bankForm.bankName ||
-                  !bankForm.accountNumber ||
-                  !bankForm.accountHolder
-                }
-                className="flex-1 bg-primary-500 hover:bg-primary-600"
-              >
-                Save Bank Account
-              </Button>
-              <Button
-                onClick={() => setIsBankModalOpen(false)}
-                variant="outline"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Claim Confirmation Modal */}
-        <Modal
-          isOpen={isClaimModalOpen}
-          onClose={() => setIsClaimModalOpen(false)}
-          title="Confirm Claim"
-        >
-          {selectedClaim && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Project:</span>
-                  <span className="font-medium">
-                    {selectedClaim.projectName}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Period:</span>
-                  <span className="font-medium">{selectedClaim.period}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium text-lg">
-                    {selectedClaim.currency}{' '}
-                    {selectedClaim.amount.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-
-              {bankAccount && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Withdrawal to:</strong> {bankAccount.bankName} -
-                    ****{bankAccount.accountNumber.slice(-4)} (
-                    {bankAccount.accountHolder})
+      <DashboardLayout userType="investor">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    Profit Claims
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Claim your profit distributions from infrastructure
+                    investments
                   </p>
                 </div>
-              )}
 
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={processClaim}
-                  disabled={!bankAccount}
-                  className="flex-1 bg-primary-500 hover:bg-primary-600"
-                >
-                  {bankAccount ? 'Confirm Claim' : 'Add Bank Account First'}
-                </Button>
-                <Button
-                  onClick={() => setIsClaimModalOpen(false)}
+                <AnimatedButton
+                  onClick={() => setIsBankModalOpen(true)}
                   variant="outline"
-                  className="flex-1"
                 >
-                  Cancel
-                </Button>
+                  {bankAccount ? 'Update Bank Account' : 'Add Bank Account'}
+                </AnimatedButton>
               </div>
-            </div>
-          )}
-        </Modal>
-      </div>
-    </DashboardLayout>
+            </ScrollReveal>
+
+            {/* Stats Cards */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    Available
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    IDR {totalClaimable.toLocaleString()}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Claimable
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Available for withdrawal
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    All time
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    IDR {totalClaimed.toLocaleString()}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Claimed
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Successfully withdrawn
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Processing
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {
+                      claimableAmounts.filter(c => c.status === 'processing')
+                        .length
+                    }
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Active Claims
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Currently processing
+                  </p>
+                </div>
+              </div>
+            </StaggeredList>
+
+            {/* Bank Account Info */}
+            {bankAccount && (
+              <ScrollReveal animation="slide-up" delay={200}>
+                <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                  <h3 className="text-lg font-semibold text-gradient mb-4">
+                    Withdrawal Bank Account
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="glass-modern rounded-xl p-4">
+                      <span className="text-primary-600 font-medium">
+                        Bank:
+                      </span>
+                      <p className="font-bold text-primary-800 mt-1">
+                        {bankAccount.bankName}
+                      </p>
+                    </div>
+                    <div className="glass-modern rounded-xl p-4">
+                      <span className="text-primary-600 font-medium">
+                        Account Number:
+                      </span>
+                      <p className="font-bold text-primary-800 mt-1">
+                        ****{bankAccount.accountNumber.slice(-4)}
+                      </p>
+                    </div>
+                    <div className="glass-modern rounded-xl p-4">
+                      <span className="text-primary-600 font-medium">
+                        Account Holder:
+                      </span>
+                      <p className="font-bold text-primary-800 mt-1">
+                        {bankAccount.accountHolder}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* Claimable Amounts */}
+            <ScrollReveal animation="slide-up" delay={300}>
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-gradient mb-2">
+                    Available Claims
+                  </h2>
+                  <p className="text-primary-600">
+                    Claim your profit distributions when available
+                  </p>
+                </div>
+                {claimableAmounts.length > 0 ? (
+                  <div className="glass-modern rounded-xl overflow-hidden">
+                    <DataTable
+                      data={claimableAmounts}
+                      columns={claimableColumns}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 feature-icon mx-auto mb-6 hover-scale">
+                      <DollarSign className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gradient mb-3">
+                      No Claims Available
+                    </h3>
+                    <p className="text-primary-600">
+                      Profit distributions will appear here when available
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
+
+            {/* Claim History */}
+            <ScrollReveal animation="slide-up" delay={400}>
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-gradient mb-2">
+                    Claim History
+                  </h2>
+                  <p className="text-primary-600">
+                    Track all your previous profit distributions and claims
+                  </p>
+                </div>
+                {claimHistory.length > 0 ? (
+                  <div className="glass-modern rounded-xl overflow-hidden">
+                    <DataTable data={claimHistory} columns={historyColumns} />
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 feature-icon mx-auto mb-6 hover-scale">
+                      <Clock className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gradient mb-3">
+                      No History Yet
+                    </h3>
+                    <p className="text-primary-600">
+                      Your claim history will appear here after your first
+                      distribution
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
+
+            {/* Bank Account Modal */}
+            {isBankModalOpen && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gradient mb-2">
+                        Bank Account Information
+                      </h2>
+                      <p className="text-primary-600">
+                        Set up your withdrawal bank account
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setIsBankModalOpen(false)}
+                      className="w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="glass-modern rounded-xl p-4">
+                      <AnimatedInput
+                        id="bankName"
+                        label="Bank Name"
+                        value={bankForm.bankName}
+                        onChange={e =>
+                          setBankForm(prev => ({
+                            ...prev,
+                            bankName: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g., Bank Central Asia"
+                      />
+                    </div>
+
+                    <div className="glass-modern rounded-xl p-4">
+                      <AnimatedInput
+                        id="accountNumber"
+                        label="Account Number"
+                        value={bankForm.accountNumber}
+                        onChange={e =>
+                          setBankForm(prev => ({
+                            ...prev,
+                            accountNumber: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter your account number"
+                      />
+                    </div>
+
+                    <div className="glass-modern rounded-xl p-4">
+                      <AnimatedInput
+                        id="accountHolder"
+                        label="Account Holder Name"
+                        value={bankForm.accountHolder}
+                        onChange={e =>
+                          setBankForm(prev => ({
+                            ...prev,
+                            accountHolder: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter account holder name"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <AnimatedButton
+                        onClick={handleBankAccountSave}
+                        disabled={
+                          !bankForm.bankName ||
+                          !bankForm.accountNumber ||
+                          !bankForm.accountHolder
+                        }
+                        className="flex-1"
+                        loading={false}
+                      >
+                        Save Bank Account
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={() => setIsBankModalOpen(false)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancel
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Claim Confirmation Modal */}
+            {isClaimModalOpen && selectedClaim && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gradient mb-2">
+                        Confirm Claim
+                      </h2>
+                      <p className="text-primary-600">
+                        Review and confirm your profit claim
+                      </p>
+                    </div>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setIsClaimModalOpen(false)}
+                      className="w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="glass-modern rounded-xl p-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-primary-600 font-medium">
+                          Project:
+                        </span>
+                        <span className="font-bold text-primary-800">
+                          {selectedClaim.projectName}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-primary-600 font-medium">
+                          Period:
+                        </span>
+                        <span className="font-bold text-primary-800">
+                          {selectedClaim.period}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-primary-200">
+                        <span className="text-primary-600 font-medium">
+                          Amount:
+                        </span>
+                        <span className="font-bold text-2xl text-gradient">
+                          {selectedClaim.currency}{' '}
+                          {selectedClaim.amount.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {bankAccount && (
+                      <div className="glass-hero rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="font-semibold text-primary-700">
+                            Withdrawal Destination
+                          </span>
+                        </div>
+                        <p className="text-primary-800 font-medium">
+                          {bankAccount.bankName} - ****
+                          {bankAccount.accountNumber.slice(-4)} (
+                          {bankAccount.accountHolder})
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 pt-4">
+                      <AnimatedButton
+                        onClick={processClaim}
+                        disabled={!bankAccount}
+                        className="flex-1"
+                        ripple
+                      >
+                        {bankAccount
+                          ? 'Confirm Claim'
+                          : 'Add Bank Account First'}
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={() => setIsClaimModalOpen(false)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancel
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

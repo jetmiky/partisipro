@@ -30,8 +30,12 @@ import type {
   LegalDocument,
   ProjectUpdate,
 } from '@/types';
-import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 // Mock project data (same as marketplace but more detailed)
 const mockProjectData = {
@@ -159,10 +163,24 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading project details...</p>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
+        </div>
+
+        <div className="flex items-center justify-center min-h-screen relative z-10">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-spin">
+              <Layers className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-primary-600 font-medium">
+              Loading project details...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -170,21 +188,31 @@ export default function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-8 h-8 text-gray-400" />
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        </div>
+        <div className="flex items-center justify-center min-h-screen relative z-10">
+          <div className="text-center">
+            <div className="w-16 h-16 feature-icon mx-auto mb-6 hover-scale">
+              <AlertTriangle className="w-8 h-8 text-accent-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gradient mb-3">
+              Project not found
+            </h3>
+            <p className="text-primary-600 mb-6 max-w-md">
+              The project you&apos;re looking for doesn&apos;t exist or has been
+              removed.
+            </p>
+            <Button
+              onClick={() => router.push('/marketplace')}
+              className="btn-modern btn-modern-primary hover-lift"
+            >
+              Back to Marketplace
+            </Button>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Project not found
-          </h3>
-          <p className="text-gray-600 mb-4">
-            The project you&apos;re looking for doesn&apos;t exist or has been
-            removed.
-          </p>
-          <Button onClick={() => router.push('/marketplace')} variant="primary">
-            Back to Marketplace
-          </Button>
         </div>
       </div>
     );
@@ -199,20 +227,20 @@ export default function ProjectDetailPage() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'coming_soon':
-        return 'bg-blue-100 text-blue-800';
-      case 'fully_funded':
-        return 'bg-purple-100 text-purple-800';
-      case 'completed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case 'active':
+  //       return 'bg-gradient-to-r from-success-100 to-success-200 text-success-700';
+  //     case 'coming_soon':
+  //       return 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700';
+  //     case 'fully_funded':
+  //       return 'bg-gradient-to-r from-secondary-100 to-secondary-200 text-secondary-700';
+  //     case 'completed':
+  //       return 'bg-gradient-to-r from-muted-100 to-muted-200 text-muted-700';
+  //     default:
+  //       return 'bg-gradient-to-r from-muted-100 to-muted-200 text-muted-700';
+  //   }
+  // };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -258,464 +286,619 @@ export default function ProjectDetailPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => router.push('/marketplace')}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Marketplace
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-lg font-semibold text-gray-900">
-                  Project Details
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="secondary" className="flex items-center gap-2">
-                <Share2 className="w-4 h-4" />
-                Share
-              </Button>
-              <Button variant="secondary" className="flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                Save
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Toast Provider for notifications */}
+      <ToastProvider />
+
+      {/* Page Transition Wrapper */}
+      <PageTransition type="fade" duration={300} transitionKey="project-detail">
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
         </div>
-      </div>
 
-      {/* Hero Section */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Project Image */}
-            <div className="lg:col-span-2">
-              <div className="aspect-video bg-gray-200 rounded-lg relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute top-4 left-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}
-                  >
-                    {project.status === 'active' ? 'Active' : project.status}
-                  </span>
-                </div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon className="w-5 h-5" />
-                    <span className="text-sm capitalize">
-                      {project.category}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{project.location}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Metrics */}
-            <div className="space-y-4">
-              <Card className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Investment Overview
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Expected Return</span>
-                    <span className="font-semibold text-primary-600 text-lg">
-                      {project.expectedReturn}% p.a.
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Duration</span>
-                    <span className="font-semibold">
-                      {project.duration} years
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Min. Investment</span>
-                    <span className="font-semibold">
-                      {formatCurrency(project.minimumInvestment)}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="font-semibold">
-                        {progressPercentage.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-primary-500 h-3 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.min(progressPercentage, 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>{formatCurrency(project.raisedAmount)}</span>
-                      <span>{formatCurrency(project.targetAmount)}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-100">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600">Investors</span>
-                      <span className="font-medium">
-                        {project.investorCount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Days remaining</span>
-                      <span className="font-medium">245 days</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  <Button
-                    onClick={() => setShowCalculator(!showCalculator)}
+        {/* Header */}
+        <ScrollReveal animation="fade" delay={0}>
+          <div className="glass-modern shadow-lg relative z-20">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <AnimatedButton
+                    onClick={() => {
+                      router.push('/marketplace');
+                      toast.info('Navigation', {
+                        message: 'Returning to marketplace...',
+                      });
+                    }}
                     variant="secondary"
-                    className="w-full flex items-center justify-center gap-2"
+                    className="flex items-center gap-2"
+                    ripple
                   >
-                    <Calculator className="w-4 h-4" />
-                    Investment Calculator
-                  </Button>
-
-                  {project.status === 'active' && (
-                    <Link href={`/invest/${project.id}`}>
-                      <Button variant="primary" className="w-full">
-                        Invest Now
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </Card>
-
-              {/* Investment Calculator */}
-              {showCalculator && (
-                <Card className="p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">
-                    Calculate Returns
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Investment Amount
-                      </label>
-                      <Input
-                        type="text"
-                        value={investmentAmount}
-                        onChange={e => setInvestmentAmount(e.target.value)}
-                        placeholder={`Min. ${formatCurrency(project.minimumInvestment)}`}
-                      />
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Marketplace
+                  </AnimatedButton>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center hover-scale transition-all duration-300">
+                      <Layers className="w-5 h-5 text-white" />
                     </div>
-
-                    {calculateReturns() && (
-                      <div className="bg-primary-50 rounded-lg p-4 space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
-                            Annual Return
-                          </span>
-                          <span className="font-medium">
-                            {formatCurrency(calculateReturns()!.annual)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">
-                            Total Return
-                          </span>
-                          <span className="font-medium">
-                            {formatCurrency(calculateReturns()!.total)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between border-t pt-2">
-                          <span className="font-medium text-gray-900">
-                            Final Value
-                          </span>
-                          <span className="font-bold text-primary-600">
-                            {formatCurrency(calculateReturns()!.finalValue)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                    <span className="text-xl font-semibold text-gradient">
+                      Project Details
+                    </span>
                   </div>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Project Title and Description */}
-          <div className="mt-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              {project.title}
-            </h1>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              {project.description}
-            </p>
-
-            {/* Highlights */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {project.highlights.map((highlight: string, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm"
-                >
-                  {highlight}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Navigation */}
-      <div className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8 overflow-x-auto">
-            {tabs.map(tab => {
-              const TabIcon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <TabIcon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Project Details
-              </h2>
-              <div className="prose prose-gray max-w-none">
-                <div className="whitespace-pre-line text-gray-700">
-                  {project.detailedDescription}
+                </div>
+                <div className="flex items-center gap-3">
+                  <AnimatedButton
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                    ripple
+                    onClick={() =>
+                      toast.info('Share Project', {
+                        message: 'Sharing project details...',
+                      })
+                    }
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </AnimatedButton>
+                  <AnimatedButton
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                    ripple
+                    onClick={() =>
+                      toast.success('Project Saved', {
+                        message: 'Project added to your saved projects',
+                      })
+                    }
+                  >
+                    <Star className="w-4 h-4" />
+                    Save
+                  </AnimatedButton>
                 </div>
               </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Key Metrics
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="p-4">
-                  <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics?.totalPassengers?.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600">Annual Passengers</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics?.dailyCapacity.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600">Daily Capacity</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics?.jobsCreated.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600">Jobs Created</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-2xl font-bold text-primary-600">
-                    {project.keyMetrics?.carbonReduction.toLocaleString()}t
-                  </div>
-                  <div className="text-sm text-gray-600">CO2 Reduction</div>
-                </Card>
-              </div>
-            </div>
           </div>
-        )}
+        </ScrollReveal>
 
-        {activeTab === 'financials' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Financial Projections
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card className="p-6">
-                <h3 className="font-medium text-gray-900 mb-4">
-                  Revenue Projections
-                </h3>
-                <div className="space-y-3">
-                  {Object.entries(project.financialProjections || {}).map(
-                    ([year, data]: [string, FinancialProjection]) => (
-                      <div
-                        key={year}
-                        className="flex justify-between items-center"
+        {/* Hero Section */}
+        <ScrollReveal animation="slide-up" delay={100}>
+          <div className="glass-hero relative z-10">
+            <div className="max-w-7xl mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Project Image */}
+                <div className="lg:col-span-2">
+                  <div className="aspect-video glass-modern rounded-2xl relative overflow-hidden hover-lift transition-all duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute top-6 left-6">
+                      <span
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold glass-feature backdrop-blur-md border border-white/20 text-white shadow-lg`}
                       >
-                        <span className="text-gray-600">
-                          Year {year.slice(-1)}
-                        </span>
-                        <span className="font-medium">
-                          {formatCurrency(data.revenue)}
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <h3 className="font-medium text-gray-900 mb-4">
-                  Expected Returns
-                </h3>
-                <div className="space-y-3">
-                  {Object.entries(project.financialProjections || {}).map(
-                    ([year, data]: [string, FinancialProjection]) => (
-                      <div
-                        key={year}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-gray-600">
-                          Year {year.slice(-1)}
-                        </span>
-                        <span className="font-medium text-primary-600">
-                          {data.returnRate}%
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'risks' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Risk Analysis
-            </h2>
-            <div className="space-y-4">
-              {project.risks?.map((risk: ProjectRisk, index: number) => (
-                <Card key={index} className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            risk.level === 'Low'
-                              ? 'bg-green-100 text-green-800'
-                              : risk.level === 'Medium'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {risk.level} Risk
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          {risk.probability}% probability
-                        </span>
-                      </div>
-                      <p className="text-gray-700">{risk.description}</p>
+                        {project.status === 'active'
+                          ? 'Active Investment'
+                          : project.status}
+                      </span>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'documents' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Legal Documents
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {project.legalDocuments?.map(
-                (doc: LegalDocument, index: number) => (
-                  <Card key={index} className="p-6">
-                    <div className="flex items-center justify-between">
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <span className="text-base font-medium capitalize">
+                          {project.category}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-red-600" />
+                        <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                          <MapPin className="w-4 h-4" />
                         </div>
+                        <span className="font-medium">{project.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Metrics */}
+                <div className="space-y-6">
+                  <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                        <BarChart3 className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gradient">
+                        Investment Overview
+                      </h3>
+                    </div>
+
+                    <StaggeredList itemDelay={100}>
+                      <div className="glass-modern rounded-xl p-4 hover-glow transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Expected Return
+                          </span>
+                          <span className="font-bold text-gradient text-xl">
+                            {project.expectedReturn}% p.a.
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-4 hover-glow transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Duration
+                          </span>
+                          <span className="font-bold text-primary-800">
+                            {project.duration} years
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-4 hover-glow transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Min. Investment
+                          </span>
+                          <span className="font-bold text-primary-800">
+                            {formatCurrency(project.minimumInvestment)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-6 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Funding Progress
+                          </span>
+                          <span className="font-bold text-gradient text-lg">
+                            {progressPercentage.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gradient-to-r from-primary-100 to-primary-200 rounded-full h-4 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-primary-500 to-primary-600 h-4 rounded-full transition-all duration-500 shadow-lg"
+                            style={{
+                              width: `${Math.min(progressPercentage, 100)}%`,
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-sm text-primary-600">
+                          <span className="font-medium">
+                            {formatCurrency(project.raisedAmount)}
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(project.targetAmount)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-6 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Investors
+                          </span>
+                          <span className="font-bold text-primary-800">
+                            {project.investorCount.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-primary-600 font-medium">
+                            Days remaining
+                          </span>
+                          <span className="font-bold text-primary-800">
+                            245 days
+                          </span>
+                        </div>
+                      </div>
+                    </StaggeredList>
+
+                    <div className="mt-8 space-y-4">
+                      <AnimatedButton
+                        onClick={() => {
+                          setShowCalculator(!showCalculator);
+                          toast.info('Investment Calculator', {
+                            message: showCalculator
+                              ? 'Calculator closed'
+                              : 'Calculator opened',
+                          });
+                        }}
+                        variant="secondary"
+                        className="w-full flex items-center justify-center gap-2"
+                        ripple
+                      >
+                        <Calculator className="w-4 h-4" />
+                        Investment Calculator
+                      </AnimatedButton>
+
+                      {project.status === 'active' && (
+                        <Link href={`/invest/${project.id}`}>
+                          <AnimatedButton
+                            variant="primary"
+                            size="lg"
+                            className="w-full"
+                            ripple
+                            onClick={() =>
+                              toast.info('Investment Flow', {
+                                message: 'Starting investment process...',
+                              })
+                            }
+                          >
+                            Invest Now
+                          </AnimatedButton>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Investment Calculator */}
+                  {showCalculator && (
+                    <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300 animate-fade-in-up">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                          <Calculator className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gradient">
+                          Calculate Returns
+                        </h3>
+                      </div>
+
+                      <div className="space-y-6">
                         <div>
-                          <h3 className="font-medium text-gray-900">
-                            {doc.name}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {doc.type} • {doc.size}
+                          <AnimatedInput
+                            type="text"
+                            label="Investment Amount"
+                            value={investmentAmount}
+                            onChange={e => setInvestmentAmount(e.target.value)}
+                            placeholder={`Min. ${formatCurrency(project.minimumInvestment)}`}
+                            className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow transition-all duration-300"
+                          />
+                        </div>
+
+                        {calculateReturns() && (
+                          <div className="glass-hero rounded-xl p-6 space-y-4 animate-fade-in-up">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-primary-700">
+                                Annual Return
+                              </span>
+                              <span className="font-bold text-gradient">
+                                {formatCurrency(calculateReturns()!.annual)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-primary-700">
+                                Total Return
+                              </span>
+                              <span className="font-bold text-gradient">
+                                {formatCurrency(calculateReturns()!.total)}
+                              </span>
+                            </div>
+                            <div className="border-t border-primary-200 pt-4">
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-primary-800">
+                                  Final Value
+                                </span>
+                                <span className="font-bold text-xl text-gradient">
+                                  {formatCurrency(
+                                    calculateReturns()!.finalValue
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Project Title and Description */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="mt-8">
+                <h1 className="text-4xl font-bold text-gradient mb-6">
+                  {project.title}
+                </h1>
+                <p className="text-primary-700 text-xl leading-relaxed mb-8">
+                  {project.description}
+                </p>
+
+                {/* Highlights */}
+                <StaggeredList className="flex flex-wrap gap-3" itemDelay={100}>
+                  {project.highlights.map(
+                    (highlight: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-6 py-3 glass-modern rounded-xl text-sm font-semibold text-primary-700 hover-lift transition-all duration-300 border border-primary-200"
+                      >
+                        {highlight}
+                      </span>
+                    )
+                  )}
+                </StaggeredList>
+              </div>
+            </ScrollReveal>
+          </div>
+        </ScrollReveal>
+
+        {/* Tabs Navigation */}
+        <ScrollReveal animation="slide-up" delay={300}>
+          <div className="glass-modern border-t border-primary-200 relative z-10">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex space-x-2 overflow-x-auto p-2">
+                {tabs.map(tab => {
+                  const TabIcon = tab.icon;
+                  return (
+                    <AnimatedButton
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        toast.info('Tab Changed', {
+                          message: `Switched to ${tab.label} tab`,
+                        });
+                      }}
+                      variant={activeTab === tab.id ? 'primary' : 'secondary'}
+                      className={`flex items-center gap-3 py-4 px-6 rounded-xl font-semibold text-sm whitespace-nowrap transition-all duration-300 ${
+                        activeTab === tab.id
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                          : 'text-primary-600 hover:text-primary-700 hover:bg-primary-50'
+                      }`}
+                      ripple
+                    >
+                      <TabIcon className="w-5 h-5" />
+                      {tab.label}
+                    </AnimatedButton>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* Tab Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {activeTab === 'overview' && (
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <h2 className="text-xl font-semibold text-gradient mb-4">
+                    Project Details
+                  </h2>
+                  <div className="prose prose-gray max-w-none">
+                    <div className="whitespace-pre-line text-gray-700">
+                      {project.detailedDescription}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gradient mb-4">
+                    Key Metrics
+                  </h2>
+                  <StaggeredList
+                    className="grid grid-cols-2 gap-4"
+                    itemDelay={100}
+                  >
+                    <Card className="glass-feature p-4 hover-lift transition-all duration-300">
+                      <div className="text-2xl font-bold text-primary-600">
+                        {project.keyMetrics?.totalPassengers?.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Annual Passengers
+                      </div>
+                    </Card>
+                    <Card className="glass-feature p-4 hover-lift transition-all duration-300">
+                      <div className="text-2xl font-bold text-primary-600">
+                        {project.keyMetrics?.dailyCapacity.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Daily Capacity
+                      </div>
+                    </Card>
+                    <Card className="glass-feature p-4 hover-lift transition-all duration-300">
+                      <div className="text-2xl font-bold text-primary-600">
+                        {project.keyMetrics?.jobsCreated.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-600">Jobs Created</div>
+                    </Card>
+                    <Card className="glass-feature p-4 hover-lift transition-all duration-300">
+                      <div className="text-2xl font-bold text-primary-600">
+                        {project.keyMetrics?.carbonReduction.toLocaleString()}t
+                      </div>
+                      <div className="text-sm text-gray-600">CO2 Reduction</div>
+                    </Card>
+                  </StaggeredList>
+                </div>
+              </div>
+            </ScrollReveal>
+          )}
+
+          {activeTab === 'financials' && (
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div>
+                <h2 className="text-xl font-semibold text-gradient mb-6">
+                  Financial Projections
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                    <h3 className="font-medium text-gradient mb-4">
+                      Revenue Projections
+                    </h3>
+                    <StaggeredList itemDelay={100}>
+                      {Object.entries(project.financialProjections || {}).map(
+                        ([year, data]: [string, FinancialProjection]) => (
+                          <div
+                            key={year}
+                            className="flex justify-between items-center glass-modern p-3 rounded-lg hover-glow transition-all duration-300"
+                          >
+                            <span className="text-gray-600 font-medium">
+                              Year {year.slice(-1)}
+                            </span>
+                            <span className="font-bold text-primary-600">
+                              {formatCurrency(data.revenue)}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </StaggeredList>
+                  </Card>
+
+                  <Card className="glass-feature p-6 hover-lift transition-all duration-300">
+                    <h3 className="font-medium text-gradient mb-4">
+                      Expected Returns
+                    </h3>
+                    <StaggeredList itemDelay={100}>
+                      {Object.entries(project.financialProjections || {}).map(
+                        ([year, data]: [string, FinancialProjection]) => (
+                          <div
+                            key={year}
+                            className="flex justify-between items-center glass-modern p-3 rounded-lg hover-glow transition-all duration-300"
+                          >
+                            <span className="text-gray-600 font-medium">
+                              Year {year.slice(-1)}
+                            </span>
+                            <span className="font-bold text-gradient text-lg">
+                              {data.returnRate}%
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </StaggeredList>
+                  </Card>
+                </div>
+              </div>
+            </ScrollReveal>
+          )}
+
+          {activeTab === 'risks' && (
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div>
+                <h2 className="text-xl font-semibold text-gradient mb-6">
+                  Risk Analysis
+                </h2>
+                <StaggeredList itemDelay={100}>
+                  {project.risks?.map((risk: ProjectRisk, index: number) => (
+                    <Card
+                      key={index}
+                      className="glass-feature p-6 hover-lift transition-all duration-300"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                risk.level === 'Low'
+                                  ? 'bg-green-100 text-green-800'
+                                  : risk.level === 'Medium'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-red-100 text-red-800'
+                              }`}
+                            >
+                              {risk.level} Risk
+                            </span>
+                            <span className="text-sm text-gray-500 font-medium">
+                              {risk.probability}% probability
+                            </span>
+                          </div>
+                          <p className="text-gray-700">{risk.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </StaggeredList>
+              </div>
+            </ScrollReveal>
+          )}
+
+          {activeTab === 'documents' && (
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div>
+                <h2 className="text-xl font-semibold text-gradient mb-6">
+                  Legal Documents
+                </h2>
+                <StaggeredList
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  itemDelay={100}
+                >
+                  {project.legalDocuments?.map(
+                    (doc: LegalDocument, index: number) => (
+                      <Card
+                        key={index}
+                        className="glass-feature p-6 hover-lift transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-accent-500 to-accent-600 rounded-lg flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-primary-800">
+                                {doc.name}
+                              </h3>
+                              <p className="text-sm text-primary-600">
+                                {doc.type} • {doc.size}
+                              </p>
+                            </div>
+                          </div>
+                          <AnimatedButton
+                            variant="secondary"
+                            className="flex items-center gap-2"
+                            ripple
+                            onClick={() =>
+                              toast.info('Document Download', {
+                                message: `Downloading ${doc.name}...`,
+                              })
+                            }
+                          >
+                            <Download className="w-4 h-4" />
+                            Download
+                          </AnimatedButton>
+                        </div>
+                      </Card>
+                    )
+                  )}
+                </StaggeredList>
+              </div>
+            </ScrollReveal>
+          )}
+
+          {activeTab === 'updates' && (
+            <ScrollReveal animation="slide-up" delay={100}>
+              <div>
+                <h2 className="text-xl font-semibold text-gradient mb-6">
+                  Project Updates
+                </h2>
+                <StaggeredList className="space-y-6" itemDelay={100}>
+                  {project.updates?.map(
+                    (update: ProjectUpdate, index: number) => (
+                      <div
+                        key={index}
+                        className="flex gap-4 glass-modern rounded-xl p-6 hover-lift transition-all duration-300"
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                          <MessageSquare className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-primary-800">
+                              {update.title}
+                            </h3>
+                            <span className="text-sm text-primary-600">
+                              {update.date}
+                            </span>
+                          </div>
+                          <p className="text-primary-700">
+                            {update.description}
                           </p>
                         </div>
                       </div>
-                      <Button
-                        variant="secondary"
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </Button>
-                    </div>
-                  </Card>
-                )
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'updates' && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Project Updates
-            </h2>
-            <div className="space-y-6">
-              {project.updates?.map((update: ProjectUpdate, index: number) => (
-                <div key={index} className="flex gap-4">
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900">
-                        {update.title}
-                      </h3>
-                      <span className="text-sm text-gray-500">
-                        {update.date}
-                      </span>
-                    </div>
-                    <p className="text-gray-700">{update.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+                    )
+                  )}
+                </StaggeredList>
+              </div>
+            </ScrollReveal>
+          )}
+        </div>
+      </PageTransition>
     </div>
   );
 }

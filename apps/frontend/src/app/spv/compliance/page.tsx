@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Button,
-  Card,
-  DashboardLayout,
-  DataTable,
-  StatsCard,
-} from '@/components/ui';
+import { DashboardLayout, DataTable } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { ComplianceProject, InvestorProfile } from '@/types';
 import {
   Shield,
@@ -166,7 +164,10 @@ export default function SPVCompliancePage() {
 
   const handleExportCompliance = () => {
     // TODO: Implement compliance report export for SPV
-    alert('SPV compliance report export functionality coming soon');
+    toast.info('Export feature coming soon', {
+      message: 'SPV compliance report export functionality is being developed',
+      duration: 3000,
+    });
   };
 
   const totalInvestors = projectsCompliance.reduce(
@@ -282,15 +283,20 @@ export default function SPVCompliancePage() {
       label: 'Actions',
       key: 'actions',
       render: () => (
-        <Button
+        <AnimatedButton
           size="sm"
           variant="outline"
-          onClick={() => alert('Project compliance details coming soon')}
-          className="flex items-center gap-1"
+          onClick={() =>
+            toast.info('Project compliance details coming soon', {
+              message: 'Feature is being developed',
+              duration: 3000,
+            })
+          }
+          ripple
         >
-          <Eye className="w-3 h-3" />
+          <Eye className="w-3 h-3 mr-2" />
           View Details
-        </Button>
+        </AnimatedButton>
       ),
     },
   ];
@@ -355,481 +361,635 @@ export default function SPVCompliancePage() {
       label: 'Actions',
       key: 'actions',
       render: (_, row) => (
-        <Button
+        <AnimatedButton
           size="sm"
           variant="outline"
           onClick={() => setSelectedInvestor(row)}
-          className="flex items-center gap-1"
+          ripple
         >
-          <Eye className="w-3 h-3" />
+          <Eye className="w-3 h-3 mr-2" />
           View Profile
-        </Button>
+        </AnimatedButton>
       ),
     },
   ];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              SPV Compliance Dashboard
-            </h1>
-            <p className="text-gray-600">
-              Monitor investor compliance and identity verification for your
-              projects
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <select
-              value={selectedProject}
-              onChange={e => setSelectedProject(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="all">All Projects</option>
-              {projectsCompliance.map(project => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-            <Button
-              variant="outline"
-              onClick={handleExportCompliance}
-              className="flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export Report
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Investors"
-            value={totalInvestors.toLocaleString()}
-            icon={<Users className="w-4 h-4" />}
-            description={`${totalVerified} verified`}
-            changeType="increase"
-          />
-          <StatsCard
-            title="Verification Rate"
-            value={`${Math.round((totalVerified / totalInvestors) * 100)}%`}
-            icon={<UserCheck className="w-4 h-4" />}
-            change={2.5}
-            changeType="increase"
-          />
-          <StatsCard
-            title="Pending Verification"
-            value={totalPending.toString()}
-            icon={<Clock className="w-4 h-4" />}
-            description="Requires attention"
-            changeType="decrease"
-          />
-          <StatsCard
-            title="Compliance Score"
-            value={`${avgComplianceScore.toFixed(1)}%`}
-            icon={<Shield className="w-4 h-4" />}
-            description="Across all projects"
-            changeType={avgComplianceScore >= 90 ? 'increase' : 'decrease'}
-          />
-        </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'overview'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('projects')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'projects'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Projects ({projectsCompliance.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('investors')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'investors'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Investors ({investorProfiles.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'analytics'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Analytics
-            </button>
-          </nav>
-        </div>
-
-        {/* Content based on active tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Compliance Requirements */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Identity Verification Requirements
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-green-900">
-                      KYC Verification
-                    </p>
-                    <p className="text-sm text-green-700">
-                      Required for all investors
-                    </p>
-                  </div>
+      <DashboardLayout userType="spv">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    SPV Compliance Dashboard
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Monitor investor compliance and identity verification for
+                    your projects
+                  </p>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-green-900">
-                      Indonesian Resident
-                    </p>
-                    <p className="text-sm text-green-700">
-                      Verified residence status
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                  <Shield className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-blue-900">AML Compliance</p>
-                    <p className="text-sm text-blue-700">
-                      Automated screening active
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                  <UserCheck className="w-5 h-5 text-purple-600" />
-                  <div>
-                    <p className="font-medium text-purple-900">
-                      Accredited Investor
-                    </p>
-                    <p className="text-sm text-purple-700">
-                      Optional for higher limits
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Project Compliance Summary */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Project Compliance Summary
-              </h2>
-              <div className="space-y-4">
-                {projectsCompliance.map(project => (
-                  <div
-                    key={project.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                <div className="flex items-center gap-3">
+                  <select
+                    value={selectedProject}
+                    onChange={e => setSelectedProject(e.target.value)}
+                    className="px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
                   >
-                    <div>
-                      <h3 className="font-medium text-gray-900">
+                    <option value="all">All Projects</option>
+                    {projectsCompliance.map(project => (
+                      <option key={project.id} value={project.id}>
                         {project.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {project.verifiedInvestors} verified /{' '}
-                        {project.totalInvestors} total investors
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-lg">
-                        {project.complianceScore}%
-                      </div>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}
-                      >
-                        {project.status.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Recent Compliance Activity
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      New investor verified
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      KYC completed for investor 0x742d...Cd12C
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Verification expiring
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      5 investors require re-verification within 30 days
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Shield className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Claims updated</p>
-                    <p className="text-sm text-gray-600">
-                      Accredited investor claims renewed for 12 users
-                    </p>
-                  </div>
+                      </option>
+                    ))}
+                  </select>
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={handleExportCompliance}
+                    ripple
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Report
+                  </AnimatedButton>
                 </div>
               </div>
-            </Card>
-          </div>
-        )}
+            </ScrollReveal>
 
-        {activeTab === 'projects' && (
-          <Card className="p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Project Compliance Status
-              </h2>
-              <p className="text-gray-600">
-                Monitor compliance status across all your projects
-              </p>
-            </div>
-            <DataTable data={projectsTableData} columns={projectColumns} />
-          </Card>
-        )}
-
-        {activeTab === 'investors' && (
-          <Card className="p-6">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Investor Profiles
-              </h2>
-              <p className="text-gray-600">
-                View detailed investor verification status and compliance
-              </p>
-            </div>
-            <DataTable data={investorsTableData} columns={investorColumns} />
-          </Card>
-        )}
-
-        {activeTab === 'analytics' && (
-          <Card className="p-6">
-            <div className="text-center py-12">
-              <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Compliance Analytics
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Detailed compliance analytics and reporting for SPV projects
-              </p>
-              <Button
-                onClick={() => alert('SPV analytics dashboard coming soon')}
-              >
-                View Analytics Dashboard
-              </Button>
-            </div>
-          </Card>
-        )}
-
-        {/* Investor Detail Modal */}
-        {selectedInvestor && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Investor Profile
-                </h2>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedInvestor(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ×
-                </Button>
+            {/* Key Metrics */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +12.3%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {totalInvestors.toLocaleString()}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Investors
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {totalVerified} verified
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Wallet Address
-                    </label>
-                    <p className="text-gray-900 font-mono text-sm bg-gray-50 p-2 rounded">
-                      {selectedInvestor.address}
-                    </p>
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                    <UserCheck className="w-6 h-6 text-white" />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Verification Status
-                      </label>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedInvestor.verificationStatus)}`}
-                      >
-                        {selectedInvestor.verificationStatus.toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Risk Level
-                      </label>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(selectedInvestor.riskLevel)}`}
-                      >
-                        {selectedInvestor.riskLevel.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Total Claims
-                      </label>
-                      <p className="text-gray-900">
-                        {selectedInvestor.claimsCount}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Active Claims
-                      </label>
-                      <p className="text-gray-900">
-                        {selectedInvestor.activeClaims}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Investment Amount
-                    </label>
-                    <p className="text-gray-900 font-medium">
-                      {formatCurrency(selectedInvestor.investmentAmount)}
-                    </p>
-                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +2.5%
+                  </span>
                 </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {Math.round((totalVerified / totalInvestors) * 100)}%
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Verification Rate
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Industry leading
+                  </p>
+                </div>
+              </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Joined Date
-                      </label>
-                      <p className="text-gray-900">
-                        {formatDate(selectedInvestor.joinDate)}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Last Activity
-                      </label>
-                      <p className="text-gray-900">
-                        {formatDate(selectedInvestor.lastActivity)}
-                      </p>
-                    </div>
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-warning-500 to-warning-600 rounded-xl flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-white" />
                   </div>
+                  <span className="text-xs text-warning-600 font-medium">
+                    -5.2%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {totalPending.toString()}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Pending Verification
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Requires attention
+                  </p>
+                </div>
+              </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Compliance Status
-                    </label>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700">
-                          KYC Verified
-                        </span>
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <span
+                    className={`text-xs font-medium ${avgComplianceScore >= 90 ? 'text-success-600' : 'text-warning-600'}`}
+                  >
+                    {avgComplianceScore >= 90 ? '+' : '-'}3.1%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {avgComplianceScore.toFixed(1)}%
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Compliance Score
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Across all projects
+                  </p>
+                </div>
+              </div>
+            </StaggeredList>
+
+            {/* Tabs */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-feature rounded-2xl p-2">
+                <nav className="flex space-x-2">
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`px-6 py-3 rounded-xl font-medium text-sm transition-all hover-lift ${
+                      activeTab === 'overview'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                        : 'text-primary-600 hover:bg-primary-50 hover:text-primary-700'
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('projects')}
+                    className={`px-6 py-3 rounded-xl font-medium text-sm transition-all hover-lift ${
+                      activeTab === 'projects'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                        : 'text-primary-600 hover:bg-primary-50 hover:text-primary-700'
+                    }`}
+                  >
+                    Projects ({projectsCompliance.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('investors')}
+                    className={`px-6 py-3 rounded-xl font-medium text-sm transition-all hover-lift ${
+                      activeTab === 'investors'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                        : 'text-primary-600 hover:bg-primary-50 hover:text-primary-700'
+                    }`}
+                  >
+                    Investors ({investorProfiles.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('analytics')}
+                    className={`px-6 py-3 rounded-xl font-medium text-sm transition-all hover-lift ${
+                      activeTab === 'analytics'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                        : 'text-primary-600 hover:bg-primary-50 hover:text-primary-700'
+                    }`}
+                  >
+                    Analytics
+                  </button>
+                </nav>
+              </div>
+            </ScrollReveal>
+
+            {/* Content based on active tab */}
+            {activeTab === 'overview' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="space-y-8">
+                  {/* Compliance Requirements */}
+                  <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                    <h2 className="text-xl font-semibold text-gradient mb-6">
+                      Identity Verification Requirements
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-success-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            KYC Verification
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            Required for all investors
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700">
-                          AML Cleared
-                        </span>
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-success-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            Indonesian Resident
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            Verified residence status
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700">
-                          Indonesian Resident
-                        </span>
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-primary-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                          <Shield className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            AML Compliance
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            Automated screening active
+                          </p>
+                        </div>
                       </div>
-                      {selectedInvestor.verificationStatus === 'verified' && (
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-sm text-gray-700">
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-secondary-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                          <UserCheck className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
                             Accredited Investor
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            Optional for higher limits
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project Compliance Summary */}
+                  <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                    <h2 className="text-xl font-semibold text-gradient mb-6">
+                      Project Compliance Summary
+                    </h2>
+                    <div className="space-y-4">
+                      {projectsCompliance.map((project, index) => (
+                        <div
+                          key={project.id}
+                          className="glass-modern rounded-xl p-6 hover-glow transition-all duration-300 border border-primary-100"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-primary-800 mb-2">
+                                {project.name}
+                              </h3>
+                              <p className="text-sm text-primary-600">
+                                {project.verifiedInvestors} verified /{' '}
+                                {project.totalInvestors} total investors
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-gradient mb-2">
+                                {project.complianceScore}%
+                              </div>
+                              <span
+                                className={`px-4 py-2 rounded-full text-xs font-medium glass-modern ${
+                                  project.status === 'compliant'
+                                    ? 'text-success-600 border border-success-200'
+                                    : project.status === 'review_required'
+                                      ? 'text-warning-600 border border-warning-200'
+                                      : 'text-error-600 border border-error-200'
+                                }`}
+                              >
+                                {project.status.replace('_', ' ').toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recent Activity */}
+                  <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                    <h2 className="text-xl font-semibold text-gradient mb-6">
+                      Recent Compliance Activity
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-success-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            New investor verified
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            KYC completed for investor 0x742d...Cd12C
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-warning-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-warning-500 to-warning-600 rounded-xl flex items-center justify-center">
+                          <AlertTriangle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            Verification expiring
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            5 investors require re-verification within 30 days
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 p-4 glass-modern rounded-xl hover-glow transition-all border border-primary-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                          <Shield className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary-800 mb-1">
+                            Claims updated
+                          </p>
+                          <p className="text-sm text-primary-600">
+                            Accredited investor claims renewed for 12 users
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'projects' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-semibold text-gradient mb-3">
+                      Project Compliance Status
+                    </h2>
+                    <p className="text-primary-600">
+                      Monitor compliance status across all your projects
+                    </p>
+                  </div>
+                  <div className="glass-modern rounded-xl overflow-hidden">
+                    <DataTable
+                      data={projectsTableData}
+                      columns={projectColumns}
+                    />
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'investors' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-semibold text-gradient mb-3">
+                      Investor Profiles
+                    </h2>
+                    <p className="text-primary-600">
+                      View detailed investor verification status and compliance
+                    </p>
+                  </div>
+                  <div className="glass-modern rounded-xl overflow-hidden">
+                    <DataTable
+                      data={investorsTableData}
+                      columns={investorColumns}
+                    />
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {activeTab === 'analytics' && (
+              <ScrollReveal animation="slide-up" delay={300}>
+                <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 feature-icon mx-auto mb-8 hover-scale">
+                      <BarChart3 className="w-12 h-12" />
+                    </div>
+                    <h3 className="text-2xl font-semibold text-gradient mb-4">
+                      Compliance Analytics
+                    </h3>
+                    <p className="text-primary-600 mb-8 max-w-md mx-auto">
+                      Detailed compliance analytics and reporting for SPV
+                      projects
+                    </p>
+                    <AnimatedButton
+                      onClick={() =>
+                        toast.info('Analytics dashboard coming soon', {
+                          message: 'SPV analytics dashboard is being developed',
+                          duration: 3000,
+                        })
+                      }
+                      ripple
+                    >
+                      View Analytics Dashboard
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
+            {/* Investor Detail Modal */}
+            {selectedInvestor && (
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto hover-lift">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-semibold text-gradient">
+                      Investor Profile
+                    </h2>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setSelectedInvestor(null)}
+                      className="w-10 h-10 p-0 text-lg"
+                      ripple
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <div className="glass-modern rounded-xl p-4">
+                        <label className="block text-sm font-medium text-primary-700 mb-3">
+                          Wallet Address
+                        </label>
+                        <p className="text-primary-800 font-mono text-sm glass-modern p-3 rounded-lg break-all">
+                          {selectedInvestor.address}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Verification Status
+                          </label>
+                          <span
+                            className={`px-4 py-2 rounded-full text-xs font-medium glass-modern ${
+                              selectedInvestor.verificationStatus === 'verified'
+                                ? 'text-success-600 border border-success-200'
+                                : selectedInvestor.verificationStatus ===
+                                    'pending'
+                                  ? 'text-warning-600 border border-warning-200'
+                                  : 'text-error-600 border border-error-200'
+                            }`}
+                          >
+                            {selectedInvestor.verificationStatus.toUpperCase()}
                           </span>
                         </div>
-                      )}
-                    </div>
-                  </div>
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Risk Level
+                          </label>
+                          <span
+                            className={`px-4 py-2 rounded-full text-xs font-medium glass-modern ${
+                              selectedInvestor.riskLevel === 'low'
+                                ? 'text-success-600 border border-success-200'
+                                : selectedInvestor.riskLevel === 'medium'
+                                  ? 'text-warning-600 border border-warning-200'
+                                  : 'text-error-600 border border-error-200'
+                            }`}
+                          >
+                            {selectedInvestor.riskLevel.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
 
-                  <div className="pt-4 border-t">
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          alert(
-                            'View investor details functionality coming soon'
-                          )
-                        }
-                        className="flex items-center gap-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Full Profile
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          alert(
-                            'Export investor data functionality coming soon'
-                          )
-                        }
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Export Data
-                      </Button>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Total Claims
+                          </label>
+                          <p className="text-2xl font-bold text-gradient">
+                            {selectedInvestor.claimsCount}
+                          </p>
+                        </div>
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Active Claims
+                          </label>
+                          <p className="text-2xl font-bold text-gradient">
+                            {selectedInvestor.activeClaims}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-4">
+                        <label className="block text-sm font-medium text-primary-700 mb-3">
+                          Investment Amount
+                        </label>
+                        <p className="text-2xl font-bold text-gradient">
+                          {formatCurrency(selectedInvestor.investmentAmount)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Joined Date
+                          </label>
+                          <p className="text-lg font-semibold text-primary-800">
+                            {formatDate(selectedInvestor.joinDate)}
+                          </p>
+                        </div>
+                        <div className="glass-modern rounded-xl p-4">
+                          <label className="block text-sm font-medium text-primary-700 mb-3">
+                            Last Activity
+                          </label>
+                          <p className="text-lg font-semibold text-primary-800">
+                            {formatDate(selectedInvestor.lastActivity)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="glass-modern rounded-xl p-6">
+                        <label className="block text-sm font-medium text-primary-700 mb-4">
+                          Compliance Status
+                        </label>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-3 glass-modern rounded-lg border border-success-200">
+                            <CheckCircle className="w-5 h-5 text-success-500" />
+                            <span className="text-sm font-medium text-primary-700">
+                              KYC Verified
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 glass-modern rounded-lg border border-success-200">
+                            <CheckCircle className="w-5 h-5 text-success-500" />
+                            <span className="text-sm font-medium text-primary-700">
+                              AML Cleared
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 glass-modern rounded-lg border border-success-200">
+                            <CheckCircle className="w-5 h-5 text-success-500" />
+                            <span className="text-sm font-medium text-primary-700">
+                              Indonesian Resident
+                            </span>
+                          </div>
+                          {selectedInvestor.verificationStatus ===
+                            'verified' && (
+                            <div className="flex items-center gap-3 p-3 glass-modern rounded-lg border border-success-200">
+                              <CheckCircle className="w-5 h-5 text-success-500" />
+                              <span className="text-sm font-medium text-primary-700">
+                                Accredited Investor
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-primary-200">
+                        <div className="flex gap-3">
+                          <AnimatedButton
+                            variant="outline"
+                            onClick={() =>
+                              toast.info('Feature coming soon', {
+                                message:
+                                  'View investor details functionality is being developed',
+                                duration: 3000,
+                              })
+                            }
+                            ripple
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Full Profile
+                          </AnimatedButton>
+                          <AnimatedButton
+                            variant="outline"
+                            onClick={() =>
+                              toast.info('Export feature coming soon', {
+                                message:
+                                  'Export investor data functionality is being developed',
+                                duration: 3000,
+                              })
+                            }
+                            ripple
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export Data
+                          </AnimatedButton>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
-    </DashboardLayout>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

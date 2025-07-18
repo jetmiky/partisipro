@@ -95,6 +95,8 @@ export function PortfolioExport({
       format: 'png',
       title: 'Chart Images',
       description: 'High-resolution charts for presentations',
+      // This is a lucide react element, not NextJS Image element.
+      // eslint-disable-next-line jsx-a11y/alt-text
       icon: <Image className="w-5 h-5" />,
       fileSize: '~5 MB',
       features: [

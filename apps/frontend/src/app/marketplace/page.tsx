@@ -21,9 +21,12 @@ import {
   AlertTriangle,
   Lock,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
 import { Card } from '@/components/ui';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 interface IdentityStatus {
   isVerified: boolean;
@@ -342,18 +345,18 @@ export default function MarketplacePage() {
   const EligibilityIndicator = () => {
     if (!identityStatus.isVerified) {
       return (
-        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs">
-          <Lock className="w-3 h-3 text-gray-500" />
-          <span className="text-gray-600">Identity Required</span>
+        <div className="flex items-center gap-1 px-3 py-1 glass-modern rounded-full text-xs">
+          <Lock className="w-3 h-3 text-muted-foreground" />
+          <span className="text-muted-foreground">Identity Required</span>
         </div>
       );
     }
 
     if (!identityStatus.eligibleForInvestment) {
       return (
-        <div className="flex items-center gap-1 px-2 py-1 bg-red-100 rounded-full text-xs">
-          <AlertTriangle className="w-3 h-3 text-red-500" />
-          <span className="text-red-600">Not Eligible</span>
+        <div className="flex items-center gap-1 px-3 py-1 bg-error-100 rounded-full text-xs">
+          <AlertTriangle className="w-3 h-3 text-error-500" />
+          <span className="text-error-600">Not Eligible</span>
         </div>
       );
     }
@@ -363,17 +366,17 @@ export default function MarketplacePage() {
 
     if (minimumMet && riskProfile) {
       return (
-        <div className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full text-xs">
-          <CheckCircle className="w-3 h-3 text-green-500" />
-          <span className="text-green-600">Eligible to Invest</span>
+        <div className="flex items-center gap-1 px-3 py-1 bg-success-100 rounded-full text-xs hover-scale">
+          <CheckCircle className="w-3 h-3 text-success-500" />
+          <span className="text-success-600">Eligible to Invest</span>
         </div>
       );
     }
 
     return (
-      <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 rounded-full text-xs">
-        <Shield className="w-3 h-3 text-yellow-500" />
-        <span className="text-yellow-600">
+      <div className="flex items-center gap-1 px-3 py-1 bg-warning-100 rounded-full text-xs">
+        <Shield className="w-3 h-3 text-warning-500" />
+        <span className="text-warning-600">
           Additional Verification Required
         </span>
       </div>
@@ -388,118 +391,164 @@ export default function MarketplacePage() {
     return (
       <Card
         key={project.id}
-        className="group hover:shadow-lg transition-shadow duration-300"
+        className="glass-modern group hover:glass-feature hover-lift transition-all duration-500 border-primary-100 overflow-hidden"
       >
-        <div className="aspect-video bg-gray-100 rounded-t-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="aspect-video gradient-brand-hero rounded-t-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+          {/* Floating organic shapes for visual interest */}
+          <div className="absolute top-4 right-4 w-16 h-16 bg-white/10 rounded-full animate-float"></div>
+          <div
+            className="absolute bottom-8 right-8 w-8 h-8 bg-white/5 rounded-full animate-float"
+            style={{ animationDelay: '1s' }}
+          ></div>
+
           <div className="absolute top-4 left-4">
             <span
-              className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(project.status)}`}
+              className={`px-4 py-2 rounded-full text-xs font-medium glass-modern border border-white/20 text-white ${getStatusColor(project.status)}`}
             >
               {getStatusLabel(project.status)}
             </span>
           </div>
           <div className="absolute bottom-4 left-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
-              <Icon className="w-4 h-4" />
-              <span className="text-sm capitalize">{project.category}</span>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-medium capitalize">
+                {project.category}
+              </span>
             </div>
-            <div className="flex items-center gap-1 text-sm">
-              <MapPin className="w-3 h-3" />
-              <span>{project.location}</span>
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4" />
+              <span className="font-medium">{project.location}</span>
             </div>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+        <div className="p-8">
+          <div className="flex items-start justify-between mb-4">
+            <h3 className="font-semibold text-foreground group-hover:text-gradient transition-all text-lg leading-tight">
               {project.title}
             </h3>
-            <div
-              className={`text-sm font-medium ${getRiskColor(project.riskLevel)}`}
-            >
-              {project.riskLevel} risk
+            <div className="glass-modern px-3 py-1 rounded-full">
+              <span
+                className={`text-xs font-medium ${getRiskColor(project.riskLevel)}`}
+              >
+                {project.riskLevel} risk
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <EligibilityIndicator />
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Shield className="w-3 h-3" />
-              <span>ERC-3643 Protected</span>
+            <div className="flex items-center gap-1 glass-modern px-3 py-1 rounded-full">
+              <Shield className="w-3 h-3 text-primary-500" />
+              <span className="text-xs text-primary-600 font-medium">
+                ERC-3643 Protected
+              </span>
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          <p className="text-muted-foreground text-sm mb-6 line-clamp-2 leading-relaxed">
             {project.description}
           </p>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Expected Return</span>
-              <span className="font-medium text-primary-600">
-                {project.expectedReturn}% p.a.
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Duration</span>
-              <span className="font-medium">{project.duration} years</span>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Min. Investment</span>
-              <span className="font-medium">
-                {formatCurrency(project.minimumInvestment)}
-              </span>
-            </div>
-
-            <div className="space-y-2">
+          <div className="space-y-4">
+            <div className="glass-modern rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Progress</span>
-                <span className="font-medium">
+                <span className="text-muted-foreground">Expected Return</span>
+                <span className="font-semibold text-gradient text-lg">
+                  {project.expectedReturn}% p.a.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Duration</span>
+                <span className="font-medium text-primary-700">
+                  {project.duration} years
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Min. Investment</span>
+                <span className="font-medium text-primary-700">
+                  {formatCurrency(project.minimumInvestment)}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Funding Progress</span>
+                <span className="font-semibold text-primary-600">
                   {progressPercentage.toFixed(1)}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-secondary-200 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 h-3 rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                 />
               </div>
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>{formatCurrency(project.raisedAmount)}</span>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="font-medium">
+                  {formatCurrency(project.raisedAmount)}
+                </span>
                 <span>{formatCurrency(project.targetAmount)}</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm pt-2">
-              <div className="flex items-center gap-1">
-                <Users className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-500">
+            <div className="flex items-center justify-between text-sm pt-3 border-t border-primary-100">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                  <Users className="w-3 h-3 text-primary-600" />
+                </div>
+                <span className="text-primary-600 font-medium">
                   {project.investorCount} investors
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-500">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                  <Calendar className="w-3 h-3 text-primary-600" />
+                </div>
+                <span className="text-primary-600 font-medium">
                   {new Date(project.startDate).getFullYear()}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="flex gap-2">
+          <div className="mt-6 pt-6 border-t border-primary-200">
+            <div className="flex gap-3">
               <Link href={`/projects/${project.id}`} className="flex-1">
-                <Button variant="primary" className="w-full">
+                <AnimatedButton
+                  variant="primary"
+                  className="w-full"
+                  ripple
+                  onClick={() =>
+                    toast.info('Project Details', {
+                      message: `Loading details for ${project.title}...`,
+                    })
+                  }
+                >
                   View Details
-                </Button>
+                </AnimatedButton>
               </Link>
               {project.status === 'active' && (
                 <Link href={`/invest/${project.id}`}>
-                  <Button variant="secondary">Invest Now</Button>
+                  <AnimatedButton
+                    variant="secondary"
+                    className="px-6"
+                    ripple
+                    onClick={() =>
+                      toast.info('Investment Flow', {
+                        message: `Starting investment for ${project.title}...`,
+                      })
+                    }
+                  >
+                    Invest Now
+                  </AnimatedButton>
                 </Link>
               )}
             </div>
@@ -510,236 +559,282 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Toast Provider for notifications */}
+      <ToastProvider />
+
+      {/* Page Transition Wrapper */}
+      <PageTransition type="fade" duration={300} transitionKey="marketplace">
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
+        </div>
+
+        {/* Header */}
+        <ScrollReveal animation="fade" delay={0}>
+          <div className="glass-header backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/"
+                    className="flex items-center gap-3 hover-scale animate-fade-in-up"
+                  >
+                    <div className="w-8 h-8 feature-icon">
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <span className="text-lg font-semibold text-gradient">
+                      Partisipro
+                    </span>
+                  </Link>
+                  <div className="text-sm text-muted-foreground">
+                    Investment Marketplace
+                  </div>
                 </div>
-                <span className="text-lg font-semibold text-gray-900">
-                  Partisipro
-                </span>
-              </Link>
-              <div className="text-sm text-gray-500">
-                Investment Marketplace
+                <nav className="flex items-center gap-4">
+                  <Link href="/dashboard" className="nav-link">
+                    Dashboard
+                  </Link>
+                  <Link href="/profile" className="nav-link">
+                    Profile
+                  </Link>
+                </nav>
               </div>
             </div>
-            <nav className="flex items-center gap-4">
-              <Link
-                href="/dashboard"
-                className="text-gray-600 hover:text-primary-600"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/profile"
-                className="text-gray-600 hover:text-primary-600"
-              >
-                Profile
-              </Link>
-            </nav>
           </div>
-        </div>
-      </div>
+        </ScrollReveal>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Investment Marketplace
-          </h1>
-          <p className="text-gray-600">
-            Discover and invest in Indonesian Public-Private Partnership
-            projects
-          </p>
-        </div>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
+          {/* Page Header */}
+          <ScrollReveal animation="slide-up" delay={100}>
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gradient mb-2">
+                Investment Marketplace
+              </h1>
+              <p className="text-muted-foreground">
+                Discover and invest in Indonesian Public-Private Partnership
+                projects
+              </p>
+            </div>
+          </ScrollReveal>
 
-        {/* Identity Status Banner */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-              <div>
-                <h3 className="font-medium text-green-900">
-                  Identity Verified
+          {/* Identity Status Banner */}
+          <ScrollReveal animation="slide-up" delay={200}>
+            <div className="glass-feature rounded-2xl p-6 mb-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-success-500" />
+                  <div>
+                    <h3 className="font-medium text-primary-700">
+                      Identity Verified
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Your ERC-3643 identity is verified and you can invest in
+                      all available projects
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-success-500" />
+                    <span className="text-primary-600">KYC Approved</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-success-500" />
+                    <span className="text-primary-600">
+                      {identityStatus.claims.length} Claims Active
+                    </span>
+                  </div>
+                  <Link href="/identity">
+                    <AnimatedButton
+                      variant="secondary"
+                      size="sm"
+                      className="hover-lift"
+                      onClick={() =>
+                        toast.info('Identity Management', {
+                          message: 'Navigating to identity management page...',
+                        })
+                      }
+                    >
+                      Manage Identity
+                    </AnimatedButton>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Search and Filters */}
+          <ScrollReveal animation="slide-up" delay={300}>
+            <div className="glass-feature rounded-2xl p-8 mb-8">
+              <div className="flex flex-col lg:flex-row gap-6 items-center">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-400" />
+                  <AnimatedInput
+                    placeholder="Search projects by name, location, or description..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    className="pl-12"
+                  />
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <AnimatedButton
+                    onClick={() => setShowFilters(!showFilters)}
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                    ripple
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filters
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
+                    />
+                  </AnimatedButton>
+
+                  <div className="flex items-center gap-1 glass-modern rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-3 rounded-lg transition-all hover-scale ${
+                        viewMode === 'grid'
+                          ? 'bg-primary-600 text-white shadow-lg'
+                          : 'text-primary-400 hover:text-primary-600 hover:bg-primary-50'
+                      }`}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-3 rounded-lg transition-all hover-scale ${
+                        viewMode === 'list'
+                          ? 'bg-primary-600 text-white shadow-lg'
+                          : 'text-primary-400 hover:text-primary-600 hover:bg-primary-50'
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {showFilters && (
+                <div className="mt-8 pt-6 border-t border-primary-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-primary-700 mb-3">
+                        Category
+                      </label>
+                      <select
+                        value={selectedCategory}
+                        onChange={e => setSelectedCategory(e.target.value)}
+                        className="w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
+                      >
+                        {categories.map(category => (
+                          <option key={category.id} value={category.id}>
+                            {category.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-primary-700 mb-3">
+                        Province
+                      </label>
+                      <select
+                        value={selectedProvince}
+                        onChange={e => setSelectedProvince(e.target.value)}
+                        className="w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
+                      >
+                        {provinces.map(province => (
+                          <option key={province} value={province}>
+                            {province}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-primary-700 mb-3">
+                        Risk Level
+                      </label>
+                      <select
+                        value={selectedRiskLevel}
+                        onChange={e => setSelectedRiskLevel(e.target.value)}
+                        className="w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
+                      >
+                        {riskLevels.map(risk => (
+                          <option key={risk.id} value={risk.id}>
+                            {risk.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollReveal>
+
+          {/* Results Summary */}
+          <ScrollReveal animation="fade" delay={400}>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
+                <span className="text-primary-700 font-medium">
+                  {filteredProjects.length} projects found
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <select className="px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all">
+                  <option>Sort by: Featured</option>
+                  <option>Sort by: Expected Return</option>
+                  <option>Sort by: Duration</option>
+                  <option>Sort by: Min. Investment</option>
+                </select>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Projects Grid */}
+          <StaggeredList
+            className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+                : 'space-y-6'
+            }
+            itemDelay={100}
+          >
+            {filteredProjects.map(project => (
+              <div key={project.id} className="card-micro">
+                {renderProjectCard(project)}
+              </div>
+            ))}
+          </StaggeredList>
+
+          {/* Empty State */}
+          {filteredProjects.length === 0 && (
+            <ScrollReveal animation="fade" delay={500}>
+              <div className="text-center py-16">
+                <div className="w-20 h-20 feature-icon mx-auto mb-6 hover-scale">
+                  <Search className="w-10 h-10" />
+                </div>
+                <h3 className="text-xl font-semibold text-gradient mb-3">
+                  No projects found
                 </h3>
-                <p className="text-sm text-green-700">
-                  Your ERC-3643 identity is verified and you can invest in all
-                  available projects
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Try adjusting your search criteria or filters to discover more
+                  infrastructure investment opportunities
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-green-700">KYC Approved</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="text-green-700">
-                  {identityStatus.claims.length} Claims Active
-                </span>
-              </div>
-              <Link href="/identity">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="text-green-700 border-green-300"
-                >
-                  Manage Identity
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search projects by name, location, or description..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => setShowFilters(!showFilters)}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
-                />
-              </Button>
-
-              <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-400'}`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-400'}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    value={selectedCategory}
-                    onChange={e => setSelectedCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    {categories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Province
-                  </label>
-                  <select
-                    value={selectedProvince}
-                    onChange={e => setSelectedProvince(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    {provinces.map(province => (
-                      <option key={province} value={province}>
-                        {province}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Risk Level
-                  </label>
-                  <select
-                    value={selectedRiskLevel}
-                    onChange={e => setSelectedRiskLevel(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    {riskLevels.map(risk => (
-                      <option key={risk.id} value={risk.id}>
-                        {risk.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
+            </ScrollReveal>
           )}
         </div>
-
-        {/* Results Summary */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-gray-600">
-            {filteredProjects.length} projects found
-          </div>
-          <div className="flex items-center gap-4">
-            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-              <option>Sort by: Featured</option>
-              <option>Sort by: Expected Return</option>
-              <option>Sort by: Duration</option>
-              <option>Sort by: Min. Investment</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Projects Grid */}
-        <div
-          className={`${
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-4'
-          }`}
-        >
-          {filteredProjects.map(project => renderProjectCard(project))}
-        </div>
-
-        {/* Empty State */}
-        {filteredProjects.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No projects found
-            </h3>
-            <p className="text-gray-600">
-              Try adjusting your search criteria or filters
-            </p>
-          </div>
-        )}
-      </div>
+      </PageTransition>
     </div>
   );
 }

@@ -17,12 +17,13 @@ import {
   AlertTriangle,
   PlayCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
-import { Card } from '@/components/ui';
-import { StatsCard } from '@/components/ui';
 import { DashboardLayout } from '@/components/ui';
 import { DataTable } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { SPVProject } from '@/types';
 
 interface SPVStats {
@@ -167,11 +168,21 @@ export default function SPVDashboardPage() {
     // Mock API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+
+    toast.success('Dashboard Refreshed', {
+      message: 'Project data has been updated successfully',
+      duration: 3000,
+    });
   };
 
   const handleViewProject = (projectId: string) => {
     // TODO: Navigate to project detail page
     // console.log('View project:', projectId);
+
+    toast.info('Opening Project Details', {
+      message: 'Navigating to project details page...',
+      duration: 2000,
+    });
 
     projectId;
   };
@@ -179,6 +190,11 @@ export default function SPVDashboardPage() {
   const handleEditProject = (projectId: string) => {
     // TODO: Navigate to project edit page
     // console.log('Edit project:', projectId);
+
+    toast.info('Opening Project Editor', {
+      message: 'Navigating to project editor...',
+      duration: 2000,
+    });
 
     projectId;
   };
@@ -189,8 +205,10 @@ export default function SPVDashboardPage() {
       label: 'Project',
       render: (_, row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{row.projectName}</span>
-          <span className="text-sm text-gray-500">
+          <span className="font-medium text-primary-800">
+            {row.projectName}
+          </span>
+          <span className="text-sm text-muted-foreground">
             {row.projectType} • {row.location}
           </span>
         </div>
@@ -261,172 +279,281 @@ export default function SPVDashboardPage() {
       label: 'Actions',
       render: (_, row) => (
         <div className="flex gap-2">
-          <Button
+          <AnimatedButton
             variant="outline"
             size="sm"
             onClick={() => handleViewProject(row.id)}
+            ripple
           >
             <Eye className="h-4 w-4" />
-          </Button>
-          <Button
+          </AnimatedButton>
+          <AnimatedButton
             variant="outline"
             size="sm"
             onClick={() => handleEditProject(row.id)}
+            ripple
           >
             Edit
-          </Button>
+          </AnimatedButton>
         </div>
       ),
     },
   ];
 
   return (
-    <DashboardLayout userType="spv">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">SPV Dashboard</h1>
-            <p className="text-gray-600">
-              Manage your infrastructure projects and track performance
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
-              />
-              Refresh
-            </Button>
-            <Link href="/spv/create">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Project
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Projects"
-            value={mockStats.totalProjects.toString()}
-            icon={<Building className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="All projects created"
-          />
-          <StatsCard
-            title="Active Projects"
-            value={mockStats.activeProjects.toString()}
-            icon={<PlayCircle className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Currently operational"
-          />
-          <StatsCard
-            title="Total Funding Raised"
-            value={formatCurrency(mockStats.totalFundingRaised)}
-            icon={<DollarSign className="w-4 h-4" />}
-            change={18.2}
-            changeType="increase"
-            description="Across all projects"
-          />
-          <StatsCard
-            title="Monthly Revenue"
-            value={formatCurrency(mockStats.monthlyRevenue)}
-            icon={<TrendingUp className="w-4 h-4" />}
-            change={8.5}
-            changeType="increase"
-            description="Average monthly"
-          />
-        </div>
-
-        {/* Projects Table */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Project Portfolio
-              </h2>
-              <p className="text-sm text-gray-600">
-                Track and manage all your infrastructure projects
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-
-          <DataTable columns={projectColumns} data={mockProjects} />
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Plus className="h-8 w-8 text-primary-500 bg-primary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Create New Project
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Start tokenizing a new infrastructure project
-                </p>
-              </div>
-            </div>
-            <Link href="/spv/create">
-              <Button className="w-full">Get Started</Button>
-            </Link>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <TrendingUp className="h-8 w-8 text-secondary-500 bg-secondary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Analytics & Reports
-                </h3>
-                <p className="text-sm text-gray-600">
-                  View detailed performance analytics
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              View Analytics
-            </Button>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Calendar className="h-8 w-8 text-support-500 bg-support-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Upcoming Events
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Project milestones and deadlines
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              View Calendar
-            </Button>
-          </Card>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
       </div>
-    </DashboardLayout>
+
+      <DashboardLayout userType="spv">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    SPV Dashboard
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Manage your infrastructure projects and track performance
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={handleRefresh}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    ripple
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+                    />
+                    Refresh
+                  </AnimatedButton>
+                  <Link href="/spv/create">
+                    <AnimatedButton ripple>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Project
+                    </AnimatedButton>
+                  </Link>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Stats Cards */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">+0%</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {mockStats.totalProjects}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Projects
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    All projects created
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                    <PlayCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">+0%</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {mockStats.activeProjects}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Active Projects
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Currently operational
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +18.2%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {formatCurrency(mockStats.totalFundingRaised)}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Funding Raised
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Across all projects
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-600 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +8.5%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {formatCurrency(mockStats.monthlyRevenue)}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Monthly Revenue
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Average monthly
+                  </p>
+                </div>
+              </div>
+            </StaggeredList>
+
+            {/* Projects Table */}
+            <ScrollReveal animation="slide-up" delay={300}>
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gradient mb-2">
+                      Project Portfolio
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Track and manage all your infrastructure projects
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toast.info('Filter feature coming soon')}
+                      ripple
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toast.info('Export feature coming soon')}
+                      ripple
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </AnimatedButton>
+                  </div>
+                </div>
+
+                <DataTable columns={projectColumns} data={mockProjects} />
+              </div>
+            </ScrollReveal>
+
+            {/* Quick Actions */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4">
+                    <Plus className="h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      Create New Project
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Start tokenizing a new infrastructure project
+                    </p>
+                  </div>
+                </div>
+                <Link href="/spv/create">
+                  <AnimatedButton className="w-full" ripple>
+                    Get Started
+                  </AnimatedButton>
+                </Link>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center mr-4">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      Analytics & Reports
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      View detailed performance analytics
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => toast.info('Analytics feature coming soon')}
+                  ripple
+                >
+                  View Analytics
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center mr-4">
+                    <Calendar className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      Upcoming Events
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Project milestones and deadlines
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => toast.info('Calendar feature coming soon')}
+                  ripple
+                >
+                  View Calendar
+                </AnimatedButton>
+              </div>
+            </StaggeredList>
+          </div>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

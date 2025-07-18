@@ -45,41 +45,39 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-secondary-900 text-white">
+    <footer className="bg-primary-900 text-white">
       <div className="container section-sm">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="feature-icon w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600">
-                <Layers className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
+                <Layers className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-xl font-bold text-gradient-gold">
-                  Partisipro
-                </div>
-                <div className="text-xs text-secondary-400">
+                <div className="text-xl font-bold text-white">Partisipro</div>
+                <div className="text-xs text-primary-300">
                   PPP Blockchain Platform
                 </div>
               </div>
             </div>
-            <p className="text-secondary-300 mb-6 max-w-sm text-indonesian">
+            <p className="text-primary-300 mb-6 max-w-sm text-indonesian">
               Mendemokratisasi investasi infrastruktur di Indonesia melalui
               teknologi blockchain dan integrasi Project Garuda IDR Stablecoin.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-secondary-400">
+              <div className="flex items-center gap-2 text-primary-400">
                 <Mail className="w-4 h-4" />
                 <span>contact@partisipro.com</span>
               </div>
-              <div className="flex items-center gap-2 text-secondary-400">
+              <div className="flex items-center gap-2 text-primary-400">
                 <Phone className="w-4 h-4" />
                 <span>+62 21 1234 5678</span>
               </div>
-              <div className="flex items-center gap-2 text-secondary-400">
+              <div className="flex items-center gap-2 text-primary-400">
                 <MapPin className="w-4 h-4" />
                 <span>Jakarta, Indonesia</span>
               </div>
@@ -96,7 +94,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-secondary-400 hover:text-white transition-colors text-sm"
+                    className="text-primary-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </a>
@@ -115,7 +113,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-secondary-400 hover:text-white transition-colors text-sm"
+                    className="text-primary-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </a>
@@ -134,7 +132,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-secondary-400 hover:text-white transition-colors text-sm"
+                    className="text-primary-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </a>
@@ -153,7 +151,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-secondary-400 hover:text-white transition-colors text-sm"
+                    className="text-primary-400 hover:text-white transition-colors text-sm"
                   >
                     {link.name}
                   </a>
@@ -164,12 +162,12 @@ const Footer = () => {
         </div>
 
         {/* Compliance Notice */}
-        <div className="border-t border-secondary-800 pt-8 mb-8">
-          <div className="bg-secondary-800 rounded-lg p-4">
+        <div className="border-t border-primary-800 pt-8 mb-8">
+          <div className="glass-light rounded-xl p-4">
             <h4 className="font-semibold text-success-400 mb-2 text-indonesian-heading">
               Kepatuhan Regulasi
             </h4>
-            <p className="text-sm text-secondary-300 text-indonesian">
+            <p className="text-sm text-primary-700 text-indonesian">
               Partisipro beroperasi dengan mematuhi sepenuhnya regulasi Bank
               Indonesia dan pedoman otoritas jasa keuangan Indonesia (OJK).
               Semua transaksi dilakukan menggunakan Project Garuda IDR
@@ -179,10 +177,10 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-secondary-800 pt-8">
+        <div className="border-t border-primary-800 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <div className="text-sm text-secondary-400 text-indonesian">
+            <div className="text-sm text-primary-400 text-indonesian">
               © {currentYear} Partisipro. Semua hak dilindungi. Dibangun di
               atas blockchain Arbitrum.
             </div>
@@ -193,7 +191,7 @@ const Footer = () => {
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-8 h-8 bg-secondary-800 rounded-lg flex items-center justify-center text-secondary-400 hover:text-white hover:bg-primary-600 transition-colors"
+                  className="w-8 h-8 glass-light rounded-lg flex items-center justify-center text-primary-400 hover:text-white hover:bg-primary-600 transition-colors"
                   aria-label={social.name}
                 >
                   <social.icon className="w-4 h-4" />

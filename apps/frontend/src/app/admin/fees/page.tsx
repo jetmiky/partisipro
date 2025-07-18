@@ -20,13 +20,11 @@ import {
   Wallet,
   Receipt,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  StatsCard,
-  DashboardLayout,
-  DataTable,
-} from '@/components/ui';
+import { StatsCard, DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { Column } from '@/components/ui/DataTable';
 import type { FeeConfig, FeeRevenue } from '@/types';
 
@@ -229,6 +227,9 @@ export default function AdminFeesPage() {
     // TODO: Fetch latest fee configuration and revenue data
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
+    toast.success('Data refreshed successfully', {
+      message: 'Fee configuration and revenue data updated.',
+    });
   };
 
   const handleEditFee = (feeId: string, currentValue: number) => {
@@ -241,6 +242,9 @@ export default function AdminFeesPage() {
     // console.log('Updating fee:', feeId, 'to value:', feeValues[feeId]);
     _feeId;
     setEditingFee(null);
+    toast.success('Fee configuration updated', {
+      message: 'Changes have been saved successfully.',
+    });
   };
 
   const handleCancelEdit = (feeId: string) => {
@@ -255,6 +259,9 @@ export default function AdminFeesPage() {
     // TODO: Apply pending fee change
     // console.log('Apply pending fee change:', feeId);
     _feeId;
+    toast.success('Pending fee change applied', {
+      message: 'Fee configuration is now active.',
+    });
   };
 
   const feeConfigColumns: Column<FeeConfig>[] = [
@@ -343,31 +350,41 @@ export default function AdminFeesPage() {
         <div className="flex gap-2">
           {editingFee === row.id ? (
             <>
-              <Button size="sm" onClick={() => handleSaveFee(row.id)}>
+              <AnimatedButton
+                size="sm"
+                onClick={() => handleSaveFee(row.id)}
+                ripple
+              >
                 <Save className="h-4 w-4" />
-              </Button>
-              <Button
+              </AnimatedButton>
+              <AnimatedButton
                 variant="outline"
                 size="sm"
                 onClick={() => handleCancelEdit(row.id)}
+                ripple
               >
                 <X className="h-4 w-4" />
-              </Button>
+              </AnimatedButton>
             </>
           ) : (
             <>
-              <Button
+              <AnimatedButton
                 variant="outline"
                 size="sm"
                 onClick={() => handleEditFee(row.id, row.currentValue)}
                 disabled={row.status === 'inactive'}
+                ripple
               >
                 <Edit className="h-4 w-4" />
-              </Button>
+              </AnimatedButton>
               {row.status === 'pending' && (
-                <Button size="sm" onClick={() => handleApplyPendingFee(row.id)}>
+                <AnimatedButton
+                  size="sm"
+                  onClick={() => handleApplyPendingFee(row.id)}
+                  ripple
+                >
                   Apply
-                </Button>
+                </AnimatedButton>
               )}
             </>
           )}
@@ -435,252 +452,357 @@ export default function AdminFeesPage() {
 
   return (
     <DashboardLayout userType="admin">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Fee Management</h1>
-            <p className="text-gray-600">
-              Configure platform fees and track revenue
-            </p>
+      <PageTransition type="fade" duration={300}>
+        <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 relative overflow-hidden">
+          {/* Fluid background shapes */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-20 animate-[float_3s_ease-in-out_infinite] blur-sm"></div>
+            <div className="absolute top-1/4 right-20 w-48 h-48 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-15 animate-[float_4s_ease-in-out_infinite_reverse] blur-sm"></div>
+            <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full opacity-25 animate-[float_5s_ease-in-out_infinite] blur-sm"></div>
+            <div className="absolute bottom-10 right-10 w-36 h-36 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full opacity-20 animate-[float_6s_ease-in-out_infinite_reverse] blur-sm"></div>
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
+
+          <div className="space-y-6 p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="slide-up" delay={0}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      Fee Management
+                    </h1>
+                    <p className="text-gray-600 text-lg">
+                      Configure platform fees and track revenue
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <AnimatedButton
+                      variant="secondary"
+                      size="lg"
+                      onClick={handleRefresh}
+                      loading={isLoading}
+                      ripple
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Refresh
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Revenue Stats */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={100}
             >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+              <StatsCard
+                title="Total Revenue"
+                value={formatCurrency(mockStats.totalRevenue)}
+                icon={<DollarSign className="w-4 h-4" />}
+                change={mockStats.monthlyGrowth}
+                changeType="increase"
+                description="All time platform revenue"
               />
-              Refresh
-            </Button>
-          </div>
-        </div>
+              <StatsCard
+                title="Monthly Revenue"
+                value={formatCurrency(mockStats.monthlyRevenue)}
+                icon={<TrendingUp className="w-4 h-4" />}
+                change={mockStats.monthlyGrowth}
+                changeType="increase"
+                description="Current month revenue"
+              />
+              <StatsCard
+                title="Avg. Fee per Project"
+                value={formatCurrency(mockStats.averageFeePerProject)}
+                icon={<BarChart3 className="w-4 h-4" />}
+                change={0}
+                changeType="neutral"
+                description="Average revenue per project"
+              />
+              <StatsCard
+                title="Total Transactions"
+                value={mockStats.totalTransactions.toLocaleString()}
+                icon={<Receipt className="w-4 h-4" />}
+                change={12.3}
+                changeType="increase"
+                description="Fee-generating transactions"
+              />
+            </StaggeredList>
 
-        {/* Revenue Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Revenue"
-            value={formatCurrency(mockStats.totalRevenue)}
-            icon={<DollarSign className="w-4 h-4" />}
-            change={mockStats.monthlyGrowth}
-            changeType="increase"
-            description="All time platform revenue"
-          />
-          <StatsCard
-            title="Monthly Revenue"
-            value={formatCurrency(mockStats.monthlyRevenue)}
-            icon={<TrendingUp className="w-4 h-4" />}
-            change={mockStats.monthlyGrowth}
-            changeType="increase"
-            description="Current month revenue"
-          />
-          <StatsCard
-            title="Avg. Fee per Project"
-            value={formatCurrency(mockStats.averageFeePerProject)}
-            icon={<BarChart3 className="w-4 h-4" />}
-            change={0}
-            changeType="neutral"
-            description="Average revenue per project"
-          />
-          <StatsCard
-            title="Total Transactions"
-            value={mockStats.totalTransactions.toLocaleString()}
-            icon={<Receipt className="w-4 h-4" />}
-            change={12.3}
-            changeType="increase"
-            description="Fee-generating transactions"
-          />
-        </div>
+            {/* Fee Category Breakdown */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={150}
+            >
+              <StatsCard
+                title="Platform Fees"
+                value={formatCurrency(mockStats.platformFees)}
+                icon={<Wallet className="w-4 h-4" />}
+                change={15.2}
+                changeType="increase"
+                description="Listing & management fees"
+              />
+              <StatsCard
+                title="Transaction Fees"
+                value={formatCurrency(mockStats.transactionFees)}
+                icon={<Receipt className="w-4 h-4" />}
+                change={8.7}
+                changeType="increase"
+                description="Investment & withdrawal fees"
+              />
+              <StatsCard
+                title="Service Fees"
+                value={formatCurrency(mockStats.serviceFees)}
+                icon={<Settings className="w-4 h-4" />}
+                change={5.1}
+                changeType="increase"
+                description="KYC & other services"
+              />
+            </StaggeredList>
 
-        {/* Fee Category Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="Platform Fees"
-            value={formatCurrency(mockStats.platformFees)}
-            icon={<Wallet className="w-4 h-4" />}
-            change={15.2}
-            changeType="increase"
-            description="Listing & management fees"
-          />
-          <StatsCard
-            title="Transaction Fees"
-            value={formatCurrency(mockStats.transactionFees)}
-            icon={<Receipt className="w-4 h-4" />}
-            change={8.7}
-            changeType="increase"
-            description="Investment & withdrawal fees"
-          />
-          <StatsCard
-            title="Service Fees"
-            value={formatCurrency(mockStats.serviceFees)}
-            icon={<Settings className="w-4 h-4" />}
-            change={5.1}
-            changeType="increase"
-            description="KYC & other services"
-          />
-        </div>
+            {/* Fee Configuration */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      Fee Configuration
+                    </h2>
+                    <p className="text-gray-600">
+                      Manage platform fee structure and rates
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() =>
+                        toast.info('Exporting fee configuration', {
+                          message: 'Download will start shortly...',
+                        })
+                      }
+                      ripple
+                    >
+                      <Download className="h-4 w-4" />
+                      Export Config
+                    </AnimatedButton>
+                  </div>
+                </div>
 
-        {/* Fee Configuration */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Fee Configuration
-              </h2>
-              <p className="text-sm text-gray-600">
-                Manage platform fee structure and rates
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export Config
-              </Button>
-            </div>
-          </div>
-
-          <DataTable<FeeConfig>
-            columns={feeConfigColumns}
-            data={mockFeeConfigs}
-          />
-        </Card>
-
-        {/* Recent Revenue */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Revenue
-              </h2>
-              <p className="text-sm text-gray-600">
-                Latest fee collections and transactions
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <History className="h-4 w-4 mr-2" />
-                View All
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-
-          <DataTable<FeeRevenue>
-            columns={revenueColumns}
-            data={mockRevenueData}
-          />
-        </Card>
-
-        {/* Fee Management Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <BarChart3 className="h-8 w-8 text-primary-500 bg-primary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Revenue Analytics
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Detailed revenue analysis and forecasting
-                </p>
+                <DataTable<FeeConfig>
+                  columns={feeConfigColumns}
+                  data={mockFeeConfigs}
+                />
               </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              View Analytics
-            </Button>
-          </Card>
+            </ScrollReveal>
 
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Calendar className="h-8 w-8 text-secondary-500 bg-secondary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Fee Schedule
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Plan and schedule fee changes
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              Manage Schedule
-            </Button>
-          </Card>
+            {/* Recent Revenue */}
+            <ScrollReveal animation="slide-up" delay={300}>
+              <div className="glass-modern p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+                      Recent Revenue
+                    </h2>
+                    <p className="text-gray-600">
+                      Latest fee collections and transactions
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() =>
+                        toast.info('Viewing all revenue history', {
+                          message: 'Loading complete history...',
+                        })
+                      }
+                      ripple
+                    >
+                      <History className="h-4 w-4" />
+                      View All
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="secondary"
+                      onClick={() =>
+                        toast.info('Exporting revenue data', {
+                          message: 'Download will start shortly...',
+                        })
+                      }
+                      ripple
+                    >
+                      <Download className="h-4 w-4" />
+                      Export
+                    </AnimatedButton>
+                  </div>
+                </div>
 
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <CheckCircle className="h-8 w-8 text-support-500 bg-support-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Fee Audit
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Audit trail and compliance reporting
-                </p>
+                <DataTable<FeeRevenue>
+                  columns={revenueColumns}
+                  data={mockRevenueData}
+                />
               </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              Generate Audit
-            </Button>
-          </Card>
+            </ScrollReveal>
+
+            {/* Fee Management Actions */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={200}
+            >
+              <div className="glass-modern p-6 rounded-xl hover-lift">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Revenue Analytics
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Detailed revenue analysis and forecasting
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() =>
+                    toast.info('Opening revenue analytics', {
+                      message: 'Loading analytics dashboard...',
+                    })
+                  }
+                  ripple
+                >
+                  View Analytics
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl hover-lift">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Calendar className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Fee Schedule
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Plan and schedule fee changes
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() =>
+                    toast.info('Opening fee scheduler', {
+                      message: 'Loading schedule management...',
+                    })
+                  }
+                  ripple
+                >
+                  Manage Schedule
+                </AnimatedButton>
+              </div>
+
+              <div className="glass-modern p-6 rounded-xl hover-lift">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <CheckCircle className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Fee Audit
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Audit trail and compliance reporting
+                    </p>
+                  </div>
+                </div>
+                <AnimatedButton
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() =>
+                    toast.info('Generating audit report', {
+                      message: 'Preparing compliance report...',
+                    })
+                  }
+                  ripple
+                >
+                  Generate Audit
+                </AnimatedButton>
+              </div>
+            </StaggeredList>
+
+            {/* Important Notice */}
+            <ScrollReveal animation="fade" delay={400}>
+              <div className="glass-modern p-6 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                    <Info className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-900 mb-2">
+                      Fee Change Policy
+                    </h3>
+                    <p className="text-sm text-primary-800 mb-2">
+                      All fee changes require a 30-day notice period and must be
+                      approved by the platform governance council. Changes will
+                      be applied to new projects only, existing projects
+                      maintain their original fee structure.
+                    </p>
+                    <ul className="text-sm text-primary-800 space-y-1">
+                      <li>• Platform fees: 1-5% range for sustainability</li>
+                      <li>
+                        • Transaction fees: Fixed amounts to cover operational
+                        costs
+                      </li>
+                      <li>
+                        • Service fees: Third-party service cost pass-through
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* TODO: Mock Implementation Notes */}
+            <ScrollReveal animation="fade" delay={500}>
+              <div className="glass-modern p-6 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                    <AlertTriangle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-900 mb-2">
+                      TODO: Mock Implementation Notes
+                    </h3>
+                    <ul className="text-sm text-primary-800 space-y-1">
+                      <li>
+                        • Mock blockchain fee configuration updates via smart
+                        contracts
+                      </li>
+                      <li>
+                        • Mock automated fee collection and revenue tracking
+                      </li>
+                      <li>
+                        • Mock fee change approval workflow with governance
+                        voting
+                      </li>
+                      <li>
+                        • Mock real-time revenue analytics and reporting
+                        dashboard
+                      </li>
+                      <li>
+                        • Mock fee audit trail and compliance reporting system
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
-
-        {/* Important Notice */}
-        <Card className="p-6 bg-primary-50 border-primary-200">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-primary-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary-900 mb-2">
-                Fee Change Policy
-              </h3>
-              <p className="text-sm text-primary-800 mb-2">
-                All fee changes require a 30-day notice period and must be
-                approved by the platform governance council. Changes will be
-                applied to new projects only, existing projects maintain their
-                original fee structure.
-              </p>
-              <ul className="text-sm text-primary-800 space-y-1">
-                <li>• Platform fees: 1-5% range for sustainability</li>
-                <li>
-                  • Transaction fees: Fixed amounts to cover operational costs
-                </li>
-                <li>• Service fees: Third-party service cost pass-through</li>
-              </ul>
-            </div>
-          </div>
-        </Card>
-
-        {/* TODO: Mock Implementation Notes */}
-        <Card className="p-6 bg-primary-50 border-primary-200">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-primary-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-primary-900 mb-2">
-                TODO: Mock Implementation Notes
-              </h3>
-              <ul className="text-sm text-primary-800 space-y-1">
-                <li>
-                  • Mock blockchain fee configuration updates via smart
-                  contracts
-                </li>
-                <li>• Mock automated fee collection and revenue tracking</li>
-                <li>
-                  • Mock fee change approval workflow with governance voting
-                </li>
-                <li>
-                  • Mock real-time revenue analytics and reporting dashboard
-                </li>
-                <li>• Mock fee audit trail and compliance reporting system</li>
-              </ul>
-            </div>
-          </div>
-        </Card>
-      </div>
+      </PageTransition>
     </DashboardLayout>
   );
 }

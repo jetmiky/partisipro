@@ -24,10 +24,13 @@ import {
   AlertCircle,
   CheckCircle,
   Lock,
-  Eye,
-  EyeOff,
 } from 'lucide-react';
-import { Button, Card, DashboardLayout, Modal, Input } from '@/components/ui';
+import { Card, DashboardLayout } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast, ToastProvider } from '@/components/ui/AnimatedNotification';
 
 interface UserProfile {
   id: string;
@@ -181,7 +184,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('account');
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
 
@@ -274,135 +277,209 @@ export default function ProfilePage() {
   const renderAccountSection = () => (
     <div className="space-y-6">
       {/* Profile Header */}
-      <Card className="p-6">
+      <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
         <div className="flex items-center gap-6">
           <div className="relative">
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
               {profile.avatar ? (
                 <Image
                   src={profile.avatar}
                   alt="Profile"
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 rounded-full object-cover"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 rounded-full object-cover"
                 />
               ) : (
-                <User className="w-10 h-10 text-gray-400" />
+                <User className="w-12 h-12 text-primary-600" />
               )}
             </div>
-            <button className="absolute bottom-0 right-0 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center text-white hover:bg-primary-600">
-              <Camera className="w-3 h-3" />
+            <button className="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white hover-lift transition-all duration-300 shadow-lg">
+              <Camera className="w-4 h-4" />
             </button>
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-2xl font-bold text-gradient">
                 {profile.fullName}
               </h2>
               <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}
+                className={`px-3 py-1 rounded-xl text-xs font-bold ${getKYCStatusColor(
+                  profile.kycStatus
+                )
+                  .replace('bg-', 'bg-gradient-to-r from-')
+                  .replace(
+                    '-100',
+                    '-100 to-' +
+                      getKYCStatusColor(profile.kycStatus)
+                        .split(' ')[1]
+                        .split('-')[0] +
+                      '-200'
+                  )}`}
               >
                 {getKYCStatusLabel(profile.kycStatus)}
               </span>
             </div>
-            <p className="text-gray-600 mb-1">{profile.email}</p>
-            <p className="text-sm text-gray-500">
+            <p className="text-primary-700 font-medium mb-2">{profile.email}</p>
+            <p className="text-sm text-muted-foreground">
               Member since {formatDate(profile.registrationDate)}
             </p>
           </div>
           <div>
-            <Button
+            <AnimatedButton
               variant="secondary"
-              onClick={() => setEditingSection('profile')}
-              className="flex items-center gap-2"
+              onClick={() => {
+                setEditingSection('profile');
+                toast.info('Edit Profile', {
+                  message: 'Profile editing form opened',
+                });
+              }}
+              className="btn-modern btn-modern-secondary hover-lift flex items-center gap-2"
             >
               <Edit3 className="w-4 h-4" />
               Edit Profile
-            </Button>
+            </AnimatedButton>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Personal Information */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Personal Information</h3>
-          <Button
+      <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gradient">
+            Personal Information
+          </h3>
+          <AnimatedButton
             variant="secondary"
-            onClick={() => setEditingSection('personal')}
-            className="text-sm"
+            onClick={() => {
+              setEditingSection('personal');
+              toast.info('Edit Personal Information', {
+                message: 'Personal information editing form opened',
+              });
+            }}
+            className="btn-modern btn-modern-secondary hover-lift flex items-center gap-2"
           >
-            <Edit3 className="w-4 h-4 mr-1" />
+            <Edit3 className="w-4 h-4" />
             Edit
-          </Button>
+          </AnimatedButton>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-gray-400" />
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium text-gray-900">{profile.email}</p>
+        <StaggeredList
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          itemDelay={150}
+          animation="slide-up"
+        >
+          <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                <Mail className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-primary-600">Email</p>
+                <p className="font-bold text-primary-800">{profile.email}</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Phone className="w-5 h-5 text-gray-400" />
-            <div>
-              <p className="text-sm text-gray-500">Phone Number</p>
-              <p className="font-medium text-gray-900">{profile.phone}</p>
+          <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                <Phone className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-primary-600">
+                  Phone Number
+                </p>
+                <p className="font-bold text-primary-800">{profile.phone}</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:col-span-2">
-            <MapPin className="w-5 h-5 text-gray-400" />
-            <div>
-              <p className="text-sm text-gray-500">Address</p>
-              <p className="font-medium text-gray-900">
-                {profile.address.street}, {profile.address.city},{' '}
-                {profile.address.province} {profile.address.postalCode}
-              </p>
+          <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300 md:col-span-2">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-primary-600 mb-1">
+                  Address
+                </p>
+                <p className="font-bold text-primary-800 leading-relaxed">
+                  {profile.address.street}, {profile.address.city},{' '}
+                  {profile.address.province} {profile.address.postalCode}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </StaggeredList>
+      </div>
 
       {/* KYC Status */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">KYC Verification</h3>
-          {profile.kycStatus === 'verified' ? (
-            <CheckCircle className="w-5 h-5 text-green-600" />
-          ) : (
-            <AlertCircle className="w-5 h-5 text-yellow-600" />
-          )}
+      <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gradient">
+            KYC Verification
+          </h3>
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              profile.kycStatus === 'verified'
+                ? 'bg-gradient-to-br from-success-500 to-success-600'
+                : 'bg-gradient-to-br from-accent-500 to-accent-600'
+            }`}
+          >
+            {profile.kycStatus === 'verified' ? (
+              <CheckCircle className="w-6 h-6 text-white" />
+            ) : (
+              <AlertCircle className="w-6 h-6 text-white" />
+            )}
+          </div>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-600">Identity Verification</span>
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${getKYCStatusColor(profile.kycStatus)}`}
-            >
-              {getKYCStatusLabel(profile.kycStatus)}
-            </span>
+        <div className="space-y-4">
+          <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-primary-700">
+                Identity Verification
+              </span>
+              <span
+                className={`px-3 py-1 rounded-xl text-xs font-bold ${getKYCStatusColor(
+                  profile.kycStatus
+                )
+                  .replace('bg-', 'bg-gradient-to-r from-')
+                  .replace(
+                    '-100',
+                    '-100 to-' +
+                      getKYCStatusColor(profile.kycStatus)
+                        .split(' ')[1]
+                        .split('-')[0] +
+                      '-200'
+                  )}`}
+              >
+                {getKYCStatusLabel(profile.kycStatus)}
+              </span>
+            </div>
           </div>
           {profile.kycStatus === 'verified' && (
-            <div className="text-sm text-gray-500">
-              Your identity has been successfully verified. You can now
-              participate in all investment activities.
+            <div className="glass-hero rounded-xl p-4">
+              <p className="text-sm text-success-800 font-medium">
+                Your identity has been successfully verified. You can now
+                participate in all investment activities.
+              </p>
             </div>
           )}
           {profile.kycStatus === 'pending' && (
-            <div className="text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg">
-              Your KYC application is under review. This process typically takes
-              1-3 business days.
+            <div className="glass-modern rounded-xl p-4 bg-gradient-to-r from-accent-50 to-accent-100">
+              <p className="text-sm text-accent-800 font-medium">
+                Your KYC application is under review. This process typically
+                takes 1-3 business days.
+              </p>
             </div>
           )}
           {profile.kycStatus === 'rejected' && (
-            <div className="text-sm text-red-700 bg-red-50 p-3 rounded-lg">
-              Your KYC application was rejected. Please contact support for
-              assistance.
+            <div className="glass-modern rounded-xl p-4 bg-gradient-to-r from-error-50 to-error-100">
+              <p className="text-sm text-error-800 font-medium">
+                Your KYC application was rejected. Please contact support for
+                assistance.
+              </p>
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
@@ -412,9 +489,17 @@ export default function ProfilePage() {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-900">Connected Wallets</h3>
-          <Button variant="primary" className="text-sm">
+          <AnimatedButton
+            variant="primary"
+            className="text-sm"
+            onClick={() => {
+              toast.info('Connect New Wallet', {
+                message: 'Opening wallet connection dialog',
+              });
+            }}
+          >
             Connect New Wallet
-          </Button>
+          </AnimatedButton>
         </div>
         <div className="space-y-4">
           {profile.connectedWallets.map((wallet, index) => (
@@ -446,11 +531,14 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button
+                <AnimatedButton
                   variant="secondary"
-                  onClick={() =>
-                    copyToClipboard(wallet.address, wallet.address)
-                  }
+                  onClick={() => {
+                    copyToClipboard(wallet.address, wallet.address);
+                    toast.success('Address Copied', {
+                      message: 'Wallet address copied to clipboard',
+                    });
+                  }}
                   className="text-sm p-2"
                 >
                   {copiedAddress === wallet.address ? (
@@ -458,10 +546,18 @@ export default function ProfilePage() {
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
-                </Button>
-                <Button variant="secondary" className="text-sm">
+                </AnimatedButton>
+                <AnimatedButton
+                  variant="secondary"
+                  className="text-sm"
+                  onClick={() => {
+                    toast.info('Manage Wallet', {
+                      message: 'Opening wallet management options',
+                    });
+                  }}
+                >
                   Manage
-                </Button>
+                </AnimatedButton>
               </div>
             </div>
           ))}
@@ -482,9 +578,17 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <Button variant="secondary" className="text-sm">
+            <AnimatedButton
+              variant="secondary"
+              className="text-sm"
+              onClick={() => {
+                toast.info('View Backup', {
+                  message: 'Opening wallet backup information',
+                });
+              }}
+            >
               View Backup
-            </Button>
+            </AnimatedButton>
           </div>
           <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
             <div className="flex items-center gap-3">
@@ -793,13 +897,18 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <Button
+            <AnimatedButton
               variant="secondary"
-              onClick={() => setTwoFactorModalOpen(true)}
+              onClick={() => {
+                setTwoFactorModalOpen(true);
+                toast.info('Manage 2FA', {
+                  message: 'Opening two-factor authentication settings',
+                });
+              }}
               className="text-sm"
             >
               Manage
-            </Button>
+            </AnimatedButton>
           </div>
           <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
             <div className="flex items-center gap-3">
@@ -811,13 +920,18 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <Button
+            <AnimatedButton
               variant="secondary"
-              onClick={() => setPasswordModalOpen(true)}
+              onClick={() => {
+                setPasswordModalOpen(true);
+                toast.info('Change Password', {
+                  message: 'Opening password change form',
+                });
+              }}
               className="text-sm"
             >
               Change Password
-            </Button>
+            </AnimatedButton>
           </div>
           <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
             <div className="flex items-center gap-3">
@@ -829,9 +943,17 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <Button variant="secondary" className="text-sm">
+            <AnimatedButton
+              variant="secondary"
+              className="text-sm"
+              onClick={() => {
+                toast.info('Update Security Questions', {
+                  message: 'Opening security questions update form',
+                });
+              }}
+            >
               Update
-            </Button>
+            </AnimatedButton>
           </div>
         </div>
       </Card>
@@ -872,9 +994,17 @@ export default function ProfilePage() {
           ))}
         </div>
         <div className="mt-4 text-center">
-          <Button variant="secondary" className="text-sm">
+          <AnimatedButton
+            variant="secondary"
+            className="text-sm"
+            onClick={() => {
+              toast.info('View All Activity', {
+                message: 'Loading complete login activity history',
+              });
+            }}
+          >
             View All Activity
-          </Button>
+          </AnimatedButton>
         </div>
       </Card>
     </div>
@@ -900,7 +1030,11 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tax ID (NPWP)
             </label>
-            <Input type="text" placeholder="Enter your NPWP number" />
+            <AnimatedInput
+              type="text"
+              placeholder="Enter your NPWP number"
+              label="Tax ID (NPWP)"
+            />
           </div>
         </div>
       </Card>
@@ -944,13 +1078,18 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <Button
+              <AnimatedButton
                 variant="secondary"
                 className="text-sm flex items-center gap-2"
+                onClick={() => {
+                  toast.success('Download Started', {
+                    message: `Downloading ${report.title}`,
+                  });
+                }}
               >
                 <Download className="w-4 h-4" />
                 Download
-              </Button>
+              </AnimatedButton>
             </div>
           ))}
         </div>
@@ -985,9 +1124,18 @@ export default function ProfilePage() {
             </select>
           </div>
           <div className="flex items-end">
-            <Button variant="primary" className="w-full">
+            <AnimatedButton
+              variant="primary"
+              className="w-full"
+              onClick={() => {
+                toast.success('Report Generated', {
+                  message:
+                    'Custom report is being generated and will be available shortly',
+                });
+              }}
+            >
               Generate Report
-            </Button>
+            </AnimatedButton>
           </div>
         </div>
       </Card>
@@ -995,145 +1143,256 @@ export default function ProfilePage() {
   );
 
   return (
-    <DashboardLayout userType="investor">
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-          <p className="text-gray-600">
-            Manage your account information, preferences, and security settings
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Toast Provider */}
+      <ToastProvider />
 
-        <div className="flex gap-6">
-          {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <Card className="p-2">
-              <nav className="space-y-1">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-primary-50 text-primary-700 border border-primary-200'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <tab.icon className="w-5 h-5" />
-                    <span className="font-medium">{tab.label}</span>
-                    <ChevronRight
-                      className={`w-4 h-4 ml-auto transition-transform ${
-                        activeTab === tab.id ? 'rotate-90' : ''
-                      }`}
-                    />
-                  </button>
-                ))}
-              </nav>
-            </Card>
-          </div>
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-          {/* Content */}
-          <div className="flex-1">
-            {activeTab === 'account' && renderAccountSection()}
-            {activeTab === 'wallet' && renderWalletSection()}
-            {activeTab === 'preferences' && renderPreferencesSection()}
-            {activeTab === 'notifications' && renderNotificationsSection()}
-            {activeTab === 'security' && renderSecuritySection()}
-            {activeTab === 'reports' && renderReportsSection()}
-          </div>
-        </div>
-
-        {/* Password Change Modal */}
-        {passwordModalOpen && (
-          <Modal
-            isOpen={passwordModalOpen}
-            onClose={() => setPasswordModalOpen(false)}
-            title="Change Password"
-          >
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password
-                </label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter current password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  New Password
-                </label>
-                <Input type="password" placeholder="Enter new password" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password
-                </label>
-                <Input type="password" placeholder="Confirm new password" />
-              </div>
-              <div className="flex items-center gap-3 pt-4">
-                <Button
-                  variant="secondary"
-                  onClick={() => setPasswordModalOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button variant="primary" className="flex-1">
-                  Update Password
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
-
-        {/* Two-Factor Authentication Modal */}
-        {twoFactorModalOpen && (
-          <Modal
-            isOpen={twoFactorModalOpen}
-            onClose={() => setTwoFactorModalOpen(false)}
-            title="Two-Factor Authentication"
-          >
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  2FA is Currently Enabled
-                </h3>
-                <p className="text-gray-600">
-                  Your account is protected with two-factor authentication
+      <DashboardLayout userType="investor">
+        <PageTransition type="fade" duration={300}>
+          <div className="p-6 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0} duration={800}>
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gradient mb-2">
+                  Profile Settings
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage your account information, preferences, and security
+                  settings
                 </p>
               </div>
-              <div className="space-y-3">
-                <Button variant="secondary" className="w-full">
-                  View Recovery Codes
-                </Button>
-                <Button variant="secondary" className="w-full">
-                  Reset Authenticator
-                </Button>
-                <Button variant="accent" className="w-full">
-                  Disable 2FA
-                </Button>
+            </ScrollReveal>
+
+            <ScrollReveal animation="slide-left" delay={200} duration={800}>
+              <div className="flex gap-6">
+                {/* Sidebar */}
+                <div className="w-64 flex-shrink-0">
+                  <div className="glass-modern rounded-2xl p-3 hover-lift transition-all duration-300">
+                    <nav className="space-y-2">
+                      <StaggeredList itemDelay={100} animation="slide-up">
+                        {tabs.map(tab => (
+                          <AnimatedButton
+                            key={tab.id}
+                            variant={
+                              activeTab === tab.id ? 'primary' : 'secondary'
+                            }
+                            onClick={() => {
+                              setActiveTab(tab.id);
+                              toast.info(`Switched to ${tab.label}`, {
+                                message: `Now viewing ${tab.label.toLowerCase()} settings`,
+                              });
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-xl transition-all duration-300 ${
+                              activeTab === tab.id
+                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                                : 'text-primary-600 hover:text-primary-700 hover:bg-primary-50'
+                            }`}
+                          >
+                            <div
+                              className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                activeTab === tab.id
+                                  ? 'bg-white/20'
+                                  : 'bg-primary-100'
+                              }`}
+                            >
+                              <tab.icon
+                                className={`w-5 h-5 ${
+                                  activeTab === tab.id
+                                    ? 'text-white'
+                                    : 'text-primary-600'
+                                }`}
+                              />
+                            </div>
+                            <span className="font-medium">{tab.label}</span>
+                            <ChevronRight
+                              className={`w-4 h-4 ml-auto transition-transform ${
+                                activeTab === tab.id ? 'rotate-90' : ''
+                              }`}
+                            />
+                          </AnimatedButton>
+                        ))}
+                      </StaggeredList>
+                    </nav>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <ScrollReveal
+                    animation="slide-right"
+                    delay={400}
+                    duration={800}
+                  >
+                    {activeTab === 'account' && renderAccountSection()}
+                    {activeTab === 'wallet' && renderWalletSection()}
+                    {activeTab === 'preferences' && renderPreferencesSection()}
+                    {activeTab === 'notifications' &&
+                      renderNotificationsSection()}
+                    {activeTab === 'security' && renderSecuritySection()}
+                    {activeTab === 'reports' && renderReportsSection()}
+                  </ScrollReveal>
+                </div>
               </div>
-            </div>
-          </Modal>
-        )}
-      </div>
-    </DashboardLayout>
+            </ScrollReveal>
+
+            {/* Password Change Modal */}
+            {passwordModalOpen && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gradient">
+                      Change Password
+                    </h2>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setPasswordModalOpen(false)}
+                      className="btn-modern btn-modern-secondary hover-lift w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="glass-modern rounded-xl p-4">
+                      <label className="block text-sm font-semibold text-primary-700 mb-3">
+                        Current Password
+                      </label>
+                      <AnimatedInput
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter current password"
+                        label="Current Password"
+                        showPasswordToggle={true}
+                        className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
+                      />
+                    </div>
+                    <div className="glass-modern rounded-xl p-4">
+                      <label className="block text-sm font-semibold text-primary-700 mb-3">
+                        New Password
+                      </label>
+                      <AnimatedInput
+                        type="password"
+                        placeholder="Enter new password"
+                        label="New Password"
+                        showPasswordToggle={true}
+                        className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
+                      />
+                    </div>
+                    <div className="glass-modern rounded-xl p-4">
+                      <label className="block text-sm font-semibold text-primary-700 mb-3">
+                        Confirm New Password
+                      </label>
+                      <AnimatedInput
+                        type="password"
+                        placeholder="Confirm new password"
+                        label="Confirm New Password"
+                        showPasswordToggle={true}
+                        className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-4">
+                      <AnimatedButton
+                        variant="secondary"
+                        onClick={() => setPasswordModalOpen(false)}
+                        className="flex-1 btn-modern btn-modern-secondary hover-lift"
+                      >
+                        Cancel
+                      </AnimatedButton>
+                      <AnimatedButton
+                        variant="primary"
+                        className="flex-1 btn-modern btn-modern-primary hover-lift"
+                        onClick={() => {
+                          setPasswordModalOpen(false);
+                          toast.success('Password Updated', {
+                            message:
+                              'Your password has been successfully updated',
+                          });
+                        }}
+                      >
+                        Update Password
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Two-Factor Authentication Modal */}
+            {twoFactorModalOpen && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="glass-feature rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gradient">
+                      Two-Factor Authentication
+                    </h2>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => setTwoFactorModalOpen(false)}
+                      className="btn-modern btn-modern-secondary hover-lift w-10 h-10 p-0 text-lg"
+                    >
+                      ×
+                    </AnimatedButton>
+                  </div>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center mx-auto mb-4 hover-scale transition-all duration-300">
+                      <CheckCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gradient mb-3">
+                      2FA is Currently Enabled
+                    </h3>
+                    <p className="text-primary-600">
+                      Your account is protected with two-factor authentication
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <AnimatedButton
+                      variant="secondary"
+                      className="w-full btn-modern btn-modern-secondary hover-lift"
+                      onClick={() => {
+                        toast.info('Recovery Codes', {
+                          message: 'Displaying your backup recovery codes',
+                        });
+                      }}
+                    >
+                      View Recovery Codes
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="secondary"
+                      className="w-full btn-modern btn-modern-secondary hover-lift"
+                      onClick={() => {
+                        toast.warning('Reset Authenticator', {
+                          message: 'Resetting your authenticator app settings',
+                        });
+                      }}
+                    >
+                      Reset Authenticator
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="accent"
+                      className="w-full btn-modern hover-lift bg-gradient-to-r from-accent-500 to-accent-600 text-white"
+                      onClick={() => {
+                        setTwoFactorModalOpen(false);
+                        toast.warning('2FA Disabled', {
+                          message:
+                            'Two-factor authentication has been disabled',
+                        });
+                      }}
+                    >
+                      Disable 2FA
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

@@ -89,65 +89,95 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 left-16"></div>
+        <div className="fluid-shape-2 top-1/2 right-20"></div>
+        <div className="fluid-shape-3 bottom-32 left-1/4"></div>
+      </div>
+
       {/* Left Side - Decorative Background */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-100 via-primary-50 to-secondary-100 relative overflow-hidden">
-        {/* Decorative Circles */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-primary-200/30 rounded-full blur-xl"></div>
-        <div className="absolute bottom-32 left-12 w-24 h-24 bg-secondary-200/40 rounded-full blur-lg"></div>
-        <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-primary-300/20 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-20 right-20 w-28 h-28 bg-secondary-300/30 rounded-full blur-xl"></div>
+      <div className="hidden lg:flex lg:w-1/2 gradient-brand-hero relative overflow-hidden">
+        {/* Fluid Organic Shapes */}
+        <div className="absolute inset-0 opacity-20 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-white rounded-full animate-float blur-sm"></div>
+          <div
+            className="absolute top-3/4 right-1/4 w-32 h-32 bg-white/80 rounded-full animate-float blur-sm"
+            style={{ animationDelay: '1s' }}
+          ></div>
+          <div
+            className="absolute top-1/2 left-1/2 w-24 h-24 bg-white/60 rounded-full animate-float blur-sm"
+            style={{ animationDelay: '2s' }}
+          ></div>
+        </div>
 
         {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-            <Layers className="w-6 h-6 text-white" />
+        <div className="absolute top-8 left-8 flex items-center gap-3 animate-fade-in-up">
+          <div className="w-10 h-10 feature-icon">
+            <Layers className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xl font-bold text-gray-900">Partisipro</span>
-            <p className="text-sm text-gray-600">PPP Blockchain Platform</p>
+            <span className="text-xl font-bold text-white">Partisipro</span>
+            <p className="text-sm text-white/80">PPP Blockchain Platform</p>
+          </div>
+        </div>
+
+        {/* Welcome Content */}
+        <div className="flex flex-col justify-center items-center text-center text-white p-12 relative z-10">
+          <div className="max-w-md animate-fade-in-up animate-delay-300">
+            <h2 className="text-3xl font-bold mb-4">Join the Future!</h2>
+            <p className="text-lg text-white/90 mb-6">
+              Start your journey in democratizing infrastructure investment
+            </p>
+            <div className="glass-hero p-6 rounded-2xl">
+              <p className="text-sm text-white/95">
+                &ldquo;Be part of Indonesia&apos;s infrastructure
+                transformation&rdquo;
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Sign Up Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative z-10">
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-              <Layers className="w-6 h-6 text-white" />
+          <div className="lg:hidden flex items-center justify-center gap-3 mb-8 animate-fade-in-up">
+            <div className="w-10 h-10 feature-icon">
+              <Layers className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gradient">
                 Partisipro
               </span>
-              <p className="text-sm text-gray-600">PPP Platform</p>
+              <p className="text-sm text-muted-foreground">PPP Platform</p>
             </div>
           </div>
 
           {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="text-center space-y-2 animate-fade-in-up animate-delay-200">
+            <h1 className="text-2xl font-bold text-gradient">
               Welcome to Partisipro
             </h1>
-            <h2 className="text-lg font-medium text-gray-700">
-              Sign Up to getting started
+            <h2 className="text-lg font-medium text-foreground">
+              Sign Up to get started
             </h2>
-            <p className="text-sm text-gray-500">
-              Enter your detail to proceed further
+            <p className="text-sm text-muted-foreground">
+              Enter your details to proceed further
             </p>
           </div>
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="glass-modern border border-error-200 rounded-2xl p-4 animate-fade-in-up">
               <div className="flex">
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
+                  <h3 className="text-sm font-medium text-error-800">
                     Registration Error
                   </h3>
-                  <div className="mt-2 text-sm text-red-700">
+                  <div className="mt-2 text-sm text-error-700">
                     <p>{error}</p>
                   </div>
                 </div>
@@ -156,17 +186,20 @@ export default function SignUpPage() {
           )}
 
           {/* Sign Up Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 animate-fade-in-up animate-delay-300"
+          >
             {/* Full Name Input */}
             <div className="space-y-2">
               <label
                 htmlFor="fullName"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="fullName"
                   name="fullName"
@@ -174,7 +207,7 @@ export default function SignUpPage() {
                   placeholder="Enter your name"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="pl-10"
+                  className="pl-10 input hover-glow"
                   required
                 />
               </div>
@@ -184,12 +217,12 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   name="email"
@@ -197,7 +230,7 @@ export default function SignUpPage() {
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="pl-10"
+                  className="pl-10 input hover-glow"
                   required
                 />
               </div>
@@ -207,12 +240,12 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="password"
                   name="password"
@@ -220,13 +253,13 @@ export default function SignUpPage() {
                   placeholder="Create password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 input hover-glow"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary-600 transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -241,7 +274,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full"
+              className="w-full btn-modern btn-modern-primary hover-lift"
               disabled={isLoading || authLoading}
             >
               {isLoading || authLoading ? 'Creating Account...' : 'Sign Up'}
@@ -250,10 +283,10 @@ export default function SignUpPage() {
             {/* Social Auth Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-secondary-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="px-2 bg-background text-muted-foreground">
                   Or sign up with
                 </span>
               </div>
@@ -265,7 +298,7 @@ export default function SignUpPage() {
                 type="button"
                 onClick={() => handleSocialAuth('Google')}
                 disabled={isLoading || authLoading}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-4 py-2 glass-modern rounded-xl hover:glass-feature transition-all hover-scale disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -292,7 +325,7 @@ export default function SignUpPage() {
                 type="button"
                 onClick={() => handleSocialAuth('Apple')}
                 disabled={isLoading || authLoading}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-4 py-2 glass-modern rounded-xl hover:glass-feature transition-all hover-scale disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   className="w-5 h-5"
@@ -308,7 +341,7 @@ export default function SignUpPage() {
                 type="button"
                 onClick={() => handleSocialAuth('Facebook')}
                 disabled={isLoading || authLoading}
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-4 py-2 glass-modern rounded-xl hover:glass-feature transition-all hover-scale disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -319,12 +352,12 @@ export default function SignUpPage() {
           </form>
 
           {/* Sign In Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div className="text-center animate-fade-in-up animate-delay-500">
+            <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
               <Link
                 href="/auth/signin"
-                className="text-secondary-600 hover:text-secondary-700 font-medium"
+                className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
               >
                 Sign In
               </Link>
@@ -332,19 +365,19 @@ export default function SignUpPage() {
           </div>
 
           {/* Terms and Privacy */}
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              By Sign Up, you agree to our{' '}
+          <div className="text-center animate-fade-in-up animate-delay-700">
+            <p className="text-xs text-muted-foreground">
+              By signing up, you agree to our{' '}
               <Link
                 href="/legal"
-                className="text-secondary-600 hover:text-secondary-700"
+                className="text-primary-600 hover:text-primary-700 transition-colors"
               >
                 Terms of Use
               </Link>{' '}
               and{' '}
               <Link
                 href="/legal"
-                className="text-secondary-600 hover:text-secondary-700"
+                className="text-primary-600 hover:text-primary-700 transition-colors"
               >
                 Privacy Policy
               </Link>

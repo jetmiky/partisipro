@@ -38,6 +38,10 @@ import { DashboardLayout } from '@/components/ui';
 import { PortfolioChart } from '@/components/ui';
 import { PortfolioExport } from '@/components/ui';
 import { PortfolioUpdates } from '@/components/ui';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal } from '@/components/ui/ScrollAnimations';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { ToastProvider } from '@/components/ui/AnimatedNotification';
 import {
   CrossProjectMetrics,
   PortfolioComparison,
@@ -514,68 +518,87 @@ export default function DashboardPage() {
   };
 
   const renderOverview = () => (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in-up animate-delay-300">
       {/* Identity Status Section */}
-      <Card className="p-6 border-green-200 bg-green-50">
-        <div className="flex items-center justify-between mb-4">
+      <div className="glass-feature rounded-2xl p-8 border border-success-200 bg-gradient-to-br from-success-50 to-white hover-lift">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
-            <Shield className="w-6 h-6 text-green-600 mr-3" />
+            <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center mr-4">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <h3 className="text-lg font-semibold text-green-900">
+              <h3 className="text-xl font-bold text-gradient mb-1">
                 Identity Verification Status
               </h3>
-              <p className="text-green-700">
+              <p className="text-success-700 font-medium">
                 Your ERC-3643 identity is active and verified
               </p>
             </div>
           </div>
-          <CheckCircle className="w-8 h-8 text-green-600" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center">
-            <UserCheck className="w-5 h-5 text-green-600 mr-2" />
-            <div>
-              <p className="text-sm font-medium text-green-900">KYC Status</p>
-              <p className="text-xs text-green-700">Verified</p>
+          <div className="relative">
+            <CheckCircle className="w-10 h-10 text-success-500" />
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+              <CheckCircle className="w-3 h-3 text-success-500" />
             </div>
           </div>
-          <div className="flex items-center">
-            <Award className="w-5 h-5 text-blue-600 mr-2" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex items-center glass-modern rounded-xl p-4 hover-scale">
+            <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center mr-3">
+              <UserCheck className="w-5 h-5 text-success-600" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-green-900">
+              <p className="text-sm font-semibold text-primary-900">
+                KYC Status
+              </p>
+              <p className="text-xs text-success-700 font-medium">Verified</p>
+            </div>
+          </div>
+          <div className="flex items-center glass-modern rounded-xl p-4 hover-scale">
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+              <Award className="w-5 h-5 text-primary-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-primary-900">
                 Active Claims
               </p>
-              <p className="text-xs text-green-700">4 of 4 claims</p>
+              <p className="text-xs text-primary-700 font-medium">
+                4 of 4 claims
+              </p>
             </div>
           </div>
-          <div className="flex items-center">
-            <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+          <div className="flex items-center glass-modern rounded-xl p-4 hover-scale">
+            <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center mr-3">
+              <CheckCircle className="w-5 h-5 text-success-600" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-green-900">
+              <p className="text-sm font-semibold text-primary-900">
                 Investment Eligible
               </p>
-              <p className="text-xs text-green-700">All projects available</p>
+              <p className="text-xs text-success-700 font-medium">
+                All projects available
+              </p>
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-green-200">
+        <div className="mt-6 pt-6 border-t border-success-200">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-green-700">
-              <span className="font-medium">Identity Benefits:</span> One-time
+            <p className="text-sm text-primary-700">
+              <span className="font-semibold">Identity Benefits:</span> One-time
               verification, instant investment approval, automated profit
               distribution
             </p>
             <Link href="/identity">
               <Button
                 variant="secondary"
-                className="text-green-700 border-green-300 hover:bg-green-100 text-sm"
+                className="btn-modern btn-modern-secondary hover-lift"
               >
                 Manage Identity
               </Button>
             </Link>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -610,103 +633,127 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Quick Actions</h3>
-            <Plus className="w-5 h-5 text-gray-400" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="glass-feature rounded-2xl p-8 hover-lift">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-primary-900 text-lg">
+              Quick Actions
+            </h3>
+            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+              <Plus className="w-4 h-4 text-primary-600" />
+            </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Link href="/marketplace">
-              <Button variant="primary" className="w-full justify-start">
+              <Button
+                variant="primary"
+                className="w-full justify-start btn-modern btn-modern-primary hover-lift"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Browse New Projects
               </Button>
             </Link>
             <Link href="/claim">
-              <Button variant="secondary" className="w-full justify-start">
+              <Button
+                variant="secondary"
+                className="w-full justify-start btn-modern btn-modern-secondary hover-lift"
+              >
                 <DollarSign className="w-4 h-4 mr-2" />
                 Claim Returns ({formatCurrency(claimableAmount)})
               </Button>
             </Link>
             <Link href="/profile">
-              <Button variant="secondary" className="w-full justify-start">
+              <Button
+                variant="secondary"
+                className="w-full justify-start btn-modern btn-modern-secondary hover-lift"
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 View Profile
               </Button>
             </Link>
           </div>
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">
+        <div className="glass-feature rounded-2xl p-8 hover-lift gradient-brand-light">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-primary-900 text-lg">
               Portfolio Performance
             </h3>
-            <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="w-8 h-8 bg-success-100 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-success-600" />
+            </div>
           </div>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">This Month</span>
-              <span className="font-medium text-green-600">
+          <div className="space-y-4">
+            <div className="flex justify-between glass-modern rounded-xl p-3">
+              <span className="text-primary-600 font-medium">This Month</span>
+              <span className="font-bold text-success-600">
                 +{formatCurrency(185000)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">This Year</span>
-              <span className="font-medium text-green-600">
+            <div className="flex justify-between glass-modern rounded-xl p-3">
+              <span className="text-primary-600 font-medium">This Year</span>
+              <span className="font-bold text-success-600">
                 +{formatCurrency(totalReturns)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Return Rate</span>
-              <span className="font-medium text-primary-600">
+            <div className="flex justify-between glass-modern rounded-xl p-3">
+              <span className="text-primary-600 font-medium">Return Rate</span>
+              <span className="font-bold text-gradient text-lg">
                 {totalReturnPercentage.toFixed(1)}%
               </span>
             </div>
           </div>
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Upcoming Payments</h3>
-            <Calendar className="w-5 h-5 text-blue-600" />
+        <div className="glass-feature rounded-2xl p-8 hover-lift">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-primary-900 text-lg">
+              Upcoming Payments
+            </h3>
+            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-primary-600" />
+            </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {mockPortfolio
               .filter(p => p.status === 'active')
               .slice(0, 3)
               .map(project => (
                 <div
                   key={project.id}
-                  className="flex justify-between items-center"
+                  className="flex justify-between items-center glass-modern rounded-xl p-3 hover-scale"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-semibold text-primary-900 truncate">
                       {project.projectTitle}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-primary-600 font-medium">
                       {formatDate(project.nextPayment)}
                     </p>
                   </div>
-                  <span className="text-sm font-medium text-green-600">
+                  <span className="text-sm font-bold text-success-600">
                     {formatCurrency(project.returnAmount / 12)}
                   </span>
                 </div>
               ))}
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Real-time Portfolio Updates */}
       <PortfolioUpdates />
 
       {/* Recent Activity */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Recent Activity</h3>
+      <div className="glass-feature rounded-2xl p-8 hover-lift">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-bold text-primary-900 text-xl">
+            Recent Activity
+          </h3>
           <Link href="/transactions">
-            <Button variant="secondary" className="text-sm">
+            <Button
+              variant="secondary"
+              className="btn-modern btn-modern-secondary hover-lift"
+            >
               View All
             </Button>
           </Link>
@@ -715,40 +762,40 @@ export default function DashboardPage() {
           {mockTransactions.slice(0, 5).map(transaction => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between"
+              className="flex items-center justify-between glass-modern rounded-xl p-4 hover-scale"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 gradient-brand-hero rounded-xl flex items-center justify-center">
                   {getTransactionIcon(transaction.type)}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 capitalize">
+                  <p className="font-semibold text-primary-900 capitalize">
                     {transaction.type}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-primary-600 font-medium">
                     {transaction.projectTitle}
                   </p>
                 </div>
               </div>
               <div className="text-right">
                 <p
-                  className={`font-medium ${
+                  className={`font-bold ${
                     transaction.type === 'investment'
-                      ? 'text-red-600'
-                      : 'text-green-600'
+                      ? 'text-accent-600'
+                      : 'text-success-600'
                   }`}
                 >
                   {transaction.type === 'investment' ? '-' : '+'}
                   {formatCurrency(transaction.amount)}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-primary-600 font-medium">
                   {formatDate(transaction.date)}
                 </p>
               </div>
             </div>
           ))}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
@@ -777,28 +824,31 @@ export default function DashboardPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm">
+      <div className="glass-feature rounded-2xl p-6 flex items-center gap-6">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-400" />
           <input
             type="text"
             placeholder="Search projects..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-12 pr-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
           />
         </div>
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
           <option value="completed">Completed</option>
           <option value="claiming">Claiming</option>
         </select>
-        <Button variant="secondary" className="flex items-center gap-2">
+        <Button
+          variant="secondary"
+          className="btn-modern btn-modern-secondary hover-lift flex items-center gap-2"
+        >
           <Filter className="w-4 h-4" />
           More Filters
         </Button>
@@ -1843,72 +1893,96 @@ export default function DashboardPage() {
   );
 
   return (
-    <DashboardLayout userType="investor">
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Investment Dashboard
-              </h1>
-              <p className="text-gray-600">
-                Welcome back! Here&apos;s your portfolio overview.
-              </p>
-            </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Toast Provider for notifications */}
+      <ToastProvider />
 
-            {/* Real-time Status Indicator */}
-            <div className="flex items-center space-x-4">
-              {lastUpdate && (
-                <div className="text-sm text-gray-500">
-                  Last update: {lastUpdate.toLocaleTimeString()}
+      {/* Page Transition Wrapper */}
+      <PageTransition type="fade" duration={300} transitionKey="dashboard">
+        {/* Fluid Background Shapes */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="fluid-shape-1 top-20 right-16"></div>
+          <div className="fluid-shape-2 top-1/2 left-10"></div>
+          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+          <div className="fluid-shape-1 bottom-10 left-16"></div>
+        </div>
+
+        <DashboardLayout userType="investor">
+          <div className="p-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0}>
+              <div className="mb-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gradient mb-2">
+                      Investment Dashboard
+                    </h1>
+                    <p className="text-muted-foreground text-lg">
+                      Welcome back! Here&apos;s your portfolio overview.
+                    </p>
+                  </div>
+
+                  {/* Real-time Status Indicator */}
+                  <div className="flex items-center space-x-6">
+                    {lastUpdate && (
+                      <div className="text-sm text-primary-600 font-medium glass-modern px-3 py-2 rounded-lg">
+                        Last update: {lastUpdate.toLocaleTimeString()}
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-3 glass-modern px-4 py-2 rounded-xl">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          connectionStatus === 'connected'
+                            ? 'bg-success-500'
+                            : connectionStatus === 'connecting'
+                              ? 'bg-warning-500 animate-pulse'
+                              : 'bg-error-500'
+                        }`}
+                      />
+                      <span className="text-sm text-primary-700 font-medium capitalize">
+                        {connectionStatus === 'connected'
+                          ? 'Live'
+                          : connectionStatus}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    connectionStatus === 'connected'
-                      ? 'bg-green-500'
-                      : connectionStatus === 'connecting'
-                        ? 'bg-yellow-500 animate-pulse'
-                        : 'bg-red-500'
-                  }`}
-                />
-                <span className="text-sm text-gray-600 capitalize">
-                  {connectionStatus === 'connected' ? 'Live' : connectionStatus}
-                </span>
               </div>
-            </div>
+            </ScrollReveal>
+
+            {/* Tabs */}
+            <ScrollReveal animation="slide-up" delay={200}>
+              <div className="glass-feature rounded-2xl p-2 mb-8">
+                <nav className="flex space-x-2">
+                  {tabs.map(tab => (
+                    <AnimatedButton
+                      key={tab.id}
+                      onClick={() => setSelectedTab(tab.id)}
+                      variant={selectedTab === tab.id ? 'primary' : 'ghost'}
+                      size="default"
+                      className={`py-3 px-6 rounded-xl font-medium text-sm transition-all duration-300 ${
+                        selectedTab === tab.id
+                          ? 'bg-primary-600 text-white shadow-lg'
+                          : 'text-primary-600 hover:bg-primary-50 hover:text-primary-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </AnimatedButton>
+                  ))}
+                </nav>
+              </div>
+            </ScrollReveal>
+
+            {/* Tab Content */}
+            {selectedTab === 'overview' && renderOverview()}
+            {selectedTab === 'portfolio' && renderPortfolio()}
+            {selectedTab === 'transactions' && renderTransactions()}
+            {selectedTab === 'analytics' && renderAnalytics()}
+            {selectedTab === 'insights' && renderCrossProjectInsights()}
+            {selectedTab === 'governance' && renderGovernanceTracking()}
           </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="flex space-x-8">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  selectedTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        {selectedTab === 'overview' && renderOverview()}
-        {selectedTab === 'portfolio' && renderPortfolio()}
-        {selectedTab === 'transactions' && renderTransactions()}
-        {selectedTab === 'analytics' && renderAnalytics()}
-        {selectedTab === 'insights' && renderCrossProjectInsights()}
-        {selectedTab === 'governance' && renderGovernanceTracking()}
-      </div>
-    </DashboardLayout>
+        </DashboardLayout>
+      </PageTransition>
+    </div>
   );
 }

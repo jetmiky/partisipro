@@ -17,13 +17,11 @@ import {
   FolderPlus,
   Activity,
 } from 'lucide-react';
-import {
-  Button,
-  Card,
-  StatsCard,
-  DashboardLayout,
-  DataTable,
-} from '@/components/ui';
+import { DashboardLayout, DataTable } from '@/components/ui';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
+import { toast } from '@/components/ui/AnimatedNotification';
 import type { Column } from '@/components/ui/DataTable';
 import { adminService } from '@/services/admin.service';
 import type {
@@ -31,8 +29,6 @@ import type {
   SystemHealth,
   RecentActivity,
 } from '@/services/admin.service';
-
-// Remove duplicate interfaces - using types from admin.service.ts
 
 interface TopProject extends Record<string, unknown> {
   id: string;
@@ -108,22 +104,22 @@ const getActivityIcon = (type: RecentActivity['type']) => {
   }
 };
 
-const getActivityColor = (type: RecentActivity['type']) => {
-  switch (type) {
-    case 'spv_registration':
-      return 'text-secondary-500 bg-secondary-50';
-    case 'project_launch':
-      return 'text-primary-500 bg-primary-50';
-    case 'large_investment':
-      return 'text-support-500 bg-support-50';
-    case 'user_signup':
-      return 'text-secondary-500 bg-secondary-50';
-    case 'system_alert':
-      return 'text-gray-500 bg-gray-50';
-    default:
-      return 'text-gray-500 bg-gray-50';
-  }
-};
+// const getActivityColor = (type: RecentActivity['type']) => {
+//   switch (type) {
+//     case 'spv_registration':
+//       return 'text-secondary-500 bg-secondary-50';
+//     case 'project_launch':
+//       return 'text-primary-500 bg-primary-50';
+//     case 'large_investment':
+//       return 'text-support-500 bg-support-50';
+//     case 'user_signup':
+//       return 'text-secondary-500 bg-secondary-50';
+//     case 'system_alert':
+//       return 'text-gray-500 bg-gray-50';
+//     default:
+//       return 'text-gray-500 bg-gray-50';
+//   }
+// };
 
 const getStatusColor = (status: TopProject['status']) => {
   switch (status) {
@@ -200,7 +196,9 @@ export default function AdminDashboardPage() {
   }, []);
 
   const handleRefresh = async () => {
+    toast.info('Refreshing dashboard data...');
     await loadDashboardData();
+    toast.success('Dashboard data refreshed successfully!');
   };
 
   const topProjectColumns: Column<TopProject>[] = [
@@ -248,275 +246,441 @@ export default function AdminDashboardPage() {
       key: 'actions',
       label: 'Actions',
       render: () => (
-        <Button variant="outline" size="sm">
+        <AnimatedButton
+          variant="outline"
+          size="sm"
+          className="btn-modern btn-modern-secondary hover-lift"
+          onClick={() => toast.info('Viewing project details...')}
+        >
           <Eye className="h-4 w-4" />
-        </Button>
+        </AnimatedButton>
       ),
     },
   ];
 
   return (
-    <DashboardLayout userType="admin">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Platform Administration
-            </h1>
-            <p className="text-gray-600">
-              Monitor platform performance and manage operations
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
-              />
-              Refresh
-            </Button>
-            <Link href="/admin/spv">
-              <Button>
-                <Users className="h-4 w-4 mr-2" />
-                Manage SPVs
-              </Button>
-            </Link>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Error Loading Dashboard
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
+      <DashboardLayout userType="admin">
+        <PageTransition type="fade" duration={300}>
+          <div className="space-y-8 relative z-10">
+            {/* Header */}
+            <ScrollReveal animation="fade" delay={0} duration={800}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gradient mb-2">
+                    Platform Administration
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Monitor platform performance and manage operations
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={handleRefresh}
+                    disabled={isLoading}
+                    loading={isLoading}
+                    ripple
+                    className="btn-modern btn-modern-secondary hover-lift"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+                    />
+                    Refresh
+                  </AnimatedButton>
+                  <Link href="/admin/spv">
+                    <AnimatedButton
+                      variant="primary"
+                      ripple
+                      className="btn-modern btn-modern-primary hover-lift"
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Manage SPVs
+                    </AnimatedButton>
+                  </Link>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </ScrollReveal>
 
-        {/* Main Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Total Projects"
-            value={platformStats?.totalProjects.toString() || '0'}
-            icon={<Building className="w-4 h-4" />}
-            change={platformStats?.monthlyGrowth.projects || 0}
-            changeType="increase"
-            description="Active platform projects"
-          />
-          <StatsCard
-            title="Total Users"
-            value={platformStats?.totalUsers.toLocaleString() || '0'}
-            icon={<Users className="w-4 h-4" />}
-            change={platformStats?.monthlyGrowth.users || 0}
-            changeType="increase"
-            description="Registered investors"
-          />
-          <StatsCard
-            title="Funding Volume"
-            value={formatCurrency(platformStats?.totalFundingVolume || 0)}
-            icon={<DollarSign className="w-4 h-4" />}
-            change={platformStats?.monthlyGrowth.funding || 0}
-            changeType="increase"
-            description="Total platform funding"
-          />
-          <StatsCard
-            title="Platform Revenue"
-            value={formatCurrency(platformStats?.platformRevenue || 0)}
-            icon={<TrendingUp className="w-4 h-4" />}
-            change={platformStats?.monthlyGrowth.revenue || 0}
-            changeType="increase"
-            description="Total platform earnings"
-          />
-        </div>
-
-        {/* System Health & Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* System Health */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              System Health
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Active Projects</span>
-                <span className="font-medium">
-                  {systemHealth?.activeProjects || 0}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Pending Approvals</span>
-                <span className="font-medium text-primary-500">
-                  {systemHealth?.pendingApprovals || 0}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">System Uptime</span>
-                <span className="font-medium text-support-500">
-                  {systemHealth?.systemUptime || 0}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">24h Volume</span>
-                <span className="font-medium">
-                  {formatCurrency(systemHealth?.transactionVolume24h || 0)}
-                </span>
-              </div>
-            </div>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="p-6 lg:col-span-2">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Recent Activity
-              </h3>
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
-            </div>
-            <div className="space-y-3">
-              {recentActivity.length > 0 ? (
-                recentActivity.map(activity => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50"
-                  >
-                    <div
-                      className={`p-2 rounded-lg ${getActivityColor(activity.type)}`}
-                    >
-                      {getActivityIcon(activity.type)}
+            {/* Error Display */}
+            {error && (
+              <ScrollReveal animation="slide-up" delay={200} duration={600}>
+                <div className="glass-feature rounded-2xl p-6 border border-error-200">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-error-500 to-error-600 rounded-xl flex items-center justify-center">
+                      <Bell className="w-6 h-6 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {activity.title}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {activity.description}
-                          </p>
-                          {activity.amount && (
-                            <p className="text-sm font-medium text-primary-600">
-                              {formatCurrency(activity.amount)}
-                            </p>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {formatTimeAgo(activity.timestamp)}
-                        </span>
-                      </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-primary-800 mb-2">
+                        Error Loading Dashboard
+                      </h3>
+                      <p className="text-primary-600">{error}</p>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  {isLoading
-                    ? 'Loading recent activity...'
-                    : 'No recent activity'}
                 </div>
-              )}
-            </div>
-          </Card>
-        </div>
+              </ScrollReveal>
+            )}
 
-        {/* Top Performing Projects */}
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Top Performing Projects
-              </h2>
-              <p className="text-sm text-gray-600">
-                Highest performing projects by ROI and funding volume
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            {/* Main Stats */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              itemDelay={150}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +{platformStats?.monthlyGrowth.projects || 0}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {platformStats?.totalProjects.toString() || '0'}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Projects
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Active platform projects
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +{platformStats?.monthlyGrowth.users || 0}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {platformStats?.totalUsers.toLocaleString() || '0'}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Total Users
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Registered investors
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +{platformStats?.monthlyGrowth.funding || 0}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {formatCurrency(platformStats?.totalFundingVolume || 0)}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Funding Volume
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Total platform funding
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-support-500 to-support-600 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs text-success-600 font-medium">
+                    +{platformStats?.monthlyGrowth.revenue || 0}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gradient">
+                    {formatCurrency(platformStats?.platformRevenue || 0)}
+                  </h3>
+                  <p className="text-sm font-medium text-primary-700">
+                    Platform Revenue
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Total platform earnings
+                  </p>
+                </div>
+              </div>
+            </StaggeredList>
+
+            {/* System Health & Recent Activity */}
+            <ScrollReveal animation="slide-up" delay={400} duration={800}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* System Health */}
+                <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                  <h3 className="text-xl font-semibold text-gradient mb-6">
+                    System Health
+                  </h3>
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
+                      <span className="text-sm font-medium text-primary-700">
+                        Active Projects
+                      </span>
+                      <span className="text-lg font-bold text-gradient">
+                        {systemHealth?.activeProjects || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
+                      <span className="text-sm font-medium text-primary-700">
+                        Pending Approvals
+                      </span>
+                      <span className="text-lg font-bold text-primary-600">
+                        {systemHealth?.pendingApprovals || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
+                      <span className="text-sm font-medium text-primary-700">
+                        System Uptime
+                      </span>
+                      <span className="text-lg font-bold text-success-600">
+                        {systemHealth?.systemUptime || 0}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
+                      <span className="text-sm font-medium text-primary-700">
+                        24h Volume
+                      </span>
+                      <span className="text-lg font-bold text-gradient">
+                        {formatCurrency(
+                          systemHealth?.transactionVolume24h || 0
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="glass-feature rounded-2xl p-8 lg:col-span-2 hover-lift transition-all duration-300">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-semibold text-gradient">
+                      Recent Activity
+                    </h3>
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      ripple
+                      className="btn-modern btn-modern-secondary hover-lift"
+                      onClick={() =>
+                        toast.info('Viewing all recent activity...')
+                      }
+                    >
+                      View All
+                    </AnimatedButton>
+                  </div>
+                  <div className="space-y-4">
+                    {recentActivity.length > 0 ? (
+                      recentActivity.map((activity, index) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-4 p-4 glass-modern rounded-xl hover-glow transition-all duration-300"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                              activity.type === 'spv_registration'
+                                ? 'bg-gradient-to-br from-secondary-500 to-secondary-600'
+                                : activity.type === 'project_launch'
+                                  ? 'bg-gradient-to-br from-primary-500 to-primary-600'
+                                  : activity.type === 'large_investment'
+                                    ? 'bg-gradient-to-br from-success-500 to-success-600'
+                                    : activity.type === 'user_signup'
+                                      ? 'bg-gradient-to-br from-secondary-500 to-secondary-600'
+                                      : 'bg-gradient-to-br from-muted-500 to-muted-600'
+                            }`}
+                          >
+                            <div className="text-white">
+                              {getActivityIcon(activity.type)}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-semibold text-primary-800 mb-1">
+                                  {activity.title}
+                                </p>
+                                <p className="text-sm text-primary-600 mb-2">
+                                  {activity.description}
+                                </p>
+                                {activity.amount && (
+                                  <p className="text-sm font-semibold text-gradient">
+                                    {formatCurrency(activity.amount)}
+                                  </p>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground glass-modern px-2 py-1 rounded-full">
+                                {formatTimeAgo(activity.timestamp)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="w-16 h-16 feature-icon mx-auto mb-4 hover-scale">
+                          <Activity className="w-8 h-8" />
+                        </div>
+                        <p className="text-muted-foreground">
+                          {isLoading
+                            ? 'Loading recent activity...'
+                            : 'No recent activity'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Top Performing Projects */}
+            <ScrollReveal animation="slide-up" delay={500} duration={800}>
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gradient mb-2">
+                      Top Performing Projects
+                    </h2>
+                    <p className="text-primary-600">
+                      Highest performing projects by ROI and funding volume
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      ripple
+                      className="btn-modern btn-modern-secondary hover-lift"
+                      onClick={() => toast.info('Opening project filters...')}
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      size="sm"
+                      ripple
+                      className="btn-modern btn-modern-secondary hover-lift"
+                      onClick={() => toast.success('Exporting project data...')}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </AnimatedButton>
+                  </div>
+                </div>
+
+                <div className="glass-modern rounded-xl overflow-hidden">
+                  <DataTable<TopProject>
+                    columns={topProjectColumns}
+                    data={mockTopProjects}
+                  />
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Quick Actions */}
+            <StaggeredList
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              itemDelay={200}
+              animation="slide-up"
+            >
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center mr-4">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      SPV Management
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Review and approve SPV applications
+                    </p>
+                  </div>
+                </div>
+                <Link href="/admin/spv">
+                  <AnimatedButton
+                    variant="primary"
+                    ripple
+                    className="w-full btn-modern btn-modern-primary hover-lift"
+                  >
+                    Manage SPVs
+                  </AnimatedButton>
+                </Link>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mr-4">
+                    <Building className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      Project Oversight
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Monitor all platform projects
+                    </p>
+                  </div>
+                </div>
+                <Link href="/admin/projects">
+                  <AnimatedButton
+                    variant="outline"
+                    ripple
+                    className="w-full btn-modern btn-modern-secondary hover-lift"
+                  >
+                    View Projects
+                  </AnimatedButton>
+                </Link>
+              </div>
+
+              <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+                <div className="flex items-start mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center mr-4">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gradient mb-2">
+                      Fee Management
+                    </h3>
+                    <p className="text-sm text-primary-600">
+                      Configure platform fees and revenue
+                    </p>
+                  </div>
+                </div>
+                <Link href="/admin/fees">
+                  <AnimatedButton
+                    variant="outline"
+                    ripple
+                    className="w-full btn-modern btn-modern-secondary hover-lift"
+                  >
+                    Manage Fees
+                  </AnimatedButton>
+                </Link>
+              </div>
+            </StaggeredList>
           </div>
-
-          <DataTable<TopProject>
-            columns={topProjectColumns}
-            data={mockTopProjects}
-          />
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Users className="h-8 w-8 text-secondary-500 bg-secondary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  SPV Management
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Review and approve SPV applications
-                </p>
-              </div>
-            </div>
-            <Link href="/admin/spv">
-              <Button className="w-full">Manage SPVs</Button>
-            </Link>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <Building className="h-8 w-8 text-primary-500 bg-primary-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Project Oversight
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Monitor all platform projects
-                </p>
-              </div>
-            </div>
-            <Link href="/admin/projects">
-              <Button variant="outline" className="w-full">
-                View Projects
-              </Button>
-            </Link>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center mb-4">
-              <DollarSign className="h-8 w-8 text-support-500 bg-support-50 rounded-lg p-2" />
-              <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Fee Management
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Configure platform fees and revenue
-                </p>
-              </div>
-            </div>
-            <Link href="/admin/fees">
-              <Button variant="outline" className="w-full">
-                Manage Fees
-              </Button>
-            </Link>
-          </Card>
-        </div>
-      </div>
-    </DashboardLayout>
+        </PageTransition>
+      </DashboardLayout>
+    </div>
   );
 }

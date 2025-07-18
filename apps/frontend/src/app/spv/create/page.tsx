@@ -3,24 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
+import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import { ScrollReveal } from '@/components/ui/ScrollAnimations';
+import { PageTransition } from '@/components/ui/PageTransition';
+import { toast } from '@/components/ui/AnimatedNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { projectsService } from '@/services/projects.service';
-
-// Simple toast replacement for now
-const toast = {
-  success: (message: string) => {
-    alert(`✅ ${message}`);
-  },
-  error: (message: string) => {
-    alert(`❌ ${message}`);
-  },
-  info: (message: string) => {
-    alert(`ℹ️ ${message}`);
-  },
-};
 
 interface ProjectFormData {
   // Basic Information
@@ -381,153 +370,149 @@ export default function SPVCreatePage() {
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Basic Project Information
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Provide the fundamental details about your infrastructure project.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <ScrollReveal animation="slide-up" delay={100}>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gradient mb-3">
+            Basic Project Information
+          </h2>
+          <p className="text-muted-foreground">
+            Provide the fundamental details about your infrastructure project.
+          </p>
+        </div>
+      </ScrollReveal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="md:col-span-2">
-          <div className="space-y-2">
-            <label htmlFor="projectName">Project Name</label>
-            <Input
+      <ScrollReveal animation="slide-up" delay={200}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-2">
+            <AnimatedInput
               id="projectName"
+              label="Project Name"
               value={formData.projectName}
               onChange={e => updateFormData('projectName', e.target.value)}
               placeholder="e.g., Jakarta-Bandung High-Speed Rail"
+              error={errors.projectName}
             />
-            {errors.projectName ? (
-              <p className="mt-1 text-sm text-red-600">{errors.projectName}</p>
-            ) : null}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-primary-700 mb-3">
+              Project Type
+            </label>
+            <select
+              value={formData.projectType}
+              onChange={e => updateFormData('projectType', e.target.value)}
+              className={`w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all ${
+                errors.projectType ? 'border-error-500' : ''
+              }`}
+            >
+              <option value="">Select project type</option>
+              {projectTypes.map(type => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            {errors.projectType && (
+              <p className="mt-1 text-sm text-error-600">
+                {errors.projectType}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <AnimatedInput
+              id="location"
+              label="Location"
+              value={formData.location}
+              onChange={e => updateFormData('location', e.target.value)}
+              placeholder="e.g., Jakarta, Indonesia"
+              error={errors.location}
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-primary-700 mb-3">
+              Project Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={e => updateFormData('description', e.target.value)}
+              rows={4}
+              className={`w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all resize-none ${
+                errors.description ? 'border-error-500' : ''
+              }`}
+              placeholder="Provide a detailed description of the project, its purpose, and expected impact..."
+            />
+            {errors.description && (
+              <p className="mt-1 text-sm text-error-600">
+                {errors.description}
+              </p>
+            )}
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Project Type
-          </label>
-          <select
-            value={formData.projectType}
-            onChange={e => updateFormData('projectType', e.target.value)}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-              errors.projectType ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">Select project type</option>
-            {projectTypes.map(type => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          {errors.projectType && (
-            <p className="mt-1 text-sm text-red-600">{errors.projectType}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="location">Location</label>
-          <Input
-            id="location"
-            value={formData.location}
-            onChange={e => updateFormData('location', e.target.value)}
-            placeholder="e.g., Jakarta, Indonesia"
-          />
-          {errors.location ? (
-            <p className="mt-1 text-sm text-red-600">{errors.location}</p>
-          ) : null}
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Project Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={e => updateFormData('description', e.target.value)}
-            rows={4}
-            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-              errors.description ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Provide a detailed description of the project, its purpose, and expected impact..."
-          />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-          )}
-        </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gradient mb-3">
           Financial Parameters
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground">
           Define the tokenization structure and investment parameters.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label htmlFor="totalValue">Total Project Value (IDR)</label>
-          <Input
+        <div>
+          <AnimatedInput
             id="totalValue"
+            label="Total Project Value (IDR)"
             type="number"
             value={formData.totalValue || ''}
             onChange={e =>
               updateFormData('totalValue', parseFloat(e.target.value) || 0)
             }
             placeholder="1000000000"
+            error={errors.totalValue}
           />
-          {errors.totalValue && (
-            <p className="mt-1 text-sm text-red-600">{errors.totalValue}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="tokenSupply">Total Token Supply</label>
-          <Input
+        <div>
+          <AnimatedInput
             id="tokenSupply"
+            label="Total Token Supply"
             type="number"
             value={formData.tokenSupply || ''}
             onChange={e =>
               updateFormData('tokenSupply', parseFloat(e.target.value) || 0)
             }
             placeholder="1000000"
+            error={errors.tokenSupply}
           />
-          {errors.tokenSupply && (
-            <p className="mt-1 text-sm text-red-600">{errors.tokenSupply}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="tokenPrice">Token Price (IDR)</label>
-          <Input
+        <div>
+          <AnimatedInput
             id="tokenPrice"
+            label="Token Price (IDR)"
             type="number"
             value={formData.tokenPrice || ''}
             onChange={e =>
               updateFormData('tokenPrice', parseFloat(e.target.value) || 0)
             }
             placeholder="1000"
+            error={errors.tokenPrice}
           />
-          {errors.tokenPrice && (
-            <p className="mt-1 text-sm text-red-600">{errors.tokenPrice}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="minimumInvestment">Minimum Investment (IDR)</label>
-          <Input
+        <div>
+          <AnimatedInput
             id="minimumInvestment"
+            label="Minimum Investment (IDR)"
             type="number"
             value={formData.minimumInvestment || ''}
             onChange={e =>
@@ -537,32 +522,35 @@ export default function SPVCreatePage() {
               )
             }
             placeholder="100000"
+            error={errors.minimumInvestment}
           />
-          {errors.minimumInvestment && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.minimumInvestment}
-            </p>
-          )}
         </div>
       </div>
 
       {/* Calculation Summary */}
       {formData.totalValue > 0 && formData.tokenSupply > 0 && (
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="font-medium text-blue-900 mb-2">
+        <div className="glass-modern rounded-2xl p-6 border border-primary-200">
+          <h3 className="font-semibold text-primary-800 mb-4 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">💰</span>
+            </div>
             Tokenization Summary
           </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-blue-700">Total Fundraising Target:</span>
-              <p className="font-medium text-blue-900">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <span className="text-primary-600 text-sm font-medium">
+                Total Fundraising Target:
+              </span>
+              <p className="text-xl font-bold text-gradient">
                 IDR{' '}
                 {(formData.tokenSupply * formData.tokenPrice).toLocaleString()}
               </p>
             </div>
-            <div>
-              <span className="text-blue-700">Funding Percentage:</span>
-              <p className="font-medium text-blue-900">
+            <div className="space-y-2">
+              <span className="text-primary-600 text-sm font-medium">
+                Funding Percentage:
+              </span>
+              <p className="text-xl font-bold text-gradient">
                 {(
                   ((formData.tokenSupply * formData.tokenPrice) /
                     formData.totalValue) *
@@ -578,241 +566,290 @@ export default function SPVCreatePage() {
   );
 
   const renderStep3 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gradient mb-3">
           Timeline & Documentation
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground">
           Set project timeline and upload required legal documents.
         </p>
       </div>
 
       {/* Timeline */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label htmlFor="offeringStart">Token Offering Start Date</label>
-          <Input
-            id="offeringStart"
-            type="date"
-            value={formData.offeringStart}
-            onChange={e => updateFormData('offeringStart', e.target.value)}
-          />
-          {errors.offeringStart && (
-            <p className="mt-1 text-sm text-red-600">{errors.offeringStart}</p>
-          )}
-        </div>
+      <div className="glass-modern rounded-2xl p-6 space-y-6">
+        <h3 className="text-lg font-semibold text-primary-800 mb-4 flex items-center gap-2">
+          <div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs">📅</span>
+          </div>
+          Project Timeline
+        </h3>
 
-        <div className="space-y-2">
-          <label htmlFor="offeringEnd">Token Offering End Date</label>
-          <Input
-            id="offeringEnd"
-            type="date"
-            value={formData.offeringEnd}
-            onChange={e => updateFormData('offeringEnd', e.target.value)}
-          />
-          {errors.offeringEnd && (
-            <p className="mt-1 text-sm text-red-600">{errors.offeringEnd}</p>
-          )}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <AnimatedInput
+              id="offeringStart"
+              label="Token Offering Start Date"
+              type="date"
+              value={formData.offeringStart}
+              onChange={e => updateFormData('offeringStart', e.target.value)}
+              error={errors.offeringStart}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label htmlFor="projectStart">Project Construction Start</label>
-          <Input
-            id="projectStart"
-            type="date"
-            value={formData.projectStart}
-            onChange={e => updateFormData('projectStart', e.target.value)}
-          />
-          {errors.projectStart && (
-            <p className="mt-1 text-sm text-red-600">{errors.projectStart}</p>
-          )}
-        </div>
+          <div>
+            <AnimatedInput
+              id="offeringEnd"
+              label="Token Offering End Date"
+              type="date"
+              value={formData.offeringEnd}
+              onChange={e => updateFormData('offeringEnd', e.target.value)}
+              error={errors.offeringEnd}
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label htmlFor="projectEnd">Project Operation End</label>
-          <Input
-            id="projectEnd"
-            type="date"
-            value={formData.projectEnd}
-            onChange={e => updateFormData('projectEnd', e.target.value)}
-          />
-          {errors.projectEnd && (
-            <p className="mt-1 text-sm text-red-600">{errors.projectEnd}</p>
-          )}
+          <div>
+            <AnimatedInput
+              id="projectStart"
+              label="Project Construction Start"
+              type="date"
+              value={formData.projectStart}
+              onChange={e => updateFormData('projectStart', e.target.value)}
+              error={errors.projectStart}
+            />
+          </div>
+
+          <div>
+            <AnimatedInput
+              id="projectEnd"
+              label="Project Operation End"
+              type="date"
+              value={formData.projectEnd}
+              onChange={e => updateFormData('projectEnd', e.target.value)}
+              error={errors.projectEnd}
+            />
+          </div>
         </div>
       </div>
 
       {/* Document Upload */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-primary-800 flex items-center gap-2">
+          <div className="w-6 h-6 bg-gradient-to-br from-support-500 to-support-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs">📄</span>
+          </div>
           Required Documents
         </h3>
 
-        {[
-          { key: 'businessPlan', label: 'Business Plan', required: true },
-          {
-            key: 'feasibilityStudy',
-            label: 'Feasibility Study',
-            required: true,
-          },
-          {
-            key: 'environmentalImpact',
-            label: 'Environmental Impact Assessment',
-            required: false,
-          },
-          {
-            key: 'governmentApproval',
-            label: 'Government Approval Letter',
-            required: true,
-          },
-        ].map(doc => (
-          <div key={doc.key} className="border border-gray-200 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-sm font-medium text-gray-700">
-                {doc.label}{' '}
-                {doc.required && <span className="text-red-500">*</span>}
-              </label>
-              {formData[doc.key as keyof ProjectFormData] && (
-                <span className="text-sm text-green-600">✓ Uploaded</span>
-              )}
+        <div className="grid gap-4">
+          {[
+            { key: 'businessPlan', label: 'Business Plan', required: true },
+            {
+              key: 'feasibilityStudy',
+              label: 'Feasibility Study',
+              required: true,
+            },
+            {
+              key: 'environmentalImpact',
+              label: 'Environmental Impact Assessment',
+              required: false,
+            },
+            {
+              key: 'governmentApproval',
+              label: 'Government Approval Letter',
+              required: true,
+            },
+          ].map(doc => (
+            <div
+              key={doc.key}
+              className="glass-modern rounded-xl p-6 hover-lift transition-all duration-300"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-sm font-semibold text-primary-700">
+                  {doc.label}{' '}
+                  {doc.required && <span className="text-error-500">*</span>}
+                </label>
+                {formData[doc.key as keyof ProjectFormData] && (
+                  <span className="text-sm text-success-600 flex items-center gap-1">
+                    <div className="w-4 h-4 bg-success-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                    Uploaded
+                  </span>
+                )}
+              </div>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={e =>
+                  handleFileUpload(
+                    doc.key as keyof ProjectFormData,
+                    e.target.files?.[0] || null
+                  )
+                }
+                className="w-full text-sm text-primary-600 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200 file:transition-all file:hover-lift cursor-pointer"
+              />
             </div>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={e =>
-                handleFileUpload(
-                  doc.key as keyof ProjectFormData,
-                  e.target.files?.[0] || null
-                )
-              }
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-            />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 
   const renderStep4 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gradient mb-3">
           Revenue Model & Final Review
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground">
           Define profit distribution parameters and review all project details.
         </p>
       </div>
 
       {/* Revenue Model */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label
-            htmlFor="expectedAnnualRevenue"
-            className="text-sm font-medium text-gray-700"
-          >
-            Expected Annual Revenue (IDR)
-          </label>
-          <Input
-            id="expectedAnnualRevenue"
-            type="number"
-            value={formData.expectedAnnualRevenue || ''}
-            onChange={e =>
-              updateFormData(
-                'expectedAnnualRevenue',
-                parseFloat(e.target.value) || 0
-              )
-            }
-            placeholder="500000000"
-          />
+      <div className="glass-modern rounded-2xl p-6 space-y-6">
+        <h3 className="text-lg font-semibold text-primary-800 mb-4 flex items-center gap-2">
+          <div className="w-6 h-6 bg-gradient-to-br from-success-500 to-success-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs">📈</span>
+          </div>
+          Revenue Model
+        </h3>
 
-          {errors.expectedAnnualRevenue && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.expectedAnnualRevenue}
-            </p>
-          )}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <AnimatedInput
+              id="expectedAnnualRevenue"
+              label="Expected Annual Revenue (IDR)"
+              type="number"
+              value={formData.expectedAnnualRevenue || ''}
+              onChange={e =>
+                updateFormData(
+                  'expectedAnnualRevenue',
+                  parseFloat(e.target.value) || 0
+                )
+              }
+              placeholder="500000000"
+              error={errors.expectedAnnualRevenue}
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Profit Distribution Frequency
-          </label>
-          <select
-            value={formData.profitDistributionFrequency}
-            onChange={e =>
-              updateFormData('profitDistributionFrequency', e.target.value)
-            }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          >
-            <option value="monthly">Monthly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="semi-annually">Semi-Annually</option>
-            <option value="annually">Annually</option>
-          </select>
-        </div>
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-primary-700">
+              Profit Distribution Frequency
+            </label>
+            <select
+              value={formData.profitDistributionFrequency}
+              onChange={e =>
+                updateFormData('profitDistributionFrequency', e.target.value)
+              }
+              className="w-full px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all"
+            >
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="semi-annually">Semi-Annually</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="platformFee"
-            className="text-sm font-medium text-gray-700"
-          >
-            Platform Management Fee (%)
-          </label>
-          <Input
-            id="platformFee"
-            type="number"
-            min="0"
-            max="20"
-            step="0.1"
-            value={formData.managementFeePercentage || ''}
-            onChange={e =>
-              updateFormData(
-                'managementFeePercentage',
-                parseFloat(e.target.value) || 0
-              )
-            }
-            placeholder="5"
-          />
+          <div>
+            <AnimatedInput
+              id="platformFee"
+              label="Platform Management Fee (%)"
+              type="number"
+              min="0"
+              max="20"
+              step="0.1"
+              value={formData.managementFeePercentage || ''}
+              onChange={e =>
+                updateFormData(
+                  'managementFeePercentage',
+                  parseFloat(e.target.value) || 0
+                )
+              }
+              placeholder="5"
+            />
+          </div>
         </div>
       </div>
 
       {/* Project Summary */}
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+      <div className="glass-feature rounded-2xl p-8 hover-lift">
+        <h3 className="text-xl font-bold text-gradient mb-6 flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+            <span className="text-white text-sm">🏗️</span>
+          </div>
           Project Summary
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-600">Project Name:</span>
-            <p className="font-medium">{formData.projectName}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Project Name:
+            </span>
+            <p className="font-semibold text-primary-800">
+              {formData.projectName || 'Not specified'}
+            </p>
           </div>
-          <div>
-            <span className="text-gray-600">Type:</span>
-            <p className="font-medium">{formData.projectType}</p>
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">Type:</span>
+            <p className="font-semibold text-primary-800">
+              {formData.projectType || 'Not specified'}
+            </p>
           </div>
-          <div>
-            <span className="text-gray-600">Total Value:</span>
-            <p className="font-medium">
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Location:
+            </span>
+            <p className="font-semibold text-primary-800">
+              {formData.location || 'Not specified'}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Total Value:
+            </span>
+            <p className="font-bold text-gradient">
               IDR {formData.totalValue.toLocaleString()}
             </p>
           </div>
-          <div>
-            <span className="text-gray-600">Token Supply:</span>
-            <p className="font-medium">
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Token Supply:
+            </span>
+            <p className="font-bold text-gradient">
               {formData.tokenSupply.toLocaleString()} tokens
             </p>
           </div>
-          <div>
-            <span className="text-gray-600">Token Price:</span>
-            <p className="font-medium">
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Token Price:
+            </span>
+            <p className="font-bold text-gradient">
               IDR {formData.tokenPrice.toLocaleString()}
             </p>
           </div>
-          <div>
-            <span className="text-gray-600">Expected Annual Revenue:</span>
-            <p className="font-medium">
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Expected Annual Revenue:
+            </span>
+            <p className="font-bold text-gradient">
               IDR {formData.expectedAnnualRevenue.toLocaleString()}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Distribution Frequency:
+            </span>
+            <p className="font-semibold text-primary-800 capitalize">
+              {formData.profitDistributionFrequency}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <span className="text-primary-600 text-sm font-medium">
+              Management Fee:
+            </span>
+            <p className="font-semibold text-primary-800">
+              {formData.managementFeePercentage}%
             </p>
           </div>
         </div>
@@ -821,95 +858,137 @@ export default function SPVCreatePage() {
   );
 
   const renderStep5 = () => (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gradient mb-3">
           Listing Fee Payment
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground">
           Complete the listing fee payment to finalize your project creation.
         </p>
       </div>
 
       {/* Fee Calculation */}
-      <div className="bg-primary-50 p-6 rounded-lg">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+      <div className="glass-feature rounded-2xl p-8 hover-lift">
+        <h3 className="text-xl font-bold text-gradient mb-6 flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center">
+            <span className="text-white text-sm">💳</span>
+          </div>
           Fee Calculation
         </h3>
 
         {isLoadingFee ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-            <span className="ml-2 text-gray-600">Calculating fee...</span>
+          <div className="flex items-center justify-center py-12">
+            <div className="w-12 h-12 gradient-brand-hero rounded-xl flex items-center justify-center animate-float">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            </div>
+            <span className="ml-4 text-primary-600 font-medium">
+              Calculating fee...
+            </span>
           </div>
         ) : listingFee ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <span className="text-gray-600">Project Value:</span>
-                <p className="font-medium">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="glass-modern rounded-xl p-4 space-y-2">
+                <span className="text-primary-600 text-sm font-medium">
+                  Project Value:
+                </span>
+                <p className="text-lg font-bold text-primary-800">
                   IDR {formData.totalValue.toLocaleString()}
                 </p>
               </div>
-              <div>
-                <span className="text-gray-600">Fee Rate:</span>
-                <p className="font-medium">{listingFee.feePercentage}%</p>
+              <div className="glass-modern rounded-xl p-4 space-y-2">
+                <span className="text-primary-600 text-sm font-medium">
+                  Fee Rate:
+                </span>
+                <p className="text-lg font-bold text-primary-800">
+                  {listingFee.feePercentage}%
+                </p>
               </div>
             </div>
 
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-gray-900">
+            <div className="border-t border-primary-200 pt-6">
+              <div className="flex justify-between items-center glass-modern rounded-xl p-6">
+                <span className="text-xl font-bold text-primary-800">
                   Total Listing Fee:
                 </span>
-                <p className="text-2xl font-bold text-primary-600">
+                <p className="text-3xl font-bold text-gradient">
                   {listingFee.currency} {listingFee.amount.toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-600">
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-error-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-error-500 text-2xl">⚠️</span>
+            </div>
+            <p className="text-primary-600 mb-4">
               Fee calculation failed. Please try again.
             </p>
-            <Button
+            <AnimatedButton
               onClick={calculateListingFee}
               variant="outline"
-              className="mt-2"
+              ripple
             >
               Recalculate Fee
-            </Button>
+            </AnimatedButton>
           </div>
         )}
       </div>
 
       {/* Payment Method Selection */}
       {listingFee && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">💰</span>
+            </div>
             Select Payment Method
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {listingFee.paymentMethods.map(method => (
               <div key={method}>
-                <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <label className="block cursor-pointer">
                   <input
                     type="radio"
                     name="paymentMethod"
                     value={method}
                     checked={selectedPaymentMethod === method}
                     onChange={e => setSelectedPaymentMethod(e.target.value)}
-                    className="mr-3"
+                    className="sr-only"
                   />
-                  <div>
-                    <p className="font-medium">{method}</p>
-                    <p className="text-sm text-gray-500">
-                      {method === 'ETH'
-                        ? 'Ethereum Payment'
-                        : 'Indonesian Rupiah'}
-                    </p>
+                  <div
+                    className={`glass-modern rounded-xl p-6 hover-lift transition-all duration-300 border-2 ${
+                      selectedPaymentMethod === method
+                        ? 'border-primary-500 bg-primary-50'
+                        : 'border-transparent hover:border-primary-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedPaymentMethod === method
+                            ? 'border-primary-500 bg-primary-500'
+                            : 'border-secondary-300'
+                        }`}
+                      >
+                        {selectedPaymentMethod === method && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-primary-800">
+                          {method}
+                        </p>
+                        <p className="text-sm text-primary-600">
+                          {method === 'ETH'
+                            ? 'Ethereum Payment'
+                            : 'Indonesian Rupiah'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </label>
               </div>
@@ -917,7 +996,7 @@ export default function SPVCreatePage() {
           </div>
 
           {errors.selectedPaymentMethod && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-error-600">
               {errors.selectedPaymentMethod}
             </p>
           )}
@@ -926,25 +1005,34 @@ export default function SPVCreatePage() {
 
       {/* Payment Status */}
       {listingFee && selectedPaymentMethod && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Payment Status</h3>
+        <div className="space-y-6">
+          <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-support-500 to-support-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">📊</span>
+            </div>
+            Payment Status
+          </h3>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-3">
+          <div className="glass-feature rounded-2xl p-6">
+            <div className="flex items-center space-x-4 mb-6">
               {paymentStatus === 'pending' && (
-                <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
+                <div className="w-6 h-6 bg-secondary-400 rounded-full"></div>
               )}
               {paymentStatus === 'processing' && (
-                <div className="w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
+                <div className="w-6 h-6 bg-warning-400 rounded-full animate-pulse"></div>
               )}
               {paymentStatus === 'completed' && (
-                <div className="w-4 h-4 bg-green-400 rounded-full"></div>
+                <div className="w-6 h-6 bg-success-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✓</span>
+                </div>
               )}
               {paymentStatus === 'failed' && (
-                <div className="w-4 h-4 bg-red-400 rounded-full"></div>
+                <div className="w-6 h-6 bg-error-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✕</span>
+                </div>
               )}
 
-              <span className="font-medium">
+              <span className="text-lg font-semibold text-primary-800">
                 {paymentStatus === 'pending' && 'Ready to Pay'}
                 {paymentStatus === 'processing' && 'Processing Payment...'}
                 {paymentStatus === 'completed' && 'Payment Completed'}
@@ -953,28 +1041,42 @@ export default function SPVCreatePage() {
             </div>
 
             {paymentStatus === 'pending' && (
-              <Button
+              <AnimatedButton
                 onClick={processListingFeePayment}
-                className="mt-4"
                 disabled={!selectedPaymentMethod}
+                className="w-full"
+                ripple
               >
                 Pay Listing Fee
-              </Button>
+              </AnimatedButton>
             )}
 
             {paymentStatus === 'failed' && (
-              <Button
+              <AnimatedButton
                 onClick={processListingFeePayment}
                 variant="outline"
-                className="mt-4"
+                className="w-full"
+                ripple
               >
                 Retry Payment
-              </Button>
+              </AnimatedButton>
+            )}
+
+            {paymentStatus === 'completed' && (
+              <div className="text-center py-4">
+                <div className="w-16 h-16 bg-success-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-success-500 text-2xl">✅</span>
+                </div>
+                <p className="text-success-600 font-medium">
+                  Payment completed successfully! You can now finalize your
+                  project.
+                </p>
+              </div>
             )}
           </div>
 
           {errors.paymentStatus && (
-            <p className="text-sm text-red-600">{errors.paymentStatus}</p>
+            <p className="text-sm text-error-600">{errors.paymentStatus}</p>
           )}
         </div>
       )}
@@ -982,89 +1084,132 @@ export default function SPVCreatePage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Create New Project
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Tokenize your infrastructure project for public-private partnership
-            funding
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden py-8">
+      {/* Fluid Background Shapes */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="fluid-shape-1 top-20 right-16"></div>
+        <div className="fluid-shape-2 top-1/2 left-10"></div>
+        <div className="fluid-shape-3 bottom-32 right-1/4"></div>
+        <div className="fluid-shape-1 bottom-10 left-16"></div>
+      </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            {stepTitles.map((title, index) => (
-              <div key={index} className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    index + 1 === currentStep
-                      ? 'bg-primary-500 text-white'
-                      : index + 1 < currentStep
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 text-gray-600'
-                  }`}
-                >
-                  {index + 1 < currentStep ? '✓' : index + 1}
-                </div>
-                {index < stepTitles.length - 1 && (
+      <PageTransition type="fade" duration={300}>
+        <div className="max-w-4xl mx-auto px-4 relative z-10">
+          {/* Header */}
+          <ScrollReveal animation="slide-up" delay={0}>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gradient mb-3">
+                Create New Project
+              </h1>
+              <p className="text-muted-foreground">
+                Tokenize your infrastructure project for public-private
+                partnership funding
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* Progress Bar */}
+          <ScrollReveal animation="slide-up" delay={200}>
+            <div className="glass-feature rounded-2xl p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                {stepTitles.map((title, index) => (
+                  <div key={index} className="flex items-center flex-1">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 hover-scale ${
+                          index + 1 === currentStep
+                            ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg'
+                            : index + 1 < currentStep
+                              ? 'bg-gradient-to-br from-success-500 to-success-600 text-white shadow-lg'
+                              : 'bg-secondary-200 text-secondary-600'
+                        }`}
+                      >
+                        {index + 1 < currentStep ? '✓' : index + 1}
+                      </div>
+                      <span
+                        className={`text-xs mt-2 font-medium text-center max-w-20 ${
+                          index + 1 === currentStep
+                            ? 'text-primary-700'
+                            : index + 1 < currentStep
+                              ? 'text-success-700'
+                              : 'text-secondary-600'
+                        }`}
+                      >
+                        {title}
+                      </span>
+                    </div>
+                    {index < stepTitles.length - 1 && (
+                      <div className="flex-1 px-4">
+                        <div className="h-1 bg-secondary-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-500 ${
+                              index + 1 < currentStep
+                                ? 'bg-gradient-to-r from-success-500 to-success-600 w-full'
+                                : 'w-0'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="text-center mt-4">
+                <p className="text-sm text-primary-600 font-medium">
+                  Step {currentStep} of {totalSteps}:{' '}
+                  {stepTitles[currentStep - 1]}
+                </p>
+                <div className="w-full bg-secondary-200 rounded-full h-2 mt-3">
                   <div
-                    className={`w-16 h-1 mx-2 ${
-                      index + 1 < currentStep ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
-                  ></div>
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-700"
+                    style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Form */}
+          <ScrollReveal animation="slide-up" delay={300}>
+            <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
+              {currentStep === 1 && renderStep1()}
+              {currentStep === 2 && renderStep2()}
+              {currentStep === 3 && renderStep3()}
+              {currentStep === 4 && renderStep4()}
+              {currentStep === 5 && renderStep5()}
+
+              {/* Navigation */}
+              <div className="flex justify-between pt-8 border-t border-primary-200">
+                <AnimatedButton
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  variant="outline"
+                  ripple
+                >
+                  Previous
+                </AnimatedButton>
+
+                {currentStep < totalSteps ? (
+                  <AnimatedButton onClick={nextStep} ripple>
+                    Next
+                  </AnimatedButton>
+                ) : (
+                  <AnimatedButton
+                    onClick={submitProject}
+                    disabled={isSubmitting || paymentStatus !== 'completed'}
+                    loading={isSubmitting}
+                    ripple
+                  >
+                    {isSubmitting
+                      ? 'Finalizing Project...'
+                      : 'Finalize Project'}
+                  </AnimatedButton>
                 )}
               </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Step {currentStep} of {totalSteps}: {stepTitles[currentStep - 1]}
-            </p>
-          </div>
+            </div>
+          </ScrollReveal>
         </div>
-
-        {/* Form */}
-        <Card className="p-8">
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
-          {currentStep === 4 && renderStep4()}
-          {currentStep === 5 && renderStep5()}
-
-          {/* Navigation */}
-          <div className="flex justify-between pt-8 border-t">
-            <Button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              variant="outline"
-            >
-              Previous
-            </Button>
-
-            {currentStep < totalSteps ? (
-              <Button
-                onClick={nextStep}
-                className="bg-primary-500 hover:bg-primary-600"
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                onClick={submitProject}
-                disabled={isSubmitting || paymentStatus !== 'completed'}
-                className="bg-primary-500 hover:bg-primary-600"
-              >
-                {isSubmitting ? 'Finalizing Project...' : 'Finalize Project'}
-              </Button>
-            )}
-          </div>
-        </Card>
-      </div>
+      </PageTransition>
     </div>
   );
 }
