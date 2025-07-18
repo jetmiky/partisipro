@@ -6,7 +6,7 @@ import { cn } from '@/utils/cn';
 import { CheckCircle, XCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const inputVariants = cva(
-  'input-micro w-full px-4 py-3 text-base border rounded-lg bg-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-1 placeholder:text-muted-foreground disabled:bg-secondary-50 disabled:cursor-not-allowed',
+  'input-micro w-full py-3 text-base border rounded-lg bg-white transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-1 placeholder:text-muted-foreground disabled:bg-secondary-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
@@ -20,9 +20,9 @@ const inputVariants = cva(
           'border-warning-500 focus:border-warning-500 focus:ring-warning-500/20 bg-warning-50/50',
       },
       size: {
-        sm: 'px-3 py-2 text-sm',
-        default: 'px-4 py-3 text-base',
-        lg: 'px-5 py-4 text-lg',
+        sm: 'py-2 text-sm',
+        default: 'py-3 text-base',
+        lg: 'py-4 text-lg',
       },
     },
     defaultVariants: {
@@ -38,12 +38,14 @@ const FloatingLabel = ({
   focused,
   hasValue,
   variant,
+  hasIcon,
 }: {
   children: React.ReactNode;
   htmlFor: string;
   focused: boolean;
   hasValue: boolean;
   variant: 'default' | 'error' | 'success' | 'warning';
+  hasIcon?: boolean;
 }) => {
   const colorMap = {
     default: focused ? 'text-primary-600' : 'text-muted-foreground',
@@ -56,7 +58,8 @@ const FloatingLabel = ({
     <label
       htmlFor={htmlFor}
       className={cn(
-        'absolute left-4 transition-all duration-200 ease-out pointer-events-none',
+        'absolute transition-all duration-200 ease-out pointer-events-none',
+        hasIcon ? 'left-12' : 'left-4',
         focused || hasValue
           ? '-top-2 text-xs bg-white px-1 rounded'
           : 'top-3 text-base',
@@ -94,6 +97,7 @@ export interface AnimatedInputProps
   success?: string;
   warning?: string;
   showPasswordToggle?: boolean;
+  icon?: React.ReactNode;
 }
 
 const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
@@ -109,6 +113,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
       showPasswordToggle = false,
       type = 'text',
       id,
+      icon,
       ...props
     },
     ref
@@ -171,6 +176,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             className={cn(
               inputVariants({ variant: actualVariant, size, className }),
               label && 'placeholder-transparent',
+              icon ? 'pl-12' : 'pl-4',
               (showPasswordToggle || error || success || warning) && 'pr-12'
             )}
             onFocus={handleFocus}
@@ -180,6 +186,13 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             placeholder={label ? '' : props.placeholder}
           />
 
+          {/* Icon */}
+          {icon && (
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+              {icon}
+            </div>
+          )}
+
           {/* Floating Label */}
           {label && (
             <FloatingLabel
@@ -187,6 +200,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
               focused={focused}
               hasValue={hasValue}
               variant={actualVariant}
+              hasIcon={!!icon}
             >
               {label}
             </FloatingLabel>

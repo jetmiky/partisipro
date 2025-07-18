@@ -108,14 +108,20 @@ const Hero = () => {
           <div
             className={`transition-all duration-1000 delay-700 ${isVisible ? 'animate-zoom-in' : 'opacity-0 scale-95'}`}
           >
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-14 overflow-safe-x">
-              <button className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-8 sm:py-5 sm:px-10 min-w-[200px] sm:min-w-[240px] touch-target font-semibold hover-lift">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-14 overflow-safe-x">
+              <button className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift">
                 Jelajahi Proyek
                 <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
-              <button className="btn-modern btn-modern-secondary text-base sm:text-lg py-4 px-8 sm:py-5 sm:px-10 min-w-[200px] sm:min-w-[240px] touch-target font-semibold hover-scale">
+              <button className="btn-modern btn-modern-secondary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-scale">
                 Cara Kerja
               </button>
+              <a
+                href="/spv/apply"
+                className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
+              >
+                Daftar SPV
+              </a>
             </div>
           </div>
 

@@ -22,6 +22,7 @@ const Header = () => {
     { name: 'Projects', href: '/marketplace' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
+    { name: 'Become SPV', href: '/spv/apply' },
   ];
 
   return (
