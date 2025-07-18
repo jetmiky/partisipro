@@ -2,22 +2,24 @@
 
 import Header from '@/components/layout/Header';
 import Hero from '@/components/layout/Hero';
-import Features from '@/components/layout/Features';
+// import Features from '@/components/layout/Features';
 import HowItWorks from '@/components/layout/HowItWorks';
 import Statistics from '@/components/layout/Statistics';
-import Security from '@/components/layout/Security';
-import Testimonials from '@/components/layout/Testimonials';
+// import Security from '@/components/layout/Security';
+// import Testimonials from '@/components/layout/Testimonials';
 import FAQ from '@/components/layout/FAQ';
 import Footer from '@/components/layout/Footer';
 import { PageTransition } from '@/components/ui/PageTransition';
 import { ScrollReveal } from '@/components/ui/ScrollAnimations';
-import { ToastProvider } from '@/components/ui/AnimatedNotification';
+// import { ToastProvider } from '@/components/ui/AnimatedNotification';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Toast Provider for notifications */}
-      <ToastProvider />
+      {/* <ToastProvider /> */}
+
+      <Header />
 
       {/* Page Transition Wrapper */}
       <PageTransition type="fade" duration={300} transitionKey="home">
@@ -29,26 +31,22 @@ export default function Home() {
           <div className="fluid-shape-1 bottom-10 right-10"></div>
         </div>
 
-        <Header />
         <main className="relative z-10">
           <ScrollReveal animation="fade" delay={0}>
             <Hero />
           </ScrollReveal>
-          <ScrollReveal animation="slide-up" delay={100}>
+          {/* <ScrollReveal animation="slide-up" delay={100}>
             <Features />
-          </ScrollReveal>
+          </ScrollReveal> */}
           <ScrollReveal animation="slide-up" delay={200}>
             <HowItWorks />
           </ScrollReveal>
           <ScrollReveal animation="slide-up" delay={100}>
             <Statistics />
           </ScrollReveal>
-          <ScrollReveal animation="slide-up" delay={200}>
-            <Security />
-          </ScrollReveal>
-          <ScrollReveal animation="slide-up" delay={100}>
+          {/* <ScrollReveal animation="slide-up" delay={100}>
             <Testimonials />
-          </ScrollReveal>
+          </ScrollReveal> */}
           <ScrollReveal animation="slide-up" delay={200}>
             <FAQ />
           </ScrollReveal>

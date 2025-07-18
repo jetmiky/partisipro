@@ -11,6 +11,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from 'lucide-react';
+import Link from 'next/link';
 
 const HowItWorks = () => {
   const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
@@ -44,7 +45,7 @@ const HowItWorks = () => {
       },
       {
         icon: TrendingUp,
-        title: 'Penawaran Primer',
+        title: 'Periode Offering',
         description:
           'Penjualan token awal dilakukan melalui Project Garuda IDR Stablecoin untuk kepatuhan regulasi.',
         details: [
@@ -122,6 +123,43 @@ const HowItWorks = () => {
       className="section bg-gradient-modern overflow-safe"
     >
       <div className="container">
+        {/* Key Benefits */}
+        <div className="p-6 sm:p-8 md:p-12 mb-16 sm:mb-20">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="gradient-text-modern text-responsive-2xl font-bold mb-4 text-indonesian-heading">
+              Mengapa Memilih Partisipro?
+            </h2>
+            <p className="text-responsive-lg text-muted-foreground max-w-2xl mx-auto text-indonesian">
+              Platform kami menggabungkan yang terbaik dari pendanaan PPP
+              tradisional dengan teknologi blockchain modern
+            </p>
+          </div>
+
+          <div className="grid-responsive-3">
+            {benefits.map((benefit, index) => (
+              <div
+                key={index}
+                className={`text-center transition-all duration-700 ${
+                  visibleSteps.length > 0
+                    ? 'animate-fade-in opacity-100'
+                    : 'opacity-0'
+                }`}
+                style={{ transitionDelay: `${800 + index * 150}ms` }}
+              >
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg mx-auto mb-4">
+                  <benefit.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <h4 className="text-responsive-lg font-semibold mb-3 text-indonesian-heading">
+                  {benefit.title}
+                </h4>
+                <p className="text-muted-foreground text-responsive-sm text-indonesian">
+                  {benefit.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="gradient-text-modern text-responsive-2xl mb-6 text-indonesian-heading">
@@ -196,45 +234,8 @@ const HowItWorks = () => {
           </div>
         </div>
 
-        {/* Key Benefits */}
-        <div className="card-modern p-6 sm:p-8 md:p-12">
-          <div className="text-center mb-8 sm:mb-12">
-            <h3 className="text-responsive-2xl font-bold text-foreground mb-4 text-indonesian-heading">
-              Mengapa Memilih Partisipro?
-            </h3>
-            <p className="text-responsive-lg text-muted-foreground max-w-2xl mx-auto text-indonesian">
-              Platform kami menggabungkan yang terbaik dari pendanaan PPP
-              tradisional dengan teknologi blockchain modern
-            </p>
-          </div>
-
-          <div className="grid-responsive-3">
-            {benefits.map((benefit, index) => (
-              <div
-                key={index}
-                className={`text-center transition-all duration-700 ${
-                  visibleSteps.length > 0
-                    ? 'animate-fade-in opacity-100'
-                    : 'opacity-0'
-                }`}
-                style={{ transitionDelay: `${800 + index * 150}ms` }}
-              >
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg mx-auto mb-4">
-                  <benefit.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <h4 className="text-responsive-lg font-semibold mb-3 text-indonesian-heading">
-                  {benefit.title}
-                </h4>
-                <p className="text-muted-foreground text-responsive-sm text-indonesian">
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* CTA Section */}
-        <div className="text-center mt-12 sm:mt-16">
+        <div className="text-center pt-12 pb-6 sm:pt-16 sm:pb-12">
           <div
             className={`transition-all duration-700 ${
               visibleSteps.length > 2
@@ -247,16 +248,24 @@ const HowItWorks = () => {
             </h3>
             <p className="text-responsive-lg text-muted-foreground mb-6 max-w-xl mx-auto text-indonesian">
               Bergabunglah dengan ribuan investor yang sudah berpartisipasi
-              dalam pembangunan infrastruktur Indonesia
+              dalam pembangunan infrastruktur Indonesia.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="btn-modern btn-modern-primary touch-target">
-                Lihat Proyek Aktif
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-              <button className="btn-modern btn-modern-secondary touch-target">
-                Pelajari Lebih Lanjut
-              </button>
+              <Link
+                href="/auth/signup"
+                className="btn-modern btn-modern-primary text-base py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
+              >
+                Daftar sebagai Investor
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+              </Link>
+
+              <Link
+                href="/spv/apply"
+                className="btn-modern btn-modern-primary text-base py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
+              >
+                Daftar sebagai SPV
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+              </Link>
             </div>
           </div>
         </div>

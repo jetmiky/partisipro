@@ -2,14 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Home,
-  ArrowLeft,
-  Search,
-  HelpCircle,
-  Layers,
-  AlertCircle,
-} from 'lucide-react';
+import { Home, ArrowLeft, Search, HelpCircle, AlertCircle } from 'lucide-react';
 
 const NotFound = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,20 +23,20 @@ const NotFound = () => {
       icon: Search,
       title: 'Jelajahi Proyek',
       description: 'Lihat proyek infrastruktur tersedia',
-      href: '/projects',
+      href: '/marketplace',
       color: 'from-financial-gold-500 to-financial-gold-600',
     },
     {
       icon: HelpCircle,
       title: 'Pusat Bantuan',
       description: 'Temukan jawaban pertanyaan Anda',
-      href: '/help',
+      href: '/contact',
       color: 'from-success-500 to-success-600',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-50/30 to-white flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-primary-50/30 to-white flex items-center justify-center overflow-hidden py-10">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-48 h-48 md:w-64 md:h-64 bg-primary-100 rounded-full animate-float opacity-20"></div>
@@ -65,7 +58,7 @@ const NotFound = () => {
               isVisible ? 'animate-scale-in opacity-100' : 'opacity-0 scale-75'
             }`}
           >
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center text-white shadow-2xl mx-auto mb-8">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-4xl flex items-center justify-center text-white shadow-2xl mx-auto mb-8">
               <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16" />
             </div>
           </div>
@@ -92,7 +85,7 @@ const NotFound = () => {
             <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
               Halaman Tidak Ditemukan
             </h2>
-            <p className="text-responsive-lg text-muted-foreground mb-8 max-w-2xl mx-auto text-indonesian">
+            <p className="text-responsive-md text-muted-foreground mb-8 max-w-2xl mx-auto text-indonesian">
               Maaf, halaman yang Anda cari tidak dapat ditemukan. Halaman
               mungkin telah dipindahkan, dihapus, atau URL yang Anda masukkan
               salah.
@@ -116,7 +109,7 @@ const NotFound = () => {
                 Kembali ke Beranda
               </Link>
               <Link
-                href="/projects"
+                href="/marketplace"
                 className="btn-modern btn-modern-secondary touch-target"
               >
                 Jelajahi Proyek
@@ -126,7 +119,7 @@ const NotFound = () => {
 
           {/* Quick Links */}
           <div
-            className={`transition-all duration-1000 delay-800 ${
+            className={`py-5 pb-10 transition-all duration-1000 delay-800 ${
               isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
             }`}
           >
@@ -158,23 +151,6 @@ const NotFound = () => {
                   </p>
                 </Link>
               ))}
-            </div>
-          </div>
-
-          {/* Brand Footer */}
-          <div
-            className={`mt-16 transition-all duration-1000 delay-1200 ${
-              isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="flex items-center justify-center gap-3 text-muted-foreground">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <Layers className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-indonesian">
-                Kembali ke platform investasi infrastruktur terdepan di
-                Indonesia
-              </span>
             </div>
           </div>
         </div>

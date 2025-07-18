@@ -7,11 +7,7 @@ import {
   HelpCircle,
   Shield,
   Coins,
-  TrendingUp,
   FileText,
-  Clock,
-  Users,
-  ArrowRight,
 } from 'lucide-react';
 
 const FAQ = () => {
@@ -243,83 +239,6 @@ const FAQ = () => {
                     )}
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="mt-16 sm:mt-20">
-          <div
-            className={`transition-all duration-700 ${
-              isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 sm:p-12 text-white bg-overlay-dark">
-              <div className="text-center mb-8 relative z-10">
-                <h3 className="text-responsive-2xl font-bold mb-4 text-indonesian-heading text-shadow-lg">
-                  Masih Ada Pertanyaan?
-                </h3>
-                <p className="text-responsive-lg text-white/95 max-w-2xl mx-auto text-indonesian text-shadow">
-                  Tim customer support kami siap membantu Anda 24/7
-                </p>
-              </div>
-
-              <div className="grid-responsive-4 mb-8 relative z-10">
-                <div className="text-center">
-                  <div className="w-12 h-12 glass-hero rounded-xl flex items-center justify-center text-white mx-auto mb-3">
-                    <Clock className="w-6 h-6" />
-                  </div>
-                  <div className="text-2xl font-bold mb-1 text-shadow">
-                    24/7
-                  </div>
-                  <div className="text-white/90 text-sm text-shadow-sm">
-                    Dukungan Pelanggan
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 glass-hero rounded-xl flex items-center justify-center text-white mx-auto mb-3">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div className="text-2xl font-bold mb-1 text-shadow">
-                    15K+
-                  </div>
-                  <div className="text-white/90 text-sm text-shadow-sm">
-                    Investor Puas
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 glass-hero rounded-xl flex items-center justify-center text-white mx-auto mb-3">
-                    <TrendingUp className="w-6 h-6" />
-                  </div>
-                  <div className="text-2xl font-bold mb-1 text-shadow">98%</div>
-                  <div className="text-white/90 text-sm text-shadow-sm">
-                    Tingkat Kepuasan
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 glass-hero rounded-xl flex items-center justify-center text-white mx-auto mb-3">
-                    <HelpCircle className="w-6 h-6" />
-                  </div>
-                  <div className="text-2xl font-bold mb-1 text-shadow">
-                    &lt;1j
-                  </div>
-                  <div className="text-white/90 text-sm text-shadow-sm">
-                    Waktu Respon
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-center relative z-10">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button className="btn-modern btn-modern-white touch-target">
-                    Hubungi Support
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <button className="btn-modern btn-modern-outline-white touch-target">
-                    Lihat Knowledge Base
-                  </button>
-                </div>
               </div>
             </div>
           </div>

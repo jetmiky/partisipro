@@ -56,28 +56,30 @@ const Footer = () => {
                 <Layers className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-xl font-bold text-white">Partisipro</div>
+                <div className="text-xl font-bold text-white tracking-wider">
+                  Partisipro
+                </div>
                 <div className="text-xs text-primary-300">
                   PPP Blockchain Platform
                 </div>
               </div>
             </div>
-            <p className="text-primary-300 mb-6 max-w-sm text-indonesian">
+            <p className="text-primary-200 mb-6 max-w-sm text-indonesian">
               Mendemokratisasi investasi infrastruktur di Indonesia melalui
-              teknologi blockchain dan integrasi Project Garuda IDR Stablecoin.
+              teknologi blockchain.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-primary-400">
+              <div className="flex items-center gap-2 text-primary-300">
                 <Mail className="w-4 h-4" />
-                <span>contact@partisipro.com</span>
+                <span>contact@partisipro.id</span>
               </div>
-              <div className="flex items-center gap-2 text-primary-400">
+              <div className="flex items-center gap-2 text-primary-300">
                 <Phone className="w-4 h-4" />
                 <span>+62 21 1234 5678</span>
               </div>
-              <div className="flex items-center gap-2 text-primary-400">
+              <div className="flex items-center gap-2 text-primary-300">
                 <MapPin className="w-4 h-4" />
                 <span>Jakarta, Indonesia</span>
               </div>
@@ -86,7 +88,7 @@ const Footer = () => {
 
           {/* Platform Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+            <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
               Platform
             </h3>
             <ul className="space-y-2">
@@ -105,7 +107,7 @@ const Footer = () => {
 
           {/* Company Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
+            <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
               Perusahaan
             </h3>
             <ul className="space-y-2">
@@ -124,8 +126,8 @@ const Footer = () => {
 
           {/* Legal Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
-              Hukum
+            <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
+              Legal
             </h3>
             <ul className="space-y-2">
               {links.legal.map(link => (
@@ -143,8 +145,8 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4 text-indonesian-heading">
-              Dukungan
+            <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
+              Support
             </h3>
             <ul className="space-y-2">
               {links.support.map(link => (
@@ -163,15 +165,13 @@ const Footer = () => {
 
         {/* Compliance Notice */}
         <div className="border-t border-primary-800 pt-8 mb-8">
-          <div className="glass-light rounded-xl p-4">
-            <h4 className="font-semibold text-success-400 mb-2 text-indonesian-heading">
+          <div className="glass-light rounded-xl p-6">
+            <h4 className="font-semibold text-primary-800 mb-2 text-3xl">
               Kepatuhan Regulasi
             </h4>
             <p className="text-sm text-primary-700 text-indonesian">
               Partisipro beroperasi dengan mematuhi sepenuhnya regulasi Bank
-              Indonesia dan pedoman otoritas jasa keuangan Indonesia (OJK).
-              Semua transaksi dilakukan menggunakan Project Garuda IDR
-              Stablecoin untuk kepatuhan regulasi.
+              Indonesia dan Otoritas Jasa Keuangan Indonesia (OJK).
             </p>
           </div>
         </div>
@@ -180,9 +180,9 @@ const Footer = () => {
         <div className="border-t border-primary-800 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <div className="text-sm text-primary-400 text-indonesian">
-              © {currentYear} Partisipro. Semua hak dilindungi. Dibangun di
-              atas blockchain Arbitrum.
+            <div className="text-sm text-primary-300 text-indonesian">
+              © {currentYear} Partisipro. All Rights Reserved. Dibangun di atas
+              blockchain Arbitrum.
             </div>
 
             {/* Social Links */}
@@ -191,7 +191,7 @@ const Footer = () => {
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-8 h-8 glass-light rounded-lg flex items-center justify-center text-primary-400 hover:text-white hover:bg-primary-600 transition-colors"
+                  className="w-8 h-8 glass-light rounded-lg flex items-center justify-center text-primary-700 hover:text-white hover:bg-primary-600 transition-colors"
                   aria-label={social.name}
                 >
                   <social.icon className="w-4 h-4" />

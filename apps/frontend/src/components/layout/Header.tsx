@@ -1,20 +1,24 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { Menu, X, Shield, Layers, TrendingUp } from 'lucide-react';
+import { Menu, X, Shield, Layers, Users } from 'lucide-react';
 import Link from 'next/link';
 
-const Header = () => {
+interface HeaderProps {
+  dark?: boolean;
+}
+
+const Header = ({ dark = false }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    if (window) {
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 10);
+      };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
   }, []);
 
   const navigation = [
@@ -22,7 +26,6 @@ const Header = () => {
     { name: 'Projects', href: '/marketplace' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
-    { name: 'Become SPV', href: '/spv/apply' },
   ];
 
   return (
@@ -40,14 +43,14 @@ const Header = () => {
             </div>
             <div className="flex flex-col">
               <span
-                className={`text-xl md:text-2xl font-bold ${isScrolled ? 'text-primary-900' : 'text-contrast-overlay'}`}
+                className={`text-xl md:text-2xl font-bold ${dark || isScrolled ? 'text-primary-900' : 'text-contrast-overlay'}`}
               >
                 Partisipro
               </span>
               <span
-                className={`text-xs hidden md:block ${isScrolled ? 'text-primary-600' : 'text-white/80'}`}
+                className={`text-xs hidden md:block ${dark || isScrolled ? 'text-primary-600' : 'text-white/80'}`}
               >
-                PPP Blockchain Platform
+                KPBU - Blockchain Platform
               </span>
             </div>
           </div>
@@ -58,7 +61,7 @@ const Header = () => {
               <a
                 key={item.name}
                 href={item.href}
-                className={`font-medium transition-colors duration-200 ${isScrolled ? 'text-primary-600 hover:text-primary-800' : 'text-white/90 hover:text-white'}`}
+                className={`font-medium transition-colors duration-200 ${dark || isScrolled ? 'text-primary-600 hover:text-primary-800' : 'text-white/90 hover:text-white'}`}
               >
                 {item.name}
               </a>
@@ -68,7 +71,7 @@ const Header = () => {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              className={`btn btn-sm transition-all duration-200 ${isScrolled ? 'btn-ghost' : 'glass-hero text-white/90 hover:text-white hover:glass-modern border-white/30'}`}
+              className={`btn btn-sm transition-all duration-200 ${dark || isScrolled ? 'btn-ghost' : 'glass-hero text-white/90 hover:text-white hover:glass-modern border-white/30'}`}
               href="/auth/signin"
             >
               Sign In
@@ -81,7 +84,7 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-primary-600 hover:text-primary-800' : 'text-white/90 hover:text-white'}`}
+            className={`md:hidden p-2 transition-colors ${dark || isScrolled ? 'text-primary-600 hover:text-primary-800' : 'text-white/90 hover:text-white'}`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -125,20 +128,20 @@ const Header = () => {
       {/* Trust Indicators Bar */}
       {!isMenuOpen && (
         <div
-          className={`border-t ${isScrolled ? 'border-primary-200/50 bg-primary-50/50' : 'border-white/20 glass-subtle border-b-transparent'} backdrop-blur-sm`}
+          className={`border-t ${dark || isScrolled ? 'border-primary-200/50 bg-primary-50/50' : 'border-white/20 glass-subtle border-b-transparent'} backdrop-blur-sm`}
         >
           <div className="container">
             <div
-              className={`flex items-center justify-center md:justify-between py-2 text-xs md:text-sm ${isScrolled ? 'text-primary-600' : 'text-white/80 text-shadow-sm'}`}
+              className={`flex items-center justify-center md:justify-between py-2 text-xs md:text-sm ${dark || isScrolled ? 'text-primary-600' : 'text-white/80 text-shadow-sm'}`}
             >
               <div className="hidden md:flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-success-500" />
-                  <span>Bank Indonesia Compliant</span>
+                  <span>BI - OJK Hackathon 2025</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-primary-500" />
-                  <span>IDR Stablecoin Integrated</span>
+                  <Users className="w-4 h-4 text-primary-500" />
+                  <span>Tim Pecinta Adrenalin</span>
                 </div>
               </div>
 

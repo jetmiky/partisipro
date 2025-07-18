@@ -9,7 +9,6 @@ import {
   HelpCircle,
   Layers,
   Bug,
-  Shield,
   ArrowRight,
 } from 'lucide-react';
 
@@ -82,7 +81,7 @@ const Error = ({ error, reset }: ErrorProps) => {
         ></div>
       </div>
 
-      <div className="container relative z-10 px-6 sm:px-8 lg:px-12">
+      <div className="container relative z-10 px-6 sm:px-8 lg:py-10 lg:px-12">
         <div className="text-center max-w-4xl mx-auto">
           {/* Error Icon */}
           <div
@@ -90,7 +89,7 @@ const Error = ({ error, reset }: ErrorProps) => {
               isVisible ? 'animate-scale-in opacity-100' : 'opacity-0 scale-75'
             }`}
           >
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center text-white shadow-2xl mx-auto mb-8">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-red-500 to-red-600 rounded-4xl flex items-center justify-center text-white shadow-2xl mx-auto mb-8">
               <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16" />
             </div>
           </div>
@@ -117,7 +116,7 @@ const Error = ({ error, reset }: ErrorProps) => {
             <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
               Terjadi Kesalahan Server
             </h2>
-            <p className="text-responsive-lg text-muted-foreground mb-8 max-w-2xl mx-auto text-indonesian">
+            <p className="text-responsive-md text-muted-foreground mb-8 max-w-2xl mx-auto text-indonesian">
               Maaf, terjadi kesalahan internal pada server kami. Tim teknis
               sudah diberitahu dan sedang menangani masalah ini. Silakan coba
               lagi dalam beberapa saat.
@@ -151,9 +150,6 @@ const Error = ({ error, reset }: ErrorProps) => {
               isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
             }`}
           >
-            <h3 className="text-responsive-lg font-semibold text-foreground mb-8 text-indonesian-heading">
-              Langkah Pemecahan Masalah:
-            </h3>
             <div className="grid-responsive-3 max-w-4xl mx-auto mb-12">
               {troubleshootingSteps.map((step, index) => (
                 <div
@@ -216,34 +212,9 @@ const Error = ({ error, reset }: ErrorProps) => {
             </div>
           </div>
 
-          {/* Security Notice */}
-          <div
-            className={`transition-all duration-1000 delay-1000 ${
-              isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
-            }`}
-          >
-            <div className="glass-feature p-6 rounded-xl max-w-2xl mx-auto mb-8 border-l-4 border-blue-500">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <h4 className="font-semibold text-blue-900 mb-2 text-indonesian-heading">
-                    Data Anda Aman
-                  </h4>
-                  <p className="text-blue-800 text-responsive-sm text-indonesian">
-                    Meskipun terjadi kesalahan, semua data investasi dan
-                    informasi pribadi Anda tetap aman dan terenkripsi. Tidak ada
-                    data yang hilang atau terkompromi.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Brand Footer */}
           <div
-            className={`mt-8 transition-all duration-1000 delay-1200 ${
+            className={`transition-all duration-1000 delay-1200 ${
               isVisible ? 'animate-fade-in opacity-100' : 'opacity-0'
             }`}
           >
