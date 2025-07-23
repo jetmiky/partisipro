@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering for presentation mode compatibility
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,12 +13,17 @@ import {
   Target,
   Shield,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { PageTransition } from '@/components/ui/PageTransition';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { profilingService } from '@/services/profiling.service';
+import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
+
+// Check if we're in presentation mode - remove if unused
+// const isPresentationMode =
+//   process.env.NEXT_PUBLIC_PRESENTATION_MODE === 'true' ||
+//   (typeof window !== 'undefined' &&
+//     window.location.search.includes('presentation=true'));
 
 // Types for form data
 interface ProfileFormData {
@@ -201,28 +209,36 @@ const questionSections = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+
+  // Always authenticated in presentation mode
+
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<ProfileFormData>({
-    age: '',
-    income: '',
-    experience: '',
-    knownInvestments: [],
-    investmentGoal: '',
-    riskTolerance: '',
-    marketReaction: '',
-    holdingPeriod: '',
-    projectDetailImportance: '',
-    tokenTypes: [],
+    age: '26-35',
+    income: '10.1-20M',
+    experience: '1-3years',
+    knownInvestments: ['stocks', 'mutual_funds', 'property'],
+    investmentGoal: 'long_term_growth',
+    riskTolerance: 'moderate',
+    marketReaction: 'no_worry_long_term',
+    holdingPeriod: '>5years',
+    projectDetailImportance: 'important',
+    tokenTypes: ['revenue_token', 'hybrid_token'],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [completionProgress, setCompletionProgress] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [profileResults, setProfileResults] = useState<{
+    riskLevel: string;
+    investorType: string;
+    score: number;
+    recommendations: string[];
+  } | null>(null);
 
-  // Redirect if not authenticated
+  // No redirect needed in presentation mode
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/signin');
-    }
-  }, [isAuthenticated, isLoading, router]);
+    // Presentation mode - always authenticated
+  }, []);
 
   const handleInputChange = (
     questionId: string,
@@ -258,24 +274,34 @@ export default function ProfilePage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setCompletionProgress(0);
 
     try {
-      // Use the profiling service to submit data
-      const response = await profilingService.mockSubmitProfile(formData);
+      // Simulate profile analysis and saving
+      const steps = [
+        { progress: 20, message: 'Menganalisis profil risiko...' },
+        { progress: 40, message: 'Menghitung skor investor...' },
+        { progress: 60, message: 'Menyimpan preferensi investasi...' },
+        { progress: 80, message: 'Mengatur rekomendasi portofolio...' },
+        { progress: 100, message: 'Profil berhasil disimpan!' },
+      ];
 
-      if (response.success) {
-        toast.success('Profil investor berhasil disimpan!', {
-          message: 'Anda akan dialihkan ke proses KYC',
-          duration: 3000,
-        });
-
-        // Redirect to KYC after successful submission
-        setTimeout(() => {
-          router.push('/kyc');
-        }, 1500);
-      } else {
-        throw new Error(response.message || 'Gagal menyimpan profil');
+      for (const step of steps) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setCompletionProgress(step.progress);
+        toast.success(step.message);
       }
+
+      // Calculate profile results
+      const results = calculateProfileResults(formData);
+      setProfileResults(results);
+      setShowResults(true);
+
+      // Show final success message
+      toast.success('Profil investor berhasil disimpan!', {
+        message: 'Lihat hasil analisis profil Anda',
+        duration: 3000,
+      });
     } catch (error) {
       toast.error('Gagal menyimpan profil', {
         message: error instanceof Error ? error.message : 'Silakan coba lagi',
@@ -284,6 +310,106 @@ export default function ProfilePage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Calculate investor profile results
+  const calculateProfileResults = (data: ProfileFormData) => {
+    let riskScore = 0;
+    let recommendations: string[] = [];
+
+    // Risk tolerance scoring
+    const riskMap: { [key: string]: number } = {
+      very_conservative: 1,
+      conservative: 2,
+      moderate: 3,
+      aggressive: 4,
+      very_aggressive: 5,
+    };
+
+    riskScore += riskMap[data.riskTolerance] || 3;
+
+    // Market reaction scoring
+    const reactionMap: { [key: string]: number } = {
+      panic_sell: 1,
+      worry_wait: 2,
+      no_worry_long_term: 4,
+      buy_more: 5,
+    };
+
+    riskScore += reactionMap[data.marketReaction] || 3;
+
+    // Experience scoring
+    const experienceMap: { [key: string]: number } = {
+      never: 1,
+      '<1year': 2,
+      '1-3years': 3,
+      '3-5years': 4,
+      '>5years': 5,
+    };
+
+    riskScore += experienceMap[data.experience] || 2;
+
+    // Calculate average risk score
+    const avgRiskScore = riskScore / 3;
+
+    // Determine risk level and investor type
+    let riskLevel: string;
+    let investorType: string;
+
+    if (avgRiskScore <= 2) {
+      riskLevel = 'Konservatif';
+      investorType = 'Investor Konservatif';
+      recommendations = [
+        'Fokus pada proyek infrastruktur dengan risiko rendah',
+        'Pilih token berbasis utang dengan pendapatan tetap',
+        'Diversifikasi investasi di berbagai sektor',
+      ];
+    } else if (avgRiskScore <= 3.5) {
+      riskLevel = 'Moderat';
+      investorType = 'Investor Seimbang';
+      recommendations = [
+        'Kombinasi token utang dan ekuitas untuk keseimbangan',
+        'Investasi di proyek dengan track record yang baik',
+        'Pertimbangkan token pendapatan untuk cash flow',
+      ];
+    } else {
+      riskLevel = 'Agresif';
+      investorType = 'Investor Growth';
+      recommendations = [
+        'Fokus pada token ekuitas dengan potensi capital gain tinggi',
+        'Investasi di proyek inovatif dan berkembang',
+        'Manfaatkan volatilitas untuk keuntungan jangka panjang',
+      ];
+    }
+
+    return {
+      riskLevel,
+      investorType,
+      score: Math.round(avgRiskScore * 20), // Convert to 0-100 scale
+      recommendations,
+    };
+  };
+
+  // Auto-fill demo function
+  const handleDemoAutoFill = () => {
+    const demoData: ProfileFormData = {
+      age: '26-35',
+      income: '10.1-20M',
+      experience: '1-3years',
+      knownInvestments: ['stocks', 'mutual_funds', 'property'],
+      investmentGoal: 'long_term_growth',
+      riskTolerance: 'moderate',
+      marketReaction: 'no_worry_long_term',
+      holdingPeriod: '>5years',
+      projectDetailImportance: 'important',
+      tokenTypes: ['revenue_token', 'hybrid_token'],
+    };
+
+    setFormData(demoData);
+    toast.success('Form berhasil diisi dengan data demo!', {
+      message: 'Anda dapat langsung melanjutkan atau memodifikasi jawaban',
+      duration: 3000,
+    });
   };
 
   // Check if current step is valid
@@ -302,27 +428,113 @@ export default function ProfilePage() {
     return ((currentStep + 1) / questionSections.length) * 100;
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Memuat halaman...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  // Always show content in presentation mode
 
   const currentSection = questionSections[currentStep];
   const isLastStep = currentStep === questionSections.length - 1;
 
+  // Results display component
+  const renderResults = () => {
+    if (!showResults || !profileResults) return null;
+
+    return (
+      <div className="max-w-3xl mx-auto mb-8">
+        <Card className="glass-feature animate-fade-in-up">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <Target className="w-8 h-8" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl text-gradient-modern">
+                  Hasil Analisis Profil Investor
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Profil investasi Anda telah berhasil dianalisis
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-primary-600">
+                    {profileResults.score}
+                  </span>
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">
+                  Skor Risiko: {profileResults.score}/100
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {profileResults.riskLevel}
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <User className="w-8 h-8 text-secondary-600" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">
+                  Tipe Investor
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {profileResults.investorType}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-semibold text-foreground mb-4 text-center">
+                Rekomendasi Investasi
+              </h4>
+              <div className="space-y-3">
+                {profileResults.recommendations.map((recommendation, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mt-0.5">
+                      <Check className="w-3 h-3 text-primary-600" />
+                    </div>
+                    <p className="text-sm text-muted-foreground flex-1">
+                      {recommendation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-4 justify-center mt-8">
+              <AnimatedButton
+                variant="primary"
+                onClick={() => router.push('/kyc')}
+                className="flex items-center gap-2"
+                ripple
+              >
+                Lanjut ke Verifikasi KYC
+                <ChevronRight className="w-4 h-4" />
+              </AnimatedButton>
+
+              <AnimatedButton
+                variant="outline"
+                onClick={() => router.push('/marketplace')}
+                className="flex items-center gap-2"
+                ripple
+              >
+                Jelajahi Proyek
+                <Target className="w-4 h-4" />
+              </AnimatedButton>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <ToastProvider />
+
+      {/* Presentation Mode Indicator */}
+      <PresentationModeIndicator />
 
       <PageTransition type="fade" duration={400} transitionKey="profiling">
         {/* Fluid Background Shapes */}
@@ -362,8 +574,14 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Results Display */}
+          {renderResults()}
+
           {/* Main Content */}
-          <div className="max-w-3xl mx-auto">
+          <div
+            className="max-w-3xl mx-auto"
+            style={{ display: showResults ? 'none' : 'block' }}
+          >
             {/* Section Header */}
             <Card className="mb-8 glass-modern animate-fade-in-up animate-delay-200">
               <CardHeader className="text-center">
@@ -440,6 +658,73 @@ export default function ProfilePage() {
                 </Card>
               ))}
             </div>
+
+            {/* Demo Auto-Fill Button */}
+            <div className="text-center mb-6 animate-fade-in-up animate-delay-400">
+              <div className="flex gap-3 justify-center">
+                <AnimatedButton
+                  variant="outline"
+                  onClick={handleDemoAutoFill}
+                  className="border-2 border-dashed border-primary-300 hover:border-primary-500"
+                  ripple
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  Demo: Isi Otomatis
+                </AnimatedButton>
+
+                <AnimatedButton
+                  variant="outline"
+                  onClick={() => {
+                    const demoData: ProfileFormData = {
+                      age: '26-35',
+                      income: '10.1-20M',
+                      experience: '1-3years',
+                      knownInvestments: ['stocks', 'mutual_funds', 'property'],
+                      investmentGoal: 'long_term_growth',
+                      riskTolerance: 'moderate',
+                      marketReaction: 'no_worry_long_term',
+                      holdingPeriod: '>5years',
+                      projectDetailImportance: 'important',
+                      tokenTypes: ['revenue_token', 'hybrid_token'],
+                    };
+                    setFormData(demoData);
+                    const results = calculateProfileResults(demoData);
+                    setProfileResults(results);
+                    setShowResults(true);
+                  }}
+                  className="border-2 border-dashed border-success-300 hover:border-success-500"
+                  ripple
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Demo: Lihat Hasil
+                </AnimatedButton>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Untuk keperluan presentasi - simulasi profiling investor moderat
+              </p>
+            </div>
+
+            {/* Submission Progress */}
+            {isSubmitting && (
+              <Card className="glass-modern mb-6 animate-fade-in-up">
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <h3 className="font-semibold text-foreground mb-4">
+                      Memproses Profil Investor
+                    </h3>
+                    <div className="w-full bg-secondary-200 rounded-full h-2 mb-4">
+                      <div
+                        className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${completionProgress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {completionProgress}% selesai
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Navigation */}
             <div className="flex justify-between items-center mt-8 animate-fade-in-up animate-delay-500">

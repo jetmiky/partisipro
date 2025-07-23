@@ -1,7 +1,9 @@
 'use client';
 
+// Force dynamic rendering for presentation mode compatibility
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FileText,
@@ -27,21 +29,45 @@ import {
   Lock,
   ArrowRight,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useKYCWebSocket } from '@/hooks/useWebSocket';
+// import { useAuth } from '@/hooks/useAuth';
+// import { useKYCWebSocket } from '@/hooks/useWebSocket';
 import { PageTransition } from '@/components/ui/PageTransition';
 import { ScrollReveal } from '@/components/ui/ScrollAnimations';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
-import {
-  kycService,
-  KYCProvider,
-  KYCSession,
-  KYCInitiationRequest,
-  // KYCAnalytics,
-  // KYCErrorHandling,
-} from '@/services';
+import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
+// Mock KYC types for presentation mode
+type KYCProvider = {
+  id: string;
+  name: string;
+  description: string;
+  processingTime: string;
+  features: string[];
+  supportedDocuments: string[];
+  regions: string[];
+  isAvailable: boolean;
+};
+
+type KYCSession = {
+  id: string;
+  userId: string;
+  provider: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  level: string;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string;
+  sessionUrl: string;
+  webhookEvents: any[];
+  documents: any[];
+  checks: Array<{
+    id: string;
+    type: string;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    result?: { score: number };
+  }>;
+};
 
 // Toast will be replaced with AnimatedNotification system
 
@@ -82,8 +108,19 @@ interface IdentityClaim {
 }
 
 export default function KYCPage() {
-  const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  // const { user, isAuthenticated } = useAuth();
+
+  // Mock user data for presentation mode
+  const mockUser = {
+    id: 'UID-01',
+    email: 'investor@gmail.com',
+    walletAddress: '0x123456789abcdef',
+    role: 'investor',
+    identityVerified: false,
+    kycStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 
   const [currentStep, setCurrentStep] = useState<KYCStep>('intro');
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
@@ -93,17 +130,82 @@ export default function KYCPage() {
   const [kycSession, setKycSession] = useState<KYCSession | null>(null);
   const [pollingActive, setPollingActive] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [processingProgress, setProcessingProgress] = useState(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real API state
-  const [providers, setProviders] = useState<KYCProvider[]>([]);
-  const [, setCurrentKYCStatus] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [, setSubmitting] = useState(false);
+  // Mock state for presentation mode
+  const [providers] = useState<KYCProvider[]>([
+    {
+      id: 'verihubs',
+      name: 'Verihubs Indonesia',
+      description:
+        'Leading Indonesian identity verification provider with AI-powered document authentication.',
+      processingTime: '2-5 minutes',
+      features: [
+        'AI Document Verification',
+        'Liveness Detection',
+        'AML Screening',
+        'Real-time Processing',
+      ],
+      supportedDocuments: [
+        'Indonesian ID (KTP)',
+        'Passport',
+        'Driver License',
+        'Bank Statement',
+      ],
+      regions: ['Indonesia', 'Southeast Asia'],
+      isAvailable: true,
+    },
+    {
+      id: 'sumsub',
+      name: 'Sum&Substance',
+      description:
+        'Global KYC platform with comprehensive compliance and fraud prevention.',
+      processingTime: '1-3 minutes',
+      features: [
+        'Global Coverage',
+        'Advanced Fraud Detection',
+        'Biometric Verification',
+        'Compliance Reporting',
+      ],
+      supportedDocuments: [
+        'Indonesian ID (KTP)',
+        'Passport',
+        'Proof of Address',
+        'Utility Bills',
+      ],
+      regions: ['Global', 'Indonesia', 'Asia-Pacific'],
+      isAvailable: true,
+    },
+    {
+      id: 'jumio',
+      name: 'Jumio',
+      description:
+        'Enterprise-grade identity verification with machine learning technology.',
+      processingTime: '3-7 minutes',
+      features: [
+        'Enterprise Security',
+        'ML-based Verification',
+        'Document Forensics',
+        'Risk Assessment',
+      ],
+      supportedDocuments: [
+        'Government ID',
+        'Passport',
+        'Driving License',
+        'Proof of Address',
+      ],
+      regions: ['Global', 'Indonesia'],
+      isAvailable: false,
+    },
+  ]);
   const [error, setError] = useState<any>(null);
 
+  // Always authenticated in presentation mode - variables used in JSX
+  const currentUser = mockUser;
+
   // WebSocket integration for real-time KYC updates
-  const { kycStatus: liveKycStatus } = useKYCWebSocket();
+  // const { kycStatus: liveKycStatus } = useKYCWebSocket();
 
   // Claims issuance state
   const [claimsIssuance] = useState<{
@@ -113,12 +215,12 @@ export default function KYCPage() {
   } | null>(null);
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    idNumber: '',
-    phoneNumber: '',
-    address: '',
-    occupation: '',
-    sourceOfFunds: '',
+    fullName: 'Ahmad Rizki Pratama',
+    idNumber: '3175031234567890',
+    phoneNumber: '+62 812 3456 7890',
+    address: 'Jl. Sudirman No. 123, RT 001/RW 002, Tanah Abang, Jakarta Pusat',
+    occupation: 'entrepreneur',
+    sourceOfFunds: 'business',
   });
 
   const [documents, setDocuments] = useState<DocumentUpload[]>([
@@ -171,29 +273,29 @@ export default function KYCPage() {
   ]);
 
   // Real-time KYC status updates via WebSocket
-  useEffect(() => {
-    if (liveKycStatus) {
-      // Real-time KYC status update received
-      setKycSession(liveKycStatus);
+  // useEffect(() => {
+  //   if (liveKycStatus) {
+  //     // Real-time KYC status update received
+  //     setKycSession(liveKycStatus);
 
-      // Update step based on status
-      if (liveKycStatus.status === 'completed') {
-        setKycStatus('success');
-        setCurrentStep('identity');
-      } else if (liveKycStatus.status === 'failed') {
-        setKycStatus('failed');
-      } else if (liveKycStatus.status === 'processing') {
-        setKycStatus('processing');
-        setCurrentStep('processing');
-      }
+  //     // Update step based on status
+  //     if (liveKycStatus.status === 'completed') {
+  //       setKycStatus('success');
+  //       setCurrentStep('identity');
+  //     } else if (liveKycStatus.status === 'failed') {
+  //       setKycStatus('failed');
+  //     } else if (liveKycStatus.status === 'processing') {
+  //       setKycStatus('processing');
+  //       setCurrentStep('processing');
+  //     }
 
-      // Stop polling since we're getting real-time updates
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        setPollingActive(false);
-      }
-    }
-  }, [liveKycStatus]);
+  //     // Stop polling since we're getting real-time updates
+  //     if (pollingIntervalRef.current) {
+  //       clearInterval(pollingIntervalRef.current);
+  //       setPollingActive(false);
+  //     }
+  //   }
+  // }, [liveKycStatus]);
 
   // Update progress indicator with real-time data
   // Note: verificationProgress can be implemented later with WebSocket real-time updates
@@ -204,136 +306,87 @@ export default function KYCPage() {
   //   }
   // }, [verificationProgress]);
 
-  // Check authentication and load KYC data
+  // Presentation mode - always authenticated, no loading needed
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth?redirectTo=/kyc');
-      return;
-    }
-
-    loadKYCData();
-  }, [isAuthenticated, router]);
-
-  const loadKYCData = async () => {
-    try {
-      setIsLoading(true);
-
-      // Load providers and current KYC status in parallel
-      const [providersResult, statusResult] = await Promise.all([
-        kycService.getProviders(),
-        kycService.getCurrentKYCStatus(),
-      ]);
-
-      setProviders(providersResult);
-      setCurrentKYCStatus(statusResult);
-
-      // Set current status based on API response
-      if (statusResult.hasActiveSession) {
-        setKycSession(statusResult.currentSession || null);
-        setKycStatus(statusResult.currentSession?.status || 'pending');
-        // Set appropriate step based on session status
-        if (statusResult.currentSession?.status === 'completed') {
-          setCurrentStep('complete');
-        } else if (statusResult.currentSession?.status === 'processing') {
-          setCurrentStep('processing');
-        } else {
-          setCurrentStep('verification');
-        }
-      } else if (statusResult.latestResults?.overall === 'approved') {
-        setCurrentStep('complete');
-        setKycStatus('approved');
-      }
-    } catch (error: any) {
-      // Error handled by toast notification
-      toast.error('Failed to load KYC data. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // In presentation mode, we're always authenticated and ready
+    // No loading needed
+  }, []);
 
   const handleInitiateKYC = async () => {
-    if (!selectedProvider || !user) return;
+    if (!selectedProvider || !currentUser) return;
 
-    try {
-      setSubmitting(true);
-
-      const request: KYCInitiationRequest = {
-        provider: selectedProvider.id,
-        level: 'advanced',
-        investorType: 'retail',
-        personalInfo: {
-          firstName: formData.fullName.split(' ')[0] || '',
-          lastName: formData.fullName.split(' ').slice(1).join(' ') || '',
-          email: user.email || '',
-          dateOfBirth: '', // Would be collected in form
-          nationality: 'ID',
-          residenceCountry: 'ID',
-          phoneNumber: formData.phoneNumber,
+    // Create mock KYC session for presentation
+    const mockSession: KYCSession = {
+      id: `session_${Date.now()}`,
+      userId: currentUser.id,
+      provider: selectedProvider.id,
+      status: 'pending',
+      level: 'advanced',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
+      sessionUrl: '#',
+      webhookEvents: [],
+      documents: [],
+      checks: [
+        {
+          id: 'doc_auth',
+          type: 'document_authenticity',
+          status: 'pending',
         },
-        preferredLanguage: 'id',
-      };
-
-      const result = await kycService.initiateKYC(request);
-      setKycSession({
-        id: result.sessionId,
-        userId: user.id || '',
-        provider: selectedProvider.id,
-        status: 'pending',
-        level: 'advanced',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        expiresAt: result.expiresAt,
-        sessionUrl: result.sessionUrl,
-        webhookEvents: [],
-        documents: [],
-        checks: [],
-      });
-
-      toast.success('KYC verification initiated successfully');
-      setCurrentStep('verification');
-
-      // Start polling for status updates
-      startStatusPolling(result.sessionId);
-    } catch (error: any) {
-      // Error handled by toast notification
-      toast.error('Failed to initiate KYC. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const startStatusPolling = (sessionId: string) => {
-    setPollingActive(true);
-
-    const pollStatus = async () => {
-      try {
-        const session = await kycService.getSessionStatus(sessionId);
-        setKycSession(session);
-        setKycStatus(session.status);
-
-        if (session.status === 'completed' || session.status === 'failed') {
-          setPollingActive(false);
-          if (pollingIntervalRef.current) {
-            clearInterval(pollingIntervalRef.current);
-          }
-
-          if (session.status === 'completed') {
-            setCurrentStep('identity');
-            toast.success('KYC verification completed successfully!');
-          } else {
-            toast.error('KYC verification failed. Please try again.');
-          }
-        }
-      } catch (error) {
-        // Error handled silently during polling
-      }
+        {
+          id: 'face_match',
+          type: 'facial_similarity',
+          status: 'pending',
+        },
+        {
+          id: 'liveness',
+          type: 'liveness_detection',
+          status: 'pending',
+        },
+        {
+          id: 'aml_check',
+          type: 'aml_screening',
+          status: 'pending',
+        },
+      ],
     };
 
-    // Poll every 5 seconds
-    pollingIntervalRef.current = setInterval(pollStatus, 5000);
+    setKycSession(mockSession);
+    toast.success(`KYC verification initiated with ${selectedProvider.name}`);
+    setCurrentStep('personal');
+  };
 
-    // Also poll immediately
-    pollStatus();
+  const startStatusPolling = (_sessionId: string) => {
+    // Mock polling for presentation mode
+    setPollingActive(true);
+
+    // Simulate status updates after delays
+    setTimeout(() => {
+      setProcessingProgress(25);
+      toast.success('Document verification started');
+    }, 1000);
+
+    setTimeout(() => {
+      setProcessingProgress(50);
+      toast.success('Facial similarity check in progress');
+    }, 3000);
+
+    setTimeout(() => {
+      setProcessingProgress(75);
+      toast.success('Liveness detection completed');
+    }, 5000);
+
+    setTimeout(() => {
+      setProcessingProgress(100);
+      setKycStatus('success');
+      setPollingActive(false);
+      toast.success('KYC verification completed successfully!');
+      // Auto-advance to identity step
+      setTimeout(() => {
+        setCurrentStep('identity');
+      }, 1500);
+    }, 7000);
   };
 
   // Cleanup polling on unmount
@@ -345,45 +398,9 @@ export default function KYCPage() {
     };
   }, []);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-        {/* Fluid Background Shapes */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="fluid-shape-1 top-20 right-16"></div>
-          <div className="fluid-shape-2 top-1/2 left-10"></div>
-          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
-        </div>
+  // No loading state needed in presentation mode
 
-        <div className="text-center relative z-10">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <div className="glass-modern rounded-xl px-6 py-3">
-            <p className="text-foreground">Loading KYC data...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Check authentication
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
-        {/* Fluid Background Shapes */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="fluid-shape-1 top-20 right-16"></div>
-          <div className="fluid-shape-2 top-1/2 left-10"></div>
-          <div className="fluid-shape-3 bottom-32 right-1/4"></div>
-        </div>
-        <div className="text-center relative z-10">
-          <div className="glass-modern rounded-xl px-6 py-3">
-            <p className="text-foreground">Redirecting to login...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Always authenticated in presentation mode
 
   const steps = [
     { id: 'intro', label: 'Introduction', icon: AlertCircle },
@@ -407,11 +424,31 @@ export default function KYCPage() {
   };
 
   const handleDocumentUpload = (documentId: string) => {
+    // Show uploading state briefly for demo
     setDocuments(prev =>
       prev.map(doc =>
-        doc.id === documentId ? { ...doc, status: 'uploaded' } : doc
+        doc.id === documentId ? { ...doc, status: 'pending' } : doc
       )
     );
+
+    // Simulate upload time
+    setTimeout(() => {
+      setDocuments(prev =>
+        prev.map(doc =>
+          doc.id === documentId ? { ...doc, status: 'uploaded' } : doc
+        )
+      );
+      toast.success(`${documentId.toUpperCase()} uploaded successfully`);
+    }, 1000);
+  };
+
+  // Auto-upload all documents for demo
+  const handleAutoUploadDemo = () => {
+    documents.forEach((doc, index) => {
+      setTimeout(() => {
+        handleDocumentUpload(doc.id);
+      }, index * 1500); // Stagger uploads by 1.5 seconds
+    });
   };
 
   const handleStepNext = () => {
@@ -482,8 +519,19 @@ export default function KYCPage() {
     if (!kycSession) return;
 
     setCurrentStep('processing');
+    setProcessingProgress(0);
 
     if (result === 'success') {
+      // Update session with processing checks
+      const updatedSession = {
+        ...kycSession,
+        status: 'processing' as const,
+        checks: kycSession.checks.map(check => ({
+          ...check,
+          status: 'processing' as const,
+        })),
+      };
+      setKycSession(updatedSession);
       startStatusPolling(kycSession.id);
     } else if (result === 'failed') {
       setTimeout(() => {
@@ -500,6 +548,9 @@ export default function KYCPage() {
                 updatedAt: new Date().toISOString(),
               }
             : null
+        );
+        toast.info(
+          'Verification requires manual review - this typically takes 1-2 business days'
         );
       }, 2000);
     }
@@ -1040,6 +1091,22 @@ export default function KYCPage() {
         ))}
       </div>
 
+      {/* Demo Auto-Upload Button */}
+      <div className="text-center animate-fade-in-up animate-delay-400">
+        <AnimatedButton
+          onClick={handleAutoUploadDemo}
+          variant="secondary"
+          className="hover-lift border-2 border-dashed border-primary-300 hover:border-primary-500"
+          ripple
+        >
+          <Zap className="w-4 h-4 mr-2" />
+          Demo: Auto-Upload All Documents
+        </AnimatedButton>
+        <p className="text-xs text-muted-foreground mt-2">
+          For presentation purposes - simulates document upload process
+        </p>
+      </div>
+
       <div className="flex justify-between pt-6 animate-fade-in-up animate-delay-500">
         <AnimatedButton
           onClick={handleStepBack}
@@ -1212,9 +1279,9 @@ export default function KYCPage() {
           Back
         </AnimatedButton>
         <AnimatedButton
-          onClick={async () => {
+          onClick={() => {
             if (selectedProvider) {
-              await handleInitiateKYC();
+              handleInitiateKYC();
             }
           }}
           variant="primary"
@@ -1244,9 +1311,34 @@ export default function KYCPage() {
         </p>
       </div>
 
+      {/* Progress Bar */}
+      <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground">
+            Verification Progress
+          </h3>
+          <span className="text-sm text-muted-foreground">
+            {processingProgress}%
+          </span>
+        </div>
+        <div className="w-full bg-secondary-200 rounded-full h-2 mb-4">
+          <div
+            className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-1000 ease-out"
+            style={{ width: `${processingProgress}%` }}
+          ></div>
+        </div>
+        <p className="text-sm text-muted-foreground text-center">
+          {processingProgress === 0 && 'Initializing verification...'}
+          {processingProgress === 25 && 'Analyzing document authenticity...'}
+          {processingProgress === 50 && 'Performing facial similarity check...'}
+          {processingProgress === 75 && 'Completing liveness detection...'}
+          {processingProgress === 100 && 'Verification completed successfully!'}
+        </p>
+      </div>
+
       {/* Real-time Status Display */}
       {kycSession && (
-        <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-200">
+        <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-300">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-lg flex items-center justify-center mr-3">
@@ -1285,61 +1377,72 @@ export default function KYCPage() {
             <h4 className="font-medium text-foreground">
               Verification Checks:
             </h4>
-            {kycSession.checks.map(check => (
-              <div
-                key={check.id}
-                className="glass-feature rounded-xl p-4 hover:glass-modern transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                        check.status === 'completed'
-                          ? 'bg-success-100'
-                          : check.status === 'processing'
-                            ? 'bg-warning-100'
-                            : check.status === 'failed'
-                              ? 'bg-error-100'
-                              : 'bg-secondary-100'
+            {kycSession.checks.map((check, index) => {
+              // Determine status based on progress
+              let checkStatus = check.status;
+              if (processingProgress > index * 25) {
+                checkStatus =
+                  processingProgress > (index + 1) * 25
+                    ? 'completed'
+                    : 'processing';
+              }
+
+              return (
+                <div
+                  key={check.id}
+                  className="glass-feature rounded-xl p-4 hover:glass-modern transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                          checkStatus === 'completed'
+                            ? 'bg-success-100'
+                            : checkStatus === 'processing'
+                              ? 'bg-warning-100'
+                              : checkStatus === 'failed'
+                                ? 'bg-error-100'
+                                : 'bg-secondary-100'
+                        }`}
+                      >
+                        {checkStatus === 'completed' ? (
+                          <CheckCircle className="w-5 h-5 text-success-600" />
+                        ) : checkStatus === 'processing' ? (
+                          <Clock className="w-5 h-5 text-warning-600 animate-spin" />
+                        ) : checkStatus === 'failed' ? (
+                          <XCircle className="w-5 h-5 text-error-600" />
+                        ) : (
+                          <div className="w-2 h-2 bg-secondary-400 rounded-full" />
+                        )}
+                      </div>
+                      <div>
+                        <h5 className="font-medium text-foreground capitalize">
+                          {check.type.replace('_', ' ')} Check
+                        </h5>
+                        {checkStatus === 'completed' && (
+                          <p className="text-sm text-muted-foreground">
+                            Score: {(Math.random() * 20 + 80).toFixed(1)}% ✓
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium capitalize ${
+                        checkStatus === 'completed'
+                          ? 'bg-success-100 text-success-800'
+                          : checkStatus === 'processing'
+                            ? 'bg-warning-100 text-warning-800'
+                            : checkStatus === 'failed'
+                              ? 'bg-error-100 text-error-800'
+                              : 'bg-secondary-100 text-secondary-600'
                       }`}
                     >
-                      {check.status === 'completed' ? (
-                        <CheckCircle className="w-5 h-5 text-success-600" />
-                      ) : check.status === 'processing' ? (
-                        <Clock className="w-5 h-5 text-warning-600 animate-spin" />
-                      ) : check.status === 'failed' ? (
-                        <XCircle className="w-5 h-5 text-error-600" />
-                      ) : (
-                        <div className="w-2 h-2 bg-secondary-400 rounded-full" />
-                      )}
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-foreground capitalize">
-                        {check.type.replace('_', ' ')} Check
-                      </h5>
-                      {check.result?.score && (
-                        <p className="text-sm text-muted-foreground">
-                          Score: {(check.result.score * 100).toFixed(1)}%
-                        </p>
-                      )}
-                    </div>
+                      {checkStatus}
+                    </span>
                   </div>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium capitalize ${
-                      check.status === 'completed'
-                        ? 'bg-success-100 text-success-800'
-                        : check.status === 'processing'
-                          ? 'bg-warning-100 text-warning-800'
-                          : check.status === 'failed'
-                            ? 'bg-error-100 text-error-800'
-                            : 'bg-secondary-100 text-secondary-600'
-                    }`}
-                  >
-                    {check.status}
-                  </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -1736,6 +1839,9 @@ export default function KYCPage() {
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Toast Provider for notifications */}
       <ToastProvider />
+
+      {/* Presentation Mode Indicator */}
+      <PresentationModeIndicator />
 
       {/* Page Transition Wrapper */}
       <PageTransition type="fade" duration={300} transitionKey="kyc">
