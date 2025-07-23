@@ -1,15 +1,28 @@
 'use client';
 
+/**
+ * Investment Flow Page - PRESENTATION MODE
+ *
+ * This page has been configured to use mock data for presentation purposes.
+ * All backend service calls have been replaced with simulated responses
+ * using the same mock project data structure as /projects/[id].
+ *
+ * Features demonstrated:
+ * - Identity verification flow (ERC-3643 compliance simulation)
+ * - Investment amount selection and validation
+ * - Payment method selection (Indonesian payment options)
+ * - Investment confirmation and processing simulation
+ * - Success/failure handling with realistic timing
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-// import { useAuth } from '@/hooks/useAuth';
-import { projectsService, investmentsService } from '@/services';
+// Mock types for presentation mode - no backend integration
 import type {
-  Project,
   InvestmentEligibility,
   PaymentDetails,
-} from '@/services';
+} from '@/services/investments.service';
 import {
   ArrowLeft,
   CreditCard,
@@ -29,7 +42,7 @@ import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
 import { PageTransition } from '@/components/ui/PageTransition';
-import { toast } from '@/components/ui/AnimatedNotification';
+import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 type InvestmentStep =
   | 'identity'
@@ -61,18 +74,121 @@ interface IdentityStatus {
   eligibleForInvestment: boolean;
 }
 
-// Mock project data (simplified from project details)
-// const mockProjectData = {
-//   '1': {
-//     id: '1',
-//     title: 'Jakarta-Bandung High-Speed Rail Extension',
-//     expectedReturn: 12.5,
-//     duration: 25,
-//     minimumInvestment: 1000000,
-//     riskLevel: 'medium',
-//     status: 'active',
-//   },
-// };
+interface MockProject {
+  id: string;
+  name: string;
+  description: string;
+  expectedReturn: number;
+  minimumInvestment: number;
+  maximumInvestment: number;
+  offeringStartDate: string;
+  offeringEndDate: string;
+  riskLevel: 'low' | 'medium' | 'high';
+  status: 'active' | 'completed' | 'pending';
+  location: string;
+  projectType: string;
+  totalSupply: number;
+  tokenPrice: number;
+  currency: 'IDR';
+}
+
+// Mock project data for presentation (matching /projects/[id] format)
+const getMockProjectData = (id: string): MockProject | null => {
+  const projects: Record<string, MockProject> = {
+    '1': {
+      id: '1',
+      name: 'Jakarta-Bandung High-Speed Rail Extension',
+      description:
+        'Expansion of the existing high-speed rail network to connect Jakarta-Bandung with Surabaya, reducing travel time by 60%. This strategic infrastructure project will boost economic development across Java and provide efficient intercity transportation.',
+      expectedReturn: 12.5,
+      minimumInvestment: 1000000,
+      maximumInvestment: 100000000,
+      offeringStartDate: '2024-03-15T00:00:00Z',
+      offeringEndDate: '2049-03-15T23:59:59Z',
+      riskLevel: 'medium',
+      status: 'active',
+      location: 'Jakarta - Surabaya',
+      projectType: 'Transportation Infrastructure',
+      totalSupply: 15000000000,
+      tokenPrice: 1000000,
+      currency: 'IDR',
+    },
+    '2': {
+      id: '2',
+      name: 'Surabaya Smart Water Management System',
+      description:
+        'Advanced IoT-based water distribution and monitoring system for Surabaya metropolitan area, improving water quality and reducing waste.',
+      expectedReturn: 15.2,
+      minimumInvestment: 500000,
+      maximumInvestment: 50000000,
+      offeringStartDate: '2025-02-01T00:00:00Z',
+      offeringEndDate: '2032-01-31T23:59:59Z',
+      riskLevel: 'low',
+      status: 'active',
+      location: 'Surabaya, East Java',
+      projectType: 'Water Infrastructure',
+      totalSupply: 5000000000,
+      tokenPrice: 500000,
+      currency: 'IDR',
+    },
+    '3': {
+      id: '3',
+      name: 'Bali Renewable Energy Park',
+      description:
+        'Large-scale solar and wind energy facility providing clean electricity to Bali region, supporting sustainable tourism and local communities.',
+      expectedReturn: 10.8,
+      minimumInvestment: 2000000,
+      maximumInvestment: 200000000,
+      offeringStartDate: '2025-03-01T00:00:00Z',
+      offeringEndDate: '2035-02-28T23:59:59Z',
+      riskLevel: 'medium',
+      status: 'active',
+      location: 'Bali',
+      projectType: 'Energy Infrastructure',
+      totalSupply: 8000000000,
+      tokenPrice: 2000000,
+      currency: 'IDR',
+    },
+    '4': {
+      id: '4',
+      name: 'Medan Digital Healthcare Hub',
+      description:
+        'State-of-the-art digital healthcare facility with telemedicine capabilities, serving North Sumatra region with advanced medical technology.',
+      expectedReturn: 14.7,
+      minimumInvestment: 1500000,
+      maximumInvestment: 75000000,
+      offeringStartDate: '2025-04-01T00:00:00Z',
+      offeringEndDate: '2030-03-31T23:59:59Z',
+      riskLevel: 'high',
+      status: 'active',
+      location: 'Medan, North Sumatra',
+      projectType: 'Healthcare Infrastructure',
+      totalSupply: 6000000000,
+      tokenPrice: 1500000,
+      currency: 'IDR',
+    },
+    '5': {
+      id: '5',
+      name: 'Yogyakarta Cultural Heritage Center',
+      description:
+        'Modern cultural preservation and exhibition center showcasing Indonesian heritage with interactive technology and educational programs.',
+      expectedReturn: 9.5,
+      minimumInvestment: 750000,
+      maximumInvestment: 30000000,
+      offeringStartDate: '2025-05-01T00:00:00Z',
+      offeringEndDate: '2028-04-30T23:59:59Z',
+      riskLevel: 'low',
+      status: 'active',
+      location: 'Yogyakarta',
+      projectType: 'Cultural Infrastructure',
+      totalSupply: 3000000000,
+      tokenPrice: 750000,
+      currency: 'IDR',
+    },
+  };
+
+  return projects[id] || null;
+};
 
 export default function InvestmentFlowPage() {
   const params = useParams();
@@ -83,7 +199,7 @@ export default function InvestmentFlowPage() {
   const isKYCApproved = true;
   const isIdentityVerified = true;
 
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<MockProject | null>(null);
   const [currentStep, setCurrentStep] = useState<InvestmentStep>('identity');
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
@@ -202,14 +318,20 @@ export default function InvestmentFlowPage() {
       return;
     }
 
-    // Load project data
+    // Load mock project data for presentation
     const loadProjectData = async () => {
       try {
         setLoading(true);
-        const projectData = await projectsService.getProject(projectId);
-        setProject(projectData);
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const projectData = getMockProjectData(projectId);
+        if (projectData) {
+          setProject(projectData);
+        } else {
+          toast.error('Project not found');
+          router.push('/marketplace');
+        }
       } catch (error) {
-        // Error handled by toast notification
         toast.error('Failed to load project. Please try again.');
         router.push('/marketplace');
       } finally {
@@ -220,22 +342,45 @@ export default function InvestmentFlowPage() {
     loadProjectData();
   }, [params.id, isAuthenticated, router]);
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const checkEligibility = useCallback(
     async (amount: number) => {
       if (!project) return;
 
       try {
-        const eligibilityResult = await investmentsService.checkEligibility(
-          project.id,
-          amount
-        );
-        setEligibility(eligibilityResult);
+        // Mock eligibility check for presentation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const eligible =
+          amount >= project.minimumInvestment &&
+          amount <= project.maximumInvestment;
+        const mockEligibility: InvestmentEligibility = {
+          eligible,
+          reason: eligible
+            ? undefined
+            : amount < project.minimumInvestment
+              ? `Minimum investment is ${formatCurrency(project.minimumInvestment)}`
+              : `Maximum investment is ${formatCurrency(project.maximumInvestment)}`,
+          identityVerified: isIdentityVerified,
+          kycApproved: isKYCApproved,
+          minimumInvestmentMet: amount >= project.minimumInvestment,
+          maximumInvestmentExceeded: amount > project.maximumInvestment,
+          offeringActive: project.status === 'active',
+          tokensAvailable: true,
+        };
+        setEligibility(mockEligibility);
       } catch (error) {
-        // Error handled by toast notification
         toast.error('Failed to check investment eligibility.');
       }
     },
-    [project]
+    [project, isIdentityVerified, isKYCApproved, formatCurrency]
   );
 
   // Check eligibility when project and amount change
@@ -247,15 +392,6 @@ export default function InvestmentFlowPage() {
       }
     }
   }, [project, investmentAmount, currentStep, checkEligibility]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const calculateReturns = () => {
     const amount = parseFloat(investmentAmount.replace(/[^\d]/g, ''));
@@ -330,24 +466,45 @@ export default function InvestmentFlowPage() {
     setProcessingMessage('Creating investment order...');
 
     try {
-      // Create investment
-      const investmentResult = await investmentsService.createInvestment({
-        projectId: project.id,
-        amount,
-        paymentMethod: selectedPaymentMethod,
-        acceptTerms: agreementAccepted,
-        acceptRisks: riskAcknowledged,
-      });
+      // Mock investment creation for presentation
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      setCurrentInvestmentId(investmentResult.investment.id);
-      setPaymentDetails(investmentResult.paymentDetails);
+      const mockInvestmentId = `INV-${Date.now()}`;
+      const selectedMethod = paymentMethods.find(
+        m => m.id === selectedPaymentMethod
+      );
+
+      const mockPaymentDetails: PaymentDetails = {
+        paymentReference: `REF-${Date.now()}`,
+        paymentInstructions: {
+          method: selectedPaymentMethod,
+          accountNumber:
+            selectedMethod?.type === 'bank' ? '1234567890' : undefined,
+          virtualAccount:
+            selectedMethod?.type === 'bank' ? 'VA-1234567890' : undefined,
+          qrCode:
+            selectedMethod?.type === 'ewallet'
+              ? 'data:image/png;base64,mock-qr-code'
+              : undefined,
+          deepLink:
+            selectedMethod?.type === 'ewallet'
+              ? `${selectedPaymentMethod}://pay?ref=REF-${Date.now()}`
+              : undefined,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        },
+        amount,
+        fees: selectedMethod?.fee || 0,
+        totalAmount: amount + (selectedMethod?.fee || 0),
+      };
+
+      setCurrentInvestmentId(mockInvestmentId);
+      setPaymentDetails(mockPaymentDetails);
 
       setProcessingMessage('Awaiting payment confirmation...');
 
-      // Start monitoring investment status
-      monitorInvestmentStatus(investmentResult.investment.id);
+      // Start mock monitoring investment status
+      monitorInvestmentStatus(mockInvestmentId);
     } catch (error) {
-      // Error handled by toast notification
       setIsProcessing(false);
       setCurrentStep('failed');
       toast.error(
@@ -359,53 +516,42 @@ export default function InvestmentFlowPage() {
   };
 
   const monitorInvestmentStatus = async (investmentId: string) => {
-    const maxAttempts = 60; // 5 minutes with 5-second intervals
-    let attempts = 0;
+    investmentId;
 
-    const checkStatus = async () => {
-      try {
-        const status =
-          await investmentsService.getInvestmentStatus(investmentId);
+    const processingSteps = [
+      { message: 'Payment received', delay: 2000 },
+      { message: 'Verifying payment details', delay: 3000 },
+      { message: 'Processing blockchain transaction', delay: 4000 },
+      { message: 'Confirming token allocation', delay: 2000 },
+      { message: 'Investment completed successfully', delay: 1000 },
+    ];
 
-        // Update processing message based on current step
-        if (status.progress.length > 0) {
-          const latestProgress = status.progress[status.progress.length - 1];
-          setProcessingMessage(latestProgress.message);
-        }
+    let currentStepIndex = 0;
 
-        if (status.status === 'confirmed') {
-          setIsProcessing(false);
-          setCurrentStep('success');
-          toast.success('Investment successful!');
-          return;
-        } else if (status.status === 'failed') {
-          setIsProcessing(false);
-          setCurrentStep('failed');
-          return;
-        }
+    const processNextStep = () => {
+      if (currentStepIndex < processingSteps.length) {
+        const step = processingSteps[currentStepIndex];
+        setProcessingMessage(step.message);
 
-        // Continue monitoring if still pending
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 5000); // Check every 5 seconds
-        } else {
-          // Timeout - redirect to dashboard to check status
-          toast.info(
-            'Investment is taking longer than expected. Check your dashboard for updates.'
-          );
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        // Error handled silently during status check
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 5000);
-        }
+        setTimeout(() => {
+          currentStepIndex++;
+          if (currentStepIndex < processingSteps.length) {
+            processNextStep();
+          } else {
+            // Mock successful completion
+            setIsProcessing(false);
+            setCurrentStep('success');
+            toast.success('Investment successful!', {
+              message: 'Your investment has been processed successfully',
+              duration: 5000,
+            });
+          }
+        }, step.delay);
       }
     };
 
-    // Start checking after 3 seconds
-    setTimeout(checkStatus, 3000);
+    // Start processing simulation after 1 second
+    setTimeout(processNextStep, 1000);
   };
 
   // Show loading state
@@ -1384,6 +1530,7 @@ export default function InvestmentFlowPage() {
 
   return (
     <PageTransition type="fade" duration={300} transitionKey={currentStep}>
+      <ToastProvider />
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 relative overflow-hidden">
         {/* Fluid background shapes */}
         <div className="absolute inset-0 z-0">
