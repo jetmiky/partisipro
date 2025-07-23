@@ -244,6 +244,10 @@ export default function SPVCreatePage() {
       if (newStep === 5) {
         calculateListingFee();
       }
+
+      if (typeof window !== 'undefined') {
+        window.scroll({ top: 0 });
+      }
     }
   };
 

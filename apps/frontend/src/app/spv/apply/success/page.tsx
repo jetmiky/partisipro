@@ -185,11 +185,11 @@ export default function SPVApplicationSuccessPage() {
                 </AnimatedButton>
 
                 <AnimatedButton
-                  onClick={() => router.push('/contact')}
+                  onClick={() => router.push('/spv/auth')}
                   ripple
                   className="flex items-center"
                 >
-                  Contact Support
+                  SPV Authentication
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </AnimatedButton>
               </div>
@@ -197,14 +197,14 @@ export default function SPVApplicationSuccessPage() {
 
             {/* Footer */}
             <ScrollReveal animation="fade" delay={700}>
-              <div className="mt-8 text-center text-sm text-muted-foreground">
-                <p>
+              <div className="mt-8 text-center text-muted-foreground">
+                <p className="text-sm">
                   Questions? Contact our team at{' '}
                   <a
-                    href="mailto:spv@partisipro.com"
+                    href="mailto:spv@partisipro.id"
                     className="text-primary-600 hover:text-primary-700"
                   >
-                    spv@partisipro.com
+                    spv@partisipro.id
                   </a>
                 </p>
               </div>

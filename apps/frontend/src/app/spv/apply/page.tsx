@@ -82,11 +82,11 @@ interface SPVApplicationData {
 }
 
 const initialFormData: SPVApplicationData = {
-  companyName: 'PT Special Purpose Vehicle',
+  companyName: 'PT Mitra Infrastruktur Nusantara',
   legalEntityType: 'PT (Perseroan Terbatas)',
   registrationNumber: 'SPV-010101/2025',
   taxId: '12.345.678.9-012.000',
-  yearEstablished: '2025',
+  yearEstablished: '2012',
   businessType: 'Infrastructure Development',
   businessDescription: 'Pembangunan infrastruktur Jalan Tol Trans Sumatera',
   address: 'Gedung Artha Graha, Jl. Jend. Sudirman Kav. 52-53',
@@ -330,6 +330,9 @@ export default function SPVApplyPage() {
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0 });
+      }
     }
   };
 
@@ -1098,7 +1101,7 @@ export default function SPVApplyPage() {
         <div className="fluid-shape-1 bottom-10 left-16"></div>
       </div>
 
-      <div className="relative z-10 pt-32 pb-10">
+      <div className="relative z-10 pt-10 pb-10">
         <PageTransition type="fade" duration={300}>
           <div className="max-w-4xl mx-auto px-4 py-8">
             {/* Header */}

@@ -320,7 +320,7 @@ export default function SPVDashboardPage() {
                   <h1 className="text-3xl font-bold text-gradient mb-2">
                     SPV Dashboard
                   </h1>
-                  <p className="text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     Manage your infrastructure projects and track performance
                   </p>
                 </div>
@@ -439,7 +439,7 @@ export default function SPVDashboardPage() {
             </StaggeredList>
 
             {/* Projects Table */}
-            <ScrollReveal animation="slide-up" delay={300}>
+            <ScrollReveal animation="slide-up" delay={300} className="mb-0">
               <div className="mt-10 glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
                 <div className="flex justify-between items-center mb-8">
                   <div>

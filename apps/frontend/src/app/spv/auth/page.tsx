@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ScrollReveal } from '@/components/ui/ScrollAnimations';
@@ -22,6 +23,7 @@ interface SignatureStatus {
 }
 
 export default function SPVAuthPage() {
+  const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [wallet, setWallet] = useState<MultiSigWallet | null>(null);
@@ -103,7 +105,7 @@ export default function SPVAuthPage() {
       // Check if threshold is met
       const newSignedCount = signatures.filter(s => s.signed).length + 1;
       if (newSignedCount >= (wallet?.threshold || 2)) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         setConnectionStep('connected');
         setIsConnected(true);
         setVerificationMessage(
@@ -431,11 +433,11 @@ export default function SPVAuthPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
+                  <div className="flex flex-col gap-3">
                     <AnimatedButton
                       onClick={() => {
                         toast.success('Redirecting to SPV Dashboard...');
-                        window.location.href = '/spv/dashboard';
+                        router.push('/spv/dashboard');
                       }}
                       className="flex-1"
                       ripple
