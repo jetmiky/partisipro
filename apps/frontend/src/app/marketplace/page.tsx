@@ -515,7 +515,7 @@ export default function MarketplacePage() {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-success-500" />
                   <div>
-                    <h3 className="font-medium text-primary-700">
+                    <h3 className="text-xl font-medium text-primary-700">
                       Identity Verified
                     </h3>
                     <p className="text-sm text-primary-600">

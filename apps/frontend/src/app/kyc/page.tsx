@@ -651,7 +651,7 @@ export default function KYCPage() {
               <span className="text-primary-600 font-semibold">1</span>
             </div>
             <div>
-              <h4 className="font-medium text-foreground">
+              <h4 className="text-base font-medium text-foreground">
                 Personal Information
               </h4>
               <p className="text-sm text-muted-foreground">
@@ -664,7 +664,9 @@ export default function KYCPage() {
               <span className="text-primary-600 font-semibold">2</span>
             </div>
             <div>
-              <h4 className="font-medium text-foreground">Document Upload</h4>
+              <h4 className="text-base font-medium text-foreground">
+                Document Upload
+              </h4>
               <p className="text-sm text-muted-foreground">
                 Upload clear photos of your documents
               </p>
@@ -675,7 +677,7 @@ export default function KYCPage() {
               <span className="text-primary-600 font-semibold">3</span>
             </div>
             <div>
-              <h4 className="font-medium text-foreground">
+              <h4 className="text-base font-medium text-foreground">
                 Third-Party Verification
               </h4>
               <p className="text-sm text-muted-foreground">
@@ -688,7 +690,7 @@ export default function KYCPage() {
               <span className="text-primary-600 font-semibold">4</span>
             </div>
             <div>
-              <h4 className="font-medium text-foreground">
+              <h4 className="text-base font-medium text-foreground">
                 Identity Registry Creation
               </h4>
               <p className="text-sm text-muted-foreground">
@@ -701,7 +703,9 @@ export default function KYCPage() {
               <span className="text-primary-600 font-semibold">5</span>
             </div>
             <div>
-              <h4 className="font-medium text-foreground">Complete Access</h4>
+              <h4 className="text-base font-medium text-foreground">
+                Complete Access
+              </h4>
               <p className="text-sm text-muted-foreground">
                 Start investing in all platform projects
               </p>
@@ -718,6 +722,7 @@ export default function KYCPage() {
           ripple
         >
           Start Identity Verification
+          <ArrowRight className="w-4 h-4 ml-2" />
         </AnimatedButton>
       </div>
     </div>
@@ -745,7 +750,7 @@ export default function KYCPage() {
             Identity Claims Issued
           </h3>
         </div>
-        <p className="text-primary-600 mb-4">
+        <p className="text-base mb-4">
           Your identity now contains verified claims that enable access to all
           platform features. These claims are permanently stored and can be used
           for future investments.
@@ -767,7 +772,7 @@ export default function KYCPage() {
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-foreground">
+                  <h4 className="text-lg font-medium text-foreground">
                     {claim.type.replace('_', ' ')}
                   </h4>
                   <p className="text-sm text-muted-foreground">
@@ -796,24 +801,24 @@ export default function KYCPage() {
             What This Means for You
           </h3>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-center text-primary-600">
+        <div className="space-y-2">
+          <div className="flex items-center text-base">
             <CheckCircle className="w-5 h-5 text-success-500 mr-3" />
             <span>You can now invest in any project on the platform</span>
           </div>
-          <div className="flex items-center text-primary-600">
+          <div className="flex items-center text-base">
             <CheckCircle className="w-5 h-5 text-success-500 mr-3" />
             <span>
               No additional verification required for future investments
             </span>
           </div>
-          <div className="flex items-center text-primary-600">
+          <div className="flex items-center text-base">
             <CheckCircle className="w-5 h-5 text-success-500 mr-3" />
             <span>
               Your identity is secure and portable across the platform
             </span>
           </div>
-          <div className="flex items-center text-primary-600">
+          <div className="flex items-center text-base">
             <CheckCircle className="w-5 h-5 text-success-500 mr-3" />
             <span>Access to governance features and profit claiming</span>
           </div>
@@ -1117,7 +1122,9 @@ export default function KYCPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-medium text-foreground">{doc.name}</h3>
+                <h3 className="text-xl font-medium text-foreground">
+                  {doc.name}
+                </h3>
                 <p className="text-sm text-muted-foreground">
                   {doc.required ? (
                     <span className="text-accent-500 font-medium">
@@ -1234,7 +1241,7 @@ export default function KYCPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up animate-delay-200">
+      <div className="flex flex-col gap-y-6 animate-fade-in-up animate-delay-200">
         {providers.map((provider, index) => (
           <div
             key={provider.id}
@@ -1253,7 +1260,7 @@ export default function KYCPage() {
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-gray-900">
                     {provider.name}
                   </h3>
                   <div className="flex items-center mt-1">
@@ -1319,7 +1326,7 @@ export default function KYCPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-blue-900 mb-2">
+              <h4 className="text-xl font-medium text-blue-900 mb-2">
                 Supported Documents:
               </h4>
               <ul className="space-y-1">
@@ -1333,7 +1340,9 @@ export default function KYCPage() {
             </div>
 
             <div>
-              <h4 className="font-medium text-blue-900 mb-2">All Features:</h4>
+              <h4 className="text-xl font-medium text-blue-900 mb-2">
+                All Features:
+              </h4>
               <ul className="space-y-1">
                 {selectedProvider.features.map((feature, index) => (
                   <li key={index} className="flex items-center text-blue-800">
@@ -1352,7 +1361,7 @@ export default function KYCPage() {
                 Supported Countries:
               </span>
             </div>
-            <p className="text-blue-800">
+            <p className="text-blue-800 text-base">
               {selectedProvider.regions.join(', ')}
             </p>
           </div>
@@ -1374,6 +1383,7 @@ export default function KYCPage() {
           ripple
         >
           Continue with {selectedProvider?.name || 'Selected Provider'}
+          <ArrowRight className="w-4 h-4 ml-2" />
         </AnimatedButton>
       </div>
     </div>
@@ -1399,7 +1409,7 @@ export default function KYCPage() {
       {/* Progress Bar */}
       <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-200">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-foreground">
+          <h3 className="text-xl font-semibold text-foreground">
             Verification Progress
           </h3>
           <span className="text-sm text-muted-foreground">
@@ -1432,7 +1442,7 @@ export default function KYCPage() {
                 </span>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">
+                <h3 className="text-xl font-semibold text-foreground">
                   {selectedProvider?.name}
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -1459,7 +1469,7 @@ export default function KYCPage() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-medium text-foreground">
+            <h4 className="text-xl font-medium text-foreground">
               Verification Checks:
             </h4>
             {kycSession.checks.map((check, index) => {
@@ -1501,7 +1511,7 @@ export default function KYCPage() {
                         )}
                       </div>
                       <div>
-                        <h5 className="font-medium text-foreground capitalize">
+                        <h5 className="text-base font-medium text-foreground capitalize">
                           {check.type.replace('_', ' ')} Check
                         </h5>
                         {checkStatus === 'completed' && (
@@ -1589,14 +1599,14 @@ export default function KYCPage() {
       {/* Test Controls */}
       {kycStatus === 'pending' && kycSession && (
         <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-400">
-          <h3 className="font-medium text-foreground mb-4">
+          <h3 className="text-lg font-medium text-primary-600 mb-4">
             Testing Controls (Demo Mode)
           </h3>
           <div className="flex gap-3 flex-wrap">
             <AnimatedButton
               onClick={() => simulateKYCProcess('success')}
               variant="primary"
-              className="bg-success-600 hover:bg-success-700 hover-lift"
+              className=" hover-lift"
               ripple
             >
               <CheckCircle className="w-4 h-4 mr-2" />
@@ -1604,8 +1614,8 @@ export default function KYCPage() {
             </AnimatedButton>
             <AnimatedButton
               onClick={() => simulateKYCProcess('failed')}
-              variant="primary"
-              className="bg-error-600 hover:bg-error-700 hover-lift"
+              variant="accent"
+              className=" hover-lift"
               ripple
             >
               <XCircle className="w-4 h-4 mr-2" />
@@ -1613,8 +1623,8 @@ export default function KYCPage() {
             </AnimatedButton>
             <AnimatedButton
               onClick={() => simulateKYCProcess('manual_review')}
-              variant="primary"
-              className="bg-warning-600 hover:bg-warning-700 hover-lift"
+              variant="secondary"
+              className=" hover-lift"
               ripple
             >
               <Eye className="w-4 h-4 mr-2" />
@@ -1634,7 +1644,7 @@ export default function KYCPage() {
             </h3>
           </div>
 
-          <p className="text-error-700 mb-4">{error.userMessage}</p>
+          <p className="text-base text-error-700 mb-4">{error.userMessage}</p>
 
           <div className="space-y-2 text-sm text-error-600">
             <div className="flex justify-between">
@@ -1679,7 +1689,7 @@ export default function KYCPage() {
               Manual Review Required
             </h3>
           </div>
-          <p className="text-warning-700 mb-4">
+          <p className="text-base text-warning-700 mb-4">
             Your verification requires manual review by our compliance team.
             This typically takes 1-2 business days. You will receive an email
             notification once complete.
@@ -1751,7 +1761,7 @@ export default function KYCPage() {
               </span>
             </div>
             <div>
-              <h3 className="font-semibold text-primary-700">
+              <h3 className="text-lg font-semibold text-primary-700">
                 {selectedProvider.name}
               </h3>
               <p className="text-sm text-primary-600">
@@ -1778,7 +1788,7 @@ export default function KYCPage() {
       )}
 
       <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-300">
-        <h3 className="font-medium text-foreground mb-4">
+        <h3 className="text-xl font-medium text-foreground mb-4">
           Verification Process:
         </h3>
         <div className="space-y-3">
@@ -1856,26 +1866,26 @@ export default function KYCPage() {
       <div className="glass-feature rounded-2xl p-6 animate-fade-in-up animate-delay-300">
         <div className="flex items-center justify-center mb-4">
           <Shield className="w-6 h-6 text-primary-600 mr-3" />
-          <h3 className="font-medium text-primary-700">
+          <h3 className="text-xl font-medium text-primary-700">
             Your Identity is Now Active
           </h3>
         </div>
-        <p className="text-primary-600 mb-4">
+        <p className="text-base mb-4">
           Your blockchain-based identity contains verified claims that enable
           seamless access to all investment opportunities without additional
           verification.
         </p>
         <div className="text-center">
-          <Link href="/identity" className="inline-block">
-            <AnimatedButton variant="secondary" className="hover-lift" ripple>
-              View Your Identity Status
-            </AnimatedButton>
-          </Link>
+          <AnimatedButton variant="secondary" className="hover-lift" ripple>
+            View Your Identity Status
+          </AnimatedButton>
         </div>
       </div>
 
       <div className="glass-modern rounded-2xl p-6 animate-fade-in-up animate-delay-400">
-        <h3 className="font-medium text-foreground mb-4">What&apos;s Next?</h3>
+        <h3 className="text-lg font-medium text-foreground mb-4">
+          What&apos;s Next?
+        </h3>
         <div className="space-y-3 text-left">
           <div className="flex items-center">
             <CheckCircle className="w-5 h-5 text-success-500 mr-3" />
