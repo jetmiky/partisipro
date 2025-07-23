@@ -121,7 +121,39 @@ class InvestmentsService {
     investment: Investment;
     paymentDetails: PaymentDetails;
   }> {
-    return apiClient.post(this.BASE_PATH, request);
+    // return apiClient.post(this.BASE_PATH, request);
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            investment: {
+              id: 'INV-0101/PARTISIPRO/2025',
+              projectId: request.projectId,
+              amount: request.amount,
+              investorId: 'INVESTOR-001',
+              investorAddress: '0x123',
+              tokensReceived: 100000,
+              paymentMethod: request.paymentMethod,
+              status: 'confirmed',
+              transactionHash: '0x123',
+              paymentReference: 'REF-01/PARTISIPRO/2025',
+              investedAt: new Date().toISOString(),
+            },
+            paymentDetails: {
+              paymentReference: 'REF-01/PARTISIPRO/2025',
+              paymentInstructions: {
+                method: request.paymentMethod,
+                expiresAt: new Date().toISOString(),
+              },
+              amount: request.amount,
+              fees: 2500,
+              totalAmount: request.amount,
+            },
+          }),
+        1000
+      );
+    });
   }
 
   /**
@@ -135,7 +167,42 @@ class InvestmentsService {
    * Get investment status with progress tracking
    */
   async getInvestmentStatus(id: string): Promise<InvestmentStatus> {
-    return apiClient.get(`${this.BASE_PATH}/${id}/status`);
+    // return apiClient.get(`${this.BASE_PATH}/${id}/status`);
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            id,
+            status: 'confirmed',
+            progress: [
+              {
+                step: 'payment',
+                message: 'Payment received',
+                timestamp: new Date().toISOString(),
+              },
+              {
+                step: 'verification',
+                message: 'Verification completed',
+                timestamp: new Date().toISOString(),
+              },
+              {
+                step: 'blockchain',
+                message: 'Recorded on smart contract',
+                timestamp: new Date().toISOString(),
+              },
+              {
+                step: 'complete',
+                message: 'Investment completed',
+                timestamp: new Date().toISOString(),
+              },
+            ],
+            estimatedCompletion: '',
+            transactionHash: '0x123',
+          }),
+        1000
+      );
+    });
   }
 
   /**

@@ -55,7 +55,7 @@ const DashboardHeader = ({
   ];
 
   return (
-    <header className="glass-modern border-b border-primary-200/30 h-16 grid grid-cols-[1fr_auto] gap-x-4 lg:px-6">
+    <header className="glass-modern shadow-none border-b border-primary-200/30 h-16 grid grid-cols-[1fr_auto] gap-x-4 lg:px-6">
       {/* Left Section - Menu Toggle & Search */}
       <div className="flex items-center gap-4">
         {/* Mobile Menu Toggle */}
@@ -73,7 +73,7 @@ const DashboardHeader = ({
           <input
             type="text"
             placeholder="Search..."
-            className="w-64 md:w-full pl-10 pr-4 py-2 glass-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="shadow-none w-64 md:w-full pl-10 pr-4 py-2 glass-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border border-primary-300"
           />
         </div>
       </div>

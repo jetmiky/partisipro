@@ -4,16 +4,7 @@
  */
 
 import { apiClient } from '../lib/api-client';
-import {
-  initWeb3Auth,
-  loginWithWeb3Auth,
-  loginWithSocialProvider,
-  loginWithEmailPassword,
-  logoutFromWeb3Auth,
-  getWalletAddress,
-  isMockAuthEnabled,
-  mockWeb3AuthLogin,
-} from '../lib/web3auth';
+import { isMockAuthEnabled } from '../lib/web3auth-provider';
 
 export interface LoginRequest {
   idToken: string;
@@ -71,38 +62,24 @@ export interface MfaVerificationResponse {
 
 class AuthService {
   private readonly BASE_PATH = '/api/auth';
-  private web3AuthInitialized = false;
-
-  /**
-   * Initialize Web3Auth (call once on app startup)
-   */
-  async initializeWeb3Auth(): Promise<void> {
-    if (this.web3AuthInitialized) return;
-
-    try {
-      await initWeb3Auth();
-      this.web3AuthInitialized = true;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to initialize Web3Auth:', error);
-      // Continue without Web3Auth in development mode
-      if (isMockAuthEnabled()) {
-        this.web3AuthInitialized = true;
-      } else {
-        throw error;
-      }
-    }
-  }
 
   /**
    * Login with Web3Auth ID token
    */
   async login(request: LoginRequest): Promise<LoginResponse> {
     try {
-      const response = await apiClient.post<LoginResponse>(
-        `${this.BASE_PATH}/web3auth/login`,
-        request
-      );
+      let response: LoginResponse;
+
+      if (isMockAuthEnabled()) {
+        // Use mock authentication for development
+        response = await this.mockLogin(request);
+      } else {
+        // Use real backend authentication
+        response = await apiClient.post<LoginResponse>(
+          `${this.BASE_PATH}/web3auth/login`,
+          request
+        );
+      }
 
       // Store tokens
       if (response.accessToken) {
@@ -118,108 +95,29 @@ class AuthService {
   }
 
   /**
-   * Login with Web3Auth (full flow)
+   * Mock login for development
    */
-  async loginWithWeb3Auth(): Promise<LoginResponse> {
-    try {
-      // In development mode, use mock authentication
-      if (isMockAuthEnabled()) {
-        const mockResult = await mockWeb3AuthLogin('google');
-        return await this.login({
-          idToken: mockResult.idToken,
-          walletAddress: undefined,
-        });
-      }
+  private async mockLogin(request: LoginRequest): Promise<LoginResponse> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // In production, use real Web3Auth
-      await this.initializeWeb3Auth();
-      const web3AuthResult = await loginWithWeb3Auth();
-      // Get wallet address
-      const walletAddress = await getWalletAddress();
+    const mockUser = {
+      id: 'mock_user_' + Date.now(),
+      email: 'mock@example.com',
+      walletAddress:
+        request.walletAddress || '0x1234567890123456789012345678901234567890',
+      role: 'investor' as const,
+      identityVerified: false,
+      kycStatus: 'pending' as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-      // Login with backend
-      return await this.login({
-        idToken: web3AuthResult.idToken,
-        walletAddress: walletAddress || undefined,
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Web3Auth login failed:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Login with social provider
-   */
-  async loginWithSocialProvider(
-    provider: 'google' | 'facebook' | 'apple'
-  ): Promise<LoginResponse> {
-    try {
-      await this.initializeWeb3Auth();
-
-      let web3AuthResult: Web3AuthLoginResult;
-
-      if (isMockAuthEnabled()) {
-        // Use mock authentication for development
-        web3AuthResult = await mockWeb3AuthLogin(provider);
-      } else {
-        // Use real Web3Auth
-        web3AuthResult = await loginWithSocialProvider(provider);
-      }
-
-      // Get wallet address
-      const walletAddress = await getWalletAddress();
-
-      // Login with backend
-      const loginRequest: LoginRequest = {
-        idToken: web3AuthResult.idToken,
-        walletAddress: walletAddress || undefined,
-      };
-
-      return await this.login(loginRequest);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`${provider} login failed:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Login with email/password
-   */
-  async loginWithEmailPassword(
-    email: string,
-    password: string
-  ): Promise<LoginResponse> {
-    try {
-      await this.initializeWeb3Auth();
-
-      let web3AuthResult: Web3AuthLoginResult;
-
-      if (isMockAuthEnabled()) {
-        // Use mock authentication for development
-        web3AuthResult = await mockWeb3AuthLogin('email');
-      } else {
-        // Use real Web3Auth
-        web3AuthResult = await loginWithEmailPassword(email, password);
-      }
-
-      // Get wallet address
-      const walletAddress = await getWalletAddress();
-
-      // Login with backend
-      const loginRequest: LoginRequest = {
-        idToken: web3AuthResult.idToken,
-        walletAddress: walletAddress || undefined,
-      };
-
-      return await this.login(loginRequest);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Email/password login failed:', error);
-      throw error;
-    }
+    return {
+      accessToken: 'mock_access_token_' + Date.now(),
+      refreshToken: 'mock_refresh_token_' + Date.now(),
+      user: mockUser,
+    };
   }
 
   /**
@@ -308,18 +206,8 @@ class AuthService {
       // Continue with local cleanup even if server request fails
     }
 
-    try {
-      // Logout from Web3Auth if connected
-      if (this.web3AuthInitialized && !isMockAuthEnabled()) {
-        await logoutFromWeb3Auth();
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Web3Auth logout failed:', error);
-      // Continue with local cleanup even if Web3Auth logout fails
-    } finally {
-      this.clearTokens();
-    }
+    // Clear local tokens (Web3Auth logout is handled in useAuth hook)
+    this.clearTokens();
   }
 
   /**

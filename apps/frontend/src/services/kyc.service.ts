@@ -204,7 +204,33 @@ class KYCService {
    * Get available KYC providers
    */
   async getProviders(): Promise<KYCProvider[]> {
-    return apiClient.get(`${this.BASE_PATH}/providers`);
+    // return apiClient.get(`${this.BASE_PATH}/providers`);
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve([
+            {
+              id: 'verihubs',
+              name: 'Verihubs',
+              description: 'Verihubs Indonesia KYC',
+              features: [],
+              supportedDocuments: [],
+              processingTime: new Date().toISOString(),
+              accuracy: 100,
+              isAvailable: true,
+              pricing: {
+                basic: 0,
+                premium: 0,
+                currency: 'IDR',
+              },
+              regions: ['Indonesia'],
+              languages: ['Indonesia'],
+            },
+          ]),
+        1000
+      );
+    });
   }
 
   /**
@@ -259,7 +285,14 @@ class KYCService {
     verificationLevel: 'none' | 'basic' | 'advanced' | 'institutional';
     expiresAt?: string;
   }> {
-    return apiClient.get(`${this.BASE_PATH}/status`);
+    // return apiClient.get(`${this.BASE_PATH}/status`);
+
+    return new Promise(resolve => {
+      setTimeout(
+        () => resolve({ hasActiveSession: false, verificationLevel: 'none' }),
+        1000
+      );
+    });
   }
 
   /**

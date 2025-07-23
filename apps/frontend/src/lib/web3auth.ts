@@ -33,7 +33,7 @@ export const web3AuthConfig = {
   privateKeyProvider,
   uiConfig: {
     appName: 'Partisipro',
-    appUrl: 'https://partisipro.com',
+    appUrl: 'https://partisipro.id',
     theme: {
       primary: '#bade04',
       gray: '#9854f4',
@@ -47,8 +47,8 @@ export const web3AuthConfig = {
       black: '#000000',
     },
     mode: 'auto' as const,
-    logoLight: 'https://partisipro.com/logo-light.png',
-    logoDark: 'https://partisipro.com/logo-dark.png',
+    logoLight: 'https://partisipro.id/logo-light.png',
+    logoDark: 'https://partisipro.id/logo-dark.png',
     defaultLanguage: 'en',
     loginGridCol: 3,
     primaryButton: 'socialLogin',

@@ -128,7 +128,42 @@ class ProjectsService {
    * Create new project (SPV only)
    */
   async createProject(request: CreateProjectRequest): Promise<Project> {
-    return apiClient.post(this.BASE_PATH, request);
+    // return apiClient.post(this.BASE_PATH, request);
+    request;
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            id: 'PROJECT-011',
+            name: request.name,
+            description: request.description,
+            totalSupply: request.totalSupply,
+            tokenPrice: request.tokenPrice,
+            currency: request.currency,
+            minimumInvestment: request.minimumInvestment,
+            maximumInvestment: request.maximumInvestment,
+            offeringStartDate: request.offeringStartDate,
+            offeringEndDate: request.offeringEndDate,
+            projectType: request.projectType,
+            location: request.location,
+            riskLevel: request.riskLevel,
+            expectedReturn: request.expectedReturn,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'pending_approval',
+            documents: [],
+            spvAddress: '0x123',
+            contracts: {
+              tokenAddress: '0x123',
+              offeringAddress: '0x123',
+              treasuryAddress: '0x123',
+              governanceAddress: '0x123',
+            },
+          }),
+        1000
+      );
+    });
   }
 
   /**
@@ -384,10 +419,26 @@ class ProjectsService {
     estimatedTotal: number;
     paymentMethods: string[];
   }> {
-    return apiClient.post(
-      `${this.BASE_PATH}/listing-fee/calculate`,
-      projectData
-    );
+    projectData;
+
+    // return apiClient.post(
+    //   `${this.BASE_PATH}/listing-fee/calculate`,
+    //   projectData
+    // );
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            amount: 5000000000,
+            currency: 'IDR',
+            feePercentage: 0.5,
+            estimatedTotal: 1000,
+            paymentMethods: ['BRI'],
+          }),
+        1000
+      );
+    });
   }
 
   /**
@@ -407,10 +458,25 @@ class ProjectsService {
     transactionHash?: string;
     receipt?: unknown;
   }> {
-    return apiClient.post(
-      `${this.BASE_PATH}/${projectId}/listing-fee/pay`,
-      paymentData
-    );
+    projectId;
+    paymentData;
+
+    // return apiClient.post(
+    //   `${this.BASE_PATH}/${projectId}/listing-fee/pay`,
+    //   paymentData
+    // );
+
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            paymentId: '001/LISTING-FEE/PARTISIPRO/2025',
+            status: 'confirmed',
+            transactionHash: '0x00123',
+          }),
+        1000
+      );
+    });
   }
 
   /**

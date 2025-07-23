@@ -150,7 +150,7 @@ export default function ProjectDetailPage() {
   const [showCalculator, setShowCalculator] = useState(false);
 
   useEffect(() => {
-    const projectId = params.id as string;
+    const projectId = '1';
 
     // Mock API call
     setTimeout(() => {

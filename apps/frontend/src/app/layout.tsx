@@ -1,5 +1,7 @@
 import { Poppins } from 'next/font/google';
 import '../styles/globals.css';
+import { ConditionalAuthWrapper } from '@/lib/conditional-auth-wrapper';
+import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
 
 export const metadata = {
   title: 'Partisipro - Platform Investasi Infrastruktur Blockchain Indonesia',
@@ -37,7 +39,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`scroll-smooth ${poppins.variable}`}>
-      <body className="antialiased overflow-x-hidden">{children}</body>
+      <body className="antialiased overflow-x-hidden">
+        <ConditionalAuthWrapper>{children}</ConditionalAuthWrapper>
+        <PresentationModeIndicator />
+      </body>
     </html>
   );
 }

@@ -3,9 +3,24 @@
  * Central export point for all API services
  */
 
+// Check if presentation mode is enabled
+const isPresentationMode = (): boolean => {
+  return (
+    process.env.NEXT_PUBLIC_PRESENTATION_MODE === 'true' ||
+    (typeof window !== 'undefined' &&
+      window.location.search.includes('presentation=true'))
+  );
+};
+
 // Import services for internal use
-import { authService } from './auth.service';
+import { authService as realAuthService } from './auth.service';
+import { presentationServices } from './presentation-services';
 import { isApiError } from '../lib/api-client';
+
+// Conditionally use presentation services
+const authService = isPresentationMode()
+  ? presentationServices.authService
+  : realAuthService;
 
 // Export API client
 export {

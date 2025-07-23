@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -27,6 +27,8 @@ import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
+import { mockApiClient } from '@/lib/mock-api-client';
+import { MOCK_PROJECTS, type MockProject } from '@/lib/mock-data';
 
 interface IdentityStatus {
   isVerified: boolean;
@@ -36,175 +38,10 @@ interface IdentityStatus {
   riskProfileCompleted: boolean;
 }
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category:
-    | 'transportation'
-    | 'energy'
-    | 'water'
-    | 'telecommunications'
-    | 'buildings';
-  location: string;
-  province: string;
-  totalValue: number;
-  targetAmount: number;
-  raisedAmount: number;
-  minimumInvestment: number;
-  expectedReturn: number;
-  duration: number;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'coming_soon' | 'fully_funded' | 'completed';
-  investorCount: number;
-  riskLevel: 'low' | 'medium' | 'high';
-  image: string;
-  highlights: string[];
-}
+// Use MockProject from centralized mock data
+type Project = MockProject;
 
-const mockProjects: Project[] = [
-  {
-    id: '1',
-    title: 'Jakarta-Bandung High-Speed Rail Extension',
-    description:
-      'Expansion of the existing high-speed rail network to connect Jakarta-Bandung with Surabaya, reducing travel time by 60%.',
-    category: 'transportation',
-    location: 'Jakarta - Surabaya',
-    province: 'Jawa Barat',
-    totalValue: 50000000000,
-    targetAmount: 15000000000,
-    raisedAmount: 8500000000,
-    minimumInvestment: 1000000,
-    expectedReturn: 12.5,
-    duration: 25,
-    startDate: '2024-03-15',
-    endDate: '2049-03-15',
-    status: 'active',
-    investorCount: 1247,
-    riskLevel: 'medium',
-    image: '/images/projects/rail.jpg',
-    highlights: [
-      'Government backed',
-      'Strategic location',
-      'Proven technology',
-    ],
-  },
-  {
-    id: '2',
-    title: 'Soekarno-Hatta Airport Terminal 4',
-    description:
-      'Construction of a new international terminal at Soekarno-Hatta Airport to handle 25 million passengers annually.',
-    category: 'transportation',
-    location: 'Tangerang, Banten',
-    province: 'Banten',
-    totalValue: 25000000000,
-    targetAmount: 8000000000,
-    raisedAmount: 7200000000,
-    minimumInvestment: 500000,
-    expectedReturn: 10.8,
-    duration: 30,
-    startDate: '2024-01-20',
-    endDate: '2054-01-20',
-    status: 'active',
-    investorCount: 892,
-    riskLevel: 'low',
-    image: '/images/projects/airport.jpg',
-    highlights: ['International traffic', 'Stable revenue', 'Low risk'],
-  },
-  {
-    id: '3',
-    title: 'Bali Renewable Energy Plant',
-    description:
-      "Solar and wind hybrid power plant to supply clean energy to Bali's growing tourism and residential needs.",
-    category: 'energy',
-    location: 'Buleleng, Bali',
-    province: 'Bali',
-    totalValue: 18000000000,
-    targetAmount: 12000000000,
-    raisedAmount: 2800000000,
-    minimumInvestment: 750000,
-    expectedReturn: 14.2,
-    duration: 20,
-    startDate: '2024-06-01',
-    endDate: '2044-06-01',
-    status: 'active',
-    investorCount: 456,
-    riskLevel: 'medium',
-    image: '/images/projects/solar.jpg',
-    highlights: ['ESG compliant', 'Growing demand', 'Government incentives'],
-  },
-  {
-    id: '4',
-    title: 'Jakarta Smart Water Management',
-    description:
-      'AI-powered water distribution system for Jakarta to reduce waste and improve water quality for 2 million households.',
-    category: 'water',
-    location: 'Jakarta',
-    province: 'DKI Jakarta',
-    totalValue: 8000000000,
-    targetAmount: 5000000000,
-    raisedAmount: 5000000000,
-    minimumInvestment: 300000,
-    expectedReturn: 9.5,
-    duration: 15,
-    startDate: '2023-12-01',
-    endDate: '2038-12-01',
-    status: 'fully_funded',
-    investorCount: 1834,
-    riskLevel: 'low',
-    image: '/images/projects/water.jpg',
-    highlights: ['Essential service', 'Smart technology', 'Stable returns'],
-  },
-  {
-    id: '5',
-    title: 'Surabaya 5G Network Infrastructure',
-    description:
-      'Deployment of 5G telecommunications infrastructure across Surabaya to support smart city initiatives.',
-    category: 'telecommunications',
-    location: 'Surabaya',
-    province: 'Jawa Timur',
-    totalValue: 12000000000,
-    targetAmount: 7000000000,
-    raisedAmount: 1200000000,
-    minimumInvestment: 400000,
-    expectedReturn: 13.8,
-    duration: 18,
-    startDate: '2024-08-15',
-    endDate: '2042-08-15',
-    status: 'coming_soon',
-    investorCount: 0,
-    riskLevel: 'high',
-    image: '/images/projects/5g.jpg',
-    highlights: [
-      'Future technology',
-      'High growth potential',
-      'Government support',
-    ],
-  },
-  {
-    id: '6',
-    title: 'Medan Hospital Complex',
-    description:
-      'State-of-the-art healthcare facility with 500 beds and advanced medical equipment serving North Sumatra.',
-    category: 'buildings',
-    location: 'Medan, North Sumatra',
-    province: 'Sumatera Utara',
-    totalValue: 15000000000,
-    targetAmount: 9000000000,
-    raisedAmount: 4500000000,
-    minimumInvestment: 600000,
-    expectedReturn: 11.2,
-    duration: 22,
-    startDate: '2024-04-01',
-    endDate: '2046-04-01',
-    status: 'active',
-    investorCount: 723,
-    riskLevel: 'medium',
-    image: '/images/projects/hospital.jpg',
-    highlights: ['Essential healthcare', 'Growing region', 'Stable demand'],
-  },
-];
+// Projects will be loaded from centralized mock API
 
 const categories = [
   { id: 'all', label: 'All Projects', icon: Grid },
@@ -242,6 +79,27 @@ export default function MarketplacePage() {
   const [selectedRiskLevel, setSelectedRiskLevel] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load projects from mock API in presentation mode
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await mockApiClient.getProjects();
+        setProjects(response.data);
+      } catch (error) {
+        // Error loading projects, fallback to static data
+        // Fallback to static mock data
+        setProjects(MOCK_PROJECTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   // TODO: Mock identity status - replace with actual IdentityRegistry contract integration
   const identityStatus: IdentityStatus = {
@@ -253,9 +111,9 @@ export default function MarketplacePage() {
   };
 
   const filteredProjects = useMemo(() => {
-    return mockProjects.filter(project => {
+    return projects.filter(project => {
       const matchesSearch =
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.location.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -265,13 +123,20 @@ export default function MarketplacePage() {
         selectedProvince === 'All Provinces' ||
         project.province === selectedProvince;
       const matchesRiskLevel =
-        selectedRiskLevel === 'all' || project.riskLevel === selectedRiskLevel;
+        selectedRiskLevel === 'all' ||
+        project.keyMetrics.riskLevel === selectedRiskLevel;
 
       return (
         matchesSearch && matchesCategory && matchesProvince && matchesRiskLevel
       );
     });
-  }, [searchTerm, selectedCategory, selectedProvince, selectedRiskLevel]);
+  }, [
+    projects,
+    searchTerm,
+    selectedCategory,
+    selectedProvince,
+    selectedRiskLevel,
+  ]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -385,8 +250,29 @@ export default function MarketplacePage() {
 
   const renderProjectCard = (project: Project) => {
     const Icon = getCategoryIcon(project.category);
-    const progressPercentage =
-      (project.raisedAmount / project.targetAmount) * 100;
+
+    // Map MockProject properties to expected format
+    const raisedAmount =
+      (project.totalSupply - project.availableSupply) * project.tokenPrice;
+    const targetAmount = project.totalSupply * project.tokenPrice;
+    const progressPercentage = (raisedAmount / targetAmount) * 100;
+
+    // Map MockProject status to expected format
+    const mapStatus = (status: string) => {
+      switch (status) {
+        case 'draft':
+          return 'coming_soon';
+        case 'active':
+          return 'active';
+        case 'funded':
+          return 'fully_funded';
+        case 'completed':
+          return 'completed';
+        default:
+          return 'active';
+      }
+    };
+    const mappedStatus = mapStatus(project.status);
 
     return (
       <Card
@@ -405,9 +291,9 @@ export default function MarketplacePage() {
 
           <div className="absolute top-4 left-4">
             <span
-              className={`px-4 py-2 rounded-full text-xs font-medium glass-modern border border-white/20 text-white ${getStatusColor(project.status)}`}
+              className={`px-4 py-2 rounded-full text-xs font-medium glass-modern border border-white/20 text-white ${getStatusColor(mappedStatus)}`}
             >
-              {getStatusLabel(project.status)}
+              {getStatusLabel(mappedStatus)}
             </span>
           </div>
           <div className="absolute bottom-4 left-4 text-white">
@@ -429,13 +315,13 @@ export default function MarketplacePage() {
         <div className="p-8">
           <div className="flex items-start justify-between mb-4">
             <h3 className="font-semibold text-foreground group-hover:text-gradient transition-all text-lg leading-tight">
-              {project.title}
+              {project.name}
             </h3>
             <div className="glass-modern px-3 py-1 rounded-full">
               <span
-                className={`text-xs font-medium ${getRiskColor(project.riskLevel)}`}
+                className={`text-xs font-medium ${getRiskColor(project.keyMetrics.riskLevel)}`}
               >
-                {project.riskLevel} risk
+                {project.keyMetrics.riskLevel} risk
               </span>
             </div>
           </div>
@@ -466,7 +352,7 @@ export default function MarketplacePage() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Duration</span>
                 <span className="font-medium text-primary-700">
-                  {project.duration} years
+                  {project.projectDuration} years
                 </span>
               </div>
 
@@ -493,9 +379,9 @@ export default function MarketplacePage() {
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className="font-medium">
-                  {formatCurrency(project.raisedAmount)}
+                  {formatCurrency(raisedAmount)}
                 </span>
-                <span>{formatCurrency(project.targetAmount)}</span>
+                <span>{formatCurrency(targetAmount)}</span>
               </div>
             </div>
 
@@ -513,7 +399,7 @@ export default function MarketplacePage() {
                   <Calendar className="w-3 h-3 text-primary-600" />
                 </div>
                 <span className="text-primary-600 font-medium">
-                  {new Date(project.startDate).getFullYear()}
+                  {new Date(project.offeringStart).getFullYear()}
                 </span>
               </div>
             </div>
@@ -528,14 +414,14 @@ export default function MarketplacePage() {
                   ripple
                   onClick={() =>
                     toast.info('Project Details', {
-                      message: `Loading details for ${project.title}...`,
+                      message: `Loading details for ${project.name}...`,
                     })
                   }
                 >
                   View Details
                 </AnimatedButton>
               </Link>
-              {project.status === 'active' && (
+              {mappedStatus === 'active' && (
                 <Link href={`/invest/${project.id}`}>
                   <AnimatedButton
                     variant="secondary"
@@ -543,7 +429,7 @@ export default function MarketplacePage() {
                     ripple
                     onClick={() =>
                       toast.info('Investment Flow', {
-                        message: `Starting investment for ${project.title}...`,
+                        message: `Starting investment for ${project.name}...`,
                       })
                     }
                   >
@@ -801,23 +687,40 @@ export default function MarketplacePage() {
           </ScrollReveal>
 
           {/* Projects Grid */}
-          <StaggeredList
-            className={
-              viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
-                : 'space-y-6'
-            }
-            itemDelay={100}
-          >
-            {filteredProjects.map(project => (
-              <div key={project.id} className="card-micro">
-                {renderProjectCard(project)}
+          {loading ? (
+            <ScrollReveal animation="fade" delay={500}>
+              <div className="text-center py-16">
+                <div className="w-20 h-20 feature-icon mx-auto mb-6 hover-scale animate-spin">
+                  <Search className="w-10 h-10" />
+                </div>
+                <h3 className="text-xl font-semibold text-gradient mb-3">
+                  Loading Indonesian Infrastructure Projects...
+                </h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Fetching the latest PPP investment opportunities from our
+                  platform
+                </p>
               </div>
-            ))}
-          </StaggeredList>
+            </ScrollReveal>
+          ) : (
+            <StaggeredList
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'
+                  : 'space-y-6'
+              }
+              itemDelay={100}
+            >
+              {filteredProjects.map(project => (
+                <div key={project.id} className="card-micro">
+                  {renderProjectCard(project)}
+                </div>
+              ))}
+            </StaggeredList>
+          )}
 
           {/* Empty State */}
-          {filteredProjects.length === 0 && (
+          {!loading && filteredProjects.length === 0 && (
             <ScrollReveal animation="fade" delay={500}>
               <div className="text-center py-16">
                 <div className="w-20 h-20 feature-icon mx-auto mb-6 hover-scale">

@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePortfolioWebSocket } from '@/hooks/useWebSocket';
+import {
+  useState,
+  // useEffect
+} from 'react';
+// import { usePortfolioWebSocket } from '@/hooks/useWebSocket';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -180,22 +183,22 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // WebSocket integration for real-time portfolio updates
-  const { portfolioData, lastUpdate, isConnected } = usePortfolioWebSocket();
-  const [connectionStatus, setConnectionStatus] = useState<
-    'connected' | 'disconnected' | 'connecting'
-  >('disconnected');
+  // const { portfolioData, lastUpdate, isConnected } = usePortfolioWebSocket();
+  // const [connectionStatus, setConnectionStatus] = useState<
+  //   'connected' | 'disconnected' | 'connecting'
+  // >('disconnected');
 
-  useEffect(() => {
-    setConnectionStatus(isConnected ? 'connected' : 'disconnected');
-  }, [isConnected]);
+  // useEffect(() => {
+  //   setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+  // }, [isConnected]);
 
-  useEffect(() => {
-    if (portfolioData) {
-      // Real-time portfolio update received
-      // Here we would update the portfolio state with real data
-      // For now, we'll just skip logging since we're using mock data
-    }
-  }, [portfolioData]);
+  // useEffect(() => {
+  //   if (portfolioData) {
+  //     // Real-time portfolio update received
+  //     // Here we would update the portfolio state with real data
+  //     // For now, we'll just skip logging since we're using mock data
+  //   }
+  // }, [portfolioData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -1923,6 +1926,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Real-time Status Indicator */}
+                  {/*
                   <div className="flex items-center space-x-6">
                     {lastUpdate && (
                       <div className="text-sm text-primary-600 font-medium glass-modern px-3 py-2 rounded-lg">
@@ -1946,6 +1950,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                   </div>
+                  */}
                 </div>
               </div>
             </ScrollReveal>

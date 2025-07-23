@@ -542,4 +542,62 @@ export class NotificationsService {
     // Default to proposal
     return 'proposal';
   }
+
+  /**
+   * Send email directly using EmailService (for backward compatibility)
+   */
+  async sendEmail(emailData: {
+    to: string;
+    templateType: string;
+    data: any;
+  }): Promise<string> {
+    this.logger.log(
+      `Sending email to: ${emailData.to} with template: ${emailData.templateType}`
+    );
+
+    try {
+      // Map template types to EmailService methods
+      switch (emailData.templateType) {
+        case 'spv_application_confirmation':
+        case 'spv_application_approved':
+        case 'spv_application_rejected':
+          return await this.emailService.sendSystemNotification(
+            {
+              to: emailData.to,
+              subject: this.getEmailSubject(emailData.templateType),
+              dynamicTemplateData: emailData.data,
+            },
+            'alert'
+          );
+        default:
+          return await this.emailService.sendSystemNotification(
+            {
+              to: emailData.to,
+              subject: 'System Notification',
+              dynamicTemplateData: emailData.data,
+            },
+            'alert'
+          );
+      }
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${emailData.to}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get email subject based on template type
+   */
+  private getEmailSubject(templateType: string): string {
+    switch (templateType) {
+      case 'spv_application_confirmation':
+        return 'SPV Application Confirmation - Partisipro';
+      case 'spv_application_approved':
+        return 'SPV Application Approved - Partisipro';
+      case 'spv_application_rejected':
+        return 'SPV Application Rejected - Partisipro';
+      default:
+        return 'Notification - Partisipro';
+    }
+  }
 }

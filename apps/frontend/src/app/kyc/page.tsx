@@ -392,8 +392,9 @@ export default function KYCPage() {
   // Cleanup polling on unmount
   useEffect(() => {
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+      const currentInterval = pollingIntervalRef.current;
+      if (currentInterval) {
+        clearInterval(currentInterval);
       }
     };
   }, []);

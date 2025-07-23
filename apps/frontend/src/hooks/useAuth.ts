@@ -11,7 +11,9 @@ import {
   createContext,
   useContext,
 } from 'react';
+import { useWeb3Auth } from '@web3auth/modal-react-hooks';
 import { authService, type LoginResponse } from '../services/auth.service';
+import { getWalletAddressFromProvider } from '../lib/web3auth-provider';
 // import { apiClient } from '../lib/api-client';
 
 export interface AuthState {
@@ -60,6 +62,15 @@ export const AuthContext = createContext<UseAuthReturn | null>(null);
  * Main authentication hook
  */
 export function useAuth(): UseAuthReturn {
+  const {
+    connect,
+    logout: web3AuthLogout,
+    provider,
+    isConnected,
+    userInfo,
+    status,
+  } = useWeb3Auth();
+
   const [state, setState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -133,7 +144,27 @@ export function useAuth(): UseAuthReturn {
         setLoading(true);
         clearError();
 
-        const response = await authService.loginWithWeb3Auth();
+        // Use Web3Auth React hooks for connection
+        await connect();
+
+        if (!provider || !userInfo) {
+          throw new Error('Web3Auth connection failed');
+        }
+
+        // Get wallet address
+        const walletAddress = await getWalletAddressFromProvider(provider);
+
+        // Get ID token from userInfo
+        const idToken = userInfo.idToken || '';
+        if (!idToken) {
+          throw new Error('No ID token received from Web3Auth');
+        }
+
+        // Login with backend
+        const response = await authService.login({
+          idToken,
+          walletAddress: walletAddress || undefined,
+        });
 
         setUser(response.user);
         return response;
@@ -143,46 +174,96 @@ export function useAuth(): UseAuthReturn {
         setError(errorMessage);
         return null;
       }
-    }, [setLoading, clearError, setUser, setError]);
+    }, [
+      connect,
+      provider,
+      userInfo,
+      setLoading,
+      clearError,
+      setUser,
+      setError,
+    ]);
 
   /**
    * Login with social provider
    */
   const loginWithSocialProvider = useCallback(
     async (
-      provider: 'google' | 'facebook' | 'apple'
+      socialProvider: 'google' | 'facebook' | 'apple'
     ): Promise<LoginResponse | null> => {
       try {
         setLoading(true);
         clearError();
 
-        const response = await authService.loginWithSocialProvider(provider);
+        // Use Web3Auth React hooks for social login
+        await connect();
+
+        if (!provider || !userInfo) {
+          throw new Error(`${socialProvider} connection failed`);
+        }
+
+        // Get wallet address
+        const walletAddress = await getWalletAddressFromProvider(provider);
+
+        // Get ID token from userInfo
+        const idToken = userInfo.idToken || '';
+        if (!idToken) {
+          throw new Error(`No ID token received from ${socialProvider}`);
+        }
+
+        // Login with backend
+        const response = await authService.login({
+          idToken,
+          walletAddress: walletAddress || undefined,
+        });
 
         setUser(response.user);
         return response;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : `${provider} login failed`;
+          error instanceof Error
+            ? error.message
+            : `${socialProvider} login failed`;
         setError(errorMessage);
         return null;
       }
     },
-    [setLoading, clearError, setUser, setError]
+    [connect, provider, userInfo, setLoading, clearError, setUser, setError]
   );
 
   /**
    * Login with email/password
    */
   const loginWithEmailPassword = useCallback(
-    async (email: string, password: string): Promise<LoginResponse | null> => {
+    async (
+      _email: string,
+      _password: string
+    ): Promise<LoginResponse | null> => {
       try {
         setLoading(true);
         clearError();
 
-        const response = await authService.loginWithEmailPassword(
-          email,
-          password
-        );
+        // Use Web3Auth React hooks for email/password login
+        await connect();
+
+        if (!provider || !userInfo) {
+          throw new Error('Email/password connection failed');
+        }
+
+        // Get wallet address
+        const walletAddress = await getWalletAddressFromProvider(provider);
+
+        // Get ID token from userInfo
+        const idToken = userInfo.idToken || '';
+        if (!idToken) {
+          throw new Error('No ID token received from email/password login');
+        }
+
+        // Login with backend
+        const response = await authService.login({
+          idToken,
+          walletAddress: walletAddress || undefined,
+        });
 
         setUser(response.user);
         return response;
@@ -195,7 +276,7 @@ export function useAuth(): UseAuthReturn {
         return null;
       }
     },
-    [setLoading, clearError, setUser, setError]
+    [connect, provider, userInfo, setLoading, clearError, setUser, setError]
   );
 
   /**
@@ -204,6 +285,13 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
+
+      // Logout from Web3Auth
+      if (isConnected) {
+        await web3AuthLogout();
+      }
+
+      // Logout from backend
       await authService.logout();
     } catch (error) {
       // console.error('Logout error:', error);
@@ -211,7 +299,7 @@ export function useAuth(): UseAuthReturn {
     } finally {
       setUser(null);
     }
-  }, [setLoading, setUser]);
+  }, [web3AuthLogout, isConnected, setLoading, setUser]);
 
   /**
    * Refresh authentication token
@@ -309,11 +397,34 @@ export function useAuth(): UseAuthReturn {
   );
 
   /**
-   * Initialize authentication on mount
+   * Initialize authentication on mount and watch Web3Auth status
    */
   useEffect(() => {
     checkAuthStatus();
   }, [checkAuthStatus]);
+
+  /**
+   * Update authentication state when Web3Auth connection changes
+   */
+  useEffect(() => {
+    if (status === 'connected' && isConnected && userInfo) {
+      // Update user state if Web3Auth is connected but we don't have backend auth
+      if (!state.isAuthenticated) {
+        // Attempt to sync with backend
+        checkAuthStatus();
+      }
+    } else if (status === 'disconnected' && state.isAuthenticated) {
+      // Web3Auth disconnected but we still have backend auth - logout completely
+      logout();
+    }
+  }, [
+    status,
+    isConnected,
+    userInfo,
+    state.isAuthenticated,
+    checkAuthStatus,
+    logout,
+  ]);
 
   /**
    * Setup automatic token refresh

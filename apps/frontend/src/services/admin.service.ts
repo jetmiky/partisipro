@@ -164,8 +164,44 @@ export interface ComplianceMetrics {
   auditTrailEvents: number;
 }
 
+export interface InitializePlatformRequest {
+  adminEmail: string;
+  adminWalletAddress: string;
+  platformName?: string;
+  defaultConfiguration?: {
+    listingFeePercentage?: number;
+    managementFeePercentage?: number;
+    minimumInvestment?: number;
+    maximumInvestment?: number;
+  };
+}
+
+export interface InitializePlatformResponse {
+  success: boolean;
+  message: string;
+  adminUser: {
+    id: string;
+    email: string;
+    walletAddress: string;
+    role: 'admin';
+  };
+  platformConfiguration: PlatformConfiguration[];
+}
+
 class AdminService {
   private readonly BASE_PATH = '/api/admin';
+
+  /**
+   * Initialize platform with first admin user
+   */
+  async initializePlatform(
+    request: InitializePlatformRequest
+  ): Promise<InitializePlatformResponse> {
+    return apiClient.post(
+      `${this.BASE_PATH}/initialization/initialize`,
+      request
+    );
+  }
 
   /**
    * Get platform dashboard statistics

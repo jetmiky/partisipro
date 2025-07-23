@@ -29,6 +29,7 @@ import { ClaimsModule } from './modules/claims/claims.module';
 import { TrustedIssuersModule } from './modules/trusted-issuers/trusted-issuers.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { FilesModule } from './modules/files/files.module';
+import { SpvApplicationsModule } from './modules/spv-applications/spv-applications.module';
 
 // Security and monitoring middleware
 import { SecurityMiddleware } from './common/middleware/security.middleware';
@@ -94,6 +95,9 @@ import { MonitoringService } from './common/services/monitoring.service';
 
     // File management module
     FilesModule,
+
+    // SPV Applications module
+    SpvApplicationsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
