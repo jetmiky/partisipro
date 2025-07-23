@@ -467,6 +467,10 @@ export default function KYCPage() {
     if (currentIndex < stepOrder.length - 1) {
       setCurrentStep(stepOrder[currentIndex + 1]);
     }
+
+    if (typeof window !== 'undefined') {
+      window.scroll({ top: 0 });
+    }
   };
 
   const handleStepBack = () => {
@@ -483,6 +487,10 @@ export default function KYCPage() {
     const currentIndex = stepOrder.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(stepOrder[currentIndex - 1]);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.scroll({ top: 0 });
     }
   };
 
@@ -817,63 +825,139 @@ export default function KYCPage() {
           Back
         </AnimatedButton>
         <AnimatedButton onClick={handleStepNext} variant="primary" ripple>
-          Complete Setup
+          Complete KYC
         </AnimatedButton>
       </div>
     </div>
   );
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center mb-8 animate-fade-in-up">
-      {steps.map((step, index) => {
-        const isActive = step.id === currentStep;
-        const isCompleted = steps.findIndex(s => s.id === currentStep) > index;
-        const Icon = step.icon;
+    <div className="mb-8 animate-fade-in-up">
+      {/* Desktop View - Full horizontal layout */}
+      <div className="hidden xl:flex items-center justify-center">
+        {steps.map((step, index) => {
+          const isActive = step.id === currentStep;
+          const isCompleted =
+            steps.findIndex(s => s.id === currentStep) > index;
+          const Icon = step.icon;
 
-        return (
-          <div key={step.id} className="flex items-center">
-            <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 hover-lift ${
-                isActive
-                  ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100'
-                  : isCompleted
-                    ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600'
-                    : 'border-secondary-300 bg-white/50'
-              }`}
-            >
-              <Icon
-                className={`w-5 h-5 transition-colors duration-300 ${
+          return (
+            <div key={step.id} className="flex items-center">
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 hover-lift ${
+                  isActive
+                    ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100'
+                    : isCompleted
+                      ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600'
+                      : 'border-secondary-300 bg-white/50'
+                }`}
+              >
+                <Icon
+                  className={`w-5 h-5 transition-colors duration-300 ${
+                    isActive
+                      ? 'text-primary-600'
+                      : isCompleted
+                        ? 'text-white'
+                        : 'text-muted-foreground'
+                  }`}
+                />
+              </div>
+              <span
+                className={`ml-2 text-sm font-medium transition-colors duration-300 ${
                   isActive
                     ? 'text-primary-600'
                     : isCompleted
-                      ? 'text-white'
+                      ? 'text-primary-500'
                       : 'text-muted-foreground'
                 }`}
-              />
+              >
+                {step.label}
+              </span>
+              {index < steps.length - 1 && (
+                <div
+                  className={`w-12 h-0.5 mx-4 transition-all duration-500 ${
+                    isCompleted
+                      ? 'bg-gradient-to-r from-primary-500 to-primary-600'
+                      : 'bg-secondary-200'
+                  }`}
+                />
+              )}
             </div>
-            <span
-              className={`ml-2 text-sm font-medium transition-colors duration-300 ${
-                isActive
-                  ? 'text-primary-600'
-                  : isCompleted
-                    ? 'text-primary-500'
-                    : 'text-muted-foreground'
-              }`}
-            >
-              {step.label}
-            </span>
-            {index < steps.length - 1 && (
-              <div
-                className={`w-12 h-0.5 mx-4 transition-all duration-500 ${
-                  isCompleted
-                    ? 'bg-gradient-to-r from-primary-500 to-primary-600'
-                    : 'bg-secondary-200'
-                }`}
-              />
-            )}
+          );
+        })}
+      </div>
+
+      {/* Tablet and Mobile View - Compact horizontal with shorter labels */}
+      <div className="xl:hidden">
+        <div className="flex items-center justify-center overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex items-center space-x-2 min-w-max px-4">
+            {steps.map((step, index) => {
+              const isActive = step.id === currentStep;
+              const isCompleted =
+                steps.findIndex(s => s.id === currentStep) > index;
+              const Icon = step.icon;
+
+              // Shorter labels for mobile
+              const shortLabels: Record<string, string> = {
+                intro: 'Intro',
+                provider: 'Provider',
+                personal: 'Personal',
+                document: 'Documents',
+                verification: 'Verify',
+                processing: 'Process',
+                identity: 'Identity',
+                complete: 'Complete',
+              };
+
+              return (
+                <div key={step.id} className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 hover-lift ${
+                        isActive
+                          ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100'
+                          : isCompleted
+                            ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600'
+                            : 'border-secondary-300 bg-white/50'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-4 h-4 transition-colors duration-300 ${
+                          isActive
+                            ? 'text-primary-600'
+                            : isCompleted
+                              ? 'text-white'
+                              : 'text-muted-foreground'
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`mt-1 text-xs font-medium transition-colors duration-300 text-center ${
+                        isActive
+                          ? 'text-primary-600'
+                          : isCompleted
+                            ? 'text-primary-500'
+                            : 'text-muted-foreground'
+                      }`}
+                    >
+                      {shortLabels[step.id] || step.label}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`w-6 h-0.5 mx-2 transition-all duration-500 ${
+                        isCompleted
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600'
+                          : 'bg-secondary-200'
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+      </div>
     </div>
   );
 
@@ -1822,14 +1906,15 @@ export default function KYCPage() {
       </div>
 
       <div className="flex gap-4 justify-center animate-fade-in-up animate-delay-500">
-        <Link href="/marketplace">
-          <AnimatedButton variant="primary" className="hover-lift" ripple>
-            Browse Projects
-          </AnimatedButton>
-        </Link>
         <Link href="/dashboard">
           <AnimatedButton variant="secondary" className="hover-lift" ripple>
             Go to Dashboard
+          </AnimatedButton>
+        </Link>
+        <Link href="/profiling">
+          <AnimatedButton variant="primary" className="hover-lift" ripple>
+            Proceed to Risk Profiling
+            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </AnimatedButton>
         </Link>
       </div>

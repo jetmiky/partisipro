@@ -264,11 +264,19 @@ export default function ProfilePage() {
     if (currentStep < questionSections.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
+
+    if (typeof window !== 'undefined') {
+      window.scroll({ top: 0 });
+    }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.scroll({ top: 0 });
     }
   };
 
@@ -391,26 +399,26 @@ export default function ProfilePage() {
   };
 
   // Auto-fill demo function
-  const handleDemoAutoFill = () => {
-    const demoData: ProfileFormData = {
-      age: '26-35',
-      income: '10.1-20M',
-      experience: '1-3years',
-      knownInvestments: ['stocks', 'mutual_funds', 'property'],
-      investmentGoal: 'long_term_growth',
-      riskTolerance: 'moderate',
-      marketReaction: 'no_worry_long_term',
-      holdingPeriod: '>5years',
-      projectDetailImportance: 'important',
-      tokenTypes: ['revenue_token', 'hybrid_token'],
-    };
+  // const handleDemoAutoFill = () => {
+  //   const demoData: ProfileFormData = {
+  //     age: '26-35',
+  //     income: '10.1-20M',
+  //     experience: '1-3years',
+  //     knownInvestments: ['stocks', 'mutual_funds', 'property'],
+  //     investmentGoal: 'long_term_growth',
+  //     riskTolerance: 'moderate',
+  //     marketReaction: 'no_worry_long_term',
+  //     holdingPeriod: '>5years',
+  //     projectDetailImportance: 'important',
+  //     tokenTypes: ['revenue_token', 'hybrid_token'],
+  //   };
 
-    setFormData(demoData);
-    toast.success('Form berhasil diisi dengan data demo!', {
-      message: 'Anda dapat langsung melanjutkan atau memodifikasi jawaban',
-      duration: 3000,
-    });
-  };
+  //   setFormData(demoData);
+  //   toast.success('Form berhasil diisi dengan data demo!', {
+  //     message: 'Anda dapat langsung melanjutkan atau memodifikasi jawaban',
+  //     duration: 3000,
+  //   });
+  // };
 
   // Check if current step is valid
   const isCurrentStepValid = () => {
@@ -463,7 +471,7 @@ export default function ProfilePage() {
                     {profileResults.score}
                   </span>
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">
+                <h3 className="font-semibold text-xl ttext-foreground mb-2">
                   Skor Risiko: {profileResults.score}/100
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -475,7 +483,7 @@ export default function ProfilePage() {
                 <div className="w-20 h-20 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <User className="w-8 h-8 text-secondary-600" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">
+                <h3 className="font-semibold text-xl text-foreground mb-2">
                   Tipe Investor
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -485,7 +493,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-6">
-              <h4 className="font-semibold text-foreground mb-4 text-center">
+              <h4 className="font-semibold text-lg text-foreground mb-4 text-center">
                 Rekomendasi Investasi
               </h4>
               <div className="space-y-3">
@@ -505,15 +513,15 @@ export default function ProfilePage() {
             <div className="flex gap-4 justify-center mt-8">
               <AnimatedButton
                 variant="primary"
-                onClick={() => router.push('/kyc')}
+                onClick={() => router.push('/dashboard')}
                 className="flex items-center gap-2"
                 ripple
               >
-                Lanjut ke Verifikasi KYC
+                Go to Dashboard
                 <ChevronRight className="w-4 h-4" />
               </AnimatedButton>
 
-              <AnimatedButton
+              {/* <AnimatedButton
                 variant="outline"
                 onClick={() => router.push('/marketplace')}
                 className="flex items-center gap-2"
@@ -521,7 +529,7 @@ export default function ProfilePage() {
               >
                 Jelajahi Proyek
                 <Target className="w-4 h-4" />
-              </AnimatedButton>
+              </AnimatedButton> */}
             </div>
           </CardContent>
         </Card>
@@ -660,7 +668,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Demo Auto-Fill Button */}
-            <div className="text-center mb-6 animate-fade-in-up animate-delay-400">
+            {/* <div className="text-center mb-6 animate-fade-in-up animate-delay-400">
               <div className="flex gap-3 justify-center">
                 <AnimatedButton
                   variant="outline"
@@ -702,14 +710,14 @@ export default function ProfilePage() {
               <p className="text-xs text-muted-foreground mt-2">
                 Untuk keperluan presentasi - simulasi profiling investor moderat
               </p>
-            </div>
+            </div> */}
 
             {/* Submission Progress */}
             {isSubmitting && (
-              <Card className="glass-modern mb-6 animate-fade-in-up">
+              <Card className="glass-modern my-6 animate-fade-in-up">
                 <CardContent className="p-6">
                   <div className="text-center">
-                    <h3 className="font-semibold text-foreground mb-4">
+                    <h3 className="text-xl font-semibold text-gradient-modern mb-4">
                       Memproses Profil Investor
                     </h3>
                     <div className="w-full bg-secondary-200 rounded-full h-2 mb-4">

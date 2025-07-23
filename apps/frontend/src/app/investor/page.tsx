@@ -301,7 +301,7 @@ export default function SPVIndexPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link
-                    href="/dashboard"
+                    href="/auth/signup"
                     className="btn-modern btn-modern-primary text-base py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
                   >
                     Daftar sebagai Investor
