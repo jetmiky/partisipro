@@ -51,7 +51,7 @@ const Header = ({ dark = false }: HeaderProps) => {
               <span
                 className={`text-xs hidden md:block ${dark || isScrolled ? 'text-primary-600' : 'text-white/80'}`}
               >
-                KPBU - Blockchain Platform
+                PPP - Blockchain Platform
               </span>
             </div>
           </div>

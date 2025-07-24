@@ -185,7 +185,7 @@ const questionSections = [
       {
         id: 'projectDetailImportance',
         question:
-          'Seberapa penting mengetahui detail proyek KPBU yang Anda investasikan?',
+          'Seberapa penting mengetahui detail proyek PPP yang Anda investasikan?',
         type: 'single-choice',
         options: [
           {
@@ -201,7 +201,7 @@ const questionSections = [
       },
       {
         id: 'tokenTypes',
-        question: 'Apa jenis token KPBU yang menarik bagi Anda?',
+        question: 'Apa jenis token PPP yang menarik bagi Anda?',
         type: 'multiple-choice',
         options: [
           {

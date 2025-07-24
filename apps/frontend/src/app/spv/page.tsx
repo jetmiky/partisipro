@@ -38,7 +38,7 @@ export default function SPVIndexPage() {
         icon: Coins,
         title: 'Ajukan Tokenisasi',
         description:
-          'Isi form proyek KPBU seperti data ummum, identitas, deskripsi proyek, dan data finansial.',
+          'Isi form proyek PPP seperti data ummum, identitas, deskripsi proyek, dan data finansial.',
         details: [
           'Validasi kerangka hukum',
           'Analisis kelayakan finansial',
@@ -74,7 +74,7 @@ export default function SPVIndexPage() {
         icon: TrendingUp,
         title: 'Konfirmasi & Penerbitan',
         description:
-          'Konfirmasi penerbitan smart contract dan token proyek KPBU ke marketplace publik.',
+          'Konfirmasi penerbitan smart contract dan token proyek PPP ke marketplace publik.',
         details: [
           'Deployment smart contract',
           'Standar ERC-20 dan ERC-3643',
@@ -147,10 +147,10 @@ export default function SPVIndexPage() {
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-6">
-                Tokenisasi Proyek KPBU
+                Tokenisasi Proyek PPP
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Tokenisasi proyek KPBU Anda untuk memperluas akses pendanaan dan
+                Tokenisasi proyek PPP Anda untuk memperluas akses pendanaan dan
                 memperoleh likuiditas baru tanpa harus menunggu masa operasional
                 selesai.
               </p>
@@ -301,7 +301,7 @@ export default function SPVIndexPage() {
                 </h2>
                 <p className="text-responsive-lg text-muted-foreground max-w-2xl mx-auto text-indonesian">
                   Platform kami menggabungkan yang terbaik dari investasi
-                  pendanaan KPBU tradisional dengan teknologi blockchain modern.
+                  pendanaan PPP tradisional dengan teknologi blockchain modern.
                 </p>
               </div>
 
@@ -333,7 +333,7 @@ export default function SPVIndexPage() {
                   Ajukan Tokenisasi Proyek Sekarang
                 </h3>
                 <p className="text-responsive-md text-muted-foreground mb-6 max-w-xl mx-auto text-indonesian">
-                  Tokenisasikan proyek KPBU dengan teknologi blockchain terdepan
+                  Tokenisasikan proyek PPP dengan teknologi blockchain terdepan
                   dan kepatuhan penuh terhadap regulasi yang berlaku.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

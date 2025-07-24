@@ -839,7 +839,7 @@ export default function KYCPage() {
   const renderStepIndicator = () => (
     <div className="mb-8 animate-fade-in-up">
       {/* Desktop View - Full horizontal layout */}
-      <div className="hidden xl:flex items-center justify-center">
+      {/* <div className="hidden xl:flex items-center justify-center">
         {steps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted =
@@ -890,77 +890,89 @@ export default function KYCPage() {
             </div>
           );
         })}
-      </div>
+      </div> */}
 
-      {/* Tablet and Mobile View - Compact horizontal with shorter labels */}
-      <div className="xl:hidden">
-        <div className="flex items-center justify-center overflow-x-auto pb-2 scrollbar-hide">
-          <div className="flex items-center space-x-2 min-w-max px-4">
-            {steps.map((step, index) => {
-              const isActive = step.id === currentStep;
-              const isCompleted =
-                steps.findIndex(s => s.id === currentStep) > index;
-              const Icon = step.icon;
+      {/* Tablet and Mobile View - Properly contained horizontal scroll */}
+      <div className="">
+        <div className="relative">
+          {/* Scrollable container with proper overflow handling */}
+          <div className="overflow-x-auto overflow-y-hidden scrollbar-hide">
+            <div className="flex items-center justify-start min-w-full px-2 py-2">
+              <div className="flex items-center space-x-1 sm:space-x-2 mx-auto">
+                {steps.map((step, index) => {
+                  const isActive = step.id === currentStep;
+                  const isCompleted =
+                    steps.findIndex(s => s.id === currentStep) > index;
+                  const Icon = step.icon;
 
-              // Shorter labels for mobile
-              const shortLabels: Record<string, string> = {
-                intro: 'Intro',
-                provider: 'Provider',
-                personal: 'Personal',
-                document: 'Documents',
-                verification: 'Verify',
-                processing: 'Process',
-                identity: 'Identity',
-                complete: 'Complete',
-              };
+                  // Shorter labels for mobile with even more compact versions for very small screens
+                  const shortLabels: Record<string, string> = {
+                    intro: 'Intro',
+                    provider: 'Provider',
+                    personal: 'Information',
+                    document: 'Docs',
+                    verification: 'Verify',
+                    processing: 'Processing',
+                    identity: 'Identity',
+                    complete: 'Done',
+                  };
 
-              return (
-                <div key={step.id} className="flex items-center">
-                  <div className="flex flex-col items-center">
+                  return (
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 hover-lift ${
-                        isActive
-                          ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100'
-                          : isCompleted
-                            ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600'
-                            : 'border-secondary-300 bg-white/50'
-                      }`}
+                      key={step.id}
+                      className="flex items-center flex-shrink-0"
                     >
-                      <Icon
-                        className={`w-4 h-4 transition-colors duration-300 ${
-                          isActive
-                            ? 'text-primary-600'
-                            : isCompleted
-                              ? 'text-white'
-                              : 'text-muted-foreground'
-                        }`}
-                      />
+                      <div className="flex flex-col items-center min-w-0">
+                        <div
+                          className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full border-2 transition-all duration-300 hover-lift ${
+                            isActive
+                              ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100'
+                              : isCompleted
+                                ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600'
+                                : 'border-secondary-300 bg-white/50'
+                          }`}
+                        >
+                          <Icon
+                            className={`w-3 h-3 sm:w-4 lg:w-6 sm:h-4 lg:h-6 transition-colors duration-300 ${
+                              isActive
+                                ? 'text-primary-600'
+                                : isCompleted
+                                  ? 'text-white'
+                                  : 'text-muted-foreground'
+                            }`}
+                          />
+                        </div>
+                        <span
+                          className={`mt-1 text-xs font-medium transition-colors duration-300 text-center w-[4rem] lg:w-[5rem] truncate ${
+                            isActive
+                              ? 'text-primary-600'
+                              : isCompleted
+                                ? 'text-primary-500'
+                                : 'text-muted-foreground'
+                          }`}
+                        >
+                          {shortLabels[step.id] || step.label}
+                        </span>
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`w-4 sm:w-6 h-0.5 mx-1 sm:mx-2 transition-all duration-500 flex-shrink-0 ${
+                            isCompleted
+                              ? 'bg-gradient-to-r from-primary-500 to-primary-600'
+                              : 'bg-secondary-200'
+                          }`}
+                        />
+                      )}
                     </div>
-                    <span
-                      className={`mt-1 text-xs font-medium transition-colors duration-300 text-center ${
-                        isActive
-                          ? 'text-primary-600'
-                          : isCompleted
-                            ? 'text-primary-500'
-                            : 'text-muted-foreground'
-                      }`}
-                    >
-                      {shortLabels[step.id] || step.label}
-                    </span>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`w-6 h-0.5 mx-2 transition-all duration-500 ${
-                        isCompleted
-                          ? 'bg-gradient-to-r from-primary-500 to-primary-600'
-                          : 'bg-secondary-200'
-                      }`}
-                    />
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </div>
           </div>
+
+          {/* Fade edges to indicate scrollable content */}
+          <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white to-transparent pointer-events-none z-10"></div>
         </div>
       </div>
     </div>
@@ -1987,10 +1999,9 @@ export default function KYCPage() {
 
         {/* Main Content */}
         <ScrollReveal animation="slide-up" delay={100}>
-          <div className="max-w-4xl mx-auto px-4 py-8 relative z-10 pt-24">
+          <div className="mt-20 overflow-hidden">{renderStepIndicator()}</div>
+          <div className="max-w-4xl mx-auto px-4 py-8 relative z-10 pt-4">
             <div className="glass-modern rounded-2xl shadow-2xl p-8">
-              {renderStepIndicator()}
-
               {currentStep === 'intro' && renderIntroStep()}
               {currentStep === 'provider' && renderProviderSelectionStep()}
               {currentStep === 'personal' && renderPersonalInfoStep()}

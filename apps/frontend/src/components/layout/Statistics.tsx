@@ -185,7 +185,7 @@ const Statistics = () => {
       suffix: '+',
       label: 'Investor Aktif',
       description:
-        'Investor terverifikasi yang berpartisipasi dalam pendanaan KPBU',
+        'Investor terverifikasi yang berpartisipasi dalam pendanaan PPP',
       color: 'from-primary-500 to-primary-600',
       duration: 2000,
     },
@@ -230,7 +230,7 @@ const Statistics = () => {
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">
             Real-time matrics yang menunjukkan pertumbuhan dan keandalan
-            platform blockchain pendanaan KPBU terdepan di Indonesia
+            platform blockchain pendanaan PPP terdepan di Indonesia
           </p>
         </div>
 

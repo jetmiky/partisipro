@@ -125,7 +125,7 @@ const initialFormData: SPVApplicationData = {
   legalIssuesDescription: '',
   complianceAgreement: false,
   dataProcessingConsent: false,
-  projectTypes: ['Toll Roads'],
+  projectTypes: ['Infrastruktur Jalan dan Jembatan', 'Infrastruktur Energi'],
   targetFundingRange: 'Rp 10-50 Billion',
   additionalInfo: '',
 };
@@ -152,18 +152,12 @@ const BUSINESS_TYPES = [
 ];
 
 const PROJECT_TYPES = [
-  'Toll Roads',
-  'Airports',
-  'Seaports',
-  'Railways',
-  'Power Plants',
-  'Water Treatment',
-  'Hospitals',
-  'Schools',
-  'Housing',
-  'Industrial Parks',
-  'Smart Cities',
-  'Renewable Energy',
+  'Infrastruktur Jalan dan Jembatan',
+  'Infrastruktur Air dan Sanitasi',
+  'Infrastruktur Kesehatan',
+  'Infrastruktur Energi',
+  'Infrastruktur Telekomunikasi',
+  'Lainnya',
 ];
 
 const REVENUE_RANGES = [
@@ -1110,13 +1104,18 @@ export default function SPVApplyPage() {
                 <h1 className="text-4xl font-bold text-gradient mb-4">
                   Pendaftaran SPV
                 </h1>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-muted-foreground mb-2">
                   Buka akses pembiayaan baru, percepat realisasi infrastruktur.
-                  Partisipro membuka peluang bagi proyek KPBU (Kerja Sama
-                  Pemerintah dan Badan Usaha) untuk mendapatkan pembiayaan
-                  inovatif melalui tokenisasi aset. Jika Anda mewakili SPV, BUP,
-                  atau PJPK dan ingin menjangkau investor ritel maupun institusi
-                  secara langsung dan transparan, mulailah dari sini.
+                  Partisipro membuka peluang bagi proyek Public-Private
+                  Partnership (PPP) atau Kerja Sama Pemerintah dan Badan Usaha
+                  (KPBU) untuk mendapatkan pembiayaan inovatif melalui
+                  tokenisasi aset.
+                </p>
+
+                <p className="text-lg text-muted-foreground">
+                  Jika Anda mewakili SPV, BUP, atau PJPK dan ingin menjangkau
+                  investor ritel maupun institusi secara langsung dan
+                  transparan, mulailah dari sini.
                 </p>
               </div>
             </ScrollReveal>

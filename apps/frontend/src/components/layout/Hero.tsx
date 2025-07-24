@@ -51,7 +51,7 @@ const Hero = () => {
                 Demokratisasi Investasi
               </span>
               <span className="block bg-gradient-to-r from-financial-gold-400 via-financial-gold-300 to-success-400 bg-clip-text text-transparent animate-fade-in-up animate-delay-300">
-                KPBU di Indonesia
+                PPP di Indonesia
               </span>
             </h1>
           </div>
@@ -62,9 +62,10 @@ const Hero = () => {
           >
             <p className="text-lg sm:text-xl text-white/95 max-w-4xl mx-auto mb-10 text-indonesian font-medium leading-relaxed">
               Platform pertama untuk tokenisasi dan transaksi investasi proyek
-              Kerjasama Pemerintah dan Badan Usaha (KPBU), yang menghubungkan
-              investor institusi pemilik proyek KPBU dengan masyarakat investor
-              ritel melalui teknologi blockchain.
+              Public-Private Partnership (PPP) atau Kerjasama Pemerintah dan
+              Badan Usaha (KPBU), yang menghubungkan investor institusi pemilik
+              proyek PPP dengan masyarakat investor ritel melalui teknologi
+              blockchain.
             </p>
           </div>
 

@@ -25,7 +25,7 @@ const HowItWorks = () => {
         icon: FileCheck,
         title: 'Originasi Proyek',
         description:
-          'SPV yang disetujui pemerintah menjalani uji tuntas komprehensif dan pemeriksaan kepatuhan regulasi.',
+          'SPV proyek PPP (investor institusi) diseleksi dan diverifikasi oleh tim Partisipro.',
         details: [
           'Validasi kerangka hukum',
           'Analisis kelayakan finansial',
@@ -35,11 +35,11 @@ const HowItWorks = () => {
       },
       {
         icon: Coins,
-        title: 'Tokenisasi',
+        title: 'Tokenisasi Proyek',
         description:
-          'Proyek infrastruktur ditokenisasi menggunakan pola factory, menciptakan set smart contract yang terisolasi.',
+          'Proyek diubah menjadi token digital menggunakan smart contract berbasis ERC-20 dan ERC-3643.',
         details: [
-          'Pembuatan token ERC-20',
+          'Token Proyek ERC-20 dan ERC-3643',
           'Deployment smart contract',
           'Struktur kepemilikan pecahan',
         ],
@@ -47,25 +47,25 @@ const HowItWorks = () => {
       },
       {
         icon: TrendingUp,
-        title: 'Periode Offering',
+        title: 'Distribusi Token ke Publik',
         description:
-          'Penjualan token awal dilakukan melalui Project Garuda IDR Stablecoin untuk kepatuhan regulasi.',
+          'Token proyek dijual kepada publik melalui off-chain dan dicatat pada on-chain.',
         details: [
-          'Integrasi IDR stablecoin',
-          'Proses verifikasi KYC',
-          'Mekanisme penetapan harga transparan',
+          'Harga initial offering',
+          'Investasi mulai dari Rp100.000',
+          'Disertai proses verifikasi KYC',
         ],
         color: 'from-success-500 to-success-600',
       },
       {
         icon: RefreshCw,
-        title: 'Operasi & Pengembalian',
+        title: 'Operasi & Kupon Investasi',
         description:
-          'Distribusi keuntungan otomatis melalui kontrak Treasury dengan perdagangan pasar sekunder di DEX.',
+          'Investor ritel menerima kupon otomatis dan dapat menjual token di pasar sekunder.',
         details: [
-          'Distribusi keuntungan otomatis',
+          'Distribusi imbal hasil via smart contract',
           'Likuiditas pasar sekunder',
-          'Mekanisme burn-to-claim',
+          'Token diperdagangkan melalui DEX',
         ],
         color: 'from-accent-500 to-accent-600',
       },
@@ -102,7 +102,7 @@ const HowItWorks = () => {
       icon: Building,
       title: 'Solusi Investor Institusi',
       description:
-        'Dapat mencairkan kepemilikan proyek KPBU lebih awal, tanpa menunggu masa operasional selesai, tanpa gangguan terhadap struktur KPBU.',
+        'Dapat mencairkan kepemilikan proyek PPP lebih awal, tanpa menunggu masa operasional selesai, tanpa gangguan terhadap struktur PPP.',
     },
     {
       icon: Users,
@@ -139,9 +139,10 @@ const HowItWorks = () => {
             </h2>
             <p className="text-responsive-lg text-muted-foreground max-w-3xl mx-auto text-indonesian">
               Partisipro adalah platform tokenisasi dan transaksi investasi
-              proyek Kepemilikan Pemerintah dan Badan Usaha (KPBU), yang
-              menghubungkan investor institusi pemilik proyek KPBU dengan
-              masyarakat investor ritel melalui teknologi blockchain.
+              proyek Public-Private Partnership (PPP) atau Kerjasama Pemerintah
+              dan Badan Usaha (KPBU), yang menghubungkan investor institusi
+              pemilik proyek PPP dengan masyarakat investor ritel melalui
+              teknologi blockchain.
             </p>
           </div>
 

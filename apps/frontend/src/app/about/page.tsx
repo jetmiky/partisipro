@@ -97,9 +97,8 @@ export default function AboutPage() {
                     <p className="text-lg text-muted-foreground leading-relaxed">
                       Menciptakan platform investasi infrastruktur yang dapat
                       diakses oleh seluruh masyarakat Indonesia, memungkinkan
-                      partisipasi dalam proyek-proyek Kemitraan Pemerintah dan
-                      Badan Usaha (KPBU) melalui tokenisasi yang aman dan
-                      transparan.
+                      partisipasi dalam proyek-proyek Public-Private Partnership
+                      (PPP) melalui tokenisasi yang aman dan transparan.
                     </p>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                       Kami percaya bahwa setiap warga negara berhak
@@ -211,7 +210,7 @@ export default function AboutPage() {
                     Mengapa Fokus pada PPP?
                   </h2>
                   <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                    Public-Private Partnership (PPP) atau Kemitraan Pemerintah
+                    Public-Private Partnership (PPP) atau Kerjasama Pemerintah
                     dan Badan Usaha (KPBU) adalah skema pembiayaan infrastruktur
                     yang memungkinkan sektor swasta berpartisipasi dalam
                     pembangunan dan operasional proyek infrastruktur publik.

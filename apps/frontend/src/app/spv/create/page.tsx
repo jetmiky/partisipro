@@ -61,7 +61,7 @@ export default function SPVCreatePage() {
   // const [uploadedDocuments, setUploadedDocuments] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<ProjectFormData>({
     projectName: 'Jalan Tol Sumatera',
-    projectType: 'Toll Road',
+    projectType: 'Infrastruktur Jalan dan Jembatan',
     location: 'Sumatera',
     description: 'Jalan Tol Lintas Sumatera',
     pjpk: 'Kementerian Pekerjaan Umum',
@@ -129,15 +129,12 @@ export default function SPVCreatePage() {
   ];
 
   const projectTypes = [
-    'Toll Road',
-    'Airport',
-    'Port',
-    'Bridge',
-    'Power Plant',
-    'Water Treatment',
-    'Hospital',
-    'Education Facility',
-    'Other Infrastructure',
+    'Infrastruktur Jalan dan Jembatan',
+    'Infrastruktur Air dan Sanitasi',
+    'Infrastruktur Kesehatan',
+    'Infrastruktur Energi',
+    'Infrastruktur Telekomunikasi',
+    'Lainnya',
   ];
 
   const updateFormData = (

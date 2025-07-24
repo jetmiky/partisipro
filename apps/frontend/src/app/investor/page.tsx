@@ -38,9 +38,9 @@ export default function SPVIndexPage() {
         icon: Coins,
         title: 'Jelajahi Proyek',
         description:
-          'Jelajahi berbagai proyek KPBU yang telah ditokenisasi pada platform Partisipro.',
+          'Jelajahi berbagai proyek PPP yang telah ditokenisasi pada platform Partisipro.',
         details: [
-          'Tersedia berbagai jenis token KPBU',
+          'Tersedia berbagai jenis token PPP',
           'Simulasikan profit atau keuntungan',
           'Mulai dari Rp100.000',
         ],
@@ -124,12 +124,12 @@ export default function SPVIndexPage() {
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-6">
-                Investasi Proyek KPBU
+                Investasi Proyek PPP
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
                 Dukung pembangunan infrastruktur nasional sembari menikmati
                 imbal hasil kupon rutin. Mulai investasi dalam kepemilikan
-                proyek KPBU dari Rp100.000 saja.
+                proyek PPP dari Rp100.000 saja.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -197,7 +197,7 @@ export default function SPVIndexPage() {
                 Langkah Praktis Investasi
               </h2>
               <p className="text-responsive-lg max-w-3xl mx-auto text-indonesian">
-                Proses investasi pada berbagai proyek KPBU dilakukan melalui
+                Proses investasi pada berbagai proyek PPP dilakukan melalui
                 Partisipro dengan mudah dan cepat.
               </p>
             </div>
@@ -277,7 +277,7 @@ export default function SPVIndexPage() {
                 </h2>
                 <p className="text-responsive-lg text-muted-foreground max-w-2xl mx-auto text-indonesian">
                   Platform kami menggabungkan yang terbaik dari investasi
-                  pendanaan KPBU tradisional dengan teknologi blockchain modern.
+                  pendanaan PPP tradisional dengan teknologi blockchain modern.
                 </p>
               </div>
 
@@ -309,7 +309,7 @@ export default function SPVIndexPage() {
                   Mulai Investasi Sekarang
                 </h3>
                 <p className="text-responsive-md text-muted-foreground mb-6 max-w-xl mx-auto text-indonesian">
-                  Raih peluang investasi berbagai proyek KPBU dengan teknologi
+                  Raih peluang investasi berbagai proyek PPP dengan teknologi
                   blockchain terdepan dan kepatuhan penuh terhadap regulasi yang
                   berlaku.
                 </p>
