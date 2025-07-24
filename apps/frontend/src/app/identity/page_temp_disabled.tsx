@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { Button, DashboardLayout } from '@/components/ui';
 import {
   CheckCircle,
@@ -33,6 +34,7 @@ import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 
 export default function IdentityPage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const {
     // user,
@@ -284,10 +286,10 @@ export default function IdentityPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Identity Verification
+                    {t('identity.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    Manage your identity status and verification claims
+                    {t('identity.subtitle')}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -301,7 +303,9 @@ export default function IdentityPage() {
                     <RefreshCw
                       className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
                     />
-                    {refreshing ? 'Refreshing...' : 'Refresh Status'}
+                    {refreshing
+                      ? t('identity.refreshing')
+                      : t('identity.refreshStatus')}
                   </AnimatedButton>
                   <AnimatedButton
                     onClick={() => handleExportData('pdf')}
@@ -310,7 +314,7 @@ export default function IdentityPage() {
                     ripple
                   >
                     <Download className="w-4 h-4" />
-                    Export Data
+                    {t('identity.exportData')}
                   </AnimatedButton>
                   <AnimatedButton
                     onClick={() => router.push('/kyc')}
@@ -318,7 +322,7 @@ export default function IdentityPage() {
                     ripple
                   >
                     <Settings className="w-4 h-4" />
-                    Manage KYC
+                    {t('identity.manageKyc')}
                   </AnimatedButton>
                 </div>
               </div>

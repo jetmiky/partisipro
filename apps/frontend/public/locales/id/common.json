@@ -1,0 +1,2163 @@
+{
+  "meta": {
+    "title": "Partisipro - Platform Investasi Infrastruktur Blockchain Indonesia",
+    "description": "Demokratisasi investasi infrastruktur di Indonesia melalui teknologi blockchain. Platform PPP yang aman, transparan, dan patuh regulasi Bank Indonesia.",
+    "keywords": "investasi infrastruktur, blockchain Indonesia, PPP, Public Private Partnership, Project Garuda IDR, tokenisasi"
+  },
+  "navigation": {
+    "home": "Beranda",
+    "howItWorks": "Cara Kerja",
+    "projects": "Proyek",
+    "about": "Tentang Kami",
+    "contact": "Kontak",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "getStarted": "Mulai",
+    "dashboard": "Dashboard",
+    "marketplace": "Marketplace",
+    "portfolio": "Portfolio"
+  },
+  "common": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "success": "Berhasil",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "confirm": "Konfirmasi",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "view": "Lihat",
+    "search": "Cari",
+    "filter": "Filter",
+    "export": "Ekspor",
+    "refresh": "Perbarui",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "previous": "Sebelumnya",
+    "submit": "Kirim",
+    "close": "Tutup"
+  },
+  "hero": {
+    "title": "Demokratisasi Investasi",
+    "titleHighlight": "PPP di Indonesia",
+    "subtitle": "Platform pertama untuk tokenisasi dan transaksi investasi proyek Public-Private Partnership (PPP) atau Kerjasama Pemerintah dan Badan Usaha (KPBU), yang menghubungkan investor institusi pemilik proyek PPP dengan masyarakat investor ritel melalui teknologi blockchain.",
+    "ctaTokenize": "Tokenisasi Proyek",
+    "ctaInvest": "Mulai Investasi",
+    "trustIndicator1": "BI - OJK Hackathon 2025",
+    "trustIndicator2": "Tim Indonesia Emas",
+    "scrollText": "Scroll untuk menjelajahi"
+  },
+  "dashboard": {
+    "title": "Dashboard Investasi",
+    "welcome": "Selamat datang kembali! Berikut ringkasan Portfolio Anda.",
+    "tabs": {
+      "overview": "Ringkasan",
+      "portfolio": "Portfolio",
+      "transactions": "Transaksi",
+      "analytics": "Analytics",
+      "insights": "Insight Lintas Proyek",
+      "governance": "Pelacakan Governance"
+    },
+    "stats": {
+      "totalInvested": "Total Investasi",
+      "currentValue": "Nilai Saat Ini",
+      "totalReturns": "Total Keuntungan",
+      "activeProjects": "Proyek Aktif"
+    },
+    "identity": {
+      "title": "Status Verifikasi Identitas",
+      "verified": "Identitas ERC-3643 Anda aktif dan terverifikasi",
+      "kycStatus": "Status KYC",
+      "verifiedLabel": "Terverifikasi",
+      "activeClaims": "Klaim Aktif",
+      "investmentEligible": "Memenuhi Syarat Investasi",
+      "benefits": "Manfaat Identitas: Verifikasi sekali, persetujuan investasi instan"
+    },
+    "portfolio": {
+      "title": "Portfolio Investasi",
+      "description": "Kelola investasi Anda dan lacak performa",
+      "searchPlaceholder": "Cari proyek...",
+      "allStatus": "Semua Status",
+      "manageIdentity": "Kelola Identitas",
+      "browseProjects": "Jelajahi Proyek Baru",
+      "viewAll": "Lihat Semua Aktivitas Governance",
+      "claimReturns": "Klaim Keuntungan",
+      "viewProfile": "Lihat Profil"
+    }
+  },
+  "howItWorks": {
+    "title": "Cara Kerja Platform",
+    "subtitle": "Memahami proses investasi infrastruktur melalui teknologi blockchain",
+    "hero": {
+      "simpleProcess": "Proses Sederhana",
+      "safeTransparent": "Aman & Transparan",
+      "startIn5Minutes": "Mulai dalam 5 Menit"
+    },
+    "roles": {
+      "title": "Pilih Peran Anda",
+      "description": "Setiap peran memiliki workflow yang berbeda untuk mengoptimalkan pengalaman pengguna"
+    },
+    "investorSteps": {
+      "step1": {
+        "title": "Daftar & Verifikasi",
+        "description": "Daftar dengan email/sosial media dan selesaikan KYC",
+        "duration": "5-15 menit",
+        "details": [
+          "Login dengan Web3Auth (email/Google/social)",
+          "Verifikasi identitas dengan KYC provider",
+          "Whitelist wallet address otomatis",
+          "Akses penuh ke platform"
+        ]
+      },
+      "step2": {
+        "title": "Jelajahi Proyek",
+        "description": "Browse marketplace dan pilih proyek infrastruktur",
+        "duration": "10-30 menit",
+        "details": [
+          "Lihat daftar proyek PPP yang tersedia",
+          "Analisis detail proyek dan risiko",
+          "Baca dokumen legal dan kontrak",
+          "Gunakan AI assistant untuk analisis"
+        ]
+      },
+      "step3": {
+        "title": "Investasi IDR",
+        "description": "Investasi dengan Rupiah melalui payment gateway",
+        "duration": "2-5 menit",
+        "details": [
+          "Pilih jumlah investasi dalam IDR",
+          "Bayar melalui payment gateway terpercaya",
+          "Sistem generates authorization voucher",
+          "Token otomatis mint ke wallet Anda"
+        ]
+      },
+      "step4": {
+        "title": "Kelola Portfolio",
+        "description": "Monitor investasi dan performa proyek",
+        "duration": "Ongoing",
+        "details": [
+          "Dashboard portfolio real-time",
+          "Tracking performa dan ROI",
+          "Notifikasi distribusi keuntungan",
+          "Analytics dan reporting"
+        ]
+      },
+      "step5": {
+        "title": "Klaim Keuntungan",
+        "description": "Terima pembagian keuntungan secara otomatis",
+        "duration": "1-2 menit",
+        "details": [
+          "SPV deposit keuntungan ke Treasury",
+          "Smart contract hitung pembagian",
+          "Klaim keuntungan dalam IDR",
+          "Transfer langsung ke rekening bank"
+        ]
+      }
+    },
+    "spvSteps": {
+      "step1": {
+        "title": "Aplikasi SPV",
+        "description": "Submit proposal proyek untuk due diligence",
+        "duration": "2-4 minggu",
+        "details": [
+          "Siapkan dokumentasi proyek lengkap",
+          "Submit ke Platform Administrator",
+          "Proses due diligence dan evaluasi",
+          "Approval dan whitelist multi-sig wallet"
+        ]
+      },
+      "step2": {
+        "title": "Tokenisasi Proyek",
+        "description": "Buat parameter tokenisasi dan deploy smart contracts",
+        "duration": "1-2 hari",
+        "details": [
+          "Login dengan multi-signature wallet",
+          "Isi form parameter tokenisasi",
+          "Smart contract deployment otomatis",
+          "Project listing di marketplace"
+        ]
+      },
+      "step3": {
+        "title": "Fundraising",
+        "description": "Initial offering periode untuk investor",
+        "duration": "2-12 minggu",
+        "details": [
+          "Marketing dan promosi proyek",
+          "Investor beli token selama offering",
+          "Funds terkumpul di escrow",
+          "Finalisasi offering dan fund transfer"
+        ]
+      },
+      "step4": {
+        "title": "Operasi Proyek",
+        "description": "Jalankan proyek infrastruktur",
+        "duration": "5-30 tahun",
+        "details": [
+          "Konstruksi dan implementasi",
+          "Operasional dan maintenance",
+          "Generate revenue dari proyek",
+          "Periodic reporting ke investor"
+        ]
+      },
+      "step5": {
+        "title": "Distribusi Keuntungan",
+        "description": "Deposit keuntungan untuk investor",
+        "duration": "Bulanan/Quarterly",
+        "details": [
+          "Deposit profit dalam IDR",
+          "Platform verifikasi dan record",
+          "Smart contract calculate shares",
+          "Investor claim keuntungan"
+        ]
+      }
+    },
+    "adminSteps": {
+      "step1": {
+        "title": "SPV Approval",
+        "description": "Evaluasi dan approve aplikasi SPV",
+        "duration": "1-3 minggu",
+        "details": [
+          "Review dokumentasi proyek",
+          "Due diligence dan risk assessment",
+          "Whitelist SPV multi-sig wallet",
+          "Grant project creation privileges"
+        ]
+      },
+      "step2": {
+        "title": "Project Oversight",
+        "description": "Monitor dan supervisi semua proyek",
+        "duration": "Ongoing",
+        "details": [
+          "Real-time project monitoring",
+          "Compliance dan regulatory check",
+          "Risk management dan mitigation",
+          "Intervention tools bila diperlukan"
+        ]
+      },
+      "step3": {
+        "title": "Fee Management",
+        "description": "Kelola fee platform dan revenue",
+        "duration": "Monthly",
+        "details": [
+          "Set platform fees (listing, management)",
+          "Collect revenue dari Treasury",
+          "Revenue tracking dan analytics",
+          "Fee optimization dan adjustment"
+        ]
+      }
+    },
+    "blockchain": {
+      "title": "Mengapa Teknologi Blockchain?",
+      "description": "Teknologi blockchain memberikan keamanan, transparansi, dan efisiensi yang tidak mungkin dicapai dengan sistem tradisional",
+      "features": {
+        "security": {
+          "title": "Keamanan Tingkat Enterprise",
+          "description": "Multi-signature wallets dan smart contracts yang telah diaudit",
+          "details": [
+            "OpenZeppelin security standards",
+            "Multi-sig wallet untuk admin functions",
+            "Upgradeable proxy pattern",
+            "Regular security audits"
+          ]
+        },
+        "transparency": {
+          "title": "Transparansi Penuh",
+          "description": "Semua transaksi dan distribusi tercatat di blockchain",
+          "details": [
+            "Immutable transaction records",
+            "Real-time profit distribution",
+            "Open source smart contracts",
+            "Public audit trail"
+          ]
+        },
+        "network": {
+          "title": "Arbitrum Network",
+          "description": "Layer-2 Ethereum untuk transaksi cepat dan murah",
+          "details": [
+            "Gas fees sangat rendah",
+            "Transaksi instant confirmation",
+            "Ethereum security inheritance",
+            "Scalable infrastructure"
+          ]
+        },
+        "compliance": {
+          "title": "Regulasi Compliant",
+          "description": "Patuh regulasi Bank Indonesia dan standar internasional",
+          "details": [
+            "Bank Indonesia approved",
+            "KYC/AML compliance",
+            "Project Garuda IDR integration",
+            "Legal framework compliance"
+          ]
+        }
+      }
+    },
+    "flow": {
+      "title": "Arsitektur Sistem Terintegrasi",
+      "description": "Platform kami menggunakan arsitektur hybrid yang menggabungkan kekuatan on-chain dan off-chain systems",
+      "onChain": {
+        "title": "On-Chain Process",
+        "steps": [
+          "Smart Contract Deployment",
+          "Token Minting",
+          "Profit Distribution",
+          "Governance Voting"
+        ]
+      },
+      "offChain": {
+        "title": "Off-Chain Process",
+        "steps": [
+          "KYC Verification",
+          "IDR Payment Gateway",
+          "Project Due Diligence",
+          "Bank Account Settlement"
+        ]
+      },
+      "integration": {
+        "title": "Integration Layer",
+        "steps": [
+          "Web3Auth SDK",
+          "Authorization Voucher",
+          "Event Monitoring",
+          "Real-time Sync"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Pertanyaan yang Sering Diajukan",
+      "description": "Jawaban untuk pertanyaan umum tentang cara kerja platform",
+      "questions": {
+        "blockchain": {
+          "question": "Apakah saya perlu memahami blockchain?",
+          "answer": "Tidak! Platform dirancang untuk user yang tidak familiar dengan crypto. Semua kompleksitas blockchain tersembunyi di balik interface yang sederhana."
+        },
+        "security": {
+          "question": "Bagaimana keamanan dana saya?",
+          "answer": "Dana Anda dilindungi oleh smart contracts yang telah diaudit, multi-signature wallets, dan regulasi Bank Indonesia yang ketat."
+        },
+        "minimum": {
+          "question": "Berapa minimum investasi?",
+          "answer": "Minimum investasi mulai dari IDR 1 juta, memungkinkan partisipasi investor retail dalam proyek infrastruktur besar."
+        },
+        "withdraw": {
+          "question": "Kapan saya bisa menarik keuntungan?",
+          "answer": "Keuntungan didistribusikan secara periodik sesuai dengan jadwal proyek, umumnya quarterly atau semi-annual."
+        }
+      }
+    },
+    "cta": {
+      "title": "Siap Mulai Berinvestasi?",
+      "description": "Bergabunglah dengan revolusi investasi infrastruktur Indonesia. Verifikasi identitas Anda dan mulai investasi hari ini.",
+      "startInvesting": "Mulai Investasi",
+      "freeConsultation": "Konsultasi Gratis"
+    },
+    "process": {
+      "step": "Step",
+      "estimatedTime": "Estimasi waktu:",
+      "processDetails": "Detail Proses:"
+    }
+  },
+  "faq": {
+    "title": "Pertanyaan Umum",
+    "subtitle": "Ada Pertanyaan?",
+    "description": "Kami Punya Jawabannya",
+    "categories": {
+      "general": "Umum",
+      "security": "Keamanan",
+      "investment": "Investasi",
+      "legal": "Legal"
+    },
+    "questions": {
+      "whatIsPartisipro": {
+        "question": "Apa itu Partisipro dan bagaimana cara kerjanya?",
+        "answer": "Partisipro adalah platform blockchain yang memungkinkan investor ritel berpartisipasi dalam proyek infrastruktur PPP (Public Private Partnership) melalui tokenisasi. Platform kami mengubah proyek infrastruktur menjadi token digital yang dapat diperdagangkan, memberikan akses investasi yang sebelumnya hanya tersedia untuk investor institusional."
+      },
+      "whyInvest": {
+        "question": "Mengapa saya harus berinvestasi melalui Partisipro?",
+        "answer": "Partisipro memberikan akses kepada investor ritel untuk berpartisipasi dalam proyek infrastruktur besar yang sebelumnya hanya tersedia untuk investor institusional. Dengan teknologi blockchain, kami menjamin transparansi, keamanan, dan efisiensi dalam setiap transaksi."
+      },
+      "howSafe": {
+        "question": "Seberapa aman investasi saya di platform ini?",
+        "answer": "Keamanan adalah prioritas utama kami. Platform menggunakan teknologi blockchain dengan smart contract yang telah diaudit, enkripsi tingkat enterprise, dan mematuhi standar keamanan internasional. Semua investasi dilindungi oleh protokol keamanan berlapis."
+      },
+      "minimumInvestment": {
+        "question": "Berapa minimum investasi yang diperlukan?",
+        "answer": "Minimum investasi bervariasi tergantung pada proyek, namun kami berkomitmen untuk membuat investasi infrastruktur dapat diakses oleh semua kalangan dengan minimum yang terjangkau, biasanya mulai dari Rp 1.000.000."
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "welcomeBack": "Welcome Back!",
+      "welcomeSubtitle": "Continue your journey in democratizing infrastructure investment",
+      "welcomeMessage": "Transforming Indonesia's infrastructure landscape through blockchain technology",
+      "welcomeQuote": "Transforming Indonesia's infrastructure landscape through blockchain technology",
+      "title": "Selamat datang di Partisipro",
+      "subtitle": "Sign In to get started",
+      "description": "Enter your details to proceed further",
+      "emailLabel": "Email",
+      "emailPlaceholder": "michael@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••••",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot Password?",
+      "signInButton": "Sign In",
+      "connectWeb3Auth": "Connect with Web3Auth",
+      "orSignInWith": "Or sign in with",
+      "socialButtons": {
+        "google": "Google",
+        "apple": "Apple",
+        "facebook": "Facebook"
+      },
+      "noAccount": "Don't have any account?",
+      "signUpLink": "Sign Up",
+      "termsAgreement": "By signing in, you agree to our",
+      "termsOfUse": "Terms of Use",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "platformSubtitle": "PPP Blockchain Platform",
+      "platformSubtitleMobile": "PPP Platform",
+      "messages": {
+        "success": "Berhasil!",
+        "welcomeBack": "Selamat datang kembali di Partisipro"
+      }
+    },
+    "signUp": {
+      "joinFuture": "Join the Revolution!",
+      "startJourney": "Start your journey in democratizing infrastructure investment through blockchain",
+      "inspirationQuote": "Empowering every Indonesian to participate in nation-building through smart investments",
+      "title": "Create Your Partisipro Account",
+      "subtitle": "Get started with your investment journey",
+      "description": "Fill in your details to create your account",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "roleLabel": "I am a",
+      "roleOptions": {
+        "investor": "Retail Investor",
+        "spv": "Project Company (SPV)",
+        "institution": "Institutional Investor"
+      },
+      "agreeTerms": "I agree to the",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "signUpButton": "Create Account",
+      "connectWeb3Auth": "Sign up with Web3Auth",
+      "orSignUpWith": "Or sign up with",
+      "socialButtons": {
+        "google": "Google",
+        "apple": "Apple",
+        "facebook": "Facebook"
+      },
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign In",
+      "platformSubtitle": "PPP Blockchain Platform",
+      "platformSubtitleMobile": "PPP Platform",
+      "benefits": {
+        "title": "Why Choose Partisipro?",
+        "item1": "Access to exclusive PPP infrastructure projects",
+        "item2": "Blockchain-secured transparent investments",
+        "item3": "Regulated and compliant platform",
+        "item4": "Real-time portfolio tracking and analytics"
+      },
+      "messages": {
+        "success": "Berhasil!",
+        "welcome": "Selamat datang di Partisipro"
+      }
+    },
+    "recovery": {
+      "title": "Reset Your Password",
+      "subtitle": "Secure password recovery for your account",
+      "description": "We'll help you regain access to your Partisipro account",
+      "backToSignIn": "Back to Sign In",
+      "steps": {
+        "email": {
+          "title": "Enter Your Email",
+          "subtitle": "We'll send you a verification code",
+          "emailLabel": "Email Address",
+          "emailPlaceholder": "Enter your email address",
+          "sendCodeButton": "Send Verification Code",
+          "sendingCode": "Sending Code..."
+        },
+        "otp": {
+          "title": "Enter Verification Code",
+          "subtitle": "Check your email for the 6-digit code",
+          "description": "We sent a verification code to",
+          "otpLabel": "Verification Code",
+          "otpPlaceholder": "Enter 6-digit code",
+          "verifyButton": "Verify Code",
+          "verifying": "Verifying...",
+          "resendCode": "Resend Code",
+          "resendTimer": "Resend code in",
+          "seconds": "seconds",
+          "codeExpires": "Code expires in 10 minutes"
+        },
+        "newPassword": {
+          "title": "Create New Password",
+          "subtitle": "Choose a strong password for your account",
+          "passwordLabel": "New Password",
+          "passwordPlaceholder": "Enter new password",
+          "confirmPasswordLabel": "Confirm New Password",
+          "confirmPasswordPlaceholder": "Confirm new password",
+          "updateButton": "Update Password",
+          "updating": "Updating...",
+          "requirements": {
+            "title": "Password Requirements:",
+            "minLength": "At least 8 characters long",
+            "upperCase": "One uppercase letter",
+            "lowerCase": "One lowercase letter",
+            "number": "One number",
+            "special": "One special character"
+          }
+        }
+      },
+      "messages": {
+        "codeSent": "Verification code sent successfully!",
+        "codeVerified": "Code verified successfully!",
+        "passwordUpdated": "Password updated successfully!",
+        "invalidEmail": "Please enter a valid email address",
+        "invalidCode": "Invalid verification code",
+        "codeExpired": "Verification code has expired",
+        "passwordMismatch": "Passwords do not match",
+        "weakPassword": "Password does not meet requirements",
+        "networkError": "Network error. Please try again.",
+        "tooManyAttempts": "Too many attempts. Please try again later."
+      },
+      "success": {
+        "title": "Password Reset Successful!",
+        "subtitle": "Your password has been updated successfully",
+        "description": "You can now sign in with your new password",
+        "signInButton": "Sign In Now"
+      }
+    },
+    "messages": {
+      "signInSuccess": "Sign in successful!",
+      "signInWelcome": "Welcome back to Partisipro",
+      "signUpSuccess": "Account created successfully!",
+      "signUpWelcome": "Welcome to Partisipro",
+      "socialSignInSuccess": "sign in successful!",
+      "socialSignUpSuccess": "account created successfully!",
+      "invalidCredentials": "Invalid email or password",
+      "emailAlreadyExists": "Email address already registered",
+      "networkError": "Network error. Please try again.",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "accountNotVerified": "Please verify your email before signing in"
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace Proyek",
+    "subtitle": "Jelajahi peluang investasi infrastruktur terbaik",
+    "searchPlaceholder": "Cari proyek infrastruktur...",
+    "filters": {
+      "all": "Semua Proyek",
+      "active": "Aktif",
+      "completed": "Selesai",
+      "upcoming": "Akan Datang"
+    },
+    "projectCard": {
+      "viewDetails": "Lihat Detail",
+      "investNow": "Investasi Sekarang",
+      "funded": "Terdanai",
+      "daysLeft": "hari tersisa",
+      "minimumInvestment": "Min. Investasi",
+      "expectedReturn": "Perkiraan Keuntungan",
+      "totalFunding": "Total Pendanaan"
+    }
+  },
+  "identity": {
+    "title": "Verifikasi Identitas",
+    "subtitle": "Kelola status verifikasi identitas dan klaim Anda",
+    "backToIdentity": "Kembali ke Identitas",
+    "verificationStatus": "Status Verifikasi",
+    "verified": "Terverifikasi",
+    "pending": "Menunggu",
+    "expired": "Kedaluwarsa",
+    "failed": "Gagal",
+    "notVerified": "Belum Terverifikasi",
+    "active": "Aktif",
+    "refreshStatus": "Perbarui Status",
+    "refreshing": "Memperbarui...",
+    "exportData": "Ekspor Data",
+    "manageKyc": "Kelola KYC",
+    "overview": {
+      "verifiedIdentity": "Identitas Terverifikasi",
+      "identityConfirmed": "Identitas terkonfirmasi",
+      "verificationNeeded": "Verifikasi diperlukan",
+      "kycStatus": "Status KYC",
+      "kycDescription": "Verifikasi Know Your Customer",
+      "verificationLevel": "Level Verifikasi",
+      "activeClaims": "Klaim identitas aktif",
+      "expiresIn": "Berakhir Dalam",
+      "timeUntilRenewal": "Waktu hingga perpanjangan diperlukan",
+      "days": "hari",
+      "noExpiry": "Tidak berakhir"
+    },
+    "statusCard": {
+      "title": "Status Identitas",
+      "description": "Status verifikasi identitas dan kelayakan Anda saat ini",
+      "kycVerification": "Verifikasi KYC",
+      "completedOn": "Diselesaikan pada",
+      "investmentEligibility": "Kelayakan Investasi",
+      "eligibleForAll": "Memenuhi syarat untuk semua investasi platform",
+      "eligible": "MEMENUHI SYARAT",
+      "verificationExpiry": "Masa Berlaku Verifikasi",
+      "expiresOn": "Berakhir pada",
+      "noExpiryDate": "Tidak ada tanggal berakhir",
+      "expired": "KEDALUWARSA"
+    },
+    "claims": {
+      "title": "Klaim Aktif",
+      "description": "Klaim identitas dan sertifikasi Anda saat ini",
+      "viewAllClaims": "Lihat Semua Klaim",
+      "issuedBy": "Diterbitkan oleh",
+      "on": "pada",
+      "expires": "Berakhir:",
+      "never": "Tidak pernah"
+    },
+    "eligibility": {
+      "title": "Kelayakan Investasi",
+      "description": "Proyek dan peluang investasi yang tersedia untuk Anda",
+      "allProjects": "Semua Proyek Platform",
+      "allProjectsDesc": "Akses ke semua proyek infrastruktur yang ditokenisasi",
+      "accreditedBenefits": "Manfaat Investor Terakreditasi",
+      "accreditedDesc": "Batas investasi lebih tinggi dan proyek eksklusif",
+      "governanceParticipation": "Partisipasi Governance",
+      "governanceDesc": "Voting pada proposal proyek dan governance platform"
+    },
+    "timeline": {
+      "title": "Timeline Verifikasi",
+      "kycCompleted": "Verifikasi KYC Selesai",
+      "claimsIssued": "Klaim Identitas Diterbitkan",
+      "claimsDescription": "klaim ditambahkan ke identitas Anda",
+      "accessGranted": "Akses Investasi Diberikan",
+      "fullAccess": "Akses penuh ke semua investasi platform"
+    },
+    "benefits": {
+      "title": "Manfaat Identitas Terverifikasi",
+      "oneTimeKyc": "Verifikasi KYC sekali untuk semua proyek",
+      "instantAccess": "Akses instan ke semua peluang investasi",
+      "governanceRights": "Hak voting dalam governance proyek",
+      "prioritySupport": "Dukungan prioritas dari tim"
+    },
+    "messages": {
+      "noData": "Tidak Ada Data Identitas",
+      "noDataDesc": "Tidak dapat memuat status verifikasi identitas Anda.",
+      "tryAgain": "Coba Lagi",
+      "statusRefreshed": "Status diperbarui. Memperbarui {count} klaim.",
+      "dataExported": "Data identitas diekspor sebagai {format}",
+      "loadFailed": "Gagal memuat data identitas. Silakan coba lagi.",
+      "refreshFailed": "Gagal memperbarui status. Silakan coba lagi.",
+      "exportFailed": "Gagal mengekspor data. Silakan coba lagi.",
+      "redirecting": "Mengarahkan ke login..."
+    }
+  },
+  "claims": {
+    "title": "Klaim Identitas",
+    "subtitle": "Kelola klaim identitas dan sertifikasi Anda",
+    "statistics": {
+      "activeClaims": "Klaim Aktif",
+      "expiringSoon": "Segera Berakhir",
+      "renewalRequired": "Perpanjangan Diperlukan",
+      "verifiedClaims": "Klaim Terverifikasi"
+    },
+    "table": {
+      "title": "Semua Klaim",
+      "description": "Daftar lengkap klaim identitas Anda dan statusnya",
+      "claimType": "Jenis Klaim",
+      "issuer": "Penerbit",
+      "issued": "Diterbitkan",
+      "expires": "Berakhir",
+      "status": "Status",
+      "actions": "Aksi",
+      "view": "Lihat",
+      "renew": "Perpanjang",
+      "daysRemaining": "hari tersisa",
+      "expired": "Kedaluwarsa"
+    },
+    "types": {
+      "KYC_APPROVED": "KYC Disetujui",
+      "ACCREDITED_INVESTOR": "Investor Terakreditasi",
+      "INDONESIAN_RESIDENT": "Penduduk Indonesia",
+      "QUALIFIED_INVESTOR": "Investor Berkualitas",
+      "AML_CLEARED": "AML Bersih",
+      "INSTITUTIONAL_INVESTOR": "Investor Institusi",
+      "RETAIL_QUALIFIED": "Ritel Berkualitas"
+    },
+    "status": {
+      "active": "AKTIF",
+      "expired": "KEDALUWARSA",
+      "revoked": "DICABUT",
+      "pending": "MENUNGGU"
+    },
+    "modal": {
+      "title": "Detail Klaim",
+      "claimType": "Jenis Klaim",
+      "status": "Status",
+      "description": "Deskripsi",
+      "issuer": "Penerbit",
+      "issuerAddress": "Alamat Penerbit",
+      "issuedAt": "Diterbitkan Pada",
+      "expiresAt": "Berakhir Pada",
+      "proofHash": "Hash Bukti",
+      "verified": "Terverifikasi",
+      "renewalRequired": "Perpanjangan Diperlukan",
+      "renewalNotice": "Klaim ini memerlukan perpanjangan sebelum berakhir. Hubungi penerbit untuk memulai proses perpanjangan.",
+      "startRenewal": "Mulai Perpanjangan",
+      "processing": "Memproses...",
+      "close": "×"
+    },
+    "messages": {
+      "renewalInitiated": "Perpanjangan Dimulai",
+      "renewalDescription": "Proses perpanjangan klaim dimulai. Anda akan dihubungi oleh penerbit.",
+      "renewalFailed": "Gagal memulai perpanjangan. Silakan coba lagi."
+    }
+  },
+  "kyc": {
+    "title": "Verifikasi Identitas (KYC)",
+    "subtitle": "Verifikasi identitas Anda untuk mengakses semua fitur platform",
+    "chooseProvider": "Pilih Penyedia KYC",
+    "startProcess": "Mulai Proses KYC",
+    "processingTime": "Waktu pemrosesan: 5-10 menit",
+    "requiredDocuments": "Dokumen yang diperlukan:",
+    "continueProcess": "Lanjutkan Proses",
+    "restartProcess": "Mulai Ulang Proses",
+    "backToDashboard": "Kembali ke Dashboard",
+    "documents": {
+      "idCard": "KTP/Kartu Identitas",
+      "selfie": "Foto selfie dengan KTP",
+      "proofOfAddress": "Bukti alamat (opsional)"
+    },
+    "providers": {
+      "verihubs": {
+        "name": "Verihubs Indonesia",
+        "description": "Penyedia KYC terkemuka di Indonesia dengan teknologi AI",
+        "processingTime": "5-10 menit",
+        "features": [
+          "Verifikasi dokumen real-time",
+          "Deteksi liveness dengan AI",
+          "Integrasi database pemerintah",
+          "Kepatuhan regulasi OJK"
+        ]
+      },
+      "sumsub": {
+        "name": "Sum&Substance",
+        "description": "Platform verifikasi identitas global dengan standar internasional",
+        "processingTime": "10-15 menit",
+        "features": [
+          "Verifikasi lintas negara",
+          "AML dan sanction screening",
+          "Document fraud detection",
+          "Manual review tersedia"
+        ]
+      },
+      "jumio": {
+        "name": "Jumio",
+        "description": "Solusi verifikasi identitas dengan teknologi AI terdepan",
+        "processingTime": "3-8 menit",
+        "features": [
+          "AI-powered verification",
+          "Biometric authentication",
+          "Real-time document scan",
+          "Global coverage"
+        ]
+      }
+    },
+    "process": {
+      "step1": {
+        "title": "Pilih Penyedia",
+        "description": "Pilih penyedia KYC yang Anda inginkan"
+      },
+      "step2": {
+        "title": "Upload Dokumen",
+        "description": "Upload foto KTP dan foto selfie"
+      },
+      "step3": {
+        "title": "Verifikasi Liveness",
+        "description": "Lakukan verifikasi kehadiran real-time"
+      },
+      "step4": {
+        "title": "Review & Konfirmasi",
+        "description": "Tinjau informasi dan konfirmasi"
+      }
+    },
+    "status": {
+      "notStarted": "Belum Dimulai",
+      "inProgress": "Sedang Diproses",
+      "completed": "Selesai",
+      "failed": "Gagal",
+      "pending": "Menunggu Review",
+      "rejected": "Ditolak",
+      "expired": "Kedaluwarsa"
+    },
+    "requirements": {
+      "title": "Persyaratan Verifikasi",
+      "subtitle": "Pastikan Anda memenuhi persyaratan berikut",
+      "age": "Berusia minimal 18 tahun",
+      "nationality": "Warga Negara Indonesia",
+      "documents": "Memiliki KTP yang masih berlaku",
+      "camera": "Akses kamera untuk foto selfie",
+      "internet": "Koneksi internet yang stabil"
+    },
+    "messages": {
+      "selectProvider": "Silakan pilih penyedia KYC untuk melanjutkan",
+      "processStarted": "Proses KYC dimulai dengan {provider}",
+      "processCompleted": "Verifikasi KYC berhasil diselesaikan!",
+      "processFailed": "Verifikasi KYC gagal. Silakan coba lagi.",
+      "redirecting": "Mengarahkan ke penyedia KYC...",
+      "documentRequired": "Dokumen KTP diperlukan untuk verifikasi",
+      "ageRestriction": "Anda harus berusia minimal 18 tahun",
+      "nationalityRequired": "Verifikasi terbatas untuk WNI saja",
+      "networkError": "Gagal terhubung ke penyedia KYC",
+      "sessionExpired": "Sesi verifikasi telah berakhir",
+      "invalidDocument": "Dokumen tidak valid atau tidak dapat dibaca",
+      "livenessCheckFailed": "Verifikasi kehadiran gagal",
+      "tooManyAttempts": "Terlalu banyak percobaan. Coba lagi nanti."
+    },
+    "benefits": {
+      "title": "Manfaat Setelah Verifikasi",
+      "access": "Akses penuh ke semua fitur platform",
+      "investment": "Dapat melakukan investasi pada semua proyek",
+      "governance": "Berpartisipasi dalam governance token",
+      "priority": "Dukungan prioritas dari customer service",
+      "exclusive": "Akses ke proyek eksklusif dan pre-sale"
+    },
+    "security": {
+      "title": "Keamanan Data",
+      "encryption": "Data dienkripsi dengan standar bank",
+      "compliance": "Patuh regulasi OJK dan BI",
+      "storage": "Data disimpan aman di server Indonesia",
+      "deletion": "Data dapat dihapus sesuai permintaan"
+    },
+    "help": {
+      "title": "Butuh Bantuan?",
+      "faq": "Lihat FAQ KYC",
+      "support": "Hubungi Customer Support",
+      "video": "Tonton Video Tutorial",
+      "guide": "Baca Panduan Lengkap"
+    }
+  },
+  "investment": {
+    "title": "Investasi Proyek",
+    "selectAmount": "Pilih jumlah investasi",
+    "amountLabel": "Jumlah (IDR)",
+    "amountPlaceholder": "Masukkan jumlah investasi",
+    "minimumAmount": "Minimum investasi",
+    "expectedTokens": "Perkiraan token yang diterima",
+    "paymentMethod": "Metode Pembayaran",
+    "bankTransfer": "Transfer Bank",
+    "eWallet": "E-Wallet",
+    "creditCard": "Kartu Kredit",
+    "investButton": "Investasi Sekarang",
+    "termsAcceptance": "Dengan melanjutkan, Anda menyetujui",
+    "termsOfService": "Syarat Layanan",
+    "privacyPolicy": "Kebijakan Privasi",
+    "riskDisclosure": "Pengungkapan Risiko"
+  },
+  "profile": {
+    "title": "Profil Pengguna",
+    "personalInfo": "Informasi Pribadi",
+    "accountSettings": "Pengaturan Akun",
+    "securitySettings": "Pengaturan Keamanan",
+    "notifications": "Notifikasi",
+    "helpSupport": "Bantuan & Dukungan",
+    "editProfile": "Edit Profil",
+    "changePassword": "Ubah Kata Sandi",
+    "enable2FA": "Aktifkan 2FA",
+    "logout": "Keluar"
+  },
+  "status": {
+    "active": "Aktif",
+    "completed": "Selesai",
+    "pending": "Menunggu",
+    "failed": "Gagal",
+    "processing": "Diproses",
+    "cancelled": "Dibatalkan",
+    "expired": "Kedaluwarsa",
+    "paused": "Dijeda"
+  },
+  "messages": {
+    "success": {
+      "investmentComplete": "Investasi berhasil! Token akan muncul di Portfolio Anda dalam beberapa menit.",
+      "profileUpdated": "Profil berhasil diperbarui",
+      "kycSubmitted": "Dokumen KYC berhasil dikirim untuk verifikasi",
+      "passwordChanged": "Kata sandi berhasil diubah"
+    },
+    "error": {
+      "invalidAmount": "Jumlah investasi tidak valid",
+      "insufficientFunds": "Saldo tidak mencukupi",
+      "kycRequired": "Verifikasi KYC diperlukan sebelum investasi",
+      "networkError": "Gagal terhubung ke jaringan",
+      "sessionExpired": "Sesi telah berakhir, silakan masuk kembali"
+    },
+    "warning": {
+      "highRiskInvestment": "Ini adalah investasi berisiko tinggi",
+      "identityExpiring": "Verifikasi identitas Anda akan berakhir dalam 30 hari",
+      "maintenanceMode": "Platform sedang dalam mode pemeliharaan"
+    }
+  },
+  "spv": {
+    "title": "Portal SPV",
+    "subtitle": "Kelola proyek dan tokenisasi infrastruktur Anda",
+    "createProject": "Buat Proyek Baru",
+    "manageProjects": "Kelola Proyek",
+    "financialReports": "Laporan Keuangan",
+    "investorRelations": "Hubungan Investor",
+    "complianceCenter": "Pusat Kepatuhan"
+  },
+  "spvDashboard": {
+    "title": "Dashboard SPV",
+    "subtitle": "Kelola dan pantau proyek infrastruktur Anda",
+    "stats": {
+      "totalProjects": "Total Proyek",
+      "activeProjects": "Proyek Aktif",
+      "totalFundingRaised": "Total Dana Terkumpul",
+      "monthlyRevenue": "Revenue Bulanan",
+      "completionRate": "Tingkat Penyelesaian",
+      "averageROI": "ROI Rata-rata"
+    },
+    "quickActions": {
+      "title": "Aksi Cepat",
+      "createProject": "Buat Proyek Baru",
+      "viewReports": "Lihat Laporan",
+      "manageCompliance": "Kelola Compliance"
+    },
+    "projects": {
+      "title": "Proyek Saya",
+      "table": {
+        "projectName": "Nama Proyek",
+        "location": "Lokasi",
+        "progress": "Progress",
+        "investors": "Investor",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "status": {
+        "draft": "Draft",
+        "funding": "Pendanaan",
+        "active": "Aktif",
+        "completed": "Selesai"
+      },
+      "actions": {
+        "view": "Lihat",
+        "edit": "Edit",
+        "report": "Laporan"
+      }
+    },
+    "empty": {
+      "title": "Belum Ada Proyek",
+      "description": "Mulai dengan membuat proyek infrastruktur pertama Anda",
+      "createButton": "Buat Proyek Pertama"
+    }
+  },
+  "spvCreate": {
+    "title": "Buat Proyek Baru",
+    "subtitle": "Tokenisasi proyek infrastruktur Anda",
+    "steps": {
+      "basic": "Informasi Dasar",
+      "financial": "Parameter Keuangan",
+      "legal": "Dokumen Legal",
+      "review": "Review & Submit"
+    },
+    "basicInfo": {
+      "title": "Informasi Proyek Dasar",
+      "projectName": "Nama Proyek",
+      "projectType": "Jenis Proyek",
+      "location": "Lokasi",
+      "description": "Deskripsi",
+      "pjpk": "PJPK (Penanggung Jawab Proyek Kerjasama)",
+      "placeholders": {
+        "projectName": "Contoh: Jalan Tol Jakarta-Surabaya",
+        "description": "Jelaskan detail proyek infrastruktur...",
+        "pjpk": "Nama perusahaan SPV"
+      }
+    },
+    "financial": {
+      "title": "Parameter Keuangan",
+      "totalValue": "Nilai Total Proyek",
+      "tokenSupply": "Total Supply Token",
+      "tokenPrice": "Harga Token",
+      "minInvestment": "Investasi Minimum",
+      "expectedROI": "ROI yang Diharapkan",
+      "projectDuration": "Durasi Proyek",
+      "listingFee": "Biaya Listing",
+      "managementFee": "Biaya Management"
+    },
+    "legal": {
+      "title": "Dokumen Legal",
+      "businessPlan": "Business Plan",
+      "feasibilityStudy": "Studi Kelayakan",
+      "legalDocuments": "Dokumen Legal",
+      "uploadInstructions": "Upload dokumen dalam format PDF"
+    },
+    "review": {
+      "title": "Review Proyek",
+      "submitButton": "Submit untuk Review",
+      "backButton": "Kembali",
+      "disclaimer": "Proyek akan direview oleh tim admin sebelum dipublikasikan"
+    },
+    "messages": {
+      "projectCreated": "Proyek Berhasil Dibuat",
+      "projectSubmitted": "Proyek telah disubmit untuk review admin"
+    }
+  },
+  "spvAuth": {
+    "title": "SPV Authentication",
+    "subtitle": "Akses khusus perusahaan SPV",
+    "connectWallet": "Connect Multi-Sig Wallet",
+    "verifyIdentity": "Verifikasi Identitas SPV",
+    "requirements": {
+      "title": "Persyaratan Akses",
+      "wallet": "Multi-signature wallet yang terdaftar",
+      "authorization": "Otorisasi dari Platform Administrator",
+      "compliance": "Dokumen compliance lengkap"
+    }
+  },
+  "spvCompliance": {
+    "title": "Dashboard Compliance",
+    "subtitle": "Pantau status compliance dan regulatory",
+    "overview": {
+      "complianceScore": "Skor Compliance",
+      "lastUpdate": "Update Terakhir",
+      "nextReview": "Review Berikutnya",
+      "alerts": "Alert"
+    },
+    "requirements": {
+      "title": "Persyaratan Compliance",
+      "businessLicense": "Izin Usaha",
+      "projectPermit": "Izin Proyek",
+      "financialReports": "Laporan Keuangan",
+      "auditResults": "Hasil Audit"
+    },
+    "status": {
+      "compliant": "Sesuai",
+      "warning": "Peringatan",
+      "nonCompliant": "Tidak Sesuai",
+      "pending": "Menunggu"
+    }
+  },
+  "spvFinancials": {
+    "title": "Laporan Keuangan",
+    "subtitle": "Kelola distribusi profit dan laporan keuangan",
+    "profitDistribution": {
+      "title": "Distribusi Profit",
+      "totalProfit": "Total Profit",
+      "platformFee": "Biaya Platform",
+      "distributedAmount": "Jumlah Didistribusikan",
+      "remainingBalance": "Saldo Tersisa"
+    },
+    "reports": {
+      "title": "Laporan",
+      "quarterly": "Laporan Kuartalan",
+      "annual": "Laporan Tahunan",
+      "downloadPDF": "Download PDF"
+    }
+  },
+  "spvGovernance": {
+    "title": "Governance Proyek",
+    "subtitle": "Kelola proposal dan voting token holder",
+    "proposals": {
+      "title": "Proposal",
+      "create": "Buat Proposal",
+      "active": "Aktif",
+      "completed": "Selesai",
+      "rejected": "Ditolak"
+    },
+    "voting": {
+      "title": "Voting",
+      "totalVotes": "Total Suara",
+      "participation": "Partisipasi",
+      "deadline": "Deadline"
+    }
+  },
+  "admin": {
+    "title": "Panel Admin",
+    "subtitle": "Kelola platform dan monitor aktivitas sistem",
+    "userManagement": "Manajemen Pengguna",
+    "projectOversight": "Pengawasan Proyek",
+    "systemHealth": "Kesehatan Sistem",
+    "financialOverview": "Ringkasan Keuangan",
+    "complianceMonitoring": "Monitoring Kepatuhan",
+    "identityRegistry": "Registry Identitas",
+    "trustedIssuers": "Penerbit Terpercaya"
+  },
+  "adminDashboard": {
+    "title": "Dashboard Admin",
+    "subtitle": "Monitor aktivitas platform dan kelola sistem",
+    "stats": {
+      "totalUsers": "Total Pengguna",
+      "activeProjects": "Proyek Aktif",
+      "totalFunding": "Total Pendanaan",
+      "systemHealth": "Kesehatan Sistem",
+      "complianceScore": "Skor Compliance",
+      "monthlyGrowth": "Pertumbuhan Bulanan"
+    },
+    "quickActions": {
+      "title": "Aksi Cepat",
+      "manageUsers": "Kelola Pengguna",
+      "reviewProjects": "Review Proyek",
+      "systemSettings": "Pengaturan Sistem",
+      "viewReports": "Lihat Laporan"
+    },
+    "recentActivity": {
+      "title": "Aktivitas Terbaru",
+      "userRegistrations": "Registrasi Pengguna",
+      "projectSubmissions": "Submission Proyek",
+      "complianceEvents": "Event Compliance"
+    }
+  },
+  "adminUsers": {
+    "title": "Manajemen Pengguna",
+    "subtitle": "Kelola pengguna platform dan verifikasi identitas",
+    "filters": {
+      "allUsers": "Semua Pengguna",
+      "verified": "Terverifikasi",
+      "pending": "Menunggu",
+      "suspended": "Disuspend"
+    },
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "kycStatus": "Status KYC",
+      "lastActive": "Terakhir Aktif",
+      "actions": "Aksi"
+    },
+    "actions": {
+      "view": "Lihat",
+      "verify": "Verifikasi",
+      "suspend": "Suspend",
+      "edit": "Edit"
+    },
+    "stats": {
+      "totalUsers": "Total Pengguna",
+      "verifiedUsers": "Pengguna Terverifikasi",
+      "pendingKYC": "KYC Menunggu",
+      "activeToday": "Aktif Hari Ini"
+    }
+  },
+  "adminProjects": {
+    "title": "Manajemen Proyek",
+    "subtitle": "Review dan kelola proyek infrastruktur",
+    "filters": {
+      "allProjects": "Semua Proyek",
+      "pending": "Menunggu Review",
+      "approved": "Disetujui",
+      "rejected": "Ditolak",
+      "active": "Aktif"
+    },
+    "table": {
+      "projectName": "Nama Proyek",
+      "spv": "SPV",
+      "totalValue": "Nilai Total",
+      "status": "Status",
+      "submissionDate": "Tanggal Submit",
+      "actions": "Aksi"
+    },
+    "actions": {
+      "review": "Review",
+      "approve": "Setujui",
+      "reject": "Tolak",
+      "edit": "Edit",
+      "viewDetails": "Lihat Detail"
+    }
+  },
+  "adminIdentity": {
+    "title": "Registry Identitas",
+    "subtitle": "Kelola identitas dan verifikasi ERC-3643",
+    "overview": {
+      "totalIdentities": "Total Identitas",
+      "verifiedIdentities": "Identitas Terverifikasi",
+      "pendingClaims": "Klaim Menunggu",
+      "activeClaims": "Klaim Aktif"
+    },
+    "identityList": {
+      "title": "Daftar Identitas",
+      "walletAddress": "Alamat Wallet",
+      "verificationStatus": "Status Verifikasi",
+      "claims": "Klaim",
+      "lastUpdate": "Update Terakhir"
+    },
+    "actions": {
+      "viewClaims": "Lihat Klaim",
+      "addClaim": "Tambah Klaim",
+      "revokeClaim": "Cabut Klaim",
+      "updateStatus": "Update Status"
+    }
+  },
+  "adminClaims": {
+    "title": "Manajemen Klaim",
+    "subtitle": "Kelola klaim verifikasi dan compliance",
+    "claimTypes": {
+      "kycApproved": "KYC Disetujui",
+      "accreditedInvestor": "Investor Terakreditasi",
+      "amlCleared": "AML Cleared",
+      "institutionalInvestor": "Investor Institusi",
+      "retailQualified": "Retail Qualified"
+    },
+    "table": {
+      "claimId": "ID Klaim",
+      "claimType": "Jenis Klaim",
+      "issuer": "Penerbit",
+      "subject": "Subjek",
+      "status": "Status",
+      "issuedDate": "Tanggal Terbit",
+      "expiryDate": "Tanggal Kadaluarsa"
+    },
+    "actions": {
+      "issue": "Terbitkan",
+      "revoke": "Cabut",
+      "renew": "Perpanjang",
+      "verify": "Verifikasi"
+    }
+  },
+  "adminIssuers": {
+    "title": "Penerbit Terpercaya",
+    "subtitle": "Kelola penerbit klaim dan KYC provider",
+    "overview": {
+      "totalIssuers": "Total Penerbit",
+      "activeIssuers": "Penerbit Aktif",
+      "claimsIssued": "Klaim Diterbitkan",
+      "averageRating": "Rating Rata-rata"
+    },
+    "table": {
+      "issuerName": "Nama Penerbit",
+      "address": "Alamat",
+      "claimTypes": "Jenis Klaim",
+      "issuedClaims": "Klaim Diterbitkan",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "actions": {
+      "add": "Tambah Penerbit",
+      "edit": "Edit",
+      "activate": "Aktifkan",
+      "deactivate": "Nonaktifkan",
+      "viewClaims": "Lihat Klaim"
+    }
+  },
+  "adminCompliance": {
+    "title": "Monitoring Compliance",
+    "subtitle": "Pantau kepatuhan regulatory dan audit",
+    "overview": {
+      "complianceScore": "Skor Compliance",
+      "violations": "Pelanggaran",
+      "auditsCompleted": "Audit Selesai",
+      "nextReview": "Review Berikutnya"
+    },
+    "categories": {
+      "kycCompliance": "Compliance KYC",
+      "amlCompliance": "Compliance AML",
+      "tokenCompliance": "Compliance Token",
+      "reportingCompliance": "Compliance Pelaporan"
+    },
+    "actions": {
+      "runAudit": "Jalankan Audit",
+      "generateReport": "Buat Laporan",
+      "reviewViolations": "Review Pelanggaran",
+      "updatePolicies": "Update Kebijakan"
+    }
+  },
+  "adminFees": {
+    "title": "Manajemen Biaya",
+    "subtitle": "Kelola struktur biaya platform",
+    "feeTypes": {
+      "listingFee": "Biaya Listing",
+      "managementFee": "Biaya Management",
+      "transactionFee": "Biaya Transaksi",
+      "withdrawalFee": "Biaya Penarikan"
+    },
+    "settings": {
+      "currentRate": "Rate Saat Ini",
+      "newRate": "Rate Baru",
+      "effectiveDate": "Tanggal Efektif",
+      "description": "Deskripsi"
+    },
+    "actions": {
+      "updateFees": "Update Biaya",
+      "scheduleChange": "Jadwalkan Perubahan",
+      "viewHistory": "Lihat Riwayat",
+      "generateReport": "Buat Laporan"
+    }
+  },
+  "adminSystem": {
+    "title": "Pengaturan Sistem",
+    "subtitle": "Konfigurasi platform dan maintenance",
+    "sections": {
+      "general": "Umum",
+      "security": "Keamanan",
+      "blockchain": "Blockchain",
+      "integrations": "Integrasi",
+      "maintenance": "Maintenance"
+    },
+    "maintenance": {
+      "title": "Mode Maintenance",
+      "description": "Aktifkan mode maintenance untuk update sistem",
+      "enable": "Aktifkan",
+      "disable": "Nonaktifkan",
+      "scheduled": "Dijadwalkan"
+    },
+    "actions": {
+      "saveSettings": "Simpan Pengaturan",
+      "resetToDefault": "Reset ke Default",
+      "exportConfig": "Export Konfigurasi",
+      "importConfig": "Import Konfigurasi"
+    }
+  },
+  "footer": {
+    "companyDescription": "Platform blockchain pertama untuk demokratisasi investasi infrastruktur PPP di Indonesia",
+    "quickLinks": "Tautan Cepat",
+    "support": "Dukungan",
+    "legal": "Legal",
+    "followUs": "Ikuti Kami",
+    "newsletter": "Berlangganan newsletter untuk update terbaru",
+    "emailPlaceholder": "Masukkan email Anda",
+    "subscribe": "Berlangganan",
+    "copyright": "© 2025 Partisipro. Seluruh hak dilindungi.",
+    "madeInIndonesia": "Dibuat dengan ❤️ di Indonesia"
+  },
+  "about": {
+    "title": "Tentang Partisipro",
+    "subtitle": "Mengubah cara Indonesia berinvestasi dalam infrastruktur",
+    "mission": "Misi Kami",
+    "missionText": "Demokratisasi akses investasi infrastruktur melalui teknologi blockchain yang aman, transparan, dan patuh regulasi.",
+    "vision": "Visi Kami",
+    "visionText": "Menjadi platform investasi infrastruktur terdepan di Indonesia yang menghubungkan proyek PPP dengan investor ritel.",
+    "values": "Nilai-Nilai Kami",
+    "transparency": "Transparansi",
+    "transparencyText": "Semua transaksi tercatat di blockchain untuk transparansi penuh",
+    "security": "Keamanan",
+    "securityText": "Teknologi keamanan tingkat enterprise dengan standar internasional",
+    "accessibility": "Aksesibilitas",
+    "accessibilityText": "Investasi infrastruktur dapat diakses oleh semua kalangan",
+    "compliance": "Kepatuhan",
+    "complianceText": "Mematuhi regulasi Bank Indonesia dan OJK"
+  },
+  "contact": {
+    "title": "Hubungi Kami",
+    "subtitle": "Punya pertanyaan? Tim kami siap membantu Anda",
+    "getInTouch": "Mari Terhubung",
+    "contactInfo": "Informasi Kontak",
+    "address": "Alamat",
+    "email": "Email",
+    "phone": "Telepon",
+    "businessHours": "Jam Operasional",
+    "mondayFriday": "Senin - Jumat: 09:00 - 18:00 WIB",
+    "contactForm": "Formulir Kontak",
+    "nameLabel": "Nama Lengkap",
+    "namePlaceholder": "Masukkan nama lengkap Anda",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Masukkan email Anda",
+    "subjectLabel": "Subjek",
+    "subjectPlaceholder": "Pilih subjek",
+    "messageLabel": "Pesan",
+    "messagePlaceholder": "Tulis pesan Anda di sini...",
+    "sendMessage": "Kirim Pesan",
+    "subjects": {
+      "general": "Pertanyaan Umum",
+      "investment": "Pertanyaan Investasi",
+      "technical": "Bantuan Teknis",
+      "partnership": "Kerjasama",
+      "other": "Lainnya"
+    }
+  },
+  "legal": {
+    "title": "Legal & Kebijakan",
+    "termsOfService": "Syarat & Ketentuan",
+    "privacyPolicy": "Kebijakan Privasi",
+    "riskDisclosure": "Pengungkapan Risiko",
+    "cookiePolicy": "Kebijakan Cookie",
+    "lastUpdated": "Terakhir diperbarui"
+  },
+  "governance": {
+    "title": "Governance & Voting",
+    "subtitle": "Berpartisipasi dalam keputusan proyek melalui token voting",
+    "activeProposals": "Proposal Aktif",
+    "votingHistory": "Riwayat Voting",
+    "votingPower": "Kekuatan Voting",
+    "proposal": {
+      "title": "Judul Proposal",
+      "description": "Deskripsi",
+      "votesFor": "Suara Setuju",
+      "votesAgainst": "Suara Tidak Setuju",
+      "totalVotes": "Total Suara",
+      "timeLeft": "Waktu Tersisa",
+      "status": "Status",
+      "voteFor": "Setuju",
+      "voteAgainst": "Tidak Setuju",
+      "viewDetails": "Lihat Detail"
+    }
+  },
+  "dashboardPage": {
+    "title": "Dashboard Investasi",
+    "subtitle": "Selamat datang kembali! Berikut ringkasan Portfolio Anda.",
+    "welcome": "Selamat datang kembali",
+    "overviewSubtitle": "Berikut ringkasan Portfolio investasi infrastruktur Anda.",
+    "stats": {
+      "totalInvested": "Total Investasi",
+      "totalInvestedDesc": "Nilai total semua investasi Anda",
+      "currentValue": "Nilai Saat Ini",
+      "currentValueDesc": "Nilai portfolio berdasarkan harga terkini",
+      "totalReturns": "Total Keuntungan",
+      "totalReturnsDesc": "Keuntungan yang telah direalisasi",
+      "returnRate": "Tingkat Keuntungan",
+      "returnRateDesc": "Persentase keuntungan total",
+      "activeProjects": "Proyek Aktif",
+      "activeProjectsDesc": "Jumlah proyek yang masih berlangsung",
+      "claimableReturns": "Keuntungan Tersedia",
+      "claimableReturnsDesc": "Keuntungan yang siap diklaim"
+    },
+    "identity": {
+      "title": "Status Verifikasi Identitas",
+      "subtitle": "Status identitas ERC-3643 dan kelayakan investasi Anda",
+      "verified": "Identitas ERC-3643 Anda aktif dan terverifikasi",
+      "notVerified": "Identitas Anda belum terverifikasi",
+      "kycStatus": "Status KYC",
+      "verifiedLabel": "Terverifikasi",
+      "pendingLabel": "Menunggu",
+      "activeClaims": "Klaim Aktif",
+      "investmentEligible": "Memenuhi Syarat Investasi",
+      "benefits": "Manfaat Identitas: Verifikasi sekali, persetujuan investasi instan",
+      "manageIdentity": "Kelola Identitas",
+      "startKyc": "Mulai KYC"
+    },
+    "portfolio": {
+      "title": "Portfolio Investasi",
+      "subtitle": "Kelola investasi Anda dan lacak performa",
+      "description": "Pantau semua investasi infrastruktur dan performa proyek",
+      "viewAll": "Lihat Semua",
+      "noInvestments": "Belum Ada Investasi",
+      "noInvestmentsDesc": "Mulai investasi pertama Anda di marketplace proyek",
+      "browseProjects": "Jelajahi Proyek Baru",
+      "searchPlaceholder": "Cari proyek investasi...",
+      "filters": {
+        "all": "Semua Status",
+        "active": "Aktif",
+        "completed": "Selesai",
+        "pending": "Menunggu"
+      },
+      "project": {
+        "invested": "Diinvestasikan",
+        "currentValue": "Nilai Saat Ini",
+        "returns": "Keuntungan",
+        "status": "Status",
+        "viewDetails": "Lihat Detail"
+      }
+    },
+    "crossProjectMetrics": {
+      "title": "Insight Lintas Proyek",
+      "subtitle": "Analytics dan performa portfolio menyeluruh",
+      "diversification": "Diversifikasi",
+      "diversificationScore": "Skor diversifikasi portfolio",
+      "riskProfile": "Profil Risiko",
+      "riskLevel": "Level risiko keseluruhan",
+      "performanceMetrics": "Metrik Performa",
+      "avgReturn": "Rata-rata Keuntungan",
+      "volatility": "Volatilitas",
+      "sharpeRatio": "Sharpe Ratio",
+      "sectors": {
+        "transportation": "Transportasi",
+        "energy": "Energi",
+        "telecommunications": "Telekomunikasi",
+        "water": "Pengairan",
+        "other": "Lainnya"
+      }
+    },
+    "recentActivity": {
+      "title": "Aktivitas Terkini",
+      "subtitle": "Transaksi dan update terbaru",
+      "viewHistory": "Lihat Riwayat Lengkap",
+      "noActivity": "Belum Ada Aktivitas",
+      "noActivityDesc": "Aktivitas investasi Anda akan muncul di sini",
+      "types": {
+        "investment": "Investasi",
+        "return": "Keuntungan",
+        "claim": "Klaim",
+        "governance": "Governance"
+      }
+    },
+    "governance": {
+      "title": "Aktivitas Governance",
+      "subtitle": "Partisipasi voting dan proposal proyek",
+      "activeProposals": "Proposal Aktif",
+      "votingPower": "Kekuatan Voting",
+      "participationRate": "Tingkat Partisipasi",
+      "viewAll": "Lihat Semua Aktivitas Governance",
+      "noProposals": "Tidak Ada Proposal Aktif",
+      "noProposalsDesc": "Proposal voting akan muncul di sini",
+      "vote": "Vote",
+      "viewProposal": "Lihat Proposal"
+    },
+    "quickActions": {
+      "title": "Aksi Cepat",
+      "browseProjects": "Jelajahi Proyek Baru",
+      "claimReturns": "Klaim Keuntungan",
+      "viewProfile": "Lihat Profil",
+      "manageIdentity": "Kelola Identitas",
+      "viewHistory": "Lihat Riwayat",
+      "governance": "Governance"
+    },
+    "messages": {
+      "dataRefreshed": "Data dashboard berhasil diperbarui",
+      "claimInitiated": "Proses klaim keuntungan dimulai",
+      "loadError": "Gagal memuat data dashboard",
+      "networkError": "Koneksi terputus. Data mungkin tidak terkini."
+    }
+  },
+  "profilePage": {
+    "title": "Profil Pengguna",
+    "subtitle": "Kelola informasi akun dan pengaturan keamanan",
+    "personalInfo": {
+      "title": "Informasi Pribadi",
+      "subtitle": "Kelola informasi dasar profil Anda",
+      "fullName": "Nama Lengkap",
+      "email": "Email",
+      "phone": "Nomor Telepon",
+      "dateOfBirth": "Tanggal Lahir",
+      "nationality": "Kewarganegaraan",
+      "address": "Alamat",
+      "city": "Kota",
+      "postalCode": "Kode Pos",
+      "editProfile": "Edit Profil",
+      "saveChanges": "Simpan Perubahan",
+      "cancel": "Batal",
+      "updateSuccess": "Profil berhasil diperbarui",
+      "updateError": "Gagal memperbarui profil"
+    },
+    "accountSettings": {
+      "title": "Pengaturan Akun",
+      "subtitle": "Kelola preferensi dan pengaturan akun",
+      "walletAddress": "Alamat Wallet",
+      "memberSince": "Anggota sejak",
+      "accountType": "Jenis Akun",
+      "timezone": "Zona Waktu",
+      "language": "Bahasa",
+      "currency": "Mata Uang",
+      "accountTypes": {
+        "investor": "Investor Ritel",
+        "spv": "Perusahaan SPV",
+        "institution": "Investor Institusi"
+      },
+      "languages": {
+        "id": "Bahasa Indonesia",
+        "en": "English"
+      }
+    },
+    "kycStatus": {
+      "title": "Status Verifikasi KYC",
+      "subtitle": "Status verifikasi identitas dan dokumen",
+      "status": "Status KYC",
+      "completedOn": "Diselesaikan pada",
+      "expiresOn": "Berakhir pada",
+      "provider": "Penyedia KYC",
+      "level": "Level Verifikasi",
+      "manageKyc": "Kelola KYC",
+      "renewKyc": "Perpanjang KYC",
+      "statuses": {
+        "verified": "Terverifikasi",
+        "pending": "Menunggu",
+        "expired": "Kedaluwarsa",
+        "rejected": "Ditolak",
+        "notStarted": "Belum Dimulai"
+      },
+      "levels": {
+        "basic": "Dasar",
+        "standard": "Standar",
+        "premium": "Premium"
+      }
+    },
+    "investmentProfile": {
+      "title": "Profil Investasi",
+      "subtitle": "Preferensi dan toleransi risiko investasi",
+      "riskTolerance": "Toleransi Risiko",
+      "investmentGoals": "Tujuan Investasi",
+      "experienceLevel": "Level Pengalaman",
+      "monthlyInvestment": "Investasi Bulanan",
+      "investmentHorizon": "Horizon Investasi",
+      "riskLevels": {
+        "conservative": "Konservatif",
+        "moderate": "Moderat",
+        "aggressive": "Agresif"
+      },
+      "goals": {
+        "growth": "Pertumbuhan",
+        "income": "Pendapatan",
+        "balanced": "Seimbang",
+        "retirement": "Pensiun"
+      },
+      "experience": {
+        "beginner": "Pemula",
+        "intermediate": "Menengah",
+        "advanced": "Lanjutan"
+      },
+      "horizon": {
+        "short": "Jangka Pendek (< 2 tahun)",
+        "medium": "Jangka Menengah (2-5 tahun)",
+        "long": "Jangka Panjang (> 5 tahun)"
+      }
+    },
+    "securitySettings": {
+      "title": "Pengaturan Keamanan",
+      "subtitle": "Kelola keamanan dan otentikasi akun",
+      "changePassword": "Ubah Kata Sandi",
+      "twoFactorAuth": "Otentikasi Dua Faktor",
+      "loginHistory": "Riwayat Login",
+      "deviceManagement": "Manajemen Perangkat",
+      "currentPassword": "Kata Sandi Saat Ini",
+      "newPassword": "Kata Sandi Baru",
+      "confirmPassword": "Konfirmasi Kata Sandi",
+      "passwordRequirements": "Persyaratan kata sandi: minimal 8 karakter, huruf besar, huruf kecil, angka, dan simbol",
+      "enable2FA": "Aktifkan 2FA",
+      "disable2FA": "Nonaktifkan 2FA",
+      "backupCodes": "Kode Cadangan",
+      "generateBackupCodes": "Generate Kode Cadangan",
+      "viewLoginHistory": "Lihat Riwayat Login",
+      "passwordChanged": "Kata sandi berhasil diubah",
+      "2faEnabled": "2FA berhasil diaktifkan",
+      "2faDisabled": "2FA berhasil dinonaktifkan"
+    },
+    "notificationSettings": {
+      "title": "Pengaturan Notifikasi",
+      "subtitle": "Kelola preferensi notifikasi email dan push",
+      "emailNotifications": "Notifikasi Email",
+      "pushNotifications": "Notifikasi Push",
+      "smsNotifications": "Notifikasi SMS",
+      "categories": {
+        "investments": "Investasi",
+        "investmentsDesc": "Konfirmasi investasi dan update proyek",
+        "returns": "Keuntungan",
+        "returnsDesc": "Distribusi keuntungan dan klaim",
+        "governance": "Governance",
+        "governanceDesc": "Proposal voting dan hasil",
+        "security": "Keamanan",
+        "securityDesc": "Login, perubahan akun, aktivitas mencurigakan",
+        "marketing": "Marketing",
+        "marketingDesc": "Promosi, newsletter, dan update platform",
+        "system": "Sistem",
+        "systemDesc": "Maintenance, update sistem, pengumuman"
+      },
+      "frequency": {
+        "immediately": "Segera",
+        "daily": "Harian",
+        "weekly": "Mingguan",
+        "never": "Tidak Pernah"
+      },
+      "settingsSaved": "Pengaturan notifikasi tersimpan"
+    },
+    "preferences": {
+      "title": "Preferensi",
+      "subtitle": "Sesuaikan pengalaman platform Anda",
+      "theme": "Tema",
+      "themes": {
+        "light": "Terang",
+        "dark": "Gelap",
+        "auto": "Otomatis"
+      },
+      "dashboard": "Dashboard",
+      "defaultView": "Tampilan Default",
+      "views": {
+        "overview": "Ringkasan",
+        "portfolio": "Portfolio",
+        "analytics": "Analytics"
+      },
+      "charts": "Grafik",
+      "chartType": "Jenis Grafik",
+      "chartTypes": {
+        "line": "Garis",
+        "bar": "Batang",
+        "area": "Area"
+      },
+      "dateFormat": "Format Tanggal",
+      "numberFormat": "Format Angka",
+      "preferencesUpdated": "Preferensi berhasil diperbarui"
+    },
+    "actions": {
+      "uploadAvatar": "Upload Avatar",
+      "removeAvatar": "Hapus Avatar",
+      "downloadData": "Download Data",
+      "deleteAccount": "Hapus Akun",
+      "logout": "Keluar",
+      "confirmLogout": "Yakin ingin keluar?",
+      "confirmDelete": "Yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.",
+      "avatarUpdated": "Avatar berhasil diperbarui",
+      "dataDownloaded": "Data berhasil didownload",
+      "accountDeleted": "Akun berhasil dihapus"
+    }
+  },
+  "historyPage": {
+    "title": "Riwayat Transaksi",
+    "subtitle": "Lacak semua aktivitas investasi dan transaksi Anda",
+    "overview": {
+      "title": "Ringkasan Aktivitas",
+      "totalTransactions": "Total Transaksi",
+      "totalValue": "Total Nilai",
+      "successRate": "Tingkat Berhasil",
+      "lastActivity": "Aktivitas Terakhir"
+    },
+    "filters": {
+      "title": "Filter Transaksi",
+      "dateRange": "Rentang Tanggal",
+      "transactionType": "Jenis Transaksi",
+      "project": "Proyek",
+      "status": "Status",
+      "amountRange": "Rentang Jumlah",
+      "clearFilters": "Hapus Filter",
+      "applyFilters": "Terapkan Filter",
+      "allTypes": "Semua Jenis",
+      "allProjects": "Semua Proyek",
+      "allStatuses": "Semua Status",
+      "from": "Dari",
+      "to": "Ke",
+      "minAmount": "Jumlah Minimum",
+      "maxAmount": "Jumlah Maksimum"
+    },
+    "search": {
+      "placeholder": "Cari berdasarkan proyek, hash transaksi, atau catatan...",
+      "noResults": "Tidak ada hasil yang ditemukan",
+      "searchResults": "hasil ditemukan untuk"
+    },
+    "types": {
+      "all": "Semua",
+      "investment": "Investasi",
+      "return": "Keuntungan",
+      "claim": "Klaim",
+      "withdrawal": "Penarikan",
+      "fee": "Biaya",
+      "governance": "Governance",
+      "transfer": "Transfer"
+    },
+    "table": {
+      "date": "Tanggal",
+      "type": "Jenis",
+      "project": "Proyek",
+      "amount": "Jumlah",
+      "status": "Status",
+      "hash": "Hash Transaksi",
+      "notes": "Catatan",
+      "actions": "Aksi",
+      "viewDetails": "Lihat Detail",
+      "downloadReceipt": "Download Kwitansi",
+      "sortBy": "Urutkan berdasarkan",
+      "sortAsc": "Terlama",
+      "sortDesc": "Terbaru"
+    },
+    "statuses": {
+      "completed": "Selesai",
+      "pending": "Menunggu",
+      "failed": "Gagal",
+      "processing": "Diproses",
+      "cancelled": "Dibatalkan"
+    },
+    "details": {
+      "title": "Detail Transaksi",
+      "transactionId": "ID Transaksi",
+      "blockHash": "Hash Block",
+      "gasUsed": "Gas yang Digunakan",
+      "gasPrice": "Harga Gas",
+      "timestamp": "Waktu",
+      "fromAddress": "Dari Alamat",
+      "toAddress": "Ke Alamat",
+      "description": "Deskripsi",
+      "relatedTransactions": "Transaksi Terkait",
+      "close": "Tutup"
+    },
+    "export": {
+      "title": "Ekspor Data",
+      "description": "Download riwayat transaksi Anda dalam berbagai format",
+      "format": "Format",
+      "dateRange": "Rentang Tanggal",
+      "includeDetails": "Sertakan Detail",
+      "formats": {
+        "csv": "CSV",
+        "excel": "Excel",
+        "pdf": "PDF",
+        "json": "JSON"
+      },
+      "ranges": {
+        "all": "Semua Data",
+        "lastMonth": "Bulan Lalu",
+        "last3Months": "3 Bulan Terakhir",
+        "lastYear": "Tahun Lalu",
+        "custom": "Kustom"
+      },
+      "exportButton": "Ekspor Data",
+      "exporting": "Mengekspor...",
+      "success": "Data berhasil diekspor",
+      "error": "Gagal mengekspor data"
+    },
+    "pagination": {
+      "showing": "Menampilkan",
+      "to": "hingga",
+      "of": "dari",
+      "entries": "entri",
+      "previous": "Sebelumnya",
+      "next": "Selanjutnya",
+      "page": "Halaman",
+      "itemsPerPage": "Item per halaman"
+    },
+    "empty": {
+      "title": "Belum Ada Transaksi",
+      "description": "Transaksi Anda akan muncul di sini setelah melakukan investasi pertama",
+      "startInvesting": "Mulai Investasi"
+    },
+    "messages": {
+      "loadError": "Gagal memuat riwayat transaksi",
+      "filterApplied": "Filter berhasil diterapkan",
+      "receiptDownloaded": "Kwitansi berhasil didownload",
+      "detailsError": "Gagal memuat detail transaksi"
+    }
+  },
+  "claimPage": {
+    "title": "Klaim Keuntungan",
+    "subtitle": "Klaim distribusi keuntungan dari investasi infrastruktur",
+    "overview": {
+      "totalClaimable": "Total yang Dapat Diklaim",
+      "totalClaimableDesc": "Tersedia untuk penarikan",
+      "totalClaimed": "Total yang Telah Diklaim",
+      "totalClaimedDesc": "Berhasil ditarik",
+      "activeClaims": "Klaim Aktif",
+      "activeClaimsDesc": "Sedang diproses",
+      "available": "Tersedia",
+      "allTime": "Sepanjang Waktu",
+      "processing": "Diproses"
+    },
+    "bankAccount": {
+      "title": "Rekening Bank Penarikan",
+      "subtitle": "Atur rekening bank untuk penarikan keuntungan",
+      "addBankAccount": "Tambah Rekening Bank",
+      "updateBankAccount": "Perbarui Rekening Bank",
+      "bankName": "Nama Bank",
+      "accountNumber": "Nomor Rekening",
+      "accountHolder": "Nama Pemegang Rekening",
+      "bank": "Bank:",
+      "accountNumberLabel": "Nomor Rekening:",
+      "accountHolderLabel": "Pemegang Rekening:",
+      "bankPlaceholder": "contoh: Bank Central Asia",
+      "accountPlaceholder": "Masukkan nomor rekening",
+      "holderPlaceholder": "Masukkan nama pemegang rekening",
+      "saveBankAccount": "Simpan Rekening Bank",
+      "cancel": "Batal",
+      "bankAccountSaved": "Rekening Bank Tersimpan!",
+      "bankAccountDesc": "Informasi rekening bank Anda berhasil diperbarui."
+    },
+    "availableClaims": {
+      "title": "Klaim Tersedia",
+      "subtitle": "Klaim distribusi keuntungan saat tersedia",
+      "description": "Klaim distribusi keuntungan Anda saat tersedia",
+      "project": "Proyek",
+      "period": "Periode",
+      "amount": "Jumlah",
+      "status": "Status",
+      "actions": "Aksi",
+      "claim": "Klaim",
+      "processing": "Memproses",
+      "available": "Tersedia",
+      "pending": "Menunggu",
+      "noClaims": "Tidak Ada Klaim Tersedia",
+      "noClaimsDesc": "Distribusi keuntungan akan muncul di sini saat tersedia"
+    },
+    "claimHistory": {
+      "title": "Riwayat Klaim",
+      "subtitle": "Lacak semua distribusi keuntungan dan klaim sebelumnya",
+      "description": "Lacak semua distribusi keuntungan dan klaim sebelumnya",
+      "project": "Proyek",
+      "date": "Tanggal",
+      "amount": "Jumlah",
+      "status": "Status",
+      "completed": "Selesai",
+      "failed": "Gagal",
+      "pending": "Menunggu",
+      "noHistory": "Belum Ada Riwayat",
+      "noHistoryDesc": "Riwayat klaim Anda akan muncul di sini setelah distribusi pertama"
+    },
+    "claimModal": {
+      "title": "Konfirmasi Klaim",
+      "subtitle": "Tinjau dan konfirmasi klaim keuntungan Anda",
+      "description": "Tinjau dan konfirmasi klaim keuntungan Anda",
+      "project": "Proyek:",
+      "period": "Periode:",
+      "amount": "Jumlah:",
+      "withdrawalDestination": "Tujuan Penarikan",
+      "confirmClaim": "Konfirmasi Klaim",
+      "addBankAccountFirst": "Tambah Rekening Bank Dulu",
+      "cancel": "Batal",
+      "close": "×",
+      "claimProcessed": "Klaim Diproses!",
+      "claimDescription": "Klaim Anda untuk {currency} {amount} telah dikirim untuk diproses."
+    },
+    "messages": {
+      "claimSuccess": "Klaim berhasil diproses",
+      "claimError": "Gagal memproses klaim",
+      "bankAccountRequired": "Rekening bank diperlukan untuk klaim",
+      "loadError": "Gagal memuat data klaim",
+      "processingClaim": "Memproses klaim...",
+      "claimSubmitted": "Klaim telah dikirim untuk diproses"
+    }
+  },
+  "history": {
+    "title": "Riwayat Transaksi",
+    "subtitle": "Lihat semua aktivitas investasi Anda",
+    "filters": {
+      "all": "Semua",
+      "investment": "Investasi",
+      "profit": "Keuntungan",
+      "governance": "Governance"
+    },
+    "transaction": {
+      "type": "Jenis",
+      "amount": "Jumlah",
+      "date": "Tanggal",
+      "status": "Status",
+      "project": "Proyek"
+    }
+  },
+  "projects": {
+    "title": "Detail Proyek",
+    "overview": "Ringkasan",
+    "financials": "Finansial",
+    "documents": "Dokumen",
+    "updates": "Update",
+    "teamInfo": "Informasi Tim",
+    "projectDetails": "Detail Proyek",
+    "investmentTerms": "Syarat Investasi",
+    "riskFactors": "Faktor Risiko",
+    "investNow": "Investasi Sekarang",
+    "viewDocuments": "Lihat Dokumen",
+    "followProject": "Ikuti Proyek"
+  },
+  "features": {
+    "title": "Fitur Unggulan",
+    "subtitle": "Mengapa memilih Partisipro?",
+    "blockchain": {
+      "title": "Teknologi Blockchain",
+      "description": "Transparansi dan keamanan tingkat enterprise dengan smart contract yang telah diaudit"
+    },
+    "compliance": {
+      "title": "Regulasi Compliant",
+      "description": "Mematuhi standar Bank Indonesia dan OJK untuk keamanan investasi Anda"
+    },
+    "access": {
+      "title": "Akses Demokratis",
+      "description": "Investasi infrastruktur yang sebelumnya eksklusif, kini dapat diakses semua kalangan"
+    },
+    "returns": {
+      "title": "Potensi Keuntungan",
+      "description": "Dapatkan keuntungan dari proyek infrastruktur strategis nasional"
+    }
+  },
+  "statistics": {
+    "title": "Statistik Platform",
+    "totalInvestment": "Total Investasi",
+    "activeProjects": "Proyek Aktif",
+    "registeredUsers": "Pengguna Terdaftar",
+    "successRate": "Tingkat Keberhasilan"
+  },
+  "testimonials": {
+    "title": "Testimoni",
+    "subtitle": "Apa kata pengguna kami",
+    "testimonial1": {
+      "name": "Budi Santoso",
+      "role": "Investor Ritel",
+      "text": "Partisipro memberikan akses investasi infrastruktur yang tidak pernah saya bayangkan sebelumnya. Platform yang aman dan mudah digunakan."
+    },
+    "testimonial2": {
+      "name": "PT. Infrastruktur Nusantara",
+      "role": "SPV Partner",
+      "text": "Tokenisasi proyek kami melalui Partisipro memungkinkan pendanaan yang lebih cepat dan efisien dari investor ritel."
+    }
+  },
+  "security": {
+    "title": "Keamanan Enterprise",
+    "subtitle": "Perlindungan berlapis untuk investasi Anda",
+    "encryption": "Enkripsi End-to-End",
+    "encryptionDesc": "Data Anda dilindungi dengan enkripsi tingkat bank",
+    "smartContracts": "Smart Contract Audit",
+    "smartContractsDesc": "Smart contract diaudit oleh firma keamanan terkemuka",
+    "compliance": "Kepatuhan Regulasi",
+    "complianceDesc": "Mematuhi standar OJK dan Bank Indonesia",
+    "multiSig": "Multi-Signature Wallet",
+    "multiSigDesc": "Keamanan tambahan dengan wallet multi-signature"
+  },
+  "marketplacePage": {
+    "title": "Investment Marketplace",
+    "subtitle": "Temukan dan investasikan dana Anda pada proyek Public-Private Partnership Indonesia",
+    "nav": {
+      "dashboard": "Dashboard",
+      "profile": "Profile"
+    },
+    "search": {
+      "placeholder": "Cari proyek berdasarkan nama, lokasi, atau kategori..."
+    },
+    "filters": {
+      "showFilters": "Tampilkan Filter",
+      "hideFilters": "Sembunyikan Filter",
+      "categories": "Kategori",
+      "allProjects": "Semua Proyek",
+      "transportation": "Transportasi",
+      "energy": "Energi",
+      "water": "Air",
+      "telecommunications": "Telekomunikasi",
+      "buildings": "Bangunan",
+      "location": "Lokasi",
+      "allProvinces": "Semua Provinsi",
+      "riskLevel": "Tingkat Risiko",
+      "allRisk": "Semua Risiko",
+      "lowRisk": "Risiko Rendah",
+      "mediumRisk": "Risiko Sedang",
+      "highRisk": "Risiko Tinggi",
+      "veryHighRisk": "Risiko Sangat Tinggi"
+    },
+    "identity": {
+      "identityRequired": "Identity Required",
+      "notEligible": "Tidak Memenuhi Syarat",
+      "eligibleToInvest": "Memenuhi Syarat Investasi",
+      "additionalVerificationRequired": "Memerlukan Verifikasi Tambahan"
+    },
+    "projectCard": {
+      "comingSoon": "Akan Datang",
+      "active": "Aktif",
+      "fullyFunded": "Terdanai Penuh",
+      "completed": "Selesai",
+      "raised": "Terkumpul",
+      "of": "dari",
+      "target": "target",
+      "investors": "investor",
+      "viewDetails": "Lihat Detail",
+      "investNow": "Investasi Sekarang"
+    },
+    "viewMode": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "empty": {
+      "title": "Tidak Ada Proyek Ditemukan",
+      "description": "Coba sesuaikan filter pencarian Anda atau periksa kembali nanti"
+    },
+    "loading": {
+      "title": "Memuat Proyek...",
+      "description": "Sedang mengambil data proyek terbaru"
+    }
+  },
+  "projectDetailPage": {
+    "loading": {
+      "title": "Sedang memuat data Proyek",
+      "description": "Mohon menunggu ..."
+    },
+    "navigation": {
+      "backToMarketplace": "Kembali ke Marketplace"
+    },
+    "tabs": {
+      "overview": "Ringkasan",
+      "financials": "Keuangan",
+      "risks": "Risiko",
+      "documents": "Dokumen",
+      "updates": "Progress Proyek"
+    },
+    "overview": {
+      "title": "Gambaran Umum",
+      "description": "Deskripsi",
+      "location": "Lokasi",
+      "category": "Kategori",
+      "timeline": "Timeline",
+      "tokenPrice": "Harga Token",
+      "totalSupply": "Total Supply",
+      "availableSupply": "Supply Tersedia",
+      "riskLevel": "Tingkat Risiko",
+      "expectedReturns": "Keuntungan yang Diharapkan",
+      "minimumInvestment": "Investasi Minimum"
+    },
+    "fundingProgress": {
+      "title": "Progress Pendanaan",
+      "raised": "Terkumpul",
+      "target": "Target",
+      "investors": "Investor",
+      "daysLeft": "Hari Tersisa"
+    },
+    "financials": {
+      "title": "Informasi Keuangan",
+      "revenueModel": "Model Pendapatan",
+      "projectedRevenue": "Proyeksi Pendapatan",
+      "profitSharing": "Bagi Hasil",
+      "distributionFrequency": "Frekuensi Distribusi"
+    },
+    "documents": {
+      "title": "Dokumen",
+      "businessPlan": "Rencana Bisnis",
+      "feasibilityStudy": "Studi Kelayakan",
+      "legalDocuments": "Dokumen Legal",
+      "financialProjections": "Proyeksi Keuangan",
+      "riskAssessment": "Penilaian Risiko",
+      "download": "Unduh",
+      "view": "Lihat"
+    },
+    "updates": {
+      "title": "Update Proyek",
+      "latest": "Update Terbaru",
+      "viewAll": "Lihat Semua"
+    },
+    "actions": {
+      "investNow": "Investasi Sekarang",
+      "addToWatchlist": "Tambah ke Watchlist",
+      "shareProject": "Bagikan Proyek",
+      "notEligible": "Tidak Memenuhi Syarat",
+      "identityRequired": "Memerlukan Identity",
+      "completeKyc": "Lengkapi KYC"
+    }
+  },
+  "investmentPage": {
+    "title": "Investasi Proyek",
+    "subtitle": "Selesaikan investasi Anda dalam proyek infrastruktur ini",
+    "backToProject": "Kembali ke Detail Proyek",
+    "investmentAmount": {
+      "title": "Jumlah Investasi",
+      "amountInIDR": "Jumlah dalam IDR",
+      "placeholder": "Masukkan jumlah investasi",
+      "tokensReceived": "Token yang Akan Diterima",
+      "minimumInvestment": "Investasi Minimum",
+      "availableTokens": "Token Tersedia"
+    },
+    "summary": {
+      "title": "Ringkasan Investasi",
+      "projectName": "Nama Proyek",
+      "investmentAmount": "Jumlah Investasi",
+      "tokensReceived": "Token yang Diterima",
+      "tokenPrice": "Harga per Token",
+      "platformFee": "Biaya Platform",
+      "totalAmount": "Total Pembayaran"
+    },
+    "paymentMethod": {
+      "title": "Metode Pembayaran",
+      "bankTransfer": "Transfer Bank",
+      "virtualAccount": "Virtual Account",
+      "eWallet": "E-Wallet",
+      "instructions": "Instruksi Pembayaran"
+    },
+    "agreement": {
+      "title": "Perjanjian Investasi",
+      "termsAndConditions": "Syarat dan Ketentuan",
+      "riskDisclosure": "Pengungkapan Risiko",
+      "privacyPolicy": "Kebijakan Privasi",
+      "iAgree": "Saya setuju dengan",
+      "and": "dan",
+      "acknowledgement": "Saya memahami risiko investasi ini dan dengan sadar memutuskan untuk berinvestasi"
+    },
+    "actions": {
+      "backToProject": "Kembali",
+      "proceedToPayment": "Lanjutkan ke Pembayaran",
+      "continueToConfirmation": "Selanjutnya",
+      "confirmInvestment": "Konfirmasi Investasi",
+      "cancel": "Batal"
+    },
+    "messages": {
+      "investmentSuccess": "Investasi Berhasil!",
+      "investmentSuccessDescription": "Investasi Anda telah berhasil diproses dan token akan segera ditransfer ke wallet Anda",
+      "processingPayment": "Memproses Pembayaran...",
+      "paymentConfirmed": "Pembayaran Dikonfirmasi",
+      "tokenTransfer": "Transfer Token Sedang Diproses"
+    }
+  }
+}

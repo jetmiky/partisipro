@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import {
   Search,
@@ -43,45 +44,63 @@ type Project = MockProject;
 
 // Projects will be loaded from centralized mock API
 
-const categories = [
-  { id: 'all', label: 'All Projects', icon: Grid },
-  { id: 'transportation', label: 'Transportation', icon: Route },
-  { id: 'energy', label: 'Energy', icon: Zap },
-  { id: 'water', label: 'Water', icon: Droplets },
-  { id: 'telecommunications', label: 'Telecommunications', icon: Building },
-  { id: 'buildings', label: 'Buildings', icon: Building },
-];
-
-const provinces = [
-  'All Provinces',
-  'DKI Jakarta',
-  'Jawa Barat',
-  'Jawa Tengah',
-  'Jawa Timur',
-  'Banten',
-  'Bali',
-  'Sumatera Utara',
-  'Sumatera Barat',
-  'Kalimantan Timur',
-];
-
-const riskLevels = [
-  { id: 'all', label: 'Semua Risiko' },
-  { id: 'low', label: 'Risiko Rendah' },
-  { id: 'medium', label: 'Risiko Sedang' },
-  { id: 'high', label: 'Risiko Tinggi' },
-  { id: 'very-high', label: 'Risiko Sangat Tinggi' },
-];
-
 export default function MarketplacePage() {
+  const { t } = useTranslation('common');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedProvince, setSelectedProvince] = useState('All Provinces');
+  const [selectedProvince, setSelectedProvince] = useState(
+    t('marketplacePage.filters.allProvinces')
+  );
   const [selectedRiskLevel, setSelectedRiskLevel] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Create translated categories
+  const categories = [
+    { id: 'all', label: t('marketplacePage.filters.allProjects'), icon: Grid },
+    {
+      id: 'transportation',
+      label: t('marketplacePage.filters.transportation'),
+      icon: Route,
+    },
+    { id: 'energy', label: t('marketplacePage.filters.energy'), icon: Zap },
+    { id: 'water', label: t('marketplacePage.filters.water'), icon: Droplets },
+    {
+      id: 'telecommunications',
+      label: t('marketplacePage.filters.telecommunications'),
+      icon: Building,
+    },
+    {
+      id: 'buildings',
+      label: t('marketplacePage.filters.buildings'),
+      icon: Building,
+    },
+  ];
+
+  // Create translated risk levels
+  const riskLevels = [
+    { id: 'all', label: t('marketplacePage.filters.allRisk') },
+    { id: 'low', label: t('marketplacePage.filters.lowRisk') },
+    { id: 'medium', label: t('marketplacePage.filters.mediumRisk') },
+    { id: 'high', label: t('marketplacePage.filters.highRisk') },
+    { id: 'very-high', label: t('marketplacePage.filters.veryHighRisk') },
+  ];
+
+  // Create translated provinces
+  const provinces = [
+    t('marketplacePage.filters.allProvinces'),
+    'DKI Jakarta',
+    'Jawa Barat',
+    'Jawa Tengah',
+    'Jawa Timur',
+    'Banten',
+    'Bali',
+    'Sumatera Utara',
+    'Sumatera Barat',
+    'Kalimantan Timur',
+  ];
 
   // Load projects from mock API in presentation mode
   useEffect(() => {
@@ -121,7 +140,7 @@ export default function MarketplacePage() {
       const matchesCategory =
         selectedCategory === 'all' || project.category === selectedCategory;
       const matchesProvince =
-        selectedProvince === 'All Provinces' ||
+        selectedProvince === t('marketplacePage.filters.allProvinces') ||
         project.province === selectedProvince;
       const matchesRiskLevel =
         selectedRiskLevel === 'all' ||
@@ -230,7 +249,9 @@ export default function MarketplacePage() {
       return (
         <div className="flex items-center gap-1 px-3 py-1 glass-modern rounded-full text-xs">
           <Lock className="w-3 h-3 text-muted-foreground" />
-          <span className="text-muted-foreground">Identity Required</span>
+          <span className="text-muted-foreground">
+            {t('marketplacePage.identity.identityRequired')}
+          </span>
         </div>
       );
     }
@@ -239,7 +260,9 @@ export default function MarketplacePage() {
       return (
         <div className="flex items-center gap-1 px-3 py-1 bg-error-100 rounded-full text-xs">
           <AlertTriangle className="w-3 h-3 text-error-500" />
-          <span className="text-error-600">Not Eligible</span>
+          <span className="text-error-600">
+            {t('marketplacePage.identity.notEligible')}
+          </span>
         </div>
       );
     }
@@ -251,7 +274,9 @@ export default function MarketplacePage() {
       return (
         <div className="flex items-center gap-1 px-3 py-1 bg-success-100 rounded-full text-xs hover-scale">
           <CheckCircle className="w-3 h-3 text-success-500" />
-          <span className="text-success-600">Eligible to Invest</span>
+          <span className="text-success-600">
+            {t('marketplacePage.identity.eligibleToInvest')}
+          </span>
         </div>
       );
     }
@@ -260,7 +285,7 @@ export default function MarketplacePage() {
       <div className="flex items-center gap-1 px-3 py-1 bg-warning-100 rounded-full text-xs">
         <Shield className="w-3 h-3 text-warning-500" />
         <span className="text-warning-600">
-          Additional Verification Required
+          {t('marketplacePage.identity.additionalVerificationRequired')}
         </span>
       </div>
     );
@@ -368,21 +393,28 @@ export default function MarketplacePage() {
           <div className="space-y-4">
             <div className="glass-modern rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Expected Return</span>
+                <span className="text-muted-foreground">
+                  {t('marketplacePage.projectCard.expectedReturn')}
+                </span>
                 <span className="font-semibold text-gradient text-lg">
                   {project.expectedReturn}% p.a.
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Duration</span>
+                <span className="text-muted-foreground">
+                  {t('marketplacePage.projectCard.duration')}
+                </span>
                 <span className="font-medium text-primary-700">
-                  {project.projectDuration} years
+                  {project.projectDuration}{' '}
+                  {t('marketplacePage.projectCard.years')}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Min. Investment</span>
+                <span className="text-muted-foreground">
+                  {t('marketplacePage.projectCard.minInvestment')}
+                </span>
                 <span className="font-medium text-primary-700">
                   {formatCurrency(project.minimumInvestment)}
                 </span>
@@ -391,7 +423,9 @@ export default function MarketplacePage() {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Funding Progress</span>
+                <span className="text-muted-foreground">
+                  {t('marketplacePage.projectCard.fundingProgress')}
+                </span>
                 <span className="font-semibold text-primary-600">
                   {progressPercentage.toFixed(1)}%
                 </span>
@@ -416,7 +450,8 @@ export default function MarketplacePage() {
                   <Users className="w-3 h-3 text-primary-600" />
                 </div>
                 <span className="text-primary-600 font-medium">
-                  {project.investorCount} investors
+                  {project.investorCount}{' '}
+                  {t('marketplacePage.projectCard.investors')}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -438,12 +473,18 @@ export default function MarketplacePage() {
                   className="w-full"
                   ripple
                   onClick={() =>
-                    toast.info('Project Details', {
-                      message: `Loading details for ${project.name}...`,
-                    })
+                    toast.info(
+                      t('marketplacePage.projectCard.projectDetails'),
+                      {
+                        message: t(
+                          'marketplacePage.projectCard.loadingDetails',
+                          { name: project.name }
+                        ),
+                      }
+                    )
                   }
                 >
-                  View Details
+                  {t('marketplacePage.projectCard.viewDetails')}
                 </AnimatedButton>
               </Link>
               {mappedStatus === 'active' && (
@@ -453,12 +494,18 @@ export default function MarketplacePage() {
                     className="px-6"
                     ripple
                     onClick={() =>
-                      toast.info('Investment Flow', {
-                        message: `Starting investment for ${project.name}...`,
-                      })
+                      toast.info(
+                        t('marketplacePage.projectCard.investmentFlow'),
+                        {
+                          message: t(
+                            'marketplacePage.projectCard.startingInvestment',
+                            { name: project.name }
+                          ),
+                        }
+                      )
                     }
                   >
-                    Invest Now
+                    {t('marketplacePage.projectCard.investNow')}
                   </AnimatedButton>
                 </Link>
               )}
@@ -502,7 +549,7 @@ export default function MarketplacePage() {
                     </span>
                   </Link>
                   <div className="text-sm text-muted-foreground">
-                    Investment Marketplace
+                    {t('marketplacePage.title')}
                   </div>
                 </div>
                 <nav className="flex items-center gap-4">
@@ -524,11 +571,10 @@ export default function MarketplacePage() {
           <ScrollReveal animation="slide-up" delay={100}>
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gradient mb-2">
-                Investment Marketplace
+                {t('marketplacePage.title')}
               </h1>
               <p className="text-muted-foreground">
-                Discover and invest in Indonesian Public-Private Partnership
-                projects
+                {t('marketplacePage.subtitle')}
               </p>
             </div>
           </ScrollReveal>
@@ -541,23 +587,28 @@ export default function MarketplacePage() {
                   <CheckCircle className="w-6 h-6 text-success-500" />
                   <div>
                     <h3 className="text-xl font-medium text-primary-700">
-                      Identity Verified
+                      {t('marketplacePage.identity.identityVerified')}
                     </h3>
                     <p className="text-sm text-primary-600">
-                      Your ERC-3643 identity is verified and you can invest in
-                      all available projects
+                      {t(
+                        'marketplacePage.identity.identityVerifiedDescription'
+                      )}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="w-4 h-4 text-success-500" />
-                    <span className="text-primary-600">KYC Approved</span>
+                    <span className="text-primary-600">
+                      {t('marketplacePage.identity.kycApproved')}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <CheckCircle className="w-4 h-4 text-success-500" />
                     <span className="text-primary-600">
-                      {identityStatus.claims.length} Claims Active
+                      {t('marketplacePage.identity.claimsActive', {
+                        count: identityStatus.claims.length,
+                      })}
                     </span>
                   </div>
                   <Link href="/identity">
@@ -566,12 +617,17 @@ export default function MarketplacePage() {
                       size="sm"
                       className="hover-lift"
                       onClick={() =>
-                        toast.info('Identity Management', {
-                          message: 'Navigating to identity management page...',
-                        })
+                        toast.info(
+                          t('marketplacePage.identity.identityManagement'),
+                          {
+                            message: t(
+                              'marketplacePage.identity.navigatingToIdentity'
+                            ),
+                          }
+                        )
                       }
                     >
-                      Manage Identity
+                      {t('marketplacePage.identity.manageIdentity')}
                     </AnimatedButton>
                   </Link>
                 </div>
@@ -586,7 +642,7 @@ export default function MarketplacePage() {
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary-400" />
                   <AnimatedInput
-                    placeholder="Search projects by name, location, or description..."
+                    placeholder={t('marketplacePage.search.placeholder')}
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     className="pl-12"
@@ -601,7 +657,7 @@ export default function MarketplacePage() {
                     ripple
                   >
                     <Filter className="w-4 h-4" />
-                    Filters
+                    {t('marketplacePage.filters.title')}
                     <ChevronDown
                       className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
                     />
@@ -637,7 +693,7 @@ export default function MarketplacePage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-primary-700 mb-3">
-                        Category
+                        {t('marketplacePage.filters.category')}
                       </label>
                       <select
                         value={selectedCategory}
@@ -654,7 +710,7 @@ export default function MarketplacePage() {
 
                     <div>
                       <label className="block text-sm font-medium text-primary-700 mb-3">
-                        Province
+                        {t('marketplacePage.filters.province')}
                       </label>
                       <select
                         value={selectedProvince}
@@ -671,7 +727,7 @@ export default function MarketplacePage() {
 
                     <div>
                       <label className="block text-sm font-medium text-primary-700 mb-3">
-                        Risk Level
+                        {t('marketplacePage.filters.riskLevel')}
                       </label>
                       <select
                         value={selectedRiskLevel}
@@ -697,15 +753,17 @@ export default function MarketplacePage() {
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                 <span className="text-primary-700 font-medium">
-                  {filteredProjects.length} projects found
+                  {t('marketplacePage.results.projectsFound', {
+                    count: filteredProjects.length,
+                  })}
                 </span>
               </div>
               <div className="flex items-center gap-4">
                 <select className="px-4 py-3 glass-modern rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 hover-glow transition-all">
-                  <option>Sort by: Featured</option>
-                  <option>Sort by: Expected Return</option>
-                  <option>Sort by: Duration</option>
-                  <option>Sort by: Min. Investment</option>
+                  <option>{t('marketplacePage.sorting.featured')}</option>
+                  <option>{t('marketplacePage.sorting.expectedReturn')}</option>
+                  <option>{t('marketplacePage.sorting.duration')}</option>
+                  <option>{t('marketplacePage.sorting.minInvestment')}</option>
                 </select>
               </div>
             </div>
@@ -719,11 +777,10 @@ export default function MarketplacePage() {
                   <Search className="w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-semibold text-gradient mb-3">
-                  Loading Indonesian Infrastructure Projects...
+                  {t('marketplacePage.loading.title')}
                 </h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Fetching the latest PPP investment opportunities from our
-                  platform
+                  {t('marketplacePage.loading.description')}
                 </p>
               </div>
             </ScrollReveal>
@@ -752,11 +809,10 @@ export default function MarketplacePage() {
                   <Search className="w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-semibold text-gradient mb-3">
-                  No projects found
+                  {t('marketplacePage.empty.title')}
                 </h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Try adjusting your search criteria or filters to discover more
-                  infrastructure investment opportunities
+                  {t('marketplacePage.empty.description')}
                 </p>
               </div>
             </ScrollReveal>

@@ -8,6 +8,7 @@ import {
   useState,
   //  useEffect
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
@@ -54,10 +55,11 @@ interface ValidationErrors {
 }
 
 export default function SPVCreatePage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   // const { isSPV, isAuthenticated } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
   // const [uploadedDocuments, setUploadedDocuments] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<ProjectFormData>({
     projectName: 'Jalan Tol Sumatera',
@@ -82,6 +84,57 @@ export default function SPVCreatePage() {
     managementFeePercentage: 5,
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
+
+  // Step 5 responsibility checkboxes
+  const [responsibilitiesAccepted, setResponsibilitiesAccepted] =
+    useState(false);
+  const [feeAgreementAccepted, setFeeAgreementAccepted] = useState(false);
+  const [legalComplianceAccepted, setLegalComplianceAccepted] = useState(false);
+
+  // Contract deployment states
+  const [isDeployingContracts, setIsDeployingContracts] = useState(false);
+  const [deploymentStage, setDeploymentStage] = useState(0);
+  const [deploymentStages] = useState([
+    {
+      name: 'Preparing deployment parameters...',
+      description:
+        'Validating project data and preparing smart contract parameters',
+      duration: 2000,
+    },
+    {
+      name: 'Deploying ProjectToken contract...',
+      description:
+        'Creating ERC-3643 compliant token contract with identity verification',
+      duration: 3000,
+    },
+    {
+      name: 'Deploying ProjectOffering contract...',
+      description: 'Setting up token sale contract with KYC requirements',
+      duration: 2500,
+    },
+    {
+      name: 'Deploying ProjectTreasury contract...',
+      description: 'Creating treasury for profit distribution management',
+      duration: 2000,
+    },
+    {
+      name: 'Deploying ProjectGovernance contract...',
+      description: 'Setting up token holder voting and governance system',
+      duration: 2500,
+    },
+    {
+      name: 'Configuring contract permissions...',
+      description:
+        'Setting up role-based access control and contract interactions',
+      duration: 2000,
+    },
+    {
+      name: 'Finalizing deployment...',
+      description: 'Verifying contracts and completing setup process',
+      duration: 1500,
+    },
+  ]);
+
   // const [listingFee, setListingFee] = useState<{
   //   amount: number;
   //   currency: 'IDR' | 'ETH';
@@ -119,13 +172,14 @@ export default function SPVCreatePage() {
   //   );
   // }
 
-  const totalSteps = 5;
+  const totalSteps = 6;
   const stepTitles = [
     'Basic Information',
     'Financial Parameters',
-    'Timeline & Documentation',
-    'Revenue Model & Review',
-    'Listing Fee Payment',
+    'Timeline and Documents',
+    'Revenue Model',
+    'Final Review for Approval',
+    'Smart Contracts',
   ];
 
   const projectTypes = [
@@ -214,37 +268,64 @@ export default function SPVCreatePage() {
         }
         break;
 
-      // case 5:
-      //   if (!selectedPaymentMethod) {
-      //     newErrors.selectedPaymentMethod = 'Please select a payment method';
-      //   }
-      //   if (!listingFee) {
-      //     newErrors.listingFee = 'Listing fee calculation is required';
-      //   }
-      //   if (paymentStatus !== 'completed') {
-      //     newErrors.paymentStatus = 'Listing fee payment must be completed';
-      //   }
-      //   break;
+      case 5:
+        if (!responsibilitiesAccepted) {
+          newErrors.responsibilitiesAccepted =
+            'Please accept project management responsibilities';
+        }
+        if (!feeAgreementAccepted) {
+          newErrors.feeAgreementAccepted =
+            'Please accept the listing fee agreement';
+        }
+        if (!legalComplianceAccepted) {
+          newErrors.legalComplianceAccepted =
+            'Please accept legal compliance requirements';
+        }
+        break;
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (validateStep(currentStep)) {
       const newStep = Math.min(currentStep + 1, totalSteps);
       setCurrentStep(newStep);
 
-      // Calculate listing fee when entering step 5
-      // if (newStep === 5) {
-      //   calculateListingFee();
-      // }
+      // Simulate smart contract deployment when moving from step 5 to step 6
+      if (newStep === 6) {
+        await deploySmartContracts();
+      }
 
       if (typeof window !== 'undefined') {
         window.scroll({ top: 0 });
       }
     }
+  };
+
+  // Smart contract deployment simulation with realistic loading stages
+  const deploySmartContracts = async () => {
+    setIsDeployingContracts(true);
+    setDeploymentStage(0);
+    toast.info('Starting smart contract deployment...');
+
+    // Execute each deployment stage with realistic timing
+    for (let i = 0; i < deploymentStages.length; i++) {
+      setDeploymentStage(i);
+
+      // Show progress toast for current stage
+      toast.info(deploymentStages[i].name);
+
+      // Wait for the stage duration
+      await new Promise(resolve =>
+        setTimeout(resolve, deploymentStages[i].duration)
+      );
+    }
+
+    // Deployment complete
+    setIsDeployingContracts(false);
+    toast.success('🎉 Smart contracts deployed successfully!');
   };
 
   const prevStep = () => {
@@ -342,43 +423,43 @@ export default function SPVCreatePage() {
     }
   };
 
-  const submitProject = async () => {
-    if (!validateStep(currentStep)) return;
+  // const submitProject = async () => {
+  //   if (!validateStep(currentStep)) return;
 
-    // Check if payment has been completed
-    // if (paymentStatus !== 'completed') {
-    //   toast.error('Please complete the listing fee payment first');
-    //   return;
-    // }
+  //   // Check if payment has been completed
+  //   // if (paymentStatus !== 'completed') {
+  //   //   toast.error('Please complete the listing fee payment first');
+  //   //   return;
+  //   // }
 
-    setIsSubmitting(true);
+  //   setIsSubmitting(true);
 
-    try {
-      // Project has already been created in the payment step
-      // We just need to finalize it by uploading any remaining documents
-      // and deploying contracts
+  //   try {
+  //     // Project has already been created in the payment step
+  //     // We just need to finalize it by uploading any remaining documents
+  //     // and deploying contracts
 
-      // Note: In a real implementation, we would get the project ID from the payment step
-      // For now, we'll simulate completion
+  //     // Note: In a real implementation, we would get the project ID from the payment step
+  //     // For now, we'll simulate completion
 
-      setTimeout(() => {
-        toast.success('Project finalized successfully!');
-      }, 300);
+  //     setTimeout(() => {
+  //       toast.success('Project finalized successfully!');
+  //     }, 300);
 
-      setTimeout(() => {
-        // Redirect to SPV dashboard
-        router.push('/spv/dashboard');
-      }, 2000);
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Project creation failed. Please try again.';
-      toast.error(errorMessage);
-    } finally {
-      // setIsSubmitting(false);
-    }
-  };
+  //     setTimeout(() => {
+  //       // Redirect to SPV dashboard
+  //       router.push('/spv/dashboard');
+  //     }, 2000);
+  //   } catch (error: unknown) {
+  //     const errorMessage =
+  //       error instanceof Error
+  //         ? error.message
+  //         : 'Project creation failed. Please try again.';
+  //     toast.error(errorMessage);
+  //   } finally {
+  //     // setIsSubmitting(false);
+  //   }
+  // };
 
   const renderStep1 = () => (
     <div className="space-y-8">
@@ -882,231 +963,496 @@ export default function SPVCreatePage() {
     </div>
   );
 
-  const renderStep5 = () => (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gradient mb-3">
-          Listing Fee Payment
-        </h2>
-        <p className="text-muted-foreground">
-          Complete the listing fee payment to finalize your project creation.
-        </p>
-      </div>
+  const renderStep5 = () => {
+    const estimatedFundraising = formData.tokenSupply * formData.tokenPrice;
+    const estimatedListingFee = estimatedFundraising * 0.005; // 0.5%
 
-      {/* Fee Calculation */}
-      {/* <div className="glass-feature rounded-2xl p-8 hover-lift">
-        <h3 className="text-xl font-bold text-gradient mb-6 flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center">
-            <span className="text-white text-sm">💳</span>
-          </div>
-          Fee Calculation
-        </h3>
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gradient mb-3">
+            Final Review & Responsibilities
+          </h2>
+          <p className="text-muted-foreground">
+            Review your responsibilities and understand the listing fee
+            structure before smart contract deployment.
+          </p>
+        </div>
 
-        {isLoadingFee ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-12 h-12 gradient-brand-hero rounded-xl flex items-center justify-center animate-float">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+        {/* Listing Fee Information */}
+        <div className="glass-feature rounded-2xl p-8 hover-lift">
+          <h3 className="text-xl font-bold text-gradient mb-6 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center">
+              <span className="text-white text-sm">💳</span>
             </div>
-            <span className="ml-4 text-primary-600 font-medium">
-              Calculating fee...
-            </span>
-          </div>
-        ) : listingFee ? (
+            Listing Fee Consent
+          </h3>
+
           <div className="space-y-6">
+            <div className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-xl p-6 border border-primary-200">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-xs">ℹ️</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-primary-800 mb-2">
+                    Important: Listing Fee Payment
+                  </h4>
+                  <p className="text-primary-700 text-sm leading-relaxed">
+                    You will be required to pay a{' '}
+                    <strong>listing fee of 0.5%</strong> after the offering
+                    period ends. The 0.5% will be calculated based on the actual
+                    fund-raising achieved during the offering period.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="glass-modern rounded-xl p-4 space-y-2">
                 <span className="text-primary-600 text-sm font-medium">
-                  Project Value:
+                  Estimated Fundraising Target:
                 </span>
                 <p className="text-lg font-bold text-primary-800">
-                  IDR {formData.totalValue.toLocaleString()}
+                  IDR {estimatedFundraising.toLocaleString()}
                 </p>
               </div>
               <div className="glass-modern rounded-xl p-4 space-y-2">
                 <span className="text-primary-600 text-sm font-medium">
-                  Fee Rate:
+                  Estimated Listing Fee (0.5%):
                 </span>
-                <p className="text-lg font-bold text-primary-800">
-                  {listingFee.feePercentage}%
+                <p className="text-lg font-bold text-gradient">
+                  IDR {estimatedListingFee.toLocaleString()}
                 </p>
               </div>
             </div>
 
-            <div className="border-t border-primary-200 pt-6">
-              <div className="flex justify-between items-center glass-modern rounded-xl p-6">
-                <span className="text-xl font-bold text-primary-800">
-                  Total Listing Fee:
-                </span>
-                <p className="text-3xl font-bold text-gradient">
-                  {listingFee.currency} {listingFee.amount.toLocaleString()}
-                </p>
-              </div>
+            <div className="bg-warning-50 border border-warning-200 rounded-xl p-4">
+              <p className="text-warning-800 text-sm">
+                <strong>Note:</strong> The actual listing fee will be calculated
+                based on the total funds raised, not the estimated target. You
+                will receive an invoice after the offering period concludes.
+              </p>
             </div>
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-error-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-error-500 text-2xl">⚠️</span>
-            </div>
-            <p className="text-primary-600 mb-4">
-              Fee calculation failed. Please try again.
-            </p>
-            <AnimatedButton
-              onClick={calculateListingFee}
-              variant="outline"
-              ripple
-            >
-              Recalculate Fee
-            </AnimatedButton>
-          </div>
-        )}
-      </div> */}
+        </div>
 
-      {/* Payment Method Selection */}
-      {/* {listingFee && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
+        {/* SPV Responsibilities */}
+        <div className="glass-modern rounded-2xl p-6 space-y-6">
+          <h3 className="text-lg font-semibold text-primary-800 mb-4 flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">💰</span>
+              <span className="text-white text-xs">📋</span>
             </div>
-            Select Payment Method
+            SPV Responsibilities & Commitments
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {listingFee.paymentMethods.map(method => (
-              <div key={method}>
-                <label className="block cursor-pointer">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value={method}
-                    checked={selectedPaymentMethod === method}
-                    onChange={e => setSelectedPaymentMethod(e.target.value)}
-                    className="sr-only"
-                  />
+          <div className="space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={responsibilitiesAccepted}
+                onChange={e => setResponsibilitiesAccepted(e.target.checked)}
+                className="mt-1 w-5 h-5 text-primary-600 border-2 border-primary-300 rounded focus:ring-primary-500"
+              />
+              <div className="text-primary-700">
+                <p className="text-sm font-medium mb-1">
+                  Project Management & Operations
+                </p>
+                <p className="text-sm">
+                  I understand and accept full responsibility for managing the
+                  infrastructure project, ensuring compliance with all
+                  government regulations, and delivering the promised returns to
+                  token holders.
+                </p>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={feeAgreementAccepted}
+                onChange={e => setFeeAgreementAccepted(e.target.checked)}
+                className="mt-1 w-5 h-5 text-primary-600 border-2 border-primary-300 rounded focus:ring-primary-500"
+              />
+              <div className="text-primary-700">
+                <p className="text-sm font-medium mb-1">
+                  Fee Payment Agreement
+                </p>
+                <p className="text-sm">
+                  I agree to pay the 0.5% listing fee calculated based on the
+                  actual funds raised during the offering period. Payment is due
+                  within 30 days after the offering period ends.
+                </p>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={legalComplianceAccepted}
+                onChange={e => setLegalComplianceAccepted(e.target.checked)}
+                className="mt-1 w-5 h-5 text-primary-600 border-2 border-primary-300 rounded focus:ring-primary-500"
+              />
+              <div className="text-sm text-primary-700">
+                <p className="text-sm font-medium mb-1">
+                  Legal Compliance & Reporting
+                </p>
+                <p className="text-sm">
+                  I commit to maintaining accurate financial records, providing
+                  regular project updates to investors, and ensuring full
+                  compliance with Indonesian PPP regulations and blockchain
+                  securities laws.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {(!responsibilitiesAccepted ||
+            !feeAgreementAccepted ||
+            !legalComplianceAccepted) && (
+            <div className="bg-error-50 border border-error-200 rounded-xl p-4 mt-4">
+              <p className="text-error-800 text-sm font-medium">
+                Please accept all responsibilities and agreements before
+                proceeding to smart contract deployment.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderStep6 = () => {
+    // Mock contract addresses for demonstration (these would come from actual deployment)
+    const contractAddresses = {
+      projectToken: '0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd',
+      projectOffering: '0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F',
+      projectTreasury: '0x6662D1f5103dB37Cb72dE44b016c240167c44c35',
+      projectGovernance: '0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23',
+    };
+
+    const arbitrumSepoliaExplorer = 'https://sepolia.arbiscan.io';
+
+    // Show loading animation during deployment
+    if (isDeployingContracts) {
+      const currentStage = deploymentStages[deploymentStage];
+      const progress = ((deploymentStage + 1) / deploymentStages.length) * 100;
+
+      return (
+        <div className="space-y-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gradient mb-3">
+              Deploying Smart Contracts
+            </h2>
+            <p className="text-muted-foreground">
+              Please wait while we deploy your project&apos;s smart contracts to
+              Arbitrum Sepolia testnet.
+            </p>
+          </div>
+
+          {/* Deployment Progress */}
+          <div className="glass-feature rounded-2xl p-8">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+              </div>
+
+              <h3 className="text-xl font-semibold text-primary-800 mb-2">
+                {currentStage.name}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {currentStage.description}
+              </p>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-secondary-200 rounded-full h-3 mb-4">
+                <div
+                  className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-sm text-primary-600 font-medium">
+                Step {deploymentStage + 1} of {deploymentStages.length} (
+                {progress.toFixed(0)}%)
+              </p>
+            </div>
+
+            {/* Deployment Stages List */}
+            <div className="space-y-3">
+              {deploymentStages.map((stage, index) => {
+                const isCompleted = index < deploymentStage;
+                const isCurrent = index === deploymentStage;
+                // const isPending = index > deploymentStage;
+
+                return (
                   <div
-                    className={`glass-modern rounded-xl p-6 hover-lift transition-all duration-300 border-2 ${
-                      selectedPaymentMethod === method
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-transparent hover:border-primary-200'
+                    key={index}
+                    className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 ${
+                      isCompleted
+                        ? 'bg-success-50 border border-success-200'
+                        : isCurrent
+                          ? 'bg-primary-50 border border-primary-300 animate-pulse'
+                          : 'bg-gray-50 border border-gray-200'
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          selectedPaymentMethod === method
-                            ? 'border-primary-500 bg-primary-500'
-                            : 'border-secondary-300'
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        isCompleted
+                          ? 'bg-success-500 text-white'
+                          : isCurrent
+                            ? 'bg-primary-500 text-white animate-pulse'
+                            : 'bg-gray-300 text-gray-600'
+                      }`}
+                    >
+                      {isCompleted ? '✓' : index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h4
+                        className={`text-lg font-medium ${
+                          isCompleted
+                            ? 'text-success-700'
+                            : isCurrent
+                              ? 'text-primary-700'
+                              : 'text-gray-600'
                         }`}
                       >
-                        {selectedPaymentMethod === method && (
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-primary-800">
-                          {method}
-                        </p>
-                        <p className="text-sm text-primary-600">
-                          {method === 'ETH'
-                            ? 'Ethereum Payment'
-                            : 'Indonesian Rupiah'}
-                        </p>
-                      </div>
+                        {stage.name.replace('...', '')}
+                      </h4>
+                      <p
+                        className={`text-sm ${
+                          isCompleted
+                            ? 'text-success-600'
+                            : isCurrent
+                              ? 'text-primary-600'
+                              : 'text-gray-500'
+                        }`}
+                      >
+                        {stage.description}
+                      </p>
                     </div>
+                    {isCurrent && (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
+                    )}
                   </div>
-                </label>
-              </div>
-            ))}
-          </div>
-
-          {errors.selectedPaymentMethod && (
-            <p className="text-sm text-error-600">
-              {errors.selectedPaymentMethod}
-            </p>
-          )}
-        </div>
-      )} */}
-
-      {/* Payment Status */}
-      {/* {listingFee && selectedPaymentMethod && (
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-support-500 to-support-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">📊</span>
+                );
+              })}
             </div>
-            Payment Status
+
+            {/* Warning Message */}
+            <div className="bg-warning-50 border border-warning-200 rounded-xl p-4 mt-6">
+              <p className="text-warning-800 text-sm">
+                <strong>Please do not close this page</strong> during
+                deployment. The process takes approximately 15-20 seconds to
+                complete.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Show success page after deployment completes
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gradient mb-3">
+            Smart Contract Deployment Success
+          </h2>
+          <p className="text-muted-foreground">
+            Your project&apos;s smart contracts have been successfully deployed
+            to Arbitrum Sepolia testnet.
+          </p>
+        </div>
+
+        {/* Success Message */}
+        <div className="glass-feature rounded-2xl p-8 text-center">
+          <div className="w-20 h-20 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-success-500 text-4xl">🎉</span>
+          </div>
+          <h3 className="text-2xl font-bold text-success-700 mb-3">
+            Deployment Successful!
+          </h3>
+          <p className="text-success-600 mb-6">
+            Your project <strong>{formData.projectName}</strong> has been
+            tokenized and is ready for investors.
+          </p>
+          <div className="bg-success-50 border border-success-200 rounded-xl p-4">
+            <p className="text-success-800 text-sm">
+              <strong>Next Steps:</strong> Your project will be visible to
+              investors once the offering period begins. You can monitor
+              investor participation and manage your project from the SPV
+              dashboard.
+            </p>
+          </div>
+        </div>
+
+        {/* Contract Addresses */}
+        <div className="glass-modern rounded-2xl p-6 space-y-6">
+          <h3 className="text-lg font-semibold text-primary-800 mb-4 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-support-500 to-support-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">📄</span>
+            </div>
+            Smart Contract Addresses
           </h3>
 
-          <div className="glass-feature rounded-2xl p-6">
-            <div className="flex items-center space-x-4 mb-6">
-              {paymentStatus === 'pending' && (
-                <div className="w-6 h-6 bg-secondary-400 rounded-full"></div>
-              )}
-              {paymentStatus === 'processing' && (
-                <div className="w-6 h-6 bg-warning-400 rounded-full animate-pulse"></div>
-              )}
-              {paymentStatus === 'completed' && (
-                <div className="w-6 h-6 bg-success-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
-                </div>
-              )}
-              {paymentStatus === 'failed' && (
-                <div className="w-6 h-6 bg-error-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✕</span>
-                </div>
-              )}
-
-              <span className="text-lg font-semibold text-primary-800">
-                {paymentStatus === 'pending' && 'Ready to Pay'}
-                {paymentStatus === 'processing' && 'Processing Payment...'}
-                {paymentStatus === 'completed' && 'Payment Completed'}
-                {paymentStatus === 'failed' && 'Payment Failed'}
-              </span>
+          <div className="grid gap-4">
+            <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-primary-700">
+                  Project Token Contract
+                </span>
+                <a
+                  href={`${arbitrumSepoliaExplorer}/address/${contractAddresses.projectToken}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-support-600 hover:text-support-700 text-xs font-medium hover:underline flex items-center gap-1"
+                >
+                  View on Arbiscan
+                  <span className="text-xs">↗</span>
+                </a>
+              </div>
+              <p className="font-mono text-sm text-primary-900 bg-primary-50 px-3 py-2 rounded border">
+                {contractAddresses.projectToken}
+              </p>
             </div>
 
-            {paymentStatus === 'pending' && (
-              <AnimatedButton
-                onClick={processListingFeePayment}
-                disabled={!selectedPaymentMethod}
-                className="w-full"
-                ripple
-              >
-                Pay Listing Fee
-              </AnimatedButton>
-            )}
-
-            {paymentStatus === 'failed' && (
-              <AnimatedButton
-                onClick={processListingFeePayment}
-                variant="outline"
-                className="w-full"
-                ripple
-              >
-                Retry Payment
-              </AnimatedButton>
-            )}
-
-            {paymentStatus === 'completed' && (
-              <div className="text-center py-4">
-                <div className="w-16 h-16 bg-success-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-success-500 text-2xl">✅</span>
-                </div>
-                <p className="text-success-600 font-medium">
-                  Payment completed successfully! You can now finalize your
-                  project.
-                </p>
+            <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-primary-700">
+                  Token Offering Contract
+                </span>
+                <a
+                  href={`${arbitrumSepoliaExplorer}/address/${contractAddresses.projectOffering}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-support-600 hover:text-support-700 text-xs font-medium hover:underline flex items-center gap-1"
+                >
+                  View on Arbiscan
+                  <span className="text-xs">↗</span>
+                </a>
               </div>
-            )}
-          </div>
+              <p className="font-mono text-sm text-primary-900 bg-primary-50 px-3 py-2 rounded border">
+                {contractAddresses.projectOffering}
+              </p>
+            </div>
 
-          {errors.paymentStatus && (
-            <p className="text-sm text-error-600">{errors.paymentStatus}</p>
-          )}
+            <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-primary-700">
+                  Project Treasury Contract
+                </span>
+                <a
+                  href={`${arbitrumSepoliaExplorer}/address/${contractAddresses.projectTreasury}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-support-600 hover:text-support-700 text-xs font-medium hover:underline flex items-center gap-1"
+                >
+                  View on Arbiscan
+                  <span className="text-xs">↗</span>
+                </a>
+              </div>
+              <p className="font-mono text-sm text-primary-900 bg-primary-50 px-3 py-2 rounded border">
+                {contractAddresses.projectTreasury}
+              </p>
+            </div>
+
+            <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-primary-700">
+                  Governance Contract
+                </span>
+                <a
+                  href={`${arbitrumSepoliaExplorer}/address/${contractAddresses.projectGovernance}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-support-600 hover:text-support-700 text-xs font-medium hover:underline flex items-center gap-1"
+                >
+                  View on Arbiscan
+                  <span className="text-xs">↗</span>
+                </a>
+              </div>
+              <p className="font-mono text-sm text-primary-900 bg-primary-50 px-3 py-2 rounded border">
+                {contractAddresses.projectGovernance}
+              </p>
+            </div>
+          </div>
         </div>
-      )} */}
-    </div>
-  );
+
+        {/* Project Summary */}
+        <div className="glass-feature rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-primary-800 mb-4 flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">📊</span>
+            </div>
+            Project Overview
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Project Name:</span>
+              <span className="font-medium text-primary-800">
+                {formData.projectName}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Token Symbol:</span>
+              <span className="font-medium text-primary-800">
+                {formData.projectName
+                  .split(' ')
+                  .map(word => word[0])
+                  .join('')
+                  .toUpperCase()}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Total Supply:</span>
+              <span className="font-medium text-primary-800">
+                {formData.tokenSupply.toLocaleString()} tokens
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Token Price:</span>
+              <span className="font-medium text-primary-800">
+                IDR {formData.tokenPrice.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Offering Period:</span>
+              <span className="font-medium text-primary-800">
+                {formData.offeringStart} to {formData.offeringEnd}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-primary-100">
+              <span className="text-primary-600">Network:</span>
+              <span className="font-medium text-primary-800">
+                Arbitrum Sepolia
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <AnimatedButton
+            onClick={() => router.push('/spv/dashboard')}
+            variant="primary"
+            ripple
+            className="flex-1 sm:flex-none"
+          >
+            Go to SPV Dashboard
+          </AnimatedButton>
+          <AnimatedButton
+            onClick={() => router.push('/marketplace')}
+            variant="outline"
+            ripple
+            className="flex-1 sm:flex-none"
+          >
+            View in Marketplace
+          </AnimatedButton>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden py-8">
@@ -1126,12 +1472,9 @@ export default function SPVCreatePage() {
           <ScrollReveal animation="slide-up" delay={0}>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gradient mb-3">
-                Create New Project
+                {t('spvCreate.title')}
               </h1>
-              <p className="text-muted-foreground">
-                Tokenize your infrastructure project for public-private
-                partnership funding
-              </p>
+              <p className="text-muted-foreground">{t('spvCreate.subtitle')}</p>
             </div>
           </ScrollReveal>
 
@@ -1204,36 +1547,36 @@ export default function SPVCreatePage() {
               {currentStep === 3 && renderStep3()}
               {currentStep === 4 && renderStep4()}
               {currentStep === 5 && renderStep5()}
+              {currentStep === 6 && renderStep6()}
 
               {/* Navigation */}
-              <div className="flex justify-between pt-8">
-                <AnimatedButton
-                  onClick={prevStep}
-                  disabled={currentStep === 1}
-                  variant="outline"
-                  ripple
-                >
-                  Previous
-                </AnimatedButton>
-
-                {currentStep < totalSteps ? (
-                  <AnimatedButton onClick={nextStep} ripple>
-                    Next
-                  </AnimatedButton>
-                ) : (
+              {currentStep < totalSteps && (
+                <div className="flex justify-between pt-8">
                   <AnimatedButton
-                    onClick={submitProject}
-                    // disabled={isSubmitting || paymentStatus !== 'completed'}
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                    variant="outline"
                     ripple
                   >
-                    {isSubmitting
-                      ? 'Finalizing Project...'
-                      : 'Finalize Project'}
+                    Sebelumnya
                   </AnimatedButton>
-                )}
-              </div>
+
+                  <AnimatedButton onClick={nextStep} ripple>
+                    {currentStep === 5
+                      ? 'Deploy Smart Contracts'
+                      : 'Selanjutnya'}
+                  </AnimatedButton>
+                </div>
+              )}
+
+              {/* Show Previous button only for step 6 (final step) */}
+              {/* {currentStep === totalSteps && (
+                <div className="flex justify-start pt-8">
+                  <AnimatedButton onClick={prevStep} variant="outline" ripple>
+                    Previous
+                  </AnimatedButton>
+                </div>
+              )} */}
             </div>
           </ScrollReveal>
         </div>

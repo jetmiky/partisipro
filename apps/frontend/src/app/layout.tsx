@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import { ConditionalAuthWrapper } from '@/lib/conditional-auth-wrapper';
 import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
 import ChatBot from '@/components/ui/ChatBot';
+import { TranslationProvider } from '@/components/providers/TranslationProvider';
 
 export const metadata = {
   title: 'Partisipro - Platform Investasi Infrastruktur Blockchain Indonesia',
@@ -41,9 +42,11 @@ export default function RootLayout({
   return (
     <html lang="id" className={`scroll-smooth ${poppins.variable}`}>
       <body className="antialiased overflow-x-hidden">
-        <ConditionalAuthWrapper>{children}</ConditionalAuthWrapper>
-        <PresentationModeIndicator />
-        <ChatBot />
+        <TranslationProvider>
+          <ConditionalAuthWrapper>{children}</ConditionalAuthWrapper>
+          <PresentationModeIndicator />
+          <ChatBot />
+        </TranslationProvider>
       </body>
     </html>
   );

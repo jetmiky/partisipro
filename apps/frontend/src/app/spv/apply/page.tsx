@@ -683,7 +683,7 @@ export default function SPVApplyPage() {
           Informasi Keuangan
         </h3>
         <p className="text-gray-600">
-          Financial background and project experience.
+          Latar belakang finansial dan pengalaman pengelolaan proyek.
         </p>
       </div>
 
@@ -754,7 +754,9 @@ export default function SPVApplyPage() {
         <h3 className="text-xl font-semibold text-gradient mb-2">
           Multi-Signature Wallet
         </h3>
-        <p className="text-gray-600">Secure wallet perusahaan SPV</p>
+        <p className="text-gray-600">
+          Multi-Signature Wallet milik perusahaan SPV
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -836,7 +838,7 @@ export default function SPVApplyPage() {
             required
           />
           <p className="text-sm text-gray-500 mt-1">
-            Number of signatures required to execute transactions
+            Jumlah signatures minimal untuk persetujuan melakukan transaksi.
           </p>
         </div>
       </div>
@@ -850,10 +852,10 @@ export default function SPVApplyPage() {
           <FileText className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-xl font-semibold text-gradient mb-2">
-          Document Upload
+          Kelengkapan Berkas
         </h3>
         <p className="text-gray-600">
-          Upload required legal and financial documents
+          Upload dokumen kepatuhan hukum dan dokumen finansial
         </p>
       </div>
 
@@ -914,9 +916,7 @@ export default function SPVApplyPage() {
         <h3 className="text-xl font-semibold text-gradient mb-2">
           Final Details
         </h3>
-        <p className="text-gray-600">
-          Legal compliance and project preferences
-        </p>
+        <p className="text-gray-600">Preferensi proyek dan kepatuhan hukum</p>
       </div>
 
       <div className="space-y-6">
@@ -992,7 +992,7 @@ export default function SPVApplyPage() {
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm text-gray-700">
-                Company has pending legal issues or disputes
+                Perusahaan SPV sedang mengalami permasalahan hukum
               </span>
             </label>
 
@@ -1012,7 +1012,7 @@ export default function SPVApplyPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Additional Information
+            Informasi Tambahan
           </label>
           <textarea
             value={formData.additionalInfo}
@@ -1034,8 +1034,8 @@ export default function SPVApplyPage() {
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mt-1"
             />
             <span className="text-sm text-gray-700">
-              I agree to comply with all platform terms, Indonesian regulations,
-              and ongoing compliance requirements. *
+              Kami setuju untuk mematuhi seluruh ketentuan platform, regulasi di
+              Indonesia, serta persyaratan kepatuhan yang berlaku. *
             </span>
           </label>
           {errors.complianceAgreement && (
@@ -1052,8 +1052,8 @@ export default function SPVApplyPage() {
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mt-1"
             />
             <span className="text-sm text-gray-700">
-              I consent to the processing of company data for application review
-              and ongoing platform operations. *
+              Kami menyetujui pemrosesan data perusahaan untuk application
+              review dan operasional platform. *
             </span>
           </label>
           {errors.dataProcessingConsent && (
@@ -1104,7 +1104,7 @@ export default function SPVApplyPage() {
                 <h1 className="text-4xl font-bold text-gradient mb-4">
                   Pendaftaran SPV
                 </h1>
-                <p className="text-lg text-muted-foreground mb-2">
+                <p className="text-base sm:text-lg text-muted-foreground mb-2">
                   Buka akses pembiayaan baru, percepat realisasi infrastruktur.
                   Partisipro membuka peluang bagi proyek Public-Private
                   Partnership (PPP) atau Kerja Sama Pemerintah dan Badan Usaha
@@ -1135,7 +1135,7 @@ export default function SPVApplyPage() {
                     disabled={currentStep === 1}
                     ripple
                   >
-                    Previous
+                    Kembali
                   </AnimatedButton>
 
                   <div className="flex items-center space-x-2">
@@ -1153,7 +1153,7 @@ export default function SPVApplyPage() {
 
                   {currentStep < totalSteps ? (
                     <AnimatedButton onClick={nextStep} ripple>
-                      Next
+                      Selanjutnya
                     </AnimatedButton>
                   ) : (
                     <AnimatedButton

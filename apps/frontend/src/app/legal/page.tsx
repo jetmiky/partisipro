@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   FileText,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function LegalPage() {
+  const { t } = useTranslation('common');
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 
@@ -724,27 +726,28 @@ export default function LegalPage() {
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
-                Legal & Compliance
+                {t('legal.title')}
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                Framework hukum yang komprehensif untuk perlindungan investor
-                dan kepatuhan regulasi
+                {t('legal.subtitle')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
                   <Scale className="w-5 h-5 text-primary-500" />
-                  <span className="text-sm font-medium">Fully Regulated</span>
+                  <span className="text-sm font-medium">
+                    {t('legal.hero.fullyRegulated')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
                   <Shield className="w-5 h-5 text-success-500" />
                   <span className="text-sm font-medium">
-                    Investor Protected
+                    {t('legal.hero.investorProtected')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2">
                   <FileText className="w-5 h-5 text-secondary-500" />
                   <span className="text-sm font-medium">
-                    Transparent Documentation
+                    {t('legal.hero.transparentDocumentation')}
                   </span>
                 </div>
               </div>
@@ -759,7 +762,9 @@ export default function LegalPage() {
               {/* Sidebar Navigation */}
               <div className="lg:col-span-1">
                 <div className="sticky top-32">
-                  <h3 className="font-semibold mb-4">Legal Topics</h3>
+                  <h3 className="font-semibold mb-4">
+                    {t('legal.navigation.title')}
+                  </h3>
                   <nav className="space-y-2">
                     {legalSections.map(section => (
                       <button
@@ -799,10 +804,10 @@ export default function LegalPage() {
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Frequently Asked Questions
+                {t('legal.faq.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Pertanyaan umum terkait aspek legal dan compliance platform
+                {t('legal.faq.subtitle')}
               </p>
             </div>
 
@@ -842,11 +847,10 @@ export default function LegalPage() {
             <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-8 md:p-12 text-white">
               <div className="text-center mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Butuh Bantuan Legal?
+                  {t('legal.contact.title')}
                 </h2>
                 <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                  Tim legal kami siap membantu menjawab pertanyaan spesifik
-                  terkait investasi dan compliance
+                  {t('legal.contact.description')}
                 </p>
               </div>
 
@@ -855,23 +859,35 @@ export default function LegalPage() {
                   <div className="feature-icon mx-auto mb-4">
                     <Mail className="w-8 h-8" />
                   </div>
-                  <h3 className="font-semibold mb-2">Legal Department</h3>
+                  <h3 className="font-semibold mb-2">
+                    {t('legal.contact.email.title')}
+                  </h3>
                   <p className="opacity-90 mb-4">
-                    Pertanyaan legal dan compliance
+                    {t('legal.contact.email.description')}
                   </p>
-                  <p className="text-lg font-medium">legal@partisipro.com</p>
-                  <p className="text-sm opacity-75">Response dalam 24 jam</p>
+                  <p className="text-lg font-medium">
+                    {t('legal.contact.email.address')}
+                  </p>
+                  <p className="text-sm opacity-75">
+                    {t('legal.contact.email.responseTime')}
+                  </p>
                 </div>
 
                 <div className="text-center">
                   <div className="feature-icon mx-auto mb-4">
                     <Phone className="w-8 h-8" />
                   </div>
-                  <h3 className="font-semibold mb-2">Legal Hotline</h3>
-                  <p className="opacity-90 mb-4">Konsultasi legal urgent</p>
-                  <p className="text-lg font-medium">+62 21 5588 9902</p>
+                  <h3 className="font-semibold mb-2">
+                    {t('legal.contact.phone.title')}
+                  </h3>
+                  <p className="opacity-90 mb-4">
+                    {t('legal.contact.phone.description')}
+                  </p>
+                  <p className="text-lg font-medium">
+                    {t('legal.contact.phone.number')}
+                  </p>
                   <p className="text-sm opacity-75">
-                    Senin-Jumat 09:00-17:00 WIB
+                    {t('legal.contact.phone.hours')}
                   </p>
                 </div>
               </div>

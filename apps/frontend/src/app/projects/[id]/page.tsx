@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -141,6 +142,7 @@ const mockProjectData = {
 };
 
 export default function ProjectDetailPage() {
+  const { t } = useTranslation('common');
   const params = useParams();
   const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
@@ -178,7 +180,7 @@ export default function ProjectDetailPage() {
               <Layers className="w-8 h-8 text-white" />
             </div>
             <p className="text-primary-600 font-medium">
-              Loading project details...
+              {t('projectDetailPage.loading.title')}
             </p>
           </div>
         </div>
@@ -200,17 +202,16 @@ export default function ProjectDetailPage() {
               <AlertTriangle className="w-8 h-8 text-accent-500" />
             </div>
             <h3 className="text-xl font-semibold text-gradient mb-3">
-              Project not found
+              {t('projectDetailPage.notFound.title')}
             </h3>
             <p className="text-primary-600 mb-6 max-w-md">
-              The project you&apos;re looking for doesn&apos;t exist or has been
-              removed.
+              {t('projectDetailPage.notFound.description')}
             </p>
             <Button
               onClick={() => router.push('/marketplace')}
               className="btn-modern btn-modern-primary hover-lift"
             >
-              Back to Marketplace
+              {t('projectDetailPage.notFound.backToMarketplace')}
             </Button>
           </div>
         </div>
@@ -278,11 +279,27 @@ export default function ProjectDetailPage() {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: BookOpen },
-    { id: 'financials', label: 'Financials', icon: BarChart3 },
-    { id: 'risks', label: 'Risks', icon: Shield },
-    { id: 'documents', label: 'Documents', icon: FileText },
-    { id: 'updates', label: 'Updates', icon: MessageSquare },
+    {
+      id: 'overview',
+      label: t('projectDetailPage.tabs.overview'),
+      icon: BookOpen,
+    },
+    {
+      id: 'financials',
+      label: t('projectDetailPage.tabs.financials'),
+      icon: BarChart3,
+    },
+    { id: 'risks', label: t('projectDetailPage.tabs.risks'), icon: Shield },
+    {
+      id: 'documents',
+      label: t('projectDetailPage.tabs.documents'),
+      icon: FileText,
+    },
+    {
+      id: 'updates',
+      label: t('projectDetailPage.tabs.updates'),
+      icon: MessageSquare,
+    },
   ];
 
   return (
@@ -309,8 +326,10 @@ export default function ProjectDetailPage() {
                   <AnimatedButton
                     onClick={() => {
                       router.push('/marketplace');
-                      toast.info('Navigation', {
-                        message: 'Returning to marketplace...',
+                      toast.info(t('projectDetailPage.navigation.title'), {
+                        message: t(
+                          'projectDetailPage.navigation.returningToMarketplace'
+                        ),
                       });
                     }}
                     variant="secondary"
@@ -318,7 +337,7 @@ export default function ProjectDetailPage() {
                     ripple
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Back to Marketplace
+                    {t('projectDetailPage.navigation.backToMarketplace')}
                   </AnimatedButton>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center hover-scale transition-all duration-300">
@@ -335,7 +354,7 @@ export default function ProjectDetailPage() {
                     className="flex items-center gap-2"
                     ripple
                     onClick={() =>
-                      toast.info('Share Project', {
+                      toast.info(t('projectDetailPage.actions.shareProject'), {
                         message: 'Sharing project details...',
                       })
                     }
@@ -523,7 +542,7 @@ export default function ProjectDetailPage() {
                               })
                             }
                           >
-                            Invest Now
+                            {t('projectDetailPage.actions.investNow')}
                           </AnimatedButton>
                         </Link>
                       )}
@@ -538,7 +557,7 @@ export default function ProjectDetailPage() {
                           <Calculator className="w-5 h-5 text-white" />
                         </div>
                         <h3 className="text-xl font-semibold text-gradient">
-                          Calculate Returns
+                          {t('projectDetailPage.actions.calculateReturns')}
                         </h3>
                       </div>
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Users,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 
 export default function HowItWorksPage() {
+  const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState<'investor' | 'spv' | 'admin'>(
     'investor'
   );
@@ -31,165 +33,126 @@ export default function HowItWorksPage() {
   const investorSteps = [
     {
       icon: <Users className="w-8 h-8" />,
-      title: 'Daftar & Verifikasi',
-      description: 'Daftar dengan email/sosial media dan selesaikan KYC',
-      details: [
-        'Login dengan Web3Auth (email/Google/social)',
-        'Verifikasi identitas dengan KYC provider',
-        'Whitelist wallet address otomatis',
-        'Akses penuh ke platform',
-      ],
-      duration: '5-15 menit',
+      title: t('howItWorks.investorSteps.step1.title'),
+      description: t('howItWorks.investorSteps.step1.description'),
+      details: t('howItWorks.investorSteps.step1.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.investorSteps.step1.duration'),
     },
     {
       icon: <Target className="w-8 h-8" />,
-      title: 'Jelajahi Proyek',
-      description: 'Browse marketplace dan pilih proyek infrastruktur',
-      details: [
-        'Lihat daftar proyek PPP yang tersedia',
-        'Analisis detail proyek dan risiko',
-        'Baca dokumen legal dan kontrak',
-        'Gunakan AI assistant untuk analisis',
-      ],
-      duration: '10-30 menit',
+      title: t('howItWorks.investorSteps.step2.title'),
+      description: t('howItWorks.investorSteps.step2.description'),
+      details: t('howItWorks.investorSteps.step2.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.investorSteps.step2.duration'),
     },
     {
       icon: <DollarSign className="w-8 h-8" />,
-      title: 'Investasi IDR',
-      description: 'Investasi dengan Rupiah melalui payment gateway',
-      details: [
-        'Pilih jumlah investasi dalam IDR',
-        'Bayar melalui payment gateway terpercaya',
-        'Sistem generates authorization voucher',
-        'Token otomatis mint ke wallet Anda',
-      ],
-      duration: '2-5 menit',
+      title: t('howItWorks.investorSteps.step3.title'),
+      description: t('howItWorks.investorSteps.step3.description'),
+      details: t('howItWorks.investorSteps.step3.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.investorSteps.step3.duration'),
     },
     {
       icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Kelola Portfolio',
-      description: 'Monitor investasi dan performa proyek',
-      details: [
-        'Dashboard portfolio real-time',
-        'Tracking performa dan ROI',
-        'Notifikasi distribusi keuntungan',
-        'Analytics dan reporting',
-      ],
-      duration: 'Ongoing',
+      title: t('howItWorks.investorSteps.step4.title'),
+      description: t('howItWorks.investorSteps.step4.description'),
+      details: t('howItWorks.investorSteps.step4.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.investorSteps.step4.duration'),
     },
     {
       icon: <Wallet className="w-8 h-8" />,
-      title: 'Claim Keuntungan',
-      description: 'Terima pembagian keuntungan secara otomatis',
-      details: [
-        'SPV deposit keuntungan ke Treasury',
-        'Smart contract hitung pembagian',
-        'Klaim keuntungan dalam IDR',
-        'Transfer langsung ke rekening bank',
-      ],
-      duration: '1-2 menit',
+      title: t('howItWorks.investorSteps.step5.title'),
+      description: t('howItWorks.investorSteps.step5.description'),
+      details: t('howItWorks.investorSteps.step5.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.investorSteps.step5.duration'),
     },
   ];
 
   const spvSteps = [
     {
       icon: <Building className="w-8 h-8" />,
-      title: 'Aplikasi SPV',
-      description: 'Submit proposal proyek untuk due diligence',
-      details: [
-        'Siapkan dokumentasi proyek lengkap',
-        'Submit ke Platform Administrator',
-        'Proses due diligence dan evaluasi',
-        'Approval dan whitelist multi-sig wallet',
-      ],
-      duration: '2-4 minggu',
+      title: t('howItWorks.spvSteps.step1.title'),
+      description: t('howItWorks.spvSteps.step1.description'),
+      details: t('howItWorks.spvSteps.step1.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.spvSteps.step1.duration'),
     },
     {
       icon: <FileText className="w-8 h-8" />,
-      title: 'Tokenisasi Proyek',
-      description: 'Buat parameter tokenisasi dan deploy smart contracts',
-      details: [
-        'Login dengan multi-signature wallet',
-        'Isi form parameter tokenisasi',
-        'Smart contract deployment otomatis',
-        'Project listing di marketplace',
-      ],
-      duration: '1-2 hari',
+      title: t('howItWorks.spvSteps.step2.title'),
+      description: t('howItWorks.spvSteps.step2.description'),
+      details: t('howItWorks.spvSteps.step2.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.spvSteps.step2.duration'),
     },
     {
       icon: <DollarSign className="w-8 h-8" />,
-      title: 'Fundraising',
-      description: 'Initial offering periode untuk investor',
-      details: [
-        'Marketing dan promosi proyek',
-        'Investor beli token selama offering',
-        'Funds terkumpul di escrow',
-        'Finalisasi offering dan fund transfer',
-      ],
-      duration: '2-12 minggu',
+      title: t('howItWorks.spvSteps.step3.title'),
+      description: t('howItWorks.spvSteps.step3.description'),
+      details: t('howItWorks.spvSteps.step3.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.spvSteps.step3.duration'),
     },
     {
       icon: <Zap className="w-8 h-8" />,
-      title: 'Operasi Proyek',
-      description: 'Jalankan proyek infrastruktur',
-      details: [
-        'Konstruksi dan implementasi',
-        'Operasional dan maintenance',
-        'Generate revenue dari proyek',
-        'Periodic reporting ke investor',
-      ],
-      duration: '5-30 tahun',
+      title: t('howItWorks.spvSteps.step4.title'),
+      description: t('howItWorks.spvSteps.step4.description'),
+      details: t('howItWorks.spvSteps.step4.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.spvSteps.step4.duration'),
     },
     {
       icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Distribusi Keuntungan',
-      description: 'Deposit keuntungan untuk investor',
-      details: [
-        'Deposit profit dalam IDR',
-        'Platform verifikasi dan record',
-        'Smart contract calculate shares',
-        'Investor claim keuntungan',
-      ],
-      duration: 'Bulanan/Quarterly',
+      title: t('howItWorks.spvSteps.step5.title'),
+      description: t('howItWorks.spvSteps.step5.description'),
+      details: t('howItWorks.spvSteps.step5.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.spvSteps.step5.duration'),
     },
   ];
 
   const adminSteps = [
     {
       icon: <Shield className="w-8 h-8" />,
-      title: 'SPV Approval',
-      description: 'Evaluasi dan approve aplikasi SPV',
-      details: [
-        'Review dokumentasi proyek',
-        'Due diligence dan risk assessment',
-        'Whitelist SPV multi-sig wallet',
-        'Grant project creation privileges',
-      ],
-      duration: '1-3 minggu',
+      title: t('howItWorks.adminSteps.step1.title'),
+      description: t('howItWorks.adminSteps.step1.description'),
+      details: t('howItWorks.adminSteps.step1.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.adminSteps.step1.duration'),
     },
     {
       icon: <Eye className="w-8 h-8" />,
-      title: 'Project Oversight',
-      description: 'Monitor dan supervisi semua proyek',
-      details: [
-        'Real-time project monitoring',
-        'Compliance dan regulatory check',
-        'Risk management dan mitigation',
-        'Intervention tools bila diperlukan',
-      ],
-      duration: 'Ongoing',
+      title: t('howItWorks.adminSteps.step2.title'),
+      description: t('howItWorks.adminSteps.step2.description'),
+      details: t('howItWorks.adminSteps.step2.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.adminSteps.step2.duration'),
     },
     {
       icon: <DollarSign className="w-8 h-8" />,
-      title: 'Fee Management',
-      description: 'Kelola fee platform dan revenue',
-      details: [
-        'Set platform fees (listing, management)',
-        'Collect revenue dari Treasury',
-        'Revenue tracking dan analytics',
-        'Fee optimization dan adjustment',
-      ],
-      duration: 'Monthly',
+      title: t('howItWorks.adminSteps.step3.title'),
+      description: t('howItWorks.adminSteps.step3.description'),
+      details: t('howItWorks.adminSteps.step3.details', {
+        returnObjects: true,
+      }) as string[],
+      duration: t('howItWorks.adminSteps.step3.duration'),
     },
   ];
 
@@ -209,48 +172,35 @@ export default function HowItWorksPage() {
   const blockchainFeatures = [
     {
       icon: <Lock className="w-8 h-8" />,
-      title: 'Keamanan Tingkat Enterprise',
-      description:
-        'Multi-signature wallets dan smart contracts yang telah diaudit',
-      details: [
-        'OpenZeppelin security standards',
-        'Multi-sig wallet untuk admin functions',
-        'Upgradeable proxy pattern',
-        'Regular security audits',
-      ],
+      title: t('howItWorks.blockchain.features.security.title'),
+      description: t('howItWorks.blockchain.features.security.description'),
+      details: t('howItWorks.blockchain.features.security.details', {
+        returnObjects: true,
+      }) as string[],
     },
     {
       icon: <Eye className="w-8 h-8" />,
-      title: 'Transparansi Penuh',
-      description: 'Semua transaksi dan distribusi tercatat di blockchain',
-      details: [
-        'Immutable transaction records',
-        'Real-time profit distribution',
-        'Open source smart contracts',
-        'Public audit trail',
-      ],
+      title: t('howItWorks.blockchain.features.transparency.title'),
+      description: t('howItWorks.blockchain.features.transparency.description'),
+      details: t('howItWorks.blockchain.features.transparency.details', {
+        returnObjects: true,
+      }) as string[],
     },
     {
       icon: <Globe className="w-8 h-8" />,
-      title: 'Arbitrum Network',
-      description: 'Layer-2 Ethereum untuk transaksi cepat dan murah',
-      details: [
-        'Gas fees sangat rendah',
-        'Transaksi instant confirmation',
-        'Ethereum security inheritance',
-        'Scalable infrastructure',
-      ],
+      title: t('howItWorks.blockchain.features.network.title'),
+      description: t('howItWorks.blockchain.features.network.description'),
+      details: t('howItWorks.blockchain.features.network.details', {
+        returnObjects: true,
+      }) as string[],
     },
     {
       icon: <Award className="w-8 h-8" />,
-      title: 'Regulasi Compliant',
-      description: 'Patuh regulasi Bank Indonesia dan standar internasional',
-      details: [
-        'Bank Indonesia approved',
-        'KYC/AML compliance',
-        'Project Garuda IDR integration',
-        'Legal framework compliance',
-      ],
+      title: t('howItWorks.blockchain.features.compliance.title'),
+      description: t('howItWorks.blockchain.features.compliance.description'),
+      details: t('howItWorks.blockchain.features.compliance.details', {
+        returnObjects: true,
+      }) as string[],
     },
   ];
 
@@ -272,25 +222,28 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
-                Cara Kerja Platform
+                {t('howItWorks.title')}
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                Memahami proses investasi infrastruktur melalui teknologi
-                blockchain yang aman dan transparan
+                {t('howItWorks.subtitle')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <CheckCircle className="w-5 h-5 text-success-500" />
-                  <span className="text-sm font-medium">Proses Sederhana</span>
+                  <span className="text-sm font-medium">
+                    {t('howItWorks.hero.simpleProcess')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Shield className="w-5 h-5 text-primary-500" />
-                  <span className="text-sm font-medium">Aman & Transparan</span>
+                  <span className="text-sm font-medium">
+                    {t('howItWorks.hero.safeTransparent')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Clock className="w-5 h-5 text-secondary-500" />
                   <span className="text-sm font-medium">
-                    Mulai dalam 5 Menit
+                    {t('howItWorks.hero.startIn5Minutes')}
                   </span>
                 </div>
               </div>
@@ -303,11 +256,10 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Pilih Peran Anda
+                {t('howItWorks.roles.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Setiap pengguna memiliki journey yang berbeda dalam platform
-                Partisipro
+                {t('howItWorks.roles.description')}
               </p>
             </div>
 
@@ -387,7 +339,7 @@ export default function HowItWorksPage() {
                               : 'text-gray-600'
                           }`}
                         >
-                          Step {index + 1}
+                          {t('howItWorks.process.step')} {index + 1}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
                           {step.duration}
@@ -428,13 +380,16 @@ export default function HowItWorksPage() {
                     <div className="flex items-center gap-2 text-sm text-primary-600 mb-6">
                       <Clock className="w-4 h-4" />
                       <span>
-                        Estimasi waktu: {getCurrentSteps()[activeStep].duration}
+                        {t('howItWorks.process.estimatedTime')}{' '}
+                        {getCurrentSteps()[activeStep].duration}
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold mb-4">Detail Proses:</h4>
+                    <h4 className="font-semibold mb-4">
+                      {t('howItWorks.process.processDetails')}
+                    </h4>
                     <ul className="space-y-3">
                       {getCurrentSteps()[activeStep].details.map(
                         (detail, idx) => (
@@ -459,11 +414,10 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Teknologi Blockchain
+                {t('howItWorks.blockchain.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Platform dibangun dengan teknologi blockchain terdepan untuk
-                keamanan dan transparansi maksimal
+                {t('howItWorks.blockchain.description')}
               </p>
             </div>
 
@@ -499,11 +453,10 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Alur Investasi End-to-End
+                {t('howItWorks.flow.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Dari pendaftaran hingga penarikan keuntungan, semua proses
-                terintegrasi dalam satu platform
+                {t('howItWorks.flow.description')}
               </p>
             </div>
 
@@ -512,32 +465,40 @@ export default function HowItWorksPage() {
                 {/* On-Chain Process */}
                 <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8">
                   <h3 className="text-xl font-semibold mb-6 text-primary-800">
-                    On-Chain Process
+                    {t('howItWorks.flow.onChain.title')}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">1</span>
                       </div>
-                      <span className="text-sm">Smart Contract Deployment</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.onChain.steps.0')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">2</span>
                       </div>
-                      <span className="text-sm">Token Minting</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.onChain.steps.1')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">3</span>
                       </div>
-                      <span className="text-sm">Profit Distribution</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.onChain.steps.2')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">4</span>
                       </div>
-                      <span className="text-sm">Governance Voting</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.onChain.steps.3')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -545,32 +506,40 @@ export default function HowItWorksPage() {
                 {/* Off-Chain Process */}
                 <div className="bg-gradient-to-br from-secondary-50 to-secondary-100 rounded-2xl p-8">
                   <h3 className="text-xl font-semibold mb-6 text-secondary-800">
-                    Off-Chain Process
+                    {t('howItWorks.flow.offChain.title')}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-secondary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">1</span>
                       </div>
-                      <span className="text-sm">KYC Verification</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.offChain.steps.0')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-secondary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">2</span>
                       </div>
-                      <span className="text-sm">IDR Payment Gateway</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.offChain.steps.1')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-secondary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">3</span>
                       </div>
-                      <span className="text-sm">Project Due Diligence</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.offChain.steps.2')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-secondary-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">4</span>
                       </div>
-                      <span className="text-sm">Bank Account Settlement</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.offChain.steps.3')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -578,32 +547,40 @@ export default function HowItWorksPage() {
                 {/* Integration Layer */}
                 <div className="bg-gradient-to-br from-success-50 to-support-100 rounded-2xl p-8">
                   <h3 className="text-xl font-semibold mb-6 text-success-800">
-                    Integration Layer
+                    {t('howItWorks.flow.integration.title')}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">1</span>
                       </div>
-                      <span className="text-sm">Web3Auth SDK</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.integration.steps.0')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">2</span>
                       </div>
-                      <span className="text-sm">Authorization Voucher</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.integration.steps.1')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">3</span>
                       </div>
-                      <span className="text-sm">Event Monitoring</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.integration.steps.2')}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-success-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-bold">4</span>
                       </div>
-                      <span className="text-sm">Real-time Sync</span>
+                      <span className="text-sm">
+                        {t('howItWorks.flow.integration.steps.3')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -617,54 +594,47 @@ export default function HowItWorksPage() {
           <div className="container">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Pertanyaan Umum
+                {t('howItWorks.faq.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Jawaban untuk pertanyaan yang sering diajukan tentang cara kerja
-                platform
+                {t('howItWorks.faq.description')}
               </p>
             </div>
 
             <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl p-6">
                 <h3 className="font-semibold mb-3">
-                  Apakah saya perlu memahami blockchain?
+                  {t('howItWorks.faq.questions.blockchain.question')}
                 </h3>
                 <p className="text-muted-foreground">
-                  Tidak! Platform dirancang untuk user yang tidak familiar
-                  dengan crypto. Semua kompleksitas blockchain tersembunyi di
-                  balik interface yang sederhana.
+                  {t('howItWorks.faq.questions.blockchain.answer')}
                 </p>
               </div>
 
               <div className="bg-white rounded-xl p-6">
                 <h3 className="font-semibold mb-3">
-                  Bagaimana keamanan dana saya?
+                  {t('howItWorks.faq.questions.security.question')}
                 </h3>
                 <p className="text-muted-foreground">
-                  Dana Anda dilindungi oleh smart contracts yang telah diaudit,
-                  multi-signature wallets, dan regulasi Bank Indonesia yang
-                  ketat.
+                  {t('howItWorks.faq.questions.security.answer')}
                 </p>
               </div>
 
               <div className="bg-white rounded-xl p-6">
                 <h3 className="font-semibold mb-3">
-                  Berapa minimum investasi?
+                  {t('howItWorks.faq.questions.minimum.question')}
                 </h3>
                 <p className="text-muted-foreground">
-                  Minimum investasi mulai dari IDR 1 juta, memungkinkan
-                  partisipasi investor retail dalam proyek infrastruktur besar.
+                  {t('howItWorks.faq.questions.minimum.answer')}
                 </p>
               </div>
 
               <div className="bg-white rounded-xl p-6">
                 <h3 className="font-semibold mb-3">
-                  Kapan saya bisa menarik keuntungan?
+                  {t('howItWorks.faq.questions.withdraw.question')}
                 </h3>
                 <p className="text-muted-foreground">
-                  Keuntungan didistribusikan secara periodik sesuai dengan
-                  jadwal proyek, umumnya quarterly atau semi-annual.
+                  {t('howItWorks.faq.questions.withdraw.answer')}
                 </p>
               </div>
             </div>
@@ -675,20 +645,19 @@ export default function HowItWorksPage() {
         <section className="py-16 md:py-24 bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
           <div className="container text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Siap Memulai Journey Investasi Anda?
+              {t('howItWorks.cta.title')}
             </h2>
             <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Bergabunglah dengan platform investasi infrastruktur terdepan di
-              Indonesia. Mulai dengan verifikasi KYC yang mudah dan cepat.
+              {t('howItWorks.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="btn btn-light btn-lg">
                 <Users className="w-5 h-5" />
-                Mulai Investasi
+                {t('howItWorks.cta.startInvesting')}
               </button>
               <button className="btn btn-outline-light btn-lg">
                 <MessageCircle className="w-5 h-5" />
-                Konsultasi Gratis
+                {t('howItWorks.cta.freeConsultation')}
               </button>
             </div>
           </div>

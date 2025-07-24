@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import {
   User,
@@ -180,6 +181,7 @@ const mockLoginActivity: LoginActivity[] = [
 // ];
 
 export default function ProfilePage() {
+  const { t } = useTranslation('common');
   const [profile, setProfile] = useState<UserProfile>(mockProfile);
   const [activeTab, setActiveTab] = useState('account');
   const [editingSection, setEditingSection] = useState<string | null>(null);
@@ -224,13 +226,13 @@ export default function ProfilePage() {
   const getKYCStatusLabel = (status: string) => {
     switch (status) {
       case 'verified':
-        return 'Verified';
+        return t('profilePage.kycStatus.verified');
       case 'pending':
-        return 'Pending Review';
+        return t('profilePage.kycStatus.pending');
       case 'rejected':
-        return 'Rejected';
+        return t('profilePage.kycStatus.rejected');
       default:
-        return 'Unknown';
+        return t('profilePage.kycStatus.unknown');
     }
   };
 
@@ -266,12 +268,20 @@ export default function ProfilePage() {
   };
 
   const tabs = [
-    { id: 'account', label: 'Account Information', icon: User },
-    { id: 'wallet', label: 'Wallet Management', icon: Wallet },
-    { id: 'preferences', label: 'Investment Preferences', icon: Settings },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security Settings', icon: Shield },
-    { id: 'reports', label: 'Reports & Tax', icon: FileText },
+    { id: 'account', label: t('profilePage.tabs.account'), icon: User },
+    { id: 'wallet', label: t('profilePage.tabs.wallet'), icon: Wallet },
+    {
+      id: 'preferences',
+      label: t('profilePage.tabs.preferences'),
+      icon: Settings,
+    },
+    {
+      id: 'notifications',
+      label: t('profilePage.tabs.notifications'),
+      icon: Bell,
+    },
+    { id: 'security', label: t('profilePage.tabs.security'), icon: Shield },
+    { id: 'reports', label: t('profilePage.tabs.reports'), icon: FileText },
   ];
 
   const renderAccountSection = () => (
@@ -321,7 +331,8 @@ export default function ProfilePage() {
             </div>
             <p className="text-primary-700 font-medium mb-2">{profile.email}</p>
             <p className="text-sm text-muted-foreground">
-              Member since {formatDate(profile.registrationDate)}
+              {t('profilePage.personalInfo.memberSince')}{' '}
+              {formatDate(profile.registrationDate)}
             </p>
           </div>
           <div>
@@ -329,14 +340,14 @@ export default function ProfilePage() {
               variant="secondary"
               onClick={() => {
                 setEditingSection('profile');
-                toast.info('Edit Profile', {
-                  message: 'Profile editing form opened',
+                toast.info(t('profilePage.personalInfo.editProfile'), {
+                  message: t('profilePage.personalInfo.editProfileMessage'),
                 });
               }}
               className="btn-modern btn-modern-secondary hover-lift flex items-center gap-2"
             >
               <Edit3 className="w-4 h-4" />
-              Edit Profile
+              {t('profilePage.personalInfo.editProfile')}
             </AnimatedButton>
           </div>
         </div>
@@ -346,20 +357,20 @@ export default function ProfilePage() {
       <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-gradient">
-            Personal Information
+            {t('profilePage.personalInfo.title')}
           </h3>
           <AnimatedButton
             variant="secondary"
             onClick={() => {
               setEditingSection('personal');
-              toast.info('Edit Personal Information', {
-                message: 'Personal information editing form opened',
+              toast.info(t('profilePage.personalInfo.editPersonalInfo'), {
+                message: t('profilePage.personalInfo.editPersonalInfoMessage'),
               });
             }}
             className="btn-modern btn-modern-secondary hover-lift flex items-center gap-2"
           >
             <Edit3 className="w-4 h-4" />
-            Edit
+            {t('profilePage.personalInfo.edit')}
           </AnimatedButton>
         </div>
         <StaggeredList
@@ -373,7 +384,9 @@ export default function ProfilePage() {
                 <Mail className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-primary-600">Email</p>
+                <p className="text-sm font-medium text-primary-600">
+                  {t('profilePage.personalInfo.email')}
+                </p>
                 <p className="font-bold text-primary-800">{profile.email}</p>
               </div>
             </div>
@@ -385,7 +398,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-primary-600">
-                  Phone Number
+                  {t('profilePage.personalInfo.phoneNumber')}
                 </p>
                 <p className="font-bold text-primary-800">{profile.phone}</p>
               </div>
@@ -398,7 +411,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-primary-600 mb-1">
-                  Address
+                  {t('profilePage.personalInfo.address')}
                 </p>
                 <p className="font-bold text-primary-800 leading-relaxed">
                   {profile.address.street}, {profile.address.city},{' '}
@@ -414,7 +427,7 @@ export default function ProfilePage() {
       <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-gradient">
-            KYC Verification
+            {t('profilePage.kycStatus.title')}
           </h3>
           <div
             className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -434,7 +447,7 @@ export default function ProfilePage() {
           <div className="glass-modern rounded-xl p-4 hover-lift transition-all duration-300">
             <div className="flex items-center justify-between">
               <span className="font-medium text-primary-700">
-                Identity Verification
+                {t('profilePage.kycStatus.identityVerification')}
               </span>
               <span
                 className={`px-3 py-1 rounded-xl text-xs font-bold ${getKYCStatusColor(
@@ -457,24 +470,21 @@ export default function ProfilePage() {
           {profile.kycStatus === 'verified' && (
             <div className="glass-hero rounded-xl p-4">
               <p className="text-sm text-success-800 font-medium">
-                Your identity has been successfully verified. You can now
-                participate in all investment activities.
+                {t('profilePage.kycStatus.verifiedMessage')}
               </p>
             </div>
           )}
           {profile.kycStatus === 'pending' && (
             <div className="glass-modern rounded-xl p-4 bg-gradient-to-r from-accent-50 to-accent-100">
               <p className="text-sm text-accent-800 font-medium">
-                Your KYC application is under review. This process typically
-                takes 1-3 business days.
+                {t('profilePage.kycStatus.pendingMessage')}
               </p>
             </div>
           )}
           {profile.kycStatus === 'rejected' && (
             <div className="glass-modern rounded-xl p-4 bg-gradient-to-r from-error-50 to-error-100">
               <p className="text-sm text-error-800 font-medium">
-                Your KYC application was rejected. Please contact support for
-                assistance.
+                {t('profilePage.kycStatus.rejectedMessage')}
               </p>
             </div>
           )}
@@ -488,17 +498,21 @@ export default function ProfilePage() {
       {/* Connected Wallets */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Connected Wallets</h3>
+          <h3 className="font-semibold text-gray-900">
+            {t('profilePage.walletManagement.connectedWallets')}
+          </h3>
           <AnimatedButton
             variant="primary"
             className="text-sm"
             onClick={() => {
-              toast.info('Connect New Wallet', {
-                message: 'Opening wallet connection dialog',
+              toast.info(t('profilePage.walletManagement.connectNewWallet'), {
+                message: t(
+                  'profilePage.walletManagement.connectNewWalletMessage'
+                ),
               });
             }}
           >
-            Connect New Wallet
+            {t('profilePage.walletManagement.connectNewWallet')}
           </AnimatedButton>
         </div>
         <div className="space-y-4">
@@ -518,7 +532,7 @@ export default function ProfilePage() {
                     </p>
                     {wallet.isActive && (
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Active
+                        {t('profilePage.walletManagement.active')}
                       </span>
                     )}
                   </div>
@@ -526,7 +540,8 @@ export default function ProfilePage() {
                     {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
                   </p>
                   <p className="text-xs text-gray-400">
-                    Connected on {formatDate(wallet.connectedDate)}
+                    {t('profilePage.walletManagement.connectedOn')}{' '}
+                    {formatDate(wallet.connectedDate)}
                   </p>
                 </div>
               </div>
@@ -535,9 +550,14 @@ export default function ProfilePage() {
                   variant="secondary"
                   onClick={() => {
                     copyToClipboard(wallet.address, wallet.address);
-                    toast.success('Address Copied', {
-                      message: 'Wallet address copied to clipboard',
-                    });
+                    toast.success(
+                      t('profilePage.walletManagement.addressCopied'),
+                      {
+                        message: t(
+                          'profilePage.walletManagement.addressCopiedMessage'
+                        ),
+                      }
+                    );
                   }}
                   className="text-sm p-2"
                 >
@@ -551,12 +571,14 @@ export default function ProfilePage() {
                   variant="secondary"
                   className="text-sm"
                   onClick={() => {
-                    toast.info('Manage Wallet', {
-                      message: 'Opening wallet management options',
+                    toast.info(t('profilePage.walletManagement.manageWallet'), {
+                      message: t(
+                        'profilePage.walletManagement.manageWalletMessage'
+                      ),
                     });
                   }}
                 >
-                  Manage
+                  {t('profilePage.walletManagement.manage')}
                 </AnimatedButton>
               </div>
             </div>
@@ -566,15 +588,19 @@ export default function ProfilePage() {
 
       {/* Wallet Security */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Wallet Security</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          {t('profilePage.securitySettings.walletSecurity')}
+        </h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-blue-600" />
               <div>
-                <p className="font-medium text-gray-900">Backup & Recovery</p>
+                <p className="font-medium text-gray-900">
+                  {t('profilePage.securitySettings.backupRecovery')}
+                </p>
                 <p className="text-sm text-gray-600">
-                  Secure your wallet with backup phrase
+                  {t('profilePage.securitySettings.backupRecoveryDescription')}
                 </p>
               </div>
             </div>
@@ -582,12 +608,12 @@ export default function ProfilePage() {
               variant="secondary"
               className="text-sm"
               onClick={() => {
-                toast.info('View Backup', {
-                  message: 'Opening wallet backup information',
+                toast.info(t('profilePage.securitySettings.viewBackup'), {
+                  message: t('profilePage.securitySettings.viewBackupMessage'),
                 });
               }}
             >
-              View Backup
+              {t('profilePage.securitySettings.viewBackup')}
             </AnimatedButton>
           </div>
           <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
@@ -595,14 +621,16 @@ export default function ProfilePage() {
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div>
                 <p className="font-medium text-gray-900">
-                  Multi-Factor Authentication
+                  {t('profilePage.securitySettings.twoFactorAuth')}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Additional security for transactions
+                  {t('profilePage.securitySettings.twoFactorAuthDescription')}
                 </p>
               </div>
             </div>
-            <span className="text-sm text-green-600 font-medium">Enabled</span>
+            <span className="text-sm text-green-600 font-medium">
+              {t('profilePage.securitySettings.enabled')}
+            </span>
           </div>
         </div>
       </Card>
@@ -613,24 +641,31 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Risk Tolerance */}
       <Card className="p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Risk Tolerance</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">
+          {t('profilePage.investmentProfile.riskTolerance')}
+        </h3>
         <div className="space-y-3">
           {[
             {
               value: 'low',
-              label: 'Conservative',
-              description: 'Prefer stable returns with minimal risk',
+              label: t('profilePage.investmentProfile.conservative'),
+              description: t(
+                'profilePage.investmentProfile.conservativeDescription'
+              ),
             },
             {
               value: 'medium',
-              label: 'Moderate',
-              description: 'Balanced approach with moderate risk and returns',
+              label: t('profilePage.investmentProfile.moderate'),
+              description: t(
+                'profilePage.investmentProfile.moderateDescription'
+              ),
             },
             {
               value: 'high',
-              label: 'Aggressive',
-              description:
-                'Higher risk tolerance for potentially higher returns',
+              label: t('profilePage.investmentProfile.aggressive'),
+              description: t(
+                'profilePage.investmentProfile.aggressiveDescription'
+              ),
             },
           ].map(option => (
             <label
@@ -670,7 +705,7 @@ export default function ProfilePage() {
       {/* Investment Categories */}
       <Card className="p-6">
         <h3 className="font-semibold text-gray-900 mb-4">
-          Preferred Investment Categories
+          {t('profilePage.investmentProfile.preferredCategories')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
@@ -718,44 +753,56 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <Card className="p-6">
         <h3 className="font-semibold text-gray-900 mb-4">
-          Notification Preferences
+          {t('profilePage.notificationSettings.title')}
         </h3>
         <div className="space-y-4">
           {[
             {
               key: 'email',
-              label: 'Email Notifications',
-              description: 'Receive updates via email',
+              label: t('profilePage.notificationSettings.emailNotifications'),
+              description: t(
+                'profilePage.notificationSettings.emailDescription'
+              ),
               icon: Mail,
             },
             {
               key: 'sms',
-              label: 'SMS Notifications',
-              description: 'Receive important alerts via SMS',
+              label: t('profilePage.notificationSettings.smsNotifications'),
+              description: t('profilePage.notificationSettings.smsDescription'),
               icon: Smartphone,
             },
             {
               key: 'push',
-              label: 'Push Notifications',
-              description: 'Browser and mobile push notifications',
+              label: t('profilePage.notificationSettings.pushNotifications'),
+              description: t(
+                'profilePage.notificationSettings.pushDescription'
+              ),
               icon: Monitor,
             },
             {
               key: 'governance',
-              label: 'Governance Alerts',
-              description: 'Voting reminders and governance updates',
+              label: t('profilePage.notificationSettings.governanceAlerts'),
+              description: t(
+                'profilePage.notificationSettings.governanceDescription'
+              ),
               icon: Bell,
             },
             {
               key: 'portfolio',
-              label: 'Portfolio Updates',
-              description: 'Investment performance and return notifications',
+              label: t('profilePage.notificationSettings.portfolioUpdates'),
+              description: t(
+                'profilePage.notificationSettings.portfolioDescription'
+              ),
               icon: CreditCard,
             },
             {
               key: 'marketing',
-              label: 'Marketing Communications',
-              description: 'New projects and promotional offers',
+              label: t(
+                'profilePage.notificationSettings.marketingCommunications'
+              ),
+              description: t(
+                'profilePage.notificationSettings.marketingDescription'
+              ),
               icon: Bell,
             },
           ].map(item => (
@@ -1162,11 +1209,10 @@ export default function ProfilePage() {
             <ScrollReveal animation="fade" delay={0} duration={800}>
               <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gradient mb-2">
-                  Profile Settings
+                  {t('profilePage.title')}
                 </h1>
                 <p className="text-muted-foreground">
-                  Manage your account information, preferences, and security
-                  settings
+                  {t('profilePage.subtitle')}
                 </p>
               </div>
             </ScrollReveal>
@@ -1249,7 +1295,7 @@ export default function ProfilePage() {
                 <div className="glass-feature rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gradient">
-                      Change Password
+                      {t('profilePage.securitySettings.changePassword')}
                     </h2>
                     <AnimatedButton
                       variant="outline"
@@ -1262,36 +1308,46 @@ export default function ProfilePage() {
                   <div className="space-y-6">
                     <div className="glass-modern rounded-xl p-4">
                       <label className="block text-sm font-semibold text-primary-700 mb-3">
-                        Current Password
+                        {t('profilePage.securitySettings.currentPassword')}
                       </label>
                       <AnimatedInput
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter current password"
-                        label="Current Password"
+                        placeholder={t(
+                          'profilePage.securitySettings.currentPasswordPlaceholder'
+                        )}
+                        label={t(
+                          'profilePage.securitySettings.currentPassword'
+                        )}
                         showPasswordToggle={true}
                         className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
                       />
                     </div>
                     <div className="glass-modern rounded-xl p-4">
                       <label className="block text-sm font-semibold text-primary-700 mb-3">
-                        New Password
+                        {t('profilePage.securitySettings.newPassword')}
                       </label>
                       <AnimatedInput
                         type="password"
-                        placeholder="Enter new password"
-                        label="New Password"
+                        placeholder={t(
+                          'profilePage.securitySettings.newPasswordPlaceholder'
+                        )}
+                        label={t('profilePage.securitySettings.newPassword')}
                         showPasswordToggle={true}
                         className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
                       />
                     </div>
                     <div className="glass-modern rounded-xl p-4">
                       <label className="block text-sm font-semibold text-primary-700 mb-3">
-                        Confirm New Password
+                        {t('profilePage.securitySettings.confirmNewPassword')}
                       </label>
                       <AnimatedInput
                         type="password"
-                        placeholder="Confirm new password"
-                        label="Confirm New Password"
+                        placeholder={t(
+                          'profilePage.securitySettings.confirmNewPasswordPlaceholder'
+                        )}
+                        label={t(
+                          'profilePage.securitySettings.confirmNewPassword'
+                        )}
                         showPasswordToggle={true}
                         className="glass-modern border-primary-200 focus:border-primary-400 focus:ring-primary-100 hover-glow"
                       />
@@ -1302,7 +1358,7 @@ export default function ProfilePage() {
                         onClick={() => setPasswordModalOpen(false)}
                         className="flex-1 btn-modern btn-modern-secondary hover-lift"
                       >
-                        Cancel
+                        {t('profilePage.actions.cancel')}
                       </AnimatedButton>
                       <AnimatedButton
                         variant="primary"
@@ -1315,7 +1371,7 @@ export default function ProfilePage() {
                           });
                         }}
                       >
-                        Update Password
+                        {t('profilePage.securitySettings.updatePassword')}
                       </AnimatedButton>
                     </div>
                   </div>
@@ -1329,7 +1385,7 @@ export default function ProfilePage() {
                 <div className="glass-feature rounded-3xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gradient">
-                      Two-Factor Authentication
+                      {t('profilePage.securitySettings.twoFactorAuth')}
                     </h2>
                     <AnimatedButton
                       variant="outline"
@@ -1344,10 +1400,10 @@ export default function ProfilePage() {
                       <CheckCircle className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-gradient mb-3">
-                      2FA is Currently Enabled
+                      {t('profilePage.securitySettings.twoFactorEnabled')}
                     </h3>
                     <p className="text-primary-600">
-                      Your account is protected with two-factor authentication
+                      {t('profilePage.securitySettings.twoFactorProtected')}
                     </p>
                   </div>
                   <div className="space-y-3">
@@ -1360,7 +1416,7 @@ export default function ProfilePage() {
                         });
                       }}
                     >
-                      View Recovery Codes
+                      {t('profilePage.securitySettings.viewRecoveryCodes')}
                     </AnimatedButton>
                     <AnimatedButton
                       variant="secondary"
@@ -1371,7 +1427,7 @@ export default function ProfilePage() {
                         });
                       }}
                     >
-                      Reset Authenticator
+                      {t('profilePage.securitySettings.resetAuthenticator')}
                     </AnimatedButton>
                     <AnimatedButton
                       variant="accent"
@@ -1384,7 +1440,7 @@ export default function ProfilePage() {
                         });
                       }}
                     >
-                      Disable 2FA
+                      {t('profilePage.securitySettings.disable2FA')}
                     </AnimatedButton>
                   </div>
                 </div>

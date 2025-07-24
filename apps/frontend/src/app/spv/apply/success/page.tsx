@@ -13,27 +13,28 @@ export default function SPVApplicationSuccessPage() {
     {
       icon: <Clock className="w-5 h-5" />,
       title: 'Application Review',
-      description:
-        'Our team will review your application within 3-5 business days',
-      timeline: '3-5 business days',
+      description: 'Tim kami akan melakukan review dalam 3-5 hari kerja',
+      timeline: '3-5 hari kerja',
     },
     {
       icon: <Mail className="w-5 h-5" />,
       title: 'Email Notification',
       description:
-        "You'll receive an email with the review decision and next steps",
+        'Perusahaan akan menerima email mengenai keputusan review dan langkah selanjutnya',
       timeline: 'After review',
     },
     {
       icon: <FileText className="w-5 h-5" />,
       title: 'Additional Documentation',
-      description: 'If approved, you may need to provide additional documents',
+      description:
+        'Apabila disetujui, perusahaan mungkin perlu untuk memberikan dokumen tambahan',
       timeline: 'If required',
     },
     {
       icon: <CheckCircle className="w-5 h-5" />,
       title: 'Platform Access',
-      description: "Once approved, you'll be granted access to create projects",
+      description:
+        'Setelah approval, perusahaan akan diberikan akses untuk melakukan tokenisasi proyek',
       timeline: 'Final step',
     },
   ];
@@ -89,7 +90,9 @@ export default function SPVApplicationSuccessPage() {
                       Submitted
                     </h3>
                     <p className="text-gray-600 text-sm">
-                      {new Date().toLocaleDateString()}
+                      {new Date().toLocaleDateString('id-ID', {
+                        dateStyle: 'long',
+                      })}
                     </p>
                   </div>
                   <div>
@@ -104,7 +107,7 @@ export default function SPVApplicationSuccessPage() {
                     <h3 className="text-lg font-semibold text-primary-700 mb-2">
                       Expected Response
                     </h3>
-                    <p className="text-gray-600 text-sm">3-5 business days</p>
+                    <p className="text-gray-600 text-sm">3-5 hari kerja</p>
                   </div>
                 </div>
               </div>
@@ -114,7 +117,7 @@ export default function SPVApplicationSuccessPage() {
             <ScrollReveal animation="slide-up" delay={400}>
               <div className="glass-modern px-6 py-10 rounded-xl mb-8">
                 <h2 className="text-xl font-bold text-gradient mb-6">
-                  What Happens Next?
+                  Apa langkah selanjutnya?
                 </h2>
 
                 <div className="space-y-4">
@@ -152,22 +155,27 @@ export default function SPVApplicationSuccessPage() {
                   Important Notes
                 </h3>
                 <div className="text-left space-y-2 text-sm text-primary-700">
-                  <p className="text-base">
-                    • Check your email regularly for updates on your application
-                    status
-                  </p>
-                  <p className="text-base">
-                    • Make sure your contact information is accurate and
-                    up-to-date
-                  </p>
-                  <p className="text-base">
-                    • Prepare additional documents that may be requested during
-                    the review
-                  </p>
-                  <p className="text-base">
-                    • Our team may contact you for clarification or additional
-                    information
-                  </p>
+                  <ul className="text-base list-disc px-5 w-full">
+                    <li className="mb-2">
+                      Cek email secara berkala untuk pemberitahuan terkait
+                      status pendaftaran
+                    </li>
+                    <li className="mb-2">
+                      Pastikan kontak yang disampaikan akurat dan terbaru.
+                    </li>
+                    <li className="mb-2">
+                      Persiapkan dokumen-dokumen lainnya yang mungkin diperlukan
+                      dalam proses review.
+                    </li>
+                    <li className="mb-2">
+                      Tim kami mungkin akan menghubungi perusahaan untuk proses
+                      klarifikasi atau permintaan informasi tambahan.
+                    </li>
+                  </ul>
+                  <p className="text-base"></p>
+                  <p className="text-base"></p>
+                  <p className="text-base"></p>
+                  <p className="text-base"></p>
                 </div>
               </div>
             </ScrollReveal>
@@ -199,7 +207,7 @@ export default function SPVApplicationSuccessPage() {
             <ScrollReveal animation="fade" delay={700}>
               <div className="mt-8 text-center text-muted-foreground">
                 <p className="text-sm">
-                  Questions? Contact our team at{' '}
+                  Punya pertanyaan? Hubungi kami melalui{' '}
                   <a
                     href="mailto:spv@partisipro.id"
                     className="text-primary-600 hover:text-primary-700"

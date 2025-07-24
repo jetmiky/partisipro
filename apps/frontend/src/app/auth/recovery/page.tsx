@@ -7,8 +7,10 @@ import { ArrowLeft, Mail, Layers, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { authService } from '@/services/auth.service';
+import { useTranslation } from 'react-i18next';
 
 export default function PasswordRecoveryPage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [step, setStep] = useState<'email' | 'otp' | 'newPassword'>('email');
   const [formData, setFormData] = useState({
@@ -56,16 +58,15 @@ export default function PasswordRecoveryPage() {
     try {
       const response = await authService.requestPasswordReset(formData.email);
       if (response.success) {
-        setSuccess('Password reset instructions sent to your email');
+        setSuccess(t('auth.recovery.messages.instructionsSent'));
         setStep('otp');
         setTimer(119); // 1:59 timer
       } else {
-        setError('Failed to send reset instructions. Please try again.');
+        setError(t('auth.recovery.messages.sendFailed'));
       }
     } catch (err: any) {
       setError(
-        err.response?.data?.message ||
-          'Failed to send reset instructions. Please try again.'
+        err.response?.data?.message || t('auth.recovery.messages.sendFailed')
       );
     } finally {
       setIsLoading(false);
@@ -84,12 +85,14 @@ export default function PasswordRecoveryPage() {
       if (formData.otp && formData.otp.length >= 6) {
         setResetToken(formData.otp);
         setStep('newPassword');
-        setSuccess('OTP verified. You can now set a new password.');
+        setSuccess(t('auth.recovery.messages.otpVerified'));
       } else {
-        setError('Please enter a valid 6-digit OTP');
+        setError(t('auth.recovery.messages.invalidOtp'));
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+      setError(
+        err.response?.data?.message || t('auth.recovery.messages.invalidOtp')
+      );
     } finally {
       setIsLoading(false);
     }
@@ -103,13 +106,13 @@ export default function PasswordRecoveryPage() {
 
     // Validate password confirmation
     if (formData.newPassword !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.recovery.messages.passwordMismatch'));
       setIsLoading(false);
       return;
     }
 
     if (formData.newPassword.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError(t('auth.recovery.messages.passwordTooShort'));
       setIsLoading(false);
       return;
     }
@@ -121,17 +124,16 @@ export default function PasswordRecoveryPage() {
       );
 
       if (response.success) {
-        setSuccess('Password reset successful! Redirecting to sign in...');
+        setSuccess(t('auth.recovery.messages.resetSuccess'));
         setTimeout(() => {
           router.push('/auth/signin');
         }, 2000);
       } else {
-        setError('Failed to reset password. Please try again.');
+        setError(t('auth.recovery.messages.resetFailed'));
       }
     } catch (err: any) {
       setError(
-        err.response?.data?.message ||
-          'Failed to reset password. Please try again.'
+        err.response?.data?.message || t('auth.recovery.messages.resetFailed')
       );
     } finally {
       setIsLoading(false);
@@ -145,14 +147,14 @@ export default function PasswordRecoveryPage() {
     try {
       const response = await authService.requestPasswordReset(formData.email);
       if (response.success) {
-        setSuccess('New OTP sent to your email');
+        setSuccess(t('auth.recovery.messages.newOtpSent'));
         setTimer(119); // Reset timer to 1:59
       } else {
-        setError('Failed to resend OTP. Please try again.');
+        setError(t('auth.recovery.messages.resendFailed'));
       }
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 'Failed to resend OTP. Please try again.'
+        err.response?.data?.message || t('auth.recovery.messages.resendFailed')
       );
     }
   };
@@ -194,7 +196,7 @@ export default function PasswordRecoveryPage() {
             className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {t('auth.recovery.back')}
           </Link>
 
           {/* Mobile Logo */}
@@ -215,7 +217,9 @@ export default function PasswordRecoveryPage() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex">
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Error</h3>
+                  <h3 className="text-sm font-medium text-red-800">
+                    {t('auth.recovery.error')}
+                  </h3>
                   <div className="mt-2 text-sm text-red-700">
                     <p>{error}</p>
                   </div>
@@ -229,7 +233,7 @@ export default function PasswordRecoveryPage() {
               <div className="flex">
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-green-800">
-                    Success
+                    {t('auth.recovery.success')}
                   </h3>
                   <div className="mt-2 text-sm text-green-700">
                     <p>{success}</p>
@@ -244,14 +248,13 @@ export default function PasswordRecoveryPage() {
             <>
               <div className="text-center space-y-2">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Lost your password?
+                  {t('auth.recovery.steps.email.title')}
                 </h1>
                 <h2 className="text-lg font-medium text-gray-700">
-                  Enter your detail to recover
+                  {t('auth.recovery.steps.email.subtitle')}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Please enter your email address account to send the OTP
-                  verification to reset your password
+                  {t('auth.recovery.steps.email.description')}
                 </p>
               </div>
 
@@ -261,7 +264,7 @@ export default function PasswordRecoveryPage() {
                     htmlFor="email"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Email
+                    {t('auth.recovery.steps.email.emailLabel')}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -269,7 +272,9 @@ export default function PasswordRecoveryPage() {
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="michael@example.com"
+                      placeholder={t(
+                        'auth.recovery.steps.email.emailPlaceholder'
+                      )}
                       value={formData.email}
                       onChange={handleInputChange}
                       className="pl-10"
@@ -284,7 +289,9 @@ export default function PasswordRecoveryPage() {
                   className="w-full bg-gray-800 hover:bg-gray-900 text-white"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Sending...' : 'Continue'}
+                  {isLoading
+                    ? t('auth.recovery.steps.email.sending')
+                    : t('auth.recovery.steps.email.continueButton')}
                 </Button>
               </form>
             </>
@@ -295,13 +302,15 @@ export default function PasswordRecoveryPage() {
             <>
               <div className="text-center space-y-2">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Verify your email
+                  {t('auth.recovery.steps.otp.title')}
                 </h1>
                 <h2 className="text-lg font-medium text-gray-700">
-                  Enter the verification code
+                  {t('auth.recovery.steps.otp.subtitle')}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  We sent a 6-digit code to {formData.email}
+                  {t('auth.recovery.steps.otp.description', {
+                    email: formData.email,
+                  })}
                 </p>
               </div>
 
@@ -310,7 +319,7 @@ export default function PasswordRecoveryPage() {
                 {timer > 0 && (
                   <div className="text-center">
                     <span className="text-accent-500 font-medium">
-                      {formatTime(timer)} Sec
+                      {formatTime(timer)} {t('auth.recovery.steps.otp.seconds')}
                     </span>
                   </div>
                 )}
@@ -320,13 +329,13 @@ export default function PasswordRecoveryPage() {
                     htmlFor="otp"
                     className="text-sm font-medium text-gray-700"
                   >
-                    OTP
+                    {t('auth.recovery.steps.otp.otpLabel')}
                   </label>
                   <Input
                     id="otp"
                     name="otp"
                     type="text"
-                    placeholder="Enter the code"
+                    placeholder={t('auth.recovery.steps.otp.otpPlaceholder')}
                     value={formData.otp}
                     onChange={handleInputChange}
                     className="text-center text-lg tracking-widest"
@@ -334,7 +343,7 @@ export default function PasswordRecoveryPage() {
                     required
                   />
                   <p className="text-xs text-gray-500 text-center">
-                    For demo purposes, use: 123456
+                    {t('auth.recovery.steps.otp.demoHint')}
                   </p>
                 </div>
 
@@ -344,7 +353,9 @@ export default function PasswordRecoveryPage() {
                   className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Verifying...' : 'Submit'}
+                  {isLoading
+                    ? t('auth.recovery.steps.otp.verifying')
+                    : t('auth.recovery.steps.otp.submitButton')}
                 </Button>
 
                 {timer === 0 && (
@@ -354,7 +365,7 @@ export default function PasswordRecoveryPage() {
                       onClick={handleResendOTP}
                       className="text-sm text-secondary-600 hover:text-secondary-700 font-medium"
                     >
-                      Resend code
+                      {t('auth.recovery.steps.otp.resendCode')}
                     </button>
                   </div>
                 )}
@@ -367,14 +378,13 @@ export default function PasswordRecoveryPage() {
             <>
               <div className="text-center space-y-2">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Create New Password
+                  {t('auth.recovery.steps.newPassword.title')}
                 </h1>
                 <h2 className="text-lg font-medium text-gray-700">
-                  Set your new password
+                  {t('auth.recovery.steps.newPassword.subtitle')}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Please make sure this password is not the same as the previous
-                  password
+                  {t('auth.recovery.steps.newPassword.description')}
                 </p>
               </div>
 
@@ -384,7 +394,7 @@ export default function PasswordRecoveryPage() {
                     htmlFor="newPassword"
                     className="text-sm font-medium text-gray-700"
                   >
-                    New Password
+                    {t('auth.recovery.steps.newPassword.passwordLabel')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -392,7 +402,9 @@ export default function PasswordRecoveryPage() {
                       id="newPassword"
                       name="newPassword"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter new password"
+                      placeholder={t(
+                        'auth.recovery.steps.newPassword.passwordPlaceholder'
+                      )}
                       value={formData.newPassword}
                       onChange={handleInputChange}
                       className="pl-10 pr-10"
@@ -418,7 +430,7 @@ export default function PasswordRecoveryPage() {
                     htmlFor="confirmPassword"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Confirm New Password
+                    {t('auth.recovery.steps.newPassword.confirmLabel')}
                   </label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -426,7 +438,9 @@ export default function PasswordRecoveryPage() {
                       id="confirmPassword"
                       name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm new password"
+                      placeholder={t(
+                        'auth.recovery.steps.newPassword.confirmPlaceholder'
+                      )}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className="pl-10 pr-10"
@@ -458,7 +472,9 @@ export default function PasswordRecoveryPage() {
                     formData.newPassword !== formData.confirmPassword
                   }
                 >
-                  {isLoading ? 'Updating...' : 'Confirm New Password'}
+                  {isLoading
+                    ? t('auth.recovery.steps.newPassword.updating')
+                    : t('auth.recovery.steps.newPassword.confirmButton')}
                 </Button>
               </form>
             </>
@@ -467,12 +483,12 @@ export default function PasswordRecoveryPage() {
           {/* Sign In Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Remember your password?{' '}
+              {t('auth.recovery.rememberPassword')}{' '}
               <Link
                 href="/auth/signin"
                 className="text-secondary-600 hover:text-secondary-700 font-medium"
               >
-                Sign In
+                {t('auth.recovery.signInLink')}
               </Link>
             </p>
           </div>

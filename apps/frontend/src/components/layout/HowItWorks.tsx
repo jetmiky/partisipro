@@ -14,8 +14,10 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const HowItWorks = () => {
+  const { t } = useTranslation('common');
   const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -138,11 +140,7 @@ const HowItWorks = () => {
               Mengapa Memilih Partisipro?
             </h2>
             <p className="text-responsive-lg text-muted-foreground max-w-3xl mx-auto text-indonesian">
-              Partisipro adalah platform tokenisasi dan transaksi investasi
-              proyek Public-Private Partnership (PPP) atau Kerjasama Pemerintah
-              dan Badan Usaha (KPBU), yang menghubungkan investor institusi
-              pemilik proyek PPP dengan masyarakat investor ritel melalui
-              teknologi blockchain.
+              {t('hero.subtitle')}
             </p>
           </div>
 
@@ -174,11 +172,10 @@ const HowItWorks = () => {
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="gradient-text-modern text-responsive-2xl mb-6 text-indonesian-heading">
-            Cara Kerja Partisipro
+            {t('howItWorks.title')}
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-indonesian">
-            Memahami proses pendanaan PPP berbasis blockchain: dari originasi
-            proyek hingga pengembalian investasi
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 

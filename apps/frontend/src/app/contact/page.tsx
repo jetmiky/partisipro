@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { useTranslation } from 'react-i18next';
 import {
   Mail,
   Phone,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function ContactPage() {
+  const { t } = useTranslation('common');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -80,26 +82,29 @@ export default function ContactPage() {
           <div className="container">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
-                Hubungi Kami
+                {t('contact.title')}
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                Tim support kami siap membantu Anda 24/7. Dapatkan jawaban atas
-                pertanyaan investasi dan teknis.
+                {t('contact.subtitle')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Clock className="w-5 h-5 text-primary-500" />
-                  <span className="text-sm font-medium">Response Cepat</span>
+                  <span className="text-sm font-medium">
+                    {t('contact.hero.fastResponse')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Shield className="w-5 h-5 text-success-500" />
                   <span className="text-sm font-medium">
-                    Data Aman & Terenkripsi
+                    {t('contact.hero.secureData')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <MessageCircle className="w-5 h-5 text-secondary-500" />
-                  <span className="text-sm font-medium">Support 24/7</span>
+                  <span className="text-sm font-medium">
+                    {t('contact.hero.support247')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -112,10 +117,11 @@ export default function ContactPage() {
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Form */}
               <div>
-                <h2 className="text-3xl font-bold mb-6">Kirim Pesan</h2>
+                <h2 className="text-3xl font-bold mb-6">
+                  {t('contact.form.title')}
+                </h2>
                 <p className="text-muted-foreground mb-8">
-                  Isi formulir di bawah ini dan tim kami akan merespons dalam
-                  waktu 2 jam selama jam kerja.
+                  {t('contact.form.description')}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -125,7 +131,7 @@ export default function ContactPage() {
                         htmlFor="name"
                         className="block text-sm font-medium mb-2"
                       >
-                        Nama Lengkap *
+                        {t('contact.form.name')} *
                       </label>
                       <input
                         type="text"
@@ -135,7 +141,7 @@ export default function ContactPage() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                        placeholder="Masukkan nama lengkap"
+                        placeholder={t('contact.form.namePlaceholder')}
                       />
                     </div>
                     <div>
@@ -143,7 +149,7 @@ export default function ContactPage() {
                         htmlFor="email"
                         className="block text-sm font-medium mb-2"
                       >
-                        Email *
+                        {t('contact.form.email')} *
                       </label>
                       <input
                         type="email"
@@ -153,7 +159,7 @@ export default function ContactPage() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                        placeholder="email@example.com"
+                        placeholder={t('contact.form.emailPlaceholder')}
                       />
                     </div>
                   </div>
@@ -164,7 +170,7 @@ export default function ContactPage() {
                         htmlFor="phone"
                         className="block text-sm font-medium mb-2"
                       >
-                        Nomor Telepon
+                        {t('contact.form.phone')}
                       </label>
                       <input
                         type="tel"
@@ -173,7 +179,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                        placeholder="+62 812 3456 7890"
+                        placeholder={t('contact.form.phonePlaceholder')}
                       />
                     </div>
                     <div>
@@ -181,7 +187,7 @@ export default function ContactPage() {
                         htmlFor="category"
                         className="block text-sm font-medium mb-2"
                       >
-                        Kategori *
+                        {t('contact.form.category')} *
                       </label>
                       <select
                         id="category"
@@ -191,13 +197,27 @@ export default function ContactPage() {
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
                       >
-                        <option value="">Pilih kategori</option>
-                        <option value="investment">Pertanyaan Investasi</option>
-                        <option value="kyc">Verifikasi KYC</option>
-                        <option value="technical">Masalah Teknis</option>
-                        <option value="security">Keamanan Akun</option>
-                        <option value="partnership">Kemitraan SPV</option>
-                        <option value="general">Pertanyaan Umum</option>
+                        <option value="">
+                          {t('contact.form.selectCategory')}
+                        </option>
+                        <option value="investment">
+                          {t('contact.form.categories.investment')}
+                        </option>
+                        <option value="kyc">
+                          {t('contact.form.categories.kyc')}
+                        </option>
+                        <option value="technical">
+                          {t('contact.form.categories.technical')}
+                        </option>
+                        <option value="security">
+                          {t('contact.form.categories.security')}
+                        </option>
+                        <option value="partnership">
+                          {t('contact.form.categories.partnership')}
+                        </option>
+                        <option value="general">
+                          {t('contact.form.categories.general')}
+                        </option>
                       </select>
                     </div>
                   </div>
@@ -207,7 +227,7 @@ export default function ContactPage() {
                       htmlFor="subject"
                       className="block text-sm font-medium mb-2"
                     >
-                      Subjek *
+                      {t('contact.form.subject')} *
                     </label>
                     <input
                       type="text"
@@ -217,7 +237,7 @@ export default function ContactPage() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                      placeholder="Ringkasan singkat masalah atau pertanyaan"
+                      placeholder={t('contact.form.subjectPlaceholder')}
                     />
                   </div>
 
@@ -226,7 +246,7 @@ export default function ContactPage() {
                       htmlFor="message"
                       className="block text-sm font-medium mb-2"
                     >
-                      Pesan *
+                      {t('contact.form.message')} *
                     </label>
                     <textarea
                       id="message"
@@ -236,15 +256,14 @@ export default function ContactPage() {
                       required
                       rows={6}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
-                      placeholder="Jelaskan detail masalah atau pertanyaan Anda..."
+                      placeholder={t('contact.form.messagePlaceholder')}
                     ></textarea>
                   </div>
 
                   {submitStatus === 'success' && (
                     <div className="p-4 bg-success-50 border border-success-200 rounded-lg">
                       <p className="text-success-800">
-                        ✅ Pesan berhasil dikirim! Tim kami akan merespons dalam
-                        2 jam.
+                        {t('contact.form.successMessage')}
                       </p>
                     </div>
                   )}
@@ -252,8 +271,7 @@ export default function ContactPage() {
                   {submitStatus === 'error' && (
                     <div className="p-4 bg-accent-50 border border-accent-200 rounded-lg">
                       <p className="text-accent-800">
-                        ❌ Gagal mengirim pesan. Silakan coba lagi atau hubungi
-                        kami melalui WhatsApp.
+                        {t('contact.form.errorMessage')}
                       </p>
                     </div>
                   )}
@@ -266,12 +284,12 @@ export default function ContactPage() {
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Mengirim...
+                        {t('contact.form.sending')}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Send className="w-5 h-5" />
-                        Kirim Pesan
+                        {t('contact.form.sendMessage')}
                       </div>
                     )}
                   </button>
@@ -281,10 +299,11 @@ export default function ContactPage() {
               {/* Contact Information */}
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Informasi Kontak</h2>
+                  <h2 className="text-3xl font-bold mb-6">
+                    {t('contact.info.title')}
+                  </h2>
                   <p className="text-muted-foreground mb-8">
-                    Pilih channel komunikasi yang paling sesuai dengan kebutuhan
-                    Anda.
+                    {t('contact.info.description')}
                   </p>
                 </div>
 
@@ -295,15 +314,17 @@ export default function ContactPage() {
                       <MessageCircle className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">WhatsApp Support</h3>
+                      <h3 className="font-semibold mb-1">
+                        {t('contact.methods.whatsapp.title')}
+                      </h3>
                       <p className="text-muted-foreground mb-2">
-                        Response tercepat untuk pertanyaan urgent
+                        {t('contact.methods.whatsapp.description')}
                       </p>
                       <p className="text-primary-600 font-medium">
-                        +62 811 9988 7766
+                        {t('contact.methods.whatsapp.number')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        24/7 Available
+                        {t('contact.methods.whatsapp.availability')}
                       </p>
                     </div>
                   </div>
@@ -313,15 +334,17 @@ export default function ContactPage() {
                       <Mail className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">Email Support</h3>
+                      <h3 className="font-semibold mb-1">
+                        {t('contact.methods.email.title')}
+                      </h3>
                       <p className="text-muted-foreground mb-2">
-                        Untuk pertanyaan detail dan dokumentasi
+                        {t('contact.methods.email.description')}
                       </p>
                       <p className="text-primary-600 font-medium">
-                        support@partisipro.com
+                        {t('contact.methods.email.address')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Response dalam 2 jam
+                        {t('contact.methods.email.responseTime')}
                       </p>
                     </div>
                   </div>
@@ -331,15 +354,17 @@ export default function ContactPage() {
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">Phone Support</h3>
+                      <h3 className="font-semibold mb-1">
+                        {t('contact.methods.phone.title')}
+                      </h3>
                       <p className="text-muted-foreground mb-2">
-                        Konsultasi langsung dengan tim ahli
+                        {t('contact.methods.phone.description')}
                       </p>
                       <p className="text-primary-600 font-medium">
-                        021-5588-9900
+                        {t('contact.methods.phone.number')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Senin-Jumat 08:00-17:00 WIB
+                        {t('contact.methods.phone.hours')}
                       </p>
                     </div>
                   </div>
@@ -349,18 +374,17 @@ export default function ContactPage() {
                       <MapPin className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">Office Address</h3>
+                      <h3 className="font-semibold mb-1">
+                        {t('contact.methods.office.title')}
+                      </h3>
                       <p className="text-muted-foreground mb-2">
-                        Kunjungi kantor kami untuk konsultasi tatap muka
+                        {t('contact.methods.office.description')}
                       </p>
                       <p className="text-primary-600 font-medium">
-                        Menara BCA Lt. 25
-                        <br />
-                        Jl. MH Thamrin No. 1<br />
-                        Jakarta Pusat 10310
+                        {t('contact.methods.office.address')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Dengan perjanjian sebelumnya
+                        {t('contact.methods.office.appointment')}
                       </p>
                     </div>
                   </div>
@@ -370,31 +394,31 @@ export default function ContactPage() {
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
                     <HelpCircle className="w-5 h-5 text-primary-500" />
-                    Pertanyaan Umum
+                    {t('contact.faq.title')}
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <a href="#" className="text-primary-600 hover:underline">
-                        Bagaimana cara memulai investasi?
+                        {t('contact.faq.question1')}
                       </a>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <a href="#" className="text-primary-600 hover:underline">
-                        Proses verifikasi KYC membutuhkan waktu berapa lama?
+                        {t('contact.faq.question2')}
                       </a>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <a href="#" className="text-primary-600 hover:underline">
-                        Bagaimana cara menarik keuntungan investasi?
+                        {t('contact.faq.question3')}
                       </a>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <a href="#" className="text-primary-600 hover:underline">
-                        Apakah investasi di Partisipro aman?
+                        {t('contact.faq.question4')}
                       </a>
                     </div>
                     <div className="text-center pt-3">
@@ -402,7 +426,7 @@ export default function ContactPage() {
                         href="#"
                         className="text-primary-600 hover:underline text-sm font-medium"
                       >
-                        Lihat semua FAQ →
+                        {t('contact.faq.viewAll')}
                       </a>
                     </div>
                   </div>
@@ -416,10 +440,11 @@ export default function ContactPage() {
         <section className="py-16 bg-gray-50">
           <div className="container">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Jam Operasional</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                {t('contact.hours.title')}
+              </h2>
               <p className="text-muted-foreground">
-                Tim support kami tersedia untuk membantu Anda pada jam-jam
-                berikut
+                {t('contact.hours.description')}
               </p>
             </div>
 
@@ -428,32 +453,44 @@ export default function ContactPage() {
                 <div className="feature-icon mx-auto mb-4">
                   <MessageCircle className="w-8 h-8" />
                 </div>
-                <h3 className="font-semibold mb-2">WhatsApp & Chat</h3>
-                <p className="text-2xl font-bold text-success-600 mb-1">24/7</p>
-                <p className="text-sm text-muted-foreground">Selalu tersedia</p>
+                <h3 className="font-semibold mb-2">
+                  {t('contact.hours.whatsapp.title')}
+                </h3>
+                <p className="text-2xl font-bold text-success-600 mb-1">
+                  {t('contact.hours.whatsapp.time')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t('contact.hours.whatsapp.availability')}
+                </p>
               </div>
 
               <div className="bg-white rounded-xl p-6 text-center">
                 <div className="feature-icon mx-auto mb-4">
                   <Phone className="w-8 h-8" />
                 </div>
-                <h3 className="font-semibold mb-2">Phone Support</h3>
+                <h3 className="font-semibold mb-2">
+                  {t('contact.hours.phone.title')}
+                </h3>
                 <p className="text-lg font-bold text-primary-600 mb-1">
-                  08:00 - 17:00 WIB
+                  {t('contact.hours.phone.time')}
                 </p>
-                <p className="text-sm text-muted-foreground">Senin - Jumat</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('contact.hours.phone.days')}
+                </p>
               </div>
 
               <div className="bg-white rounded-xl p-6 text-center">
                 <div className="feature-icon mx-auto mb-4">
                   <MapPin className="w-8 h-8" />
                 </div>
-                <h3 className="font-semibold mb-2">Office Visit</h3>
+                <h3 className="font-semibold mb-2">
+                  {t('contact.hours.office.title')}
+                </h3>
                 <p className="text-lg font-bold text-secondary-600 mb-1">
-                  09:00 - 16:00 WIB
+                  {t('contact.hours.office.time')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Dengan perjanjian
+                  {t('contact.hours.office.requirement')}
                 </p>
               </div>
             </div>

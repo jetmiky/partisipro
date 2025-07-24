@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import {
   FileText,
@@ -108,6 +109,7 @@ interface IdentityClaim {
 }
 
 export default function KYCPage() {
+  const { t } = useTranslation('common');
   // const { user, isAuthenticated } = useAuth();
 
   // Mock user data for presentation mode
@@ -721,7 +723,7 @@ export default function KYCPage() {
           className="px-8"
           ripple
         >
-          Start Identity Verification
+          {t('kyc.startProcess')}
           <ArrowRight className="w-4 h-4 ml-2" />
         </AnimatedButton>
       </div>
@@ -1247,9 +1249,7 @@ export default function KYCPage() {
           Choose Your KYC Provider
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Select a trusted verification provider to complete your identity
-          verification. Each provider offers different features and processing
-          times.
+          {t('kyc.chooseProvider')}
         </p>
       </div>
 

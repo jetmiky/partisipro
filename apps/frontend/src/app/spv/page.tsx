@@ -155,6 +155,20 @@ export default function SPVIndexPage() {
                 selesai.
               </p>
 
+              <div className="mb-8">
+                <iframe
+                  className="mx-auto"
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/QI48Ka5uv28?si=W5E5xMyxHb_vVo2M"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                ></iframe>
+              </div>
+
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                 <Link
                   href="/spv/apply"
@@ -163,10 +177,6 @@ export default function SPVIndexPage() {
                   Daftar sebagai SPV
                   <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </Link>
-              </div>
-
-              <div className="mb-8">
-                <video className="w-full" controls></video>
               </div>
 
               <div className="flex flex-wrap justify-center gap-4">

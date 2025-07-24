@@ -15,8 +15,10 @@ import { PageTransition } from '@/components/ui/PageTransition';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
+import { useTranslation } from 'react-i18next';
 
 export default function SignInPage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   // const {
   //   loginWithSocialProvider,
@@ -66,8 +68,8 @@ export default function SignInPage() {
       // Use the new Web3Auth email/password login method
       // await loginWithEmailPassword(formData.email, formData.password);
       setTimeout(() => {
-        toast.success('Sign in successful!', {
-          message: 'Welcome back to Partisipro',
+        toast.success(t('auth.signIn.messages.success'), {
+          message: t('auth.signIn.messages.welcomeBack'),
           duration: 3000,
         });
       }, 300);
@@ -96,8 +98,8 @@ export default function SignInPage() {
       //   provider.toLowerCase() as 'google' | 'facebook' | 'apple'
       // );
       setTimeout(() => {
-        toast.success(`${provider} sign in successful!`, {
-          message: 'Welcome back to Partisipro',
+        toast.success(t('auth.signIn.messages.socialSuccess', { provider }), {
+          message: t('auth.signIn.messages.welcomeBack'),
           duration: 3000,
         });
       }, 300);
@@ -178,15 +180,15 @@ export default function SignInPage() {
             {/* Welcome Content */}
             <div className="w-full flex flex-col justify-center items-center text-center text-white p-12 relative z-10">
               <div className="max-w-md animate-fade-in-up animate-delay-300">
-                <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
+                <h2 className="text-3xl font-bold mb-4">
+                  {t('auth.signIn.welcomeBack')}
+                </h2>
                 <p className="text-lg text-white/90 mb-6">
-                  Continue your journey in democratizing infrastructure
-                  investment
+                  {t('auth.signIn.welcomeMessage')}
                 </p>
                 <div className="glass-hero p-6 rounded-2xl">
                   <p className="text-sm text-white/95">
-                    &ldquo;Transforming Indonesia&apos;s infrastructure
-                    landscape through blockchain technology&rdquo;
+                    &ldquo;{t('auth.signIn.welcomeQuote')}&rdquo;
                   </p>
                 </div>
               </div>
@@ -212,13 +214,13 @@ export default function SignInPage() {
               {/* Header */}
               <div className="text-center space-y-2 animate-fade-in-up animate-delay-200">
                 <h1 className="text-2xl font-bold text-gradient">
-                  Welcome back to Partisipro
+                  {t('auth.signIn.title')}
                 </h1>
                 <h2 className="text-lg font-medium text-foreground">
-                  Sign In to get started
+                  {t('auth.signIn.subtitle')}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Enter your details to proceed further
+                  {t('auth.signIn.description')}
                 </p>
               </div>
 
@@ -233,8 +235,8 @@ export default function SignInPage() {
                     id="email"
                     name="email"
                     type="email"
-                    label="Email"
-                    placeholder="michael@example.com"
+                    label={t('auth.signIn.emailLabel')}
+                    placeholder={t('auth.signIn.emailPlaceholder')}
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -247,8 +249,8 @@ export default function SignInPage() {
                     id="password"
                     name="password"
                     type="password"
-                    label="Password"
-                    placeholder="••••••••••"
+                    label={t('auth.signIn.passwordLabel')}
+                    placeholder={t('auth.signIn.passwordPlaceholder')}
                     value={formData.password}
                     onChange={handleInputChange}
                     showPasswordToggle={true}
@@ -267,14 +269,14 @@ export default function SignInPage() {
                       className="w-4 h-4 text-primary-500 border-secondary-300 rounded focus:ring-primary-500"
                     />
                     <span className="ml-2 text-sm text-muted-foreground">
-                      Remember me
+                      {t('auth.signIn.rememberMe')}
                     </span>
                   </label>
                   <Link
                     href="/auth/recovery"
                     className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
                   >
-                    Forgot Password?
+                    {t('auth.signIn.forgotPassword')}
                   </Link>
                 </div>
 
@@ -287,7 +289,7 @@ export default function SignInPage() {
                   loading={isLoading}
                   ripple
                 >
-                  Sign In
+                  {t('auth.signIn.signInButton')}
                 </AnimatedButton>
 
                 {/* Web3Auth Modal Button */}
@@ -310,7 +312,7 @@ export default function SignInPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-background text-muted-foreground">
-                      Or sign in with
+                      {t('auth.signIn.orSignInWith')}
                     </span>
                   </div>
                 </div>
@@ -341,7 +343,9 @@ export default function SignInPage() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="ml-2 text-sm font-medium">Google</span>
+                    <span className="ml-2 text-sm font-medium">
+                      {t('auth.signIn.socialButtons.google')}
+                    </span>
                   </button>
 
                   <button
@@ -357,7 +361,9 @@ export default function SignInPage() {
                     >
                       <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                     </svg>
-                    <span className="ml-2 text-sm font-medium">Apple</span>
+                    <span className="ml-2 text-sm font-medium">
+                      {t('auth.signIn.socialButtons.apple')}
+                    </span>
                   </button>
 
                   <button
@@ -369,7 +375,9 @@ export default function SignInPage() {
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
-                    <span className="ml-2 text-sm font-medium">Facebook</span>
+                    <span className="ml-2 text-sm font-medium">
+                      {t('auth.signIn.socialButtons.facebook')}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -377,12 +385,12 @@ export default function SignInPage() {
               {/* Sign Up Link */}
               <div className="text-center animate-fade-in-up animate-delay-500">
                 <p className="text-sm text-muted-foreground">
-                  Don&apos;t have any account?{' '}
+                  {t('auth.signIn.noAccount')}{' '}
                   <Link
                     href="/auth/signup"
                     className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
                   >
-                    Sign Up
+                    {t('auth.signIn.signUpLink')}
                   </Link>
                 </p>
               </div>
@@ -390,19 +398,19 @@ export default function SignInPage() {
               {/* Terms and Privacy */}
               <div className="text-center animate-fade-in-up animate-delay-700">
                 <p className="text-xs text-muted-foreground">
-                  By signing in, you agree to our{' '}
+                  {t('auth.signIn.termsAgreement')}{' '}
                   <Link
                     href="/legal"
                     className="text-primary-600 hover:text-primary-700 transition-colors"
                   >
-                    Terms of Use
+                    {t('auth.signIn.termsOfUse')}
                   </Link>{' '}
-                  and{' '}
+                  {t('auth.signIn.and')}{' '}
                   <Link
                     href="/legal"
                     className="text-primary-600 hover:text-primary-700 transition-colors"
                   >
-                    Privacy Policy
+                    {t('auth.signIn.privacyPolicy')}
                   </Link>
                 </p>
               </div>

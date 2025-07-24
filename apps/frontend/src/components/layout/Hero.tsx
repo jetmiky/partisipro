@@ -8,8 +8,10 @@ import {
   // ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
+  const { t } = useTranslation('common');
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -48,10 +50,10 @@ const Hero = () => {
           >
             <h1 className="text-4xl sm:text-5xl font-bold text-indonesian-heading mb-8 leading-tight">
               <span className="block animate-fade-in-up animate-delay-100">
-                Demokratisasi Investasi
+                {t('hero.title')}
               </span>
               <span className="block bg-gradient-to-r from-financial-gold-400 via-financial-gold-300 to-success-400 bg-clip-text text-transparent animate-fade-in-up animate-delay-300">
-                PPP di Indonesia
+                {t('hero.titleHighlight')}
               </span>
             </h1>
           </div>
@@ -60,59 +62,24 @@ const Hero = () => {
           <div
             className={`transition-all duration-1000 delay-300 ${isVisible ? 'animate-slide-up' : 'opacity-0 translate-y-8'}`}
           >
-            <p className="text-lg sm:text-xl text-white/95 max-w-4xl mx-auto mb-10 text-indonesian font-medium leading-relaxed">
-              Platform pertama untuk tokenisasi dan transaksi investasi proyek
-              Public-Private Partnership (PPP) atau Kerjasama Pemerintah dan
-              Badan Usaha (KPBU), yang menghubungkan investor institusi pemilik
-              proyek PPP dengan masyarakat investor ritel melalui teknologi
-              blockchain.
+            <p className="text-base sm:text-xl text-white/95 max-w-4xl mx-auto mb-10 text-indonesian font-medium leading-relaxed">
+              {t('hero.subtitle')}
             </p>
           </div>
 
-          {/* CTA Buttons */}
-          <div
-            className={`transition-all duration-1000 delay-700 ${isVisible ? 'animate-zoom-in' : 'opacity-0 scale-95'}`}
-          >
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-14">
-              <Link
-                href="/spv"
-                className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
-              >
-                Tokenisasi Proyek
-              </Link>
-              <Link
-                href="/investor"
-                className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
-              >
-                Mulai Investasi
-                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Video */}
-        <div className="mb-10">
-          <video className="w-full" controls></video>
-        </div>
-
-        {/* Trust Indicators */}
-        <div
-          className={`transition-all duration-1000 delay-500 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'}`}
-        >
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-12 text-sm sm:text-base">
-            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-700">
-              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
-              <span className="whitespace-nowrap text-white font-medium">
-                BI - OJK Hackathon 2025
-              </span>
-            </div>
-            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-1000">
-              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
-              <span className="whitespace-nowrap text-white font-medium">
-                Tim Indonesia Emas
-              </span>
-            </div>
+          {/* Video */}
+          <div className="mb-10">
+            <iframe
+              className="mx-auto"
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/QI48Ka5uv28?si=W5E5xMyxHb_vVo2M"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            ></iframe>
           </div>
         </div>
 
@@ -125,15 +92,35 @@ const Hero = () => {
               href="/spv"
               className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
             >
-              Tokenisasi Proyek
+              {t('hero.ctaTokenize')}
             </Link>
             <Link
               href="/investor"
               className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
             >
-              Mulai Investasi
+              {t('hero.ctaInvest')}
               <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </Link>
+          </div>
+        </div>
+
+        {/* Trust Indicators */}
+        <div
+          className={`transition-all duration-1000 delay-500 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'}`}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-12 text-sm sm:text-base">
+            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-700">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
+              <span className="whitespace-nowrap text-white font-medium">
+                {t('hero.trustIndicator1')}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-1000">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
+              <span className="whitespace-nowrap text-white font-medium">
+                {t('hero.trustIndicator2')}
+              </span>
+            </div>
           </div>
         </div>
 

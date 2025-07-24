@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, DashboardLayout, DataTable } from '@/components/ui';
 import { Column } from '@/components/ui/DataTable';
 import {
@@ -33,6 +34,7 @@ interface ClaimDetail {
 }
 
 export default function ClaimsPage() {
+  const { t } = useTranslation('common');
   const [selectedClaim, setSelectedClaim] = useState<ClaimDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -151,9 +153,8 @@ export default function ClaimsPage() {
     // TODO: Implement claim renewal workflow
     setTimeout(() => {
       setIsLoading(false);
-      toast.success('Renewal Initiated', {
-        message:
-          'Claim renewal process initiated. You will be contacted by the issuer.',
+      toast.success(t('claims.messages.renewalInitiated'), {
+        message: t('claims.messages.renewalDescription'),
         duration: 4000,
       });
     }, 1000);
@@ -165,7 +166,7 @@ export default function ClaimsPage() {
 
   const claimsTableData = claims.map(claim => ({
     id: claim.id,
-    type: claim.type.replace('_', ' '),
+    type: t(`claims.types.${claim.type}`) || claim.type.replace('_', ' '),
     issuer: claim.issuer,
     issuerAddress: claim.issuerAddress,
     issuedAt: formatDate(claim.issuedAt),
@@ -179,7 +180,7 @@ export default function ClaimsPage() {
 
   const columns: Column<(typeof claimsTableData)[0]>[] = [
     {
-      label: 'Claim Type',
+      label: t('claims.table.claimType'),
       key: 'type',
       render: (_, row) => (
         <div className="flex items-center gap-2">
@@ -189,7 +190,7 @@ export default function ClaimsPage() {
       ),
     },
     {
-      label: 'Issuer',
+      label: t('claims.table.issuer'),
       key: 'issuer',
       render: (_, row) => (
         <div>
@@ -201,14 +202,14 @@ export default function ClaimsPage() {
       ),
     },
     {
-      label: 'Issued',
+      label: t('claims.table.issued'),
       key: 'issuedAt',
       render: (_, row) => (
         <div className="text-sm">{row.issuedAt as string}</div>
       ),
     },
     {
-      label: 'Expires',
+      label: t('claims.table.expires'),
       key: 'expiresAt',
       render: (_, row) => {
         const days = getDaysUntilExpiry(row.expiresAt);
@@ -218,14 +219,16 @@ export default function ClaimsPage() {
             <div
               className={`text-xs ${days <= 30 ? 'text-yellow-600' : 'text-gray-500'}`}
             >
-              {days > 0 ? `${days} days remaining` : 'Expired'}
+              {days > 0
+                ? `${days} ${t('claims.table.daysRemaining')}`
+                : t('claims.table.expired')}
             </div>
           </div>
         );
       },
     },
     {
-      label: 'Status',
+      label: t('claims.table.status'),
       key: 'status',
       render: (_, row) => (
         <div className="flex items-center gap-2">
@@ -233,13 +236,14 @@ export default function ClaimsPage() {
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(row.status as string)}`}
           >
-            {(row.status as string).toUpperCase()}
+            {t(`claims.status.${row.status as string}`) ||
+              (row.status as string).toUpperCase()}
           </span>
         </div>
       ),
     },
     {
-      label: 'Actions',
+      label: t('claims.table.actions'),
       key: 'actions',
       render: (_, row) => (
         <div className="flex items-center gap-2">
@@ -251,7 +255,7 @@ export default function ClaimsPage() {
             ripple
           >
             <Eye className="w-3 h-3" />
-            View
+            {t('claims.table.view')}
           </AnimatedButton>
           {row.renewalRequired && (
             <AnimatedButton
@@ -264,7 +268,7 @@ export default function ClaimsPage() {
               ripple
             >
               <RefreshCw className="w-3 h-3" />
-              Renew
+              {t('claims.table.renew')}
             </AnimatedButton>
           )}
         </div>
@@ -298,10 +302,10 @@ export default function ClaimsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Identity Claims
+                    {t('claims.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    Manage your identity claims and certifications
+                    {t('claims.subtitle')}
                   </p>
                 </div>
                 <AnimatedButton
@@ -311,7 +315,7 @@ export default function ClaimsPage() {
                   ripple
                 >
                   <Shield className="w-4 h-4" />
-                  Back to Identity
+                  {t('identity.backToIdentity')}
                 </AnimatedButton>
               </div>
             </ScrollReveal>
@@ -329,7 +333,7 @@ export default function ClaimsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-primary-600">
-                        Active Claims
+                        {t('claims.statistics.activeClaims')}
                       </p>
                       <p className="text-2xl font-bold text-gradient">
                         {claims.filter(c => c.status === 'active').length}
@@ -345,7 +349,7 @@ export default function ClaimsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-primary-600">
-                        Expiring Soon
+                        {t('claims.statistics.expiringSoon')}
                       </p>
                       <p className="text-2xl font-bold text-gradient">
                         {
@@ -365,7 +369,7 @@ export default function ClaimsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-primary-600">
-                        Renewal Required
+                        {t('claims.statistics.renewalRequired')}
                       </p>
                       <p className="text-2xl font-bold text-gradient">
                         {claims.filter(c => c.renewalRequired).length}
@@ -381,7 +385,7 @@ export default function ClaimsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-primary-600">
-                        Verified Claims
+                        {t('claims.statistics.verifiedClaims')}
                       </p>
                       <p className="text-2xl font-bold text-gradient">
                         {claims.filter(c => c.verified).length}
@@ -397,10 +401,10 @@ export default function ClaimsPage() {
               <Card className="glass-feature p-8 hover-lift transition-all duration-300">
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold text-gradient mb-2">
-                    All Claims
+                    {t('claims.table.title')}
                   </h2>
                   <p className="text-primary-600">
-                    Complete list of your identity claims and their status
+                    {t('claims.table.description')}
                   </p>
                 </div>
                 <DataTable data={claimsTableData} columns={columns} />
@@ -413,7 +417,7 @@ export default function ClaimsPage() {
                 <div className="glass-feature rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-up">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-semibold text-gradient">
-                      Claim Details
+                      {t('claims.modal.title')}
                     </h2>
                     <AnimatedButton
                       variant="outline"
@@ -421,7 +425,7 @@ export default function ClaimsPage() {
                       className="text-primary-500 hover:text-primary-700"
                       ripple
                     >
-                      ×
+                      {t('claims.modal.close')}
                     </AnimatedButton>
                   </div>
 
@@ -429,22 +433,24 @@ export default function ClaimsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Claim Type
+                          {t('claims.modal.claimType')}
                         </label>
                         <p className="text-gray-900">
-                          {selectedClaim.type.replace('_', ' ')}
+                          {t(`claims.types.${selectedClaim.type}`) ||
+                            selectedClaim.type.replace('_', ' ')}
                         </p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Status
+                          {t('claims.modal.status')}
                         </label>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(selectedClaim.status)}
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedClaim.status)}`}
                           >
-                            {selectedClaim.status.toUpperCase()}
+                            {t(`claims.status.${selectedClaim.status}`) ||
+                              selectedClaim.status.toUpperCase()}
                           </span>
                         </div>
                       </div>
@@ -452,7 +458,7 @@ export default function ClaimsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
+                        {t('claims.modal.description')}
                       </label>
                       <p className="text-gray-900">
                         {selectedClaim.description}
@@ -462,13 +468,13 @@ export default function ClaimsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Issuer
+                          {t('claims.modal.issuer')}
                         </label>
                         <p className="text-gray-900">{selectedClaim.issuer}</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Issuer Address
+                          {t('claims.modal.issuerAddress')}
                         </label>
                         <p className="text-gray-900 font-mono text-sm">
                           {selectedClaim.issuerAddress}
@@ -479,7 +485,7 @@ export default function ClaimsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Issued At
+                          {t('claims.modal.issuedAt')}
                         </label>
                         <p className="text-gray-900">
                           {formatDate(selectedClaim.issuedAt)}
@@ -487,7 +493,7 @@ export default function ClaimsPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Expires At
+                          {t('claims.modal.expiresAt')}
                         </label>
                         <p className="text-gray-900">
                           {formatDate(selectedClaim.expiresAt)}
@@ -497,7 +503,7 @@ export default function ClaimsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Proof Hash
+                        {t('claims.modal.proofHash')}
                       </label>
                       <p className="text-gray-900 font-mono text-sm break-all bg-gray-50 p-3 rounded-lg">
                         {selectedClaim.proofHash}
@@ -507,13 +513,15 @@ export default function ClaimsPage() {
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700">Verified</span>
+                        <span className="text-sm text-gray-700">
+                          {t('claims.modal.verified')}
+                        </span>
                       </div>
                       {selectedClaim.renewalRequired && (
                         <div className="flex items-center gap-2">
                           <RefreshCw className="w-4 h-4 text-yellow-500" />
                           <span className="text-sm text-gray-700">
-                            Renewal Required
+                            {t('claims.modal.renewalRequired')}
                           </span>
                         </div>
                       )}
@@ -524,12 +532,11 @@ export default function ClaimsPage() {
                         <div className="flex items-center gap-2 mb-2">
                           <AlertTriangle className="w-4 h-4 text-yellow-600" />
                           <span className="font-medium text-yellow-800">
-                            Renewal Required
+                            {t('claims.modal.renewalRequired')}
                           </span>
                         </div>
                         <p className="text-sm text-yellow-700 mb-3">
-                          This claim requires renewal before it expires. Contact
-                          the issuer to begin the renewal process.
+                          {t('claims.modal.renewalNotice')}
                         </p>
                         <AnimatedButton
                           onClick={() => handleRenewal(selectedClaim.id)}
@@ -539,7 +546,9 @@ export default function ClaimsPage() {
                           ripple
                         >
                           <RefreshCw className="w-4 h-4" />
-                          {isLoading ? 'Processing...' : 'Start Renewal'}
+                          {isLoading
+                            ? t('claims.modal.processing')
+                            : t('claims.modal.startRenewal')}
                         </AnimatedButton>
                       </div>
                     )}

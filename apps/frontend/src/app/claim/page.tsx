@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DashboardLayout, DataTable } from '@/components/ui';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
@@ -35,6 +36,7 @@ interface BankAccount {
 }
 
 export default function ClaimPage() {
+  const { t } = useTranslation('common');
   const [claimableAmounts, setClaimableAmounts] = useState<ClaimableAmount[]>(
     []
   );
@@ -176,8 +178,11 @@ export default function ClaimPage() {
     setIsClaimModalOpen(false);
     setSelectedClaim(null);
 
-    toast.success('Claim Processed!', {
-      message: `Your claim for ${selectedClaim.currency} ${selectedClaim.amount.toLocaleString()} has been submitted for processing.`,
+    toast.success(t('claimPage.messages.claimProcessed'), {
+      message: t('claimPage.messages.claimProcessedDescription', {
+        currency: selectedClaim.currency,
+        amount: selectedClaim.amount.toLocaleString(),
+      }),
       duration: 5000,
     });
   };
@@ -192,24 +197,24 @@ export default function ClaimPage() {
     setBankAccount(bankForm);
     setIsBankModalOpen(false);
 
-    toast.success('Bank Account Saved!', {
-      message: 'Your bank account information has been updated successfully.',
+    toast.success(t('claimPage.messages.bankAccountSaved'), {
+      message: t('claimPage.messages.bankAccountSavedDescription'),
       duration: 4000,
     });
   };
 
   const claimableColumns = [
-    { key: 'projectName', label: 'Project' },
-    { key: 'period', label: 'Period' },
+    { key: 'projectName', label: t('claimPage.availableClaims.table.project') },
+    { key: 'period', label: t('claimPage.availableClaims.table.period') },
     {
       key: 'amount',
-      label: 'Amount',
+      label: t('claimPage.availableClaims.table.amount'),
       render: (value: unknown, row: ClaimableAmount) =>
         `${row.currency} ${(value as number).toLocaleString()}`,
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('claimPage.availableClaims.table.status'),
       render: (value: unknown) => (
         <span
           className={`px-3 py-1 rounded-xl text-xs font-bold ${
@@ -227,7 +232,7 @@ export default function ClaimPage() {
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('claimPage.availableClaims.table.actions'),
       render: (_: unknown, row: ClaimableAmount) => (
         <AnimatedButton
           size="sm"
@@ -235,24 +240,26 @@ export default function ClaimPage() {
           disabled={row.status !== 'available'}
           ripple={row.status === 'available'}
         >
-          {row.status === 'available' ? 'Claim' : 'Processing'}
+          {row.status === 'available'
+            ? t('claimPage.availableClaims.claimButton')
+            : t('claimPage.availableClaims.processingButton')}
         </AnimatedButton>
       ),
     },
   ];
 
   const historyColumns = [
-    { key: 'projectName', label: 'Project' },
-    { key: 'date', label: 'Date' },
+    { key: 'projectName', label: t('claimPage.claimHistory.table.project') },
+    { key: 'date', label: t('claimPage.claimHistory.table.date') },
     {
       key: 'amount',
-      label: 'Amount',
+      label: t('claimPage.claimHistory.table.amount'),
       render: (value: unknown, row: ClaimHistory) =>
         `${row.currency} ${(value as number).toLocaleString()}`,
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('claimPage.claimHistory.table.status'),
       render: (value: unknown) => (
         <span
           className={`px-3 py-1 rounded-xl text-xs font-bold ${
@@ -313,11 +320,10 @@ export default function ClaimPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Profit Claims
+                    {t('claimPage.overview.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    Claim your profit distributions from infrastructure
-                    investments
+                    {t('claimPage.overview.subtitle')}
                   </p>
                 </div>
 
@@ -325,7 +331,9 @@ export default function ClaimPage() {
                   onClick={() => setIsBankModalOpen(true)}
                   variant="outline"
                 >
-                  {bankAccount ? 'Update Bank Account' : 'Add Bank Account'}
+                  {bankAccount
+                    ? t('claimPage.bankAccount.updateButton')
+                    : t('claimPage.bankAccount.addButton')}
                 </AnimatedButton>
               </div>
             </ScrollReveal>
@@ -342,7 +350,7 @@ export default function ClaimPage() {
                     <DollarSign className="w-6 h-6 text-white" />
                   </div>
                   <span className="text-xs text-success-600 font-medium">
-                    Available
+                    {t('claimPage.availableClaims.statusAvailable')}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -350,10 +358,10 @@ export default function ClaimPage() {
                     IDR {totalClaimable.toLocaleString()}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Total Claimable
+                    {t('claimPage.availableClaims.totalClaimable')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Available for withdrawal
+                    {t('claimPage.availableClaims.availableForWithdrawal')}
                   </p>
                 </div>
               </div>
@@ -364,7 +372,7 @@ export default function ClaimPage() {
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    All time
+                    {t('claimPage.claimHistory.allTime')}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -372,10 +380,10 @@ export default function ClaimPage() {
                     IDR {totalClaimed.toLocaleString()}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Total Claimed
+                    {t('claimPage.claimHistory.totalClaimed')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Successfully withdrawn
+                    {t('claimPage.claimHistory.successfullyWithdrawn')}
                   </p>
                 </div>
               </div>
@@ -386,7 +394,7 @@ export default function ClaimPage() {
                     <Clock className="w-6 h-6 text-white" />
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    Processing
+                    {t('claimPage.availableClaims.statusProcessing')}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -397,10 +405,10 @@ export default function ClaimPage() {
                     }
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Active Claims
+                    {t('claimPage.availableClaims.activeClaims')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Currently processing
+                    {t('claimPage.availableClaims.currentlyProcessing')}
                   </p>
                 </div>
               </div>
@@ -411,12 +419,12 @@ export default function ClaimPage() {
               <ScrollReveal animation="slide-up" delay={200}>
                 <div className="glass-feature rounded-2xl p-6 hover-lift transition-all duration-300">
                   <h3 className="text-lg font-semibold text-gradient mb-4">
-                    Withdrawal Bank Account
+                    {t('claimPage.bankAccount.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div className="glass-modern rounded-xl p-4">
                       <span className="text-primary-600 font-medium">
-                        Bank:
+                        {t('claimPage.bankAccount.bankName')}:
                       </span>
                       <p className="font-bold text-primary-800 mt-1">
                         {bankAccount.bankName}
@@ -424,7 +432,7 @@ export default function ClaimPage() {
                     </div>
                     <div className="glass-modern rounded-xl p-4">
                       <span className="text-primary-600 font-medium">
-                        Account Number:
+                        {t('claimPage.bankAccount.accountNumber')}:
                       </span>
                       <p className="font-bold text-primary-800 mt-1">
                         ****{bankAccount.accountNumber.slice(-4)}
@@ -432,7 +440,7 @@ export default function ClaimPage() {
                     </div>
                     <div className="glass-modern rounded-xl p-4">
                       <span className="text-primary-600 font-medium">
-                        Account Holder:
+                        {t('claimPage.bankAccount.accountHolder')}:
                       </span>
                       <p className="font-bold text-primary-800 mt-1">
                         {bankAccount.accountHolder}
@@ -448,10 +456,10 @@ export default function ClaimPage() {
               <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gradient mb-2">
-                    Available Claims
+                    {t('claimPage.availableClaims.title')}
                   </h2>
                   <p className="text-primary-600">
-                    Claim your profit distributions when available
+                    {t('claimPage.availableClaims.description')}
                   </p>
                 </div>
                 {claimableAmounts.length > 0 ? (
@@ -467,10 +475,10 @@ export default function ClaimPage() {
                       <DollarSign className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-semibold text-gradient mb-3">
-                      No Claims Available
+                      {t('claimPage.availableClaims.empty.title')}
                     </h3>
                     <p className="text-primary-600">
-                      Profit distributions will appear here when available
+                      {t('claimPage.availableClaims.empty.description')}
                     </p>
                   </div>
                 )}
@@ -482,10 +490,10 @@ export default function ClaimPage() {
               <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gradient mb-2">
-                    Claim History
+                    {t('claimPage.claimHistory.title')}
                   </h2>
                   <p className="text-primary-600">
-                    Track all your previous profit distributions and claims
+                    {t('claimPage.claimHistory.description')}
                   </p>
                 </div>
                 {claimHistory.length > 0 ? (
@@ -498,11 +506,10 @@ export default function ClaimPage() {
                       <Clock className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-semibold text-gradient mb-3">
-                      No History Yet
+                      {t('claimPage.claimHistory.empty.title')}
                     </h3>
                     <p className="text-primary-600">
-                      Your claim history will appear here after your first
-                      distribution
+                      {t('claimPage.claimHistory.empty.description')}
                     </p>
                   </div>
                 )}
@@ -516,10 +523,10 @@ export default function ClaimPage() {
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h2 className="text-2xl font-bold text-gradient mb-2">
-                        Bank Account Information
+                        {t('claimPage.claimModal.bankAccountModal.title')}
                       </h2>
                       <p className="text-primary-600">
-                        Set up your withdrawal bank account
+                        {t('claimPage.claimModal.bankAccountModal.description')}
                       </p>
                     </div>
                     <AnimatedButton
@@ -535,7 +542,7 @@ export default function ClaimPage() {
                     <div className="glass-modern rounded-xl p-4">
                       <AnimatedInput
                         id="bankName"
-                        label="Bank Name"
+                        label={t('claimPage.bankAccount.bankName')}
                         value={bankForm.bankName}
                         onChange={e =>
                           setBankForm(prev => ({
@@ -543,14 +550,16 @@ export default function ClaimPage() {
                             bankName: e.target.value,
                           }))
                         }
-                        placeholder="e.g., Bank Central Asia"
+                        placeholder={t(
+                          'claimPage.claimModal.bankAccountModal.bankNamePlaceholder'
+                        )}
                       />
                     </div>
 
                     <div className="glass-modern rounded-xl p-4">
                       <AnimatedInput
                         id="accountNumber"
-                        label="Account Number"
+                        label={t('claimPage.bankAccount.accountNumber')}
                         value={bankForm.accountNumber}
                         onChange={e =>
                           setBankForm(prev => ({
@@ -558,14 +567,16 @@ export default function ClaimPage() {
                             accountNumber: e.target.value,
                           }))
                         }
-                        placeholder="Enter your account number"
+                        placeholder={t(
+                          'claimPage.claimModal.bankAccountModal.accountNumberPlaceholder'
+                        )}
                       />
                     </div>
 
                     <div className="glass-modern rounded-xl p-4">
                       <AnimatedInput
                         id="accountHolder"
-                        label="Account Holder Name"
+                        label={t('claimPage.bankAccount.accountHolder')}
                         value={bankForm.accountHolder}
                         onChange={e =>
                           setBankForm(prev => ({
@@ -573,7 +584,9 @@ export default function ClaimPage() {
                             accountHolder: e.target.value,
                           }))
                         }
-                        placeholder="Enter account holder name"
+                        placeholder={t(
+                          'claimPage.claimModal.bankAccountModal.accountHolderPlaceholder'
+                        )}
                       />
                     </div>
 
@@ -588,14 +601,16 @@ export default function ClaimPage() {
                         className="flex-1"
                         loading={false}
                       >
-                        Save Bank Account
+                        {t('claimPage.claimModal.bankAccountModal.saveButton')}
                       </AnimatedButton>
                       <AnimatedButton
                         onClick={() => setIsBankModalOpen(false)}
                         variant="outline"
                         className="flex-1"
                       >
-                        Cancel
+                        {t(
+                          'claimPage.claimModal.bankAccountModal.cancelButton'
+                        )}
                       </AnimatedButton>
                     </div>
                   </div>
@@ -610,10 +625,10 @@ export default function ClaimPage() {
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h2 className="text-2xl font-bold text-gradient mb-2">
-                        Confirm Claim
+                        {t('claimPage.claimModal.title')}
                       </h2>
                       <p className="text-primary-600">
-                        Review and confirm your profit claim
+                        {t('claimPage.claimModal.description')}
                       </p>
                     </div>
                     <AnimatedButton
@@ -629,7 +644,7 @@ export default function ClaimPage() {
                     <div className="glass-modern rounded-xl p-6 space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-primary-600 font-medium">
-                          Project:
+                          {t('claimPage.claimModal.project')}:
                         </span>
                         <span className="font-bold text-primary-800">
                           {selectedClaim.projectName}
@@ -637,7 +652,7 @@ export default function ClaimPage() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-primary-600 font-medium">
-                          Period:
+                          {t('claimPage.claimModal.period')}:
                         </span>
                         <span className="font-bold text-primary-800">
                           {selectedClaim.period}
@@ -645,7 +660,7 @@ export default function ClaimPage() {
                       </div>
                       <div className="flex justify-between items-center pt-2 border-t border-primary-200">
                         <span className="text-primary-600 font-medium">
-                          Amount:
+                          {t('claimPage.claimModal.amount')}:
                         </span>
                         <span className="font-bold text-2xl text-gradient">
                           {selectedClaim.currency}{' '}
@@ -661,7 +676,7 @@ export default function ClaimPage() {
                             <CheckCircle className="w-4 h-4 text-white" />
                           </div>
                           <span className="font-semibold text-primary-700">
-                            Withdrawal Destination
+                            {t('claimPage.claimModal.withdrawalDestination')}
                           </span>
                         </div>
                         <p className="text-primary-800 font-medium">
@@ -680,15 +695,15 @@ export default function ClaimPage() {
                         ripple
                       >
                         {bankAccount
-                          ? 'Confirm Claim'
-                          : 'Add Bank Account First'}
+                          ? t('claimPage.claimModal.confirmButton')
+                          : t('claimPage.claimModal.addBankAccountFirst')}
                       </AnimatedButton>
                       <AnimatedButton
                         onClick={() => setIsClaimModalOpen(false)}
                         variant="outline"
                         className="flex-1"
                       >
-                        Cancel
+                        {t('claimPage.claimModal.cancelButton')}
                       </AnimatedButton>
                     </div>
                   </div>

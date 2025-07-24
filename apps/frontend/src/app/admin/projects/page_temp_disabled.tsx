@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -163,6 +164,7 @@ const formatPercentage = (current: number, target: number) => {
 };
 
 export default function AdminProjectsPage() {
+  const { t } = useTranslation('common');
   const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -279,7 +281,7 @@ export default function AdminProjectsPage() {
   const projectColumns: Column<AdminProject>[] = [
     {
       key: 'projectName',
-      label: 'Project',
+      label: t('adminProjects.table.project'),
       render: (_, row) => (
         <div className="flex flex-col">
           <span className="font-medium text-gray-900">{row.projectName}</span>
@@ -292,7 +294,7 @@ export default function AdminProjectsPage() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('adminProjects.table.status'),
       render: (_, row) => (
         <div className="flex flex-col gap-1">
           <div
@@ -314,7 +316,7 @@ export default function AdminProjectsPage() {
     },
     {
       key: 'funding',
-      label: 'Funding Progress',
+      label: t('adminProjects.table.fundingProgress'),
       render: (_, row) => (
         <div className="flex flex-col">
           <div className="flex justify-between text-sm">
@@ -339,7 +341,7 @@ export default function AdminProjectsPage() {
     },
     {
       key: 'risk',
-      label: 'Risk & Compliance',
+      label: t('adminProjects.table.riskCompliance'),
       render: (_, row) => (
         <div className="flex flex-col gap-1">
           <span
@@ -357,7 +359,7 @@ export default function AdminProjectsPage() {
     },
     {
       key: 'investors',
-      label: 'Investors',
+      label: t('adminProjects.table.investors'),
       render: (_, row) => (
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-gray-400" />
@@ -369,7 +371,7 @@ export default function AdminProjectsPage() {
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('adminProjects.table.actions'),
       render: (_, row) => (
         <div className="flex gap-2">
           <AnimatedButton
@@ -386,7 +388,7 @@ export default function AdminProjectsPage() {
               onClick={() => handleApproveProject(row.id)}
               ripple
             >
-              Approve
+              {t('adminProjects.actions.approve')}
             </AnimatedButton>
           )}
           {(row.status === 'funding' || row.status === 'active') && (
@@ -422,10 +424,10 @@ export default function AdminProjectsPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Project Oversight
+                    {t('adminProjects.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    Monitor and manage all platform projects
+                    {t('adminProjects.subtitle')}
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -439,7 +441,7 @@ export default function AdminProjectsPage() {
                     <RefreshCw
                       className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
                     />
-                    Refresh
+                    {t('adminProjects.actions.refresh')}
                   </AnimatedButton>
                 </div>
               </div>
@@ -468,20 +470,20 @@ export default function AdminProjectsPage() {
               animation="slide-up"
             >
               <StatsCard
-                title="Total Projects"
+                title={t('adminProjects.stats.totalProjects')}
                 value={projectStats?.totalProjects.toString() || '0'}
                 icon={<Building className="w-4 h-4" />}
                 change={projectStats?.monthlyGrowth || 0}
                 changeType="increase"
-                description="All time projects"
+                description={t('adminProjects.stats.totalProjectsDesc')}
               />
               <StatsCard
-                title="Active Projects"
+                title={t('adminProjects.stats.activeProjects')}
                 value={projectStats?.activeProjects.toString() || '0'}
                 icon={<Play className="w-4 h-4" />}
                 change={0}
                 changeType="neutral"
-                description="Currently operational"
+                description={t('adminProjects.stats.activeProjectsDesc')}
               />
               <StatsCard
                 title="Pending Review"
@@ -541,7 +543,7 @@ export default function AdminProjectsPage() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                       <AnimatedInput
-                        placeholder="Search projects, SPVs, or locations..."
+                        placeholder={t('adminProjects.search.placeholder')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="w-full pl-10"
@@ -575,10 +577,10 @@ export default function AdminProjectsPage() {
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h2 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
-                      All Projects
+                      {t('adminProjects.projectsTable.title')}
                     </h2>
                     <p className="text-gray-600">
-                      Comprehensive oversight of platform projects
+                      {t('adminProjects.projectsTable.subtitle')}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -587,7 +589,7 @@ export default function AdminProjectsPage() {
                       className="btn-modern bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
                     >
                       <Download className="h-4 w-4" />
-                      Export
+                      {t('adminProjects.actions.export')}
                     </AnimatedButton>
                   </div>
                 </div>

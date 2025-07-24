@@ -15,8 +15,10 @@ import {
   ArrowRight,
   ShieldCheck,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Security = () => {
+  const { t } = useTranslation('common');
   const [isVisible, setIsVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
@@ -25,9 +27,8 @@ const Security = () => {
     () => [
       {
         icon: Shield,
-        title: 'Keamanan Blockchain',
-        description:
-          'Smart contract teraudit dan dibangun di atas Arbitrum untuk keamanan maksimal.',
+        title: t('security.smartContracts'),
+        description: t('security.smartContractsDesc'),
         details: [
           'Audit smart contract berkala',
           'Multi-signature wallet',
@@ -37,9 +38,8 @@ const Security = () => {
       },
       {
         icon: FileCheck,
-        title: 'Kepatuhan Bank Indonesia',
-        description:
-          'Sepenuhnya mematuhi regulasi Bank Indonesia dan menggunakan Project Garuda IDR Stablecoin.',
+        title: t('security.compliance'),
+        description: t('security.complianceDesc'),
         details: [
           'Integrasi Project Garuda IDR',
           'Kepatuhan PBI (Peraturan BI)',
@@ -61,9 +61,8 @@ const Security = () => {
       },
       {
         icon: Lock,
-        title: 'Proteksi Data',
-        description:
-          'Enkripsi tingkat enterprise untuk melindungi data pribadi dan transaksi investor.',
+        title: t('security.encryption'),
+        description: t('security.encryptionDesc'),
         details: [
           'Enkripsi end-to-end',
           'ISO 27001 compliance',
@@ -72,7 +71,7 @@ const Security = () => {
         color: 'from-accent-500 to-accent-600',
       },
     ],
-    []
+    [t]
   );
 
   const complianceItems = [
@@ -155,7 +154,7 @@ const Security = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-success-50 rounded-full text-success-600 font-medium mb-4">
             <ShieldCheck className="w-4 h-4" />
-            <span>Keamanan & Kepatuhan</span>
+            <span>{t('security.title')}</span>
           </div>
           <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
             Investasi Aman dengan
@@ -164,9 +163,7 @@ const Security = () => {
             </span>
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">
-            Platform kami dibangun dengan standar keamanan tertinggi dan
-            mematuhi seluruh regulasi Bank Indonesia serta OJK untuk melindungi
-            investasi Anda
+            {t('security.subtitle')}
           </p>
         </div>
 

@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -154,6 +155,7 @@ const formatTimeAgo = (timestamp: string) => {
 };
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation('common');
   const { isAuthenticated, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(
@@ -207,7 +209,7 @@ export default function AdminDashboardPage() {
   const topProjectColumns: Column<TopProject>[] = [
     {
       key: 'project',
-      label: 'Project',
+      label: t('adminDashboard.topProjects.table.project'),
       render: (_, row) => (
         <div className="flex flex-col">
           <span className="font-medium text-gray-900">{row.name}</span>
@@ -217,7 +219,7 @@ export default function AdminDashboardPage() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('adminDashboard.topProjects.table.status'),
       render: (_, row) => (
         <span
           className={`capitalize font-medium ${getStatusColor(row.status)}`}
@@ -228,26 +230,26 @@ export default function AdminDashboardPage() {
     },
     {
       key: 'totalFunding',
-      label: 'Total Funding',
+      label: t('adminDashboard.topProjects.table.totalFunding'),
       render: (_, row) => (
         <span className="font-medium">{formatCurrency(row.totalFunding)}</span>
       ),
     },
     {
       key: 'investorCount',
-      label: 'Investors',
+      label: t('adminDashboard.topProjects.table.investors'),
       render: (_, row) => <span>{row.investorCount.toLocaleString()}</span>,
     },
     {
       key: 'roi',
-      label: 'ROI',
+      label: t('adminDashboard.topProjects.table.roi'),
       render: (_, row) => (
         <span className="text-support-600 font-medium">{row.roi}%</span>
       ),
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('adminDashboard.topProjects.table.actions'),
       render: () => (
         <AnimatedButton
           variant="outline"
@@ -279,10 +281,10 @@ export default function AdminDashboardPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Platform Administration
+                    {t('adminDashboard.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    Monitor platform performance and manage operations
+                    {t('adminDashboard.subtitle')}
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -297,7 +299,7 @@ export default function AdminDashboardPage() {
                     <RefreshCw
                       className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
                     />
-                    Refresh
+                    {t('adminDashboard.actions.refresh')}
                   </AnimatedButton>
                   <Link href="/admin/spv">
                     <AnimatedButton
@@ -306,7 +308,7 @@ export default function AdminDashboardPage() {
                       className="btn-modern btn-modern-primary hover-lift"
                     >
                       <Users className="h-4 w-4 mr-2" />
-                      Manage SPVs
+                      {t('adminDashboard.actions.manageSPVs')}
                     </AnimatedButton>
                   </Link>
                 </div>
@@ -323,7 +325,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-primary-800 mb-2">
-                        Error Loading Dashboard
+                        {t('adminDashboard.errors.loadingError')}
                       </h3>
                       <p className="text-primary-600">{error}</p>
                     </div>
@@ -352,10 +354,10 @@ export default function AdminDashboardPage() {
                     {platformStats?.totalProjects.toString() || '0'}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Total Projects
+                    {t('adminDashboard.stats.totalProjects')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Active platform projects
+                    {t('adminDashboard.stats.totalProjectsDesc')}
                   </p>
                 </div>
               </div>
@@ -374,10 +376,10 @@ export default function AdminDashboardPage() {
                     {platformStats?.totalUsers.toLocaleString() || '0'}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Total Users
+                    {t('adminDashboard.stats.totalUsers')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Registered investors
+                    {t('adminDashboard.stats.totalUsersDesc')}
                   </p>
                 </div>
               </div>
@@ -396,10 +398,10 @@ export default function AdminDashboardPage() {
                     {formatCurrency(platformStats?.totalFundingVolume || 0)}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Funding Volume
+                    {t('adminDashboard.stats.fundingVolume')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Total platform funding
+                    {t('adminDashboard.stats.fundingVolumeDesc')}
                   </p>
                 </div>
               </div>
@@ -418,10 +420,10 @@ export default function AdminDashboardPage() {
                     {formatCurrency(platformStats?.platformRevenue || 0)}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Platform Revenue
+                    {t('adminDashboard.stats.platformRevenue')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Total platform earnings
+                    {t('adminDashboard.stats.platformRevenueDesc')}
                   </p>
                 </div>
               </div>
@@ -433,12 +435,12 @@ export default function AdminDashboardPage() {
                 {/* System Health */}
                 <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
                   <h3 className="text-xl font-semibold text-gradient mb-6">
-                    System Health
+                    {t('adminDashboard.systemHealth.title')}
                   </h3>
                   <div className="space-y-6">
                     <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
                       <span className="text-sm font-medium text-primary-700">
-                        Active Projects
+                        {t('adminDashboard.systemHealth.activeProjects')}
                       </span>
                       <span className="text-lg font-bold text-gradient">
                         {systemHealth?.activeProjects || 0}
@@ -446,7 +448,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
                       <span className="text-sm font-medium text-primary-700">
-                        Pending Approvals
+                        {t('adminDashboard.systemHealth.pendingApprovals')}
                       </span>
                       <span className="text-lg font-bold text-primary-600">
                         {systemHealth?.pendingApprovals || 0}
@@ -454,7 +456,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
                       <span className="text-sm font-medium text-primary-700">
-                        System Uptime
+                        {t('adminDashboard.systemHealth.systemUptime')}
                       </span>
                       <span className="text-lg font-bold text-success-600">
                         {systemHealth?.systemUptime || 0}%
@@ -462,7 +464,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex justify-between items-center p-4 glass-modern rounded-xl">
                       <span className="text-sm font-medium text-primary-700">
-                        24h Volume
+                        {t('adminDashboard.systemHealth.transactionVolume')}
                       </span>
                       <span className="text-lg font-bold text-gradient">
                         {formatCurrency(
@@ -477,7 +479,7 @@ export default function AdminDashboardPage() {
                 <div className="glass-feature rounded-2xl p-8 lg:col-span-2 hover-lift transition-all duration-300">
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-semibold text-gradient">
-                      Recent Activity
+                      {t('adminDashboard.recentActivity.title')}
                     </h3>
                     <AnimatedButton
                       variant="outline"
@@ -488,7 +490,7 @@ export default function AdminDashboardPage() {
                         toast.info('Viewing all recent activity...')
                       }
                     >
-                      View All
+                      {t('adminDashboard.recentActivity.viewAll')}
                     </AnimatedButton>
                   </div>
                   <div className="space-y-4">
@@ -545,8 +547,8 @@ export default function AdminDashboardPage() {
                         </div>
                         <p className="text-muted-foreground">
                           {isLoading
-                            ? 'Loading recent activity...'
-                            : 'No recent activity'}
+                            ? t('adminDashboard.recentActivity.loading')
+                            : t('adminDashboard.recentActivity.noActivity')}
                         </p>
                       </div>
                     )}
@@ -561,10 +563,10 @@ export default function AdminDashboardPage() {
                 <div className="flex justify-between items-center mb-8">
                   <div>
                     <h2 className="text-2xl font-semibold text-gradient mb-2">
-                      Top Performing Projects
+                      {t('adminDashboard.topProjects.title')}
                     </h2>
                     <p className="text-primary-600">
-                      Highest performing projects by ROI and funding volume
+                      {t('adminDashboard.topProjects.subtitle')}
                     </p>
                   </div>
                   <div className="flex gap-3">
@@ -576,7 +578,7 @@ export default function AdminDashboardPage() {
                       onClick={() => toast.info('Opening project filters...')}
                     >
                       <Filter className="h-4 w-4 mr-2" />
-                      Filter
+                      {t('adminDashboard.topProjects.filter')}
                     </AnimatedButton>
                     <AnimatedButton
                       variant="outline"
@@ -586,7 +588,7 @@ export default function AdminDashboardPage() {
                       onClick={() => toast.success('Exporting project data...')}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Export
+                      {t('adminDashboard.topProjects.export')}
                     </AnimatedButton>
                   </div>
                 </div>
@@ -613,10 +615,12 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gradient mb-2">
-                      SPV Management
+                      {t('adminDashboard.quickActions.spvManagement.title')}
                     </h3>
                     <p className="text-sm text-primary-600">
-                      Review and approve SPV applications
+                      {t(
+                        'adminDashboard.quickActions.spvManagement.description'
+                      )}
                     </p>
                   </div>
                 </div>
@@ -626,7 +630,7 @@ export default function AdminDashboardPage() {
                     ripple
                     className="w-full btn-modern btn-modern-primary hover-lift"
                   >
-                    Manage SPVs
+                    {t('adminDashboard.quickActions.spvManagement.action')}
                   </AnimatedButton>
                 </Link>
               </div>
@@ -638,10 +642,12 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gradient mb-2">
-                      Project Oversight
+                      {t('adminDashboard.quickActions.projectOversight.title')}
                     </h3>
                     <p className="text-sm text-primary-600">
-                      Monitor all platform projects
+                      {t(
+                        'adminDashboard.quickActions.projectOversight.description'
+                      )}
                     </p>
                   </div>
                 </div>
@@ -651,7 +657,7 @@ export default function AdminDashboardPage() {
                     ripple
                     className="w-full btn-modern btn-modern-secondary hover-lift"
                   >
-                    View Projects
+                    {t('adminDashboard.quickActions.projectOversight.action')}
                   </AnimatedButton>
                 </Link>
               </div>
@@ -663,10 +669,12 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gradient mb-2">
-                      Fee Management
+                      {t('adminDashboard.quickActions.feeManagement.title')}
                     </h3>
                     <p className="text-sm text-primary-600">
-                      Configure platform fees and revenue
+                      {t(
+                        'adminDashboard.quickActions.feeManagement.description'
+                      )}
                     </p>
                   </div>
                 </div>
@@ -676,7 +684,7 @@ export default function AdminDashboardPage() {
                     ripple
                     className="w-full btn-modern btn-modern-secondary hover-lift"
                   >
-                    Manage Fees
+                    {t('adminDashboard.quickActions.feeManagement.action')}
                   </AnimatedButton>
                 </Link>
               </div>

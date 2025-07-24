@@ -4,6 +4,7 @@ import {
   useState,
   // useEffect
 } from 'react';
+import { useTranslation } from 'react-i18next';
 // import { usePortfolioWebSocket } from '@/hooks/useWebSocket';
 import Link from 'next/link';
 import {
@@ -178,6 +179,7 @@ const mockTransactions: Transaction[] = [
 ];
 
 export default function DashboardPage() {
+  const { t } = useTranslation('common');
   const [selectedTab, setSelectedTab] = useState('overview');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -292,12 +294,12 @@ export default function DashboardPage() {
   });
 
   const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'portfolio', label: 'Portfolio' },
-    { id: 'transactions', label: 'Transactions' },
-    { id: 'analytics', label: 'Analytics' },
-    { id: 'insights', label: 'Cross-Project Insights' },
-    { id: 'governance', label: 'Governance Tracking' },
+    { id: 'overview', label: t('dashboard.tabs.overview') },
+    { id: 'portfolio', label: t('dashboard.tabs.portfolio') },
+    { id: 'transactions', label: t('dashboard.tabs.transactions') },
+    { id: 'analytics', label: t('dashboard.tabs.analytics') },
+    { id: 'insights', label: t('dashboard.tabs.insights') },
+    { id: 'governance', label: t('dashboard.tabs.governance') },
   ];
 
   // Mock cross-project analytics data
@@ -531,10 +533,10 @@ export default function DashboardPage() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-gradient mb-1">
-                Identity Verification Status
+                {t('dashboardPage.identity.title')}
               </h3>
               <p className="text-success-700 font-medium">
-                Your ERC-3643 identity is active and verified
+                {t('dashboardPage.identity.verified')}
               </p>
             </div>
           </div>
@@ -552,9 +554,11 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-primary-900">
-                KYC Status
+                {t('dashboardPage.identity.kycStatus')}
               </p>
-              <p className="text-xs text-success-700 font-medium">Verified</p>
+              <p className="text-xs text-success-700 font-medium">
+                {t('dashboardPage.identity.verifiedLabel')}
+              </p>
             </div>
           </div>
           <div className="flex items-center glass-modern rounded-xl p-4 hover-scale">
@@ -563,7 +567,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-primary-900">
-                Active Claims
+                {t('dashboardPage.identity.activeClaims')}
               </p>
               <p className="text-xs text-primary-700 font-medium">
                 4 of 4 claims
@@ -576,7 +580,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-primary-900">
-                Investment Eligible
+                {t('dashboardPage.identity.investmentEligible')}
               </p>
               <p className="text-xs text-success-700 font-medium">
                 All projects available
@@ -587,16 +591,15 @@ export default function DashboardPage() {
         <div className="mt-6 pt-6 border-t border-success-200">
           <div className="flex items-center justify-between">
             <p className="text-sm text-primary-700">
-              <span className="font-semibold">Identity Benefits:</span> One-time
-              verification, instant investment approval, automated profit
-              distribution
+              <span className="font-semibold">Identity Benefits:</span>{' '}
+              {t('dashboardPage.identity.benefits')}
             </p>
             <Link href="/identity">
               <Button
                 variant="secondary"
                 className="btn-modern btn-modern-secondary hover-lift"
               >
-                Manage Identity
+                {t('dashboardPage.identity.manageIdentity')}
               </Button>
             </Link>
           </div>
@@ -606,28 +609,28 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
-          title="Total Invested"
+          title={t('dashboardPage.stats.totalInvested')}
           value={formatCurrency(totalInvested)}
           icon={<DollarSign className="w-5 h-5" />}
           changeType="increase"
           change={15.2}
         />
         <StatsCard
-          title="Current Value"
+          title={t('dashboardPage.stats.currentValue')}
           value={formatCurrency(totalCurrentValue)}
           icon={<TrendingUp className="w-5 h-5" />}
           changeType="increase"
           change={8.7}
         />
         <StatsCard
-          title="Total Returns"
+          title={t('dashboardPage.stats.totalReturns')}
           value={formatCurrency(totalReturns)}
           icon={<ArrowUpRight className="w-5 h-5" />}
           changeType={totalReturns > 0 ? 'increase' : 'decrease'}
           change={totalReturnPercentage}
         />
         <StatsCard
-          title="Active Projects"
+          title={t('dashboardPage.stats.activeProjects')}
           value={activeProjects.toString()}
           icon={<PieChart className="w-5 h-5" />}
           changeType="increase"
@@ -640,7 +643,7 @@ export default function DashboardPage() {
         <div className="glass-feature rounded-2xl p-8 hover-lift">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-primary-900 text-lg">
-              Quick Actions
+              {t('dashboardPage.quickActions.title')}
             </h3>
             <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
               <Plus className="w-4 h-4 text-primary-600" />
@@ -653,7 +656,7 @@ export default function DashboardPage() {
                 className="w-full justify-start btn-modern btn-modern-primary hover-lift"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Browse New Projects
+                {t('dashboardPage.quickActions.browseProjects')}
               </Button>
             </Link>
             <Link href="/claim">
@@ -662,7 +665,8 @@ export default function DashboardPage() {
                 className="w-full justify-start btn-modern btn-modern-secondary hover-lift"
               >
                 <DollarSign className="w-4 h-4 mr-2" />
-                Claim Returns ({formatCurrency(claimableAmount)})
+                {t('dashboardPage.quickActions.claimReturns')} (
+                {formatCurrency(claimableAmount)})
               </Button>
             </Link>
             <Link href="/profile">
@@ -671,7 +675,7 @@ export default function DashboardPage() {
                 className="w-full justify-start btn-modern btn-modern-secondary hover-lift"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                View Profile
+                {t('dashboardPage.quickActions.viewProfile')}
               </Button>
             </Link>
           </div>
@@ -750,14 +754,14 @@ export default function DashboardPage() {
       <div className="glass-feature rounded-2xl p-8 hover-lift">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-bold text-primary-900 text-xl">
-            Recent Activity
+            {t('dashboardPage.recentActivity.title')}
           </h3>
           <Link href="/transactions">
             <Button
               variant="secondary"
               className="btn-modern btn-modern-secondary hover-lift"
             >
-              View All
+              {t('dashboardPage.recentActivity.viewHistory')}
             </Button>
           </Link>
         </div>
@@ -1918,10 +1922,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-3xl font-bold text-gradient mb-2">
-                      Investment Dashboard
+                      {t('dashboardPage.title')}
                     </h1>
                     <p className="text-muted-foreground text-lg">
-                      Welcome back! Here&apos;s your portfolio overview.
+                      {t('dashboardPage.overviewSubtitle')}
                     </p>
                   </div>
 

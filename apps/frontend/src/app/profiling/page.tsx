@@ -325,6 +325,10 @@ export default function ProfilePage() {
       setProfileResults(results);
       setShowResults(true);
 
+      if (typeof window !== 'undefined') {
+        window.scroll({ top: 0 });
+      }
+
       // Show final success message
       toast.success('Profil investor berhasil disimpan!', {
         message: 'Lihat hasil analisis profil Anda',

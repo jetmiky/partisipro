@@ -13,21 +13,22 @@ import {
   Award,
   CheckCircle,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Testimonials = () => {
+  const { t } = useTranslation('common');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   const testimonials = [
     {
-      name: 'Budi Santoso',
-      role: 'Investor Retail',
+      name: t('testimonials.testimonial1.name'),
+      role: t('testimonials.testimonial1.role'),
       company: 'Jakarta',
       image: '/placeholder-avatar.jpg',
       rating: 5,
-      content:
-        'Platform Partisipro memungkinkan saya berinvestasi di proyek infrastruktur yang sebelumnya hanya bisa diakses investor besar. Proses yang transparan dan kepatuhan regulasi memberikan rasa aman.',
+      content: t('testimonials.testimonial1.text'),
       investment: 'IDR 50 juta',
       returns: '12.5%',
       duration: '18 bulan',
@@ -160,7 +161,7 @@ const Testimonials = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full text-primary-600 font-medium mb-4">
             <Star className="w-4 h-4 fill-current" />
-            <span>Testimoni & Kasus Sukses</span>
+            <span>{t('testimonials.title')}</span>
           </div>
           <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
             Cerita Sukses
@@ -169,8 +170,7 @@ const Testimonials = () => {
             </span>
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">
-            Dengarkan langsung dari investor yang telah merasakan manfaat
-            investasi infrastruktur melalui platform blockchain kami
+            {t('testimonials.subtitle')}
           </p>
         </div>
 

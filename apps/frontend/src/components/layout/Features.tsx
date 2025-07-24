@@ -15,8 +15,10 @@ import {
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Features = () => {
+  const { t } = useTranslation('common');
   const [visibleFeatures, setVisibleFeatures] = useState<number[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -24,9 +26,8 @@ const Features = () => {
     () => [
       {
         icon: Coins,
-        title: 'Tokenisasi Infrastruktur',
-        description:
-          'Mengubah proyek infrastruktur menjadi token digital yang dapat diperdagangkan dan memberikan kepemilikan fraksional.',
+        title: t('features.blockchain.title'),
+        description: t('features.blockchain.description'),
         details: [
           'Token ERC-20 berbasis smart contract',
           'Kepemilikan fraksional transparan',
@@ -36,9 +37,8 @@ const Features = () => {
       },
       {
         icon: Shield,
-        title: 'Kepatuhan Bank Indonesia',
-        description:
-          'Sepenuhnya mematuhi regulasi Bank Indonesia dan menggunakan Project Garuda IDR Stablecoin untuk transaksi.',
+        title: t('features.compliance.title'),
+        description: t('features.compliance.description'),
         details: [
           'Integrasi Project Garuda IDR',
           'Kepatuhan regulasi penuh',
@@ -48,9 +48,8 @@ const Features = () => {
       },
       {
         icon: TrendingUp,
-        title: 'Investasi Demokratis',
-        description:
-          'Memungkinkan investor ritel mengakses proyek infrastruktur skala besar dengan investasi minimum yang terjangkau.',
+        title: t('features.access.title'),
+        description: t('features.access.description'),
         details: [
           'Investasi minimum rendah',
           'Akses 24/7 ke platform',
@@ -60,9 +59,8 @@ const Features = () => {
       },
       {
         icon: BarChart3,
-        title: 'Analitik Real-Time',
-        description:
-          'Dashboard komprehensif dengan analitik real-time untuk memantau kinerja investasi dan proyek infrastruktur.',
+        title: t('features.returns.title'),
+        description: t('features.returns.description'),
         details: [
           'Tracking kinerja real-time',
           'Laporan transparan',
@@ -95,7 +93,7 @@ const Features = () => {
         color: 'from-secondary-600 to-secondary-700',
       },
     ],
-    []
+    [t]
   );
 
   const keyBenefits = [
@@ -155,16 +153,14 @@ const Features = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full text-primary-600 font-medium mb-4">
             <Sparkles className="w-4 h-4" />
-            <span>Fitur Unggulan</span>
+            <span>{t('features.title')}</span>
           </div>
           <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
             Platform Investasi Infrastruktur
             <span className="block gradient-text-modern">Paling Canggih</span>
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">
-            Teknologi blockchain terdepan dikombinasikan dengan kepatuhan
-            regulasi penuh untuk memberikan pengalaman investasi yang aman dan
-            transparan
+            {t('features.subtitle')}
           </p>
         </div>
 

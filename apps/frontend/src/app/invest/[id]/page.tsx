@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 // Mock types for presentation mode - no backend integration
@@ -36,6 +37,7 @@ import {
   Shield,
   UserCheck,
   Award,
+  ArrowRight,
 } from 'lucide-react';
 // Import animated components
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
@@ -191,6 +193,7 @@ const getMockProjectData = (id: string): MockProject | null => {
 };
 
 export default function InvestmentFlowPage() {
+  const { t } = useTranslation('common');
   const params = useParams();
   const router = useRouter();
   // const { isAuthenticated, isKYCApproved, isIdentityVerified } = useAuth();
@@ -690,11 +693,11 @@ export default function InvestmentFlowPage() {
             <Shield className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
-            Identity Verification
+            Verifikasi Identitas Investor
           </h2>
           <p className="text-gray-600 text-lg">
-            Your identity will be verified automatically using the ERC-3643
-            Identity Registry
+            Identitas Anda akan dilakukan proses verifikasi secara otomatis
+            melalui ERC-3643 Identity Registry.
           </p>
         </div>
       </ScrollReveal>
@@ -712,12 +715,13 @@ export default function InvestmentFlowPage() {
                   <CheckCircle className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-green-900">
-                  Identity Verification Successful
+                  Verifikasi Identitas Berhasil
                 </h3>
               </div>
               <p className="text-green-800 mb-4 text-lg">
-                Your identity has been verified and you are eligible to invest
-                in this project. No additional verification is required.
+                Identitas Anda telah berhasil diverifikasi dan eligible untuk
+                berinvestasi pada proyek ini. Tidak ada verifikasi tambahan
+                lainnya yang diperlukan.
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-green-700 font-semibold">
@@ -733,7 +737,7 @@ export default function InvestmentFlowPage() {
           <ScrollReveal animation="slide-up" delay={200}>
             <div className="glass-modern p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Your Active Identity Claims
+                Identitas Anda
               </h3>
               <StaggeredList
                 className="space-y-4"
@@ -788,7 +792,7 @@ export default function InvestmentFlowPage() {
                 {[
                   'Instant investment approval',
                   'Access to all project tiers',
-                  'Automated profit distribution',
+                  'Profit distribution',
                   'Governance voting rights',
                 ].map((benefit, index) => (
                   <div
@@ -813,7 +817,8 @@ export default function InvestmentFlowPage() {
                 size="lg"
                 ripple={true}
               >
-                Proceed to Investment
+                Selanjutnya
+                <ArrowRight className="w-4 h-4" />
               </AnimatedButton>
             </div>
           </ScrollReveal>
@@ -1081,7 +1086,7 @@ export default function InvestmentFlowPage() {
             }
             ripple={true}
           >
-            Continue to Payment
+            {t('investmentPage.actions.proceedToPayment')}
           </AnimatedButton>
         </div>
       </ScrollReveal>
@@ -1167,7 +1172,7 @@ export default function InvestmentFlowPage() {
             disabled={!selectedPaymentMethod}
             ripple={true}
           >
-            Continue to Confirmation
+            {t('investmentPage.actions.continueToConfirmation')}
           </AnimatedButton>
         </div>
       </ScrollReveal>
@@ -1186,7 +1191,7 @@ export default function InvestmentFlowPage() {
         <ScrollReveal animation="fade" delay={0}>
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent mb-3">
-              Confirm Investment
+              {t('investmentPage.actions.confirmInvestment')}
             </h2>
             <p className="text-gray-600 text-lg">
               Please review your investment details before proceeding
@@ -1332,7 +1337,9 @@ export default function InvestmentFlowPage() {
               loading={isProcessing}
               ripple={true}
             >
-              {isProcessing ? 'Processing...' : 'Confirm Investment'}
+              {isProcessing
+                ? t('investmentPage.actions.processing')
+                : t('investmentPage.actions.confirmInvestment')}
             </AnimatedButton>
           </div>
         </ScrollReveal>
@@ -1499,7 +1506,7 @@ export default function InvestmentFlowPage() {
           </AnimatedButton>
           <Link href="/marketplace">
             <AnimatedButton variant="secondary" size="lg" className="w-full">
-              Back to Marketplace
+              {t('investmentPage.actions.backToMarketplace')}
             </AnimatedButton>
           </Link>
         </StaggeredList>
@@ -1552,7 +1559,7 @@ export default function InvestmentFlowPage() {
                     className="flex items-center gap-2"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Back to Project
+                    {t('investmentPage.actions.backToProject')}
                   </AnimatedButton>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">

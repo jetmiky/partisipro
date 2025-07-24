@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
@@ -23,6 +24,7 @@ interface SignatureStatus {
 }
 
 export default function SPVAuthPage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -148,12 +150,9 @@ export default function SPVAuthPage() {
           <ScrollReveal animation="slide-up" delay={0}>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gradient mb-3">
-                SPV Authentication
+                {t('spvAuth.title')}
               </h1>
-              <p className="text-muted-foreground">
-                Connect your multi-signature wallet to access SPV project
-                management features
-              </p>
+              <p className="text-muted-foreground">{t('spvAuth.subtitle')}</p>
             </div>
           </ScrollReveal>
 
@@ -164,12 +163,12 @@ export default function SPVAuthPage() {
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-xl font-semibold text-gradient mb-4">
-                      Connect Multi-Sig Wallet
+                      {t('spvAuth.connectWallet')}
                     </h2>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Enter your Safe (Gnosis Safe) wallet address to begin
-                      authentication. This wallet must be whitelisted by
-                      platform administrators.
+                      Masukkan Safe (Gnosis Safe) wallet address untuk melakukan
+                      proses authentication. Wallet address telah melalui proses
+                      whitelisting oleh Partisipro.
                     </p>
                   </div>
 
@@ -196,7 +195,7 @@ export default function SPVAuthPage() {
 
                   <div className="text-xs text-muted-foreground text-center">
                     <p className="text-xs">
-                      Need help?{' '}
+                      Perlu bantuan?{' '}
                       <a
                         href="/contact"
                         className="text-primary-600 hover:text-primary-700 transition-colors"
@@ -462,8 +461,9 @@ export default function SPVAuthPage() {
           <ScrollReveal animation="fade" delay={500}>
             <div className="text-center mt-8 text-muted-foreground">
               <p className="text-sm">
-                Partisipro uses Safe (Gnosis Safe) multi-signature wallets for
-                enhanced and extra security.
+                Partisipro mengharuskan penggunaan Safe (Gnosis Safe)
+                multi-signature wallets untuk keamanan terbaik dan tingkat
+                tinggi.
               </p>
             </div>
           </ScrollReveal>

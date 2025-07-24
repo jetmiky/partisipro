@@ -6,6 +6,7 @@ import { PageTransition } from '@/components/ui/PageTransition';
 import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Users,
@@ -20,6 +21,7 @@ import {
 // Note: metadata moved to layout.tsx for client component
 
 export default function AboutPage() {
+  const { t } = useTranslation('common');
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Toast Provider for notifications */}
@@ -43,14 +45,12 @@ export default function AboutPage() {
               <div className="max-w-4xl mx-auto text-center">
                 <ScrollReveal animation="fade" delay={0}>
                   <h1 className="text-4xl md:text-6xl font-bold text-gradient mb-6">
-                    Tentang Partisipro
+                    {t('about.title')}
                   </h1>
                 </ScrollReveal>
                 <ScrollReveal animation="slide-up" delay={200}>
                   <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-                    Mendemokratisasi investasi infrastruktur Indonesia melalui
-                    teknologi blockchain yang aman, transparan, dan patuh
-                    regulasi.
+                    {t('about.subtitle')}
                   </p>
                 </ScrollReveal>
                 <ScrollReveal animation="fade" delay={400}>
@@ -91,14 +91,11 @@ export default function AboutPage() {
                         <Target className="w-6 h-6" />
                       </div>
                       <h2 className="text-3xl md:text-4xl font-bold">
-                        Misi Kami
+                        {t('about.mission')}
                       </h2>
                     </div>
                     <p className="text-lg text-muted-foreground leading-relaxed">
-                      Menciptakan platform investasi infrastruktur yang dapat
-                      diakses oleh seluruh masyarakat Indonesia, memungkinkan
-                      partisipasi dalam proyek-proyek Public-Private Partnership
-                      (PPP) melalui tokenisasi yang aman dan transparan.
+                      {t('about.missionText')}
                     </p>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                       Kami percaya bahwa setiap warga negara berhak
@@ -115,14 +112,11 @@ export default function AboutPage() {
                         <Globe className="w-6 h-6" />
                       </div>
                       <h2 className="text-3xl md:text-4xl font-bold">
-                        Visi Kami
+                        {t('about.vision')}
                       </h2>
                     </div>
                     <p className="text-lg text-muted-foreground leading-relaxed">
-                      Menjadi platform terdepan dalam demokratisasi investasi
-                      infrastruktur di Indonesia, menghubungkan investor ritel
-                      dengan proyek-proyek strategis nasional melalui teknologi
-                      blockchain yang inovatif.
+                      {t('about.visionText')}
                     </p>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                       Membangun ekosistem keuangan yang inklusif, transparan,
@@ -141,7 +135,7 @@ export default function AboutPage() {
               <ScrollReveal animation="fade" delay={100}>
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                    Nilai-Nilai Kami
+                    {t('about.values')}
                   </h2>
                   <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                     Prinsip-prinsip yang mendasari setiap keputusan dan inovasi
@@ -158,10 +152,11 @@ export default function AboutPage() {
                   <div className="feature-icon mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Shield className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">Keamanan</h3>
+                  <h3 className="text-xl font-semibold mb-3">
+                    {t('about.security')}
+                  </h3>
                   <p className="text-muted-foreground">
-                    Mengutamakan keamanan dana dan data investor melalui
-                    teknologi blockchain terdepan
+                    {t('about.securityText')}
                   </p>
                 </div>
 
@@ -169,10 +164,11 @@ export default function AboutPage() {
                   <div className="feature-icon mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Users className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">Transparansi</h3>
+                  <h3 className="text-xl font-semibold mb-3">
+                    {t('about.transparency')}
+                  </h3>
                   <p className="text-muted-foreground">
-                    Memberikan visibilitas penuh terhadap investasi dan
-                    distribusi keuntungan
+                    {t('about.transparencyText')}
                   </p>
                 </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -160,6 +161,7 @@ const formatPercentage = (current: number, target: number) => {
 };
 
 export default function SPVDashboardPage() {
+  const { t } = useTranslation('common');
   const [isLoading, setIsLoading] = useState(false);
   // const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
@@ -318,10 +320,10 @@ export default function SPVDashboardPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    SPV Dashboard
+                    {t('spvDashboard.title')}
                   </h1>
                   <p className="text-base text-muted-foreground">
-                    Manage your infrastructure projects and track performance
+                    {t('spvDashboard.subtitle')}
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -365,7 +367,7 @@ export default function SPVDashboardPage() {
                     {mockStats.totalProjects}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Total Projects
+                    {t('spvDashboard.stats.totalProjects')}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     All projects created
@@ -385,7 +387,7 @@ export default function SPVDashboardPage() {
                     {mockStats.activeProjects}
                   </h3>
                   <p className="text-sm font-medium text-primary-700">
-                    Active Projects
+                    {t('spvDashboard.stats.activeProjects')}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Currently operational

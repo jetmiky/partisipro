@@ -1,18 +1,19 @@
 import { Mail, Phone, MapPin, Twitter, Linkedin, Github } from 'lucide-react';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  const { t } = useTranslation('common');
 
   const links = {
     platform: [
-      { name: 'Cara Kerja', href: '#how-it-works' },
+      { name: t('navigation.howItWorks'), href: '#how-it-works' },
       { name: 'Proyek Aktif', href: '#projects' },
       { name: 'Keamanan', href: '#security' },
       { name: 'Dokumentasi', href: '/docs' },
     ],
     company: [
-      { name: 'Tentang Kami', href: '/about' },
+      { name: t('navigation.about'), href: '/about' },
       { name: 'Tim', href: '/team' },
       { name: 'Karir', href: '/careers' },
       { name: 'Pers', href: '/press' },
@@ -25,7 +26,7 @@ const Footer = () => {
     ],
     support: [
       { name: 'Pusat Bantuan', href: '/help' },
-      { name: 'Hubungi Kami', href: '/contact' },
+      { name: t('navigation.contact'), href: '/contact' },
       { name: 'Dokumentasi API', href: '/api-docs' },
       { name: 'Status Halaman', href: '/status' },
     ],
@@ -63,8 +64,7 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-primary-200 mb-6 max-w-sm text-indonesian">
-              Mendemokratisasi investasi infrastruktur di Indonesia melalui
-              teknologi blockchain.
+              {t('footer.companyDescription')}
             </p>
 
             {/* Contact Info */}
@@ -125,7 +125,7 @@ const Footer = () => {
           {/* Legal Links */}
           <div>
             <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
-              Legal
+              {t('footer.legal')}
             </h3>
             <ul className="space-y-2">
               {links.legal.map(link => (
@@ -144,7 +144,7 @@ const Footer = () => {
           {/* Support Links */}
           <div>
             <h3 className="font-semibold text-2xl text-white mb-4 text-indonesian-heading">
-              Support
+              {t('footer.support')}
             </h3>
             <ul className="space-y-2">
               {links.support.map(link => (
@@ -179,8 +179,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
             <div className="text-sm text-primary-300 text-indonesian">
-              © {currentYear} Partisipro. All Rights Reserved. Dibangun di atas
-              blockchain Arbitrum.
+              {t('footer.copyright')} Dibangun di atas blockchain Arbitrum.
             </div>
 
             {/* Social Links */}

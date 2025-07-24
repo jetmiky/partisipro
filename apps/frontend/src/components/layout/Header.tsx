@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   dark?: boolean;
 }
 
 const Header = ({ dark = false }: HeaderProps) => {
+  const { t } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -23,10 +25,10 @@ const Header = ({ dark = false }: HeaderProps) => {
   }, []);
 
   const navigation = [
-    { name: 'How It Works', href: '/how-it-works' },
-    { name: 'Projects', href: '/marketplace' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: t('navigation.howItWorks'), href: '/how-it-works' },
+    { name: t('navigation.projects'), href: '/marketplace' },
+    { name: t('navigation.about'), href: '/about' },
+    { name: t('navigation.contact'), href: '/contact' },
   ];
 
   return (
@@ -38,7 +40,7 @@ const Header = ({ dark = false }: HeaderProps) => {
       <div className="container">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <div className="flex items-center gap-3 animate-fade-in">
+          <Link href="/" className="flex items-center gap-3 animate-fade-in">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
               <Image src="/images/logo.png" alt="Logo" width={20} height={20} />
             </div>
@@ -54,7 +56,7 @@ const Header = ({ dark = false }: HeaderProps) => {
                 PPP - Blockchain Platform
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
@@ -75,12 +77,12 @@ const Header = ({ dark = false }: HeaderProps) => {
               className={`btn btn-sm transition-all duration-200 ${dark || isScrolled ? 'btn-ghost' : 'glass-hero text-white/90 hover:text-white hover:glass-modern border-white/30'}`}
               href="/auth/signin"
             >
-              Sign In
+              {t('navigation.signIn')}
             </Link>
-            <button className="btn btn-primary btn-sm shadow-lg">
+            <Link className="btn btn-primary btn-sm shadow-lg" href="/investor">
               <Shield className="w-4 h-4" />
-              Get Started
-            </button>
+              {t('navigation.getStarted')}
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,11 +116,19 @@ const Header = ({ dark = false }: HeaderProps) => {
                 ))}
 
                 <div className="pt-4 border-t border-primary-200/30">
-                  <button className="btn btn-ghost w-full mb-2">Sign In</button>
-                  <button className="btn btn-primary w-full shadow-lg">
+                  <Link
+                    className="btn btn-ghost w-full mb-2"
+                    href="/auth/signin"
+                  >
+                    {t('navigation.signIn')}
+                  </Link>
+                  <Link
+                    className="btn btn-primary btn-sm shadow-lg w-full"
+                    href="/investor"
+                  >
                     <Shield className="w-4 h-4" />
-                    Get Started
-                  </button>
+                    {t('navigation.getStarted')}
+                  </Link>
                 </div>
               </nav>
             </div>

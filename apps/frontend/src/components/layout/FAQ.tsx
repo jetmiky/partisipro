@@ -9,8 +9,10 @@ import {
   Coins,
   FileText,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FAQ = () => {
+  const { t } = useTranslation('common');
   const [openItems, setOpenItems] = useState<number[]>([0]);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -18,80 +20,46 @@ const FAQ = () => {
   const faqCategories = [
     {
       icon: HelpCircle,
-      title: 'Umum',
+      title: t('faq.categories.general'),
       color: 'from-primary-500 to-primary-600',
     },
     {
       icon: Shield,
-      title: 'Keamanan',
+      title: t('faq.categories.security'),
       color: 'from-success-500 to-success-600',
     },
     {
       icon: Coins,
-      title: 'Investasi',
+      title: t('faq.categories.investment'),
       color: 'from-financial-gold-500 to-financial-gold-600',
     },
     {
       icon: FileText,
-      title: 'Legal',
+      title: t('faq.categories.legal'),
       color: 'from-accent-500 to-accent-600',
     },
   ];
 
   const faqs = [
     {
-      category: 'Umum',
-      question: 'Apa itu Partisipro dan bagaimana cara kerjanya?',
-      answer:
-        'Partisipro adalah platform blockchain yang memungkinkan investor ritel berpartisipasi dalam proyek infrastruktur PPP (Public Private Partnership) melalui tokenisasi. Platform kami mengubah proyek infrastruktur menjadi token digital yang dapat diperdagangkan, memberikan akses investasi yang sebelumnya hanya tersedia untuk investor institusional.',
+      category: t('faq.categories.general'),
+      question: t('faq.questions.whatIsPartisipro.question'),
+      answer: t('faq.questions.whatIsPartisipro.answer'),
     },
     {
-      category: 'Umum',
-      question: 'Mengapa saya harus berinvestasi melalui Partisipro?',
-      answer:
-        'Partisipro menawarkan akses demokratis ke investasi infrastruktur dengan minimum investasi rendah, transparansi penuh melalui blockchain, kepatuhan regulasi Bank Indonesia, dan potensi return yang menarik dari proyek-proyek infrastruktur strategis Indonesia.',
+      category: t('faq.categories.general'),
+      question: t('faq.questions.whyInvest.question'),
+      answer: t('faq.questions.whyInvest.answer'),
     },
     {
-      category: 'Keamanan',
-      question: 'Seberapa aman investasi saya di platform ini?',
-      answer:
-        'Keamanan adalah prioritas utama kami. Platform Partisipro dibangun dengan smart contract yang telah diaudit, menggunakan blockchain Arbitrum yang aman, mematuhi regulasi Bank Indonesia, dan mengintegrasikan Project Garuda IDR Stablecoin untuk kepatuhan penuh.',
+      category: t('faq.categories.security'),
+      question: t('faq.questions.howSafe.question'),
+      answer: t('faq.questions.howSafe.answer'),
     },
     {
-      category: 'Keamanan',
-      question: 'Bagaimana data pribadi saya dilindungi?',
-      answer:
-        'Kami menggunakan enkripsi tingkat enterprise, mematuhi standar ISO 27001, dan menerapkan protokol keamanan berlapis. Data pribadi Anda disimpan sesuai dengan regulasi perlindungan data Indonesia dan tidak pernah dibagikan tanpa persetujuan.',
-    },
-    {
-      category: 'Investasi',
-      question: 'Berapa minimum investasi yang diperlukan?',
-      answer:
-        'Minimum investasi dimulai dari IDR 1 juta, memungkinkan investor retail untuk berpartisipasi dalam proyek infrastruktur skala besar. Tidak ada maksimum investasi, namun terdapat batas sesuai regulasi KYC untuk perlindungan investor.',
-    },
-    {
-      category: 'Investasi',
-      question: 'Bagaimana cara saya mendapatkan keuntungan?',
-      answer:
-        'Keuntungan diperoleh melalui dua cara: (1) Distribusi keuntungan berkala dari operasional proyek infrastruktur, dan (2) Potensi capital gain dari perdagangan token di pasar sekunder. Semua distribusi dilakukan otomatis melalui smart contract.',
-    },
-    {
-      category: 'Investasi',
-      question: 'Bisakah saya menjual investasi saya sebelum proyek selesai?',
-      answer:
-        'Ya, token Anda dapat diperdagangkan di pasar sekunder yang terintegrasi dengan platform kami. Ini memberikan likuiditas yang tidak tersedia di investasi infrastruktur tradisional. Namun, harga token dapat berfluktuasi sesuai kondisi pasar.',
-    },
-    {
-      category: 'Legal',
-      question: 'Apakah Partisipro memiliki izin resmi?',
-      answer:
-        'Ya, Partisipro beroperasi dengan izin dari regulator yang berwenang dan mematuhi seluruh regulasi Bank Indonesia serta OJK. Kami juga terdaftar sebagai penyelenggara fintech dan menggunakan Project Garuda IDR Stablecoin untuk kepatuhan penuh.',
-    },
-    {
-      category: 'Legal',
-      question: 'Bagaimana aspek pajak dari investasi ini?',
-      answer:
-        'Keuntungan dari investasi melalui Partisipro tunduk pada regulasi pajak Indonesia yang berlaku. Kami menyediakan laporan yang diperlukan untuk pelaporan pajak Anda. Disarankan untuk berkonsultasi dengan konsultan pajak untuk advice yang spesifik.',
+      category: t('faq.categories.investment'),
+      question: t('faq.questions.minimumInvestment.question'),
+      answer: t('faq.questions.minimumInvestment.answer'),
     },
   ];
 
@@ -137,12 +105,12 @@ const FAQ = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-full text-primary-600 font-medium mb-4">
             <HelpCircle className="w-4 h-4" />
-            <span>Pertanyaan Umum</span>
+            <span>{t('faq.title')}</span>
           </div>
           <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
-            Ada Pertanyaan?
+            {t('faq.subtitle')}
             <span className="block gradient-text-modern">
-              Kami Punya Jawabannya
+              {t('faq.description')}
             </span>
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import {
   ArrowUpRight,
@@ -181,6 +182,7 @@ const mockTransactions: Transaction[] = [
 const ITEMS_PER_PAGE = 10;
 
 export default function HistoryPage() {
+  const { t } = useTranslation('common');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTransaction, setSelectedTransaction] =
@@ -246,15 +248,15 @@ export default function HistoryPage() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'Completed';
+        return t('historyPage.statuses.completed');
       case 'pending':
-        return 'Pending';
+        return t('historyPage.statuses.pending');
       case 'failed':
-        return 'Failed';
+        return t('historyPage.statuses.failed');
       case 'processing':
-        return 'Processing';
+        return t('historyPage.statuses.processing');
       default:
-        return 'Unknown';
+        return t('historyPage.statuses.unknown');
     }
   };
 
@@ -278,17 +280,17 @@ export default function HistoryPage() {
   const getTransactionTypeLabel = (type: string) => {
     switch (type) {
       case 'investment':
-        return 'Investment';
+        return t('historyPage.types.investment');
       case 'return':
-        return 'Return';
+        return t('historyPage.types.return');
       case 'claim':
-        return 'Claim';
+        return t('historyPage.types.claim');
       case 'withdrawal':
-        return 'Withdrawal';
+        return t('historyPage.types.withdrawal');
       case 'fee':
-        return 'Fee';
+        return t('historyPage.types.fee');
       default:
-        return 'Unknown';
+        return t('historyPage.types.unknown');
     }
   };
 
@@ -379,8 +381,10 @@ export default function HistoryPage() {
     //   `Exporting ${exportFormat} for ${exportDateRange} transactions`
     // );
     setExportModalOpen(false);
-    toast.success('Export Started!', {
-      message: `Your ${exportFormat.toUpperCase()} export is being processed.`,
+    toast.success(t('historyPage.messages.exportStarted'), {
+      message: t('historyPage.messages.exportProcessing', {
+        format: exportFormat.toUpperCase(),
+      }),
       duration: 4000,
     });
   };
@@ -419,10 +423,10 @@ export default function HistoryPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl font-bold text-gradient mb-2">
-                    Transaction History
+                    {t('historyPage.overview.title')}
                   </h1>
                   <p className="text-muted-foreground">
-                    View and manage all your investment transactions
+                    {t('historyPage.overview.subtitle')}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -432,7 +436,7 @@ export default function HistoryPage() {
                     className="flex items-center gap-2"
                   >
                     <Download className="w-4 h-4" />
-                    Export
+                    {t('historyPage.export.exportButton')}
                   </AnimatedButton>
                   <AnimatedButton
                     variant="outline"
@@ -442,7 +446,7 @@ export default function HistoryPage() {
                     }
                   >
                     <RefreshCw className="w-4 h-4" />
-                    Refresh
+                    {t('historyPage.filters.refreshButton')}
                   </AnimatedButton>
                 </div>
               </div>
@@ -456,7 +460,7 @@ export default function HistoryPage() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary-400" />
                     <AnimatedInput
                       type="text"
-                      placeholder="Search transactions, projects, or transaction IDs..."
+                      placeholder={t('historyPage.search.placeholder')}
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
                       className="w-full pl-10"
@@ -468,7 +472,7 @@ export default function HistoryPage() {
                     className="flex items-center gap-2"
                   >
                     <SlidersHorizontal className="w-4 h-4" />
-                    Filters
+                    {t('historyPage.filters.filtersButton')}
                   </AnimatedButton>
                   {(searchTerm ||
                     Object.values(filters).some(
@@ -636,10 +640,10 @@ export default function HistoryPage() {
               <div className="glass-feature rounded-2xl p-8 hover-lift transition-all duration-300">
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gradient mb-2">
-                    Transaction History
+                    {t('historyPage.overview.title')}
                   </h2>
                   <p className="text-primary-600">
-                    Complete record of all your investment activities
+                    {t('historyPage.overview.completeRecord')}
                   </p>
                 </div>
                 <div className="glass-modern rounded-xl overflow-hidden">
@@ -649,22 +653,22 @@ export default function HistoryPage() {
                         <thead className="bg-gradient-to-r from-primary-50 to-primary-100">
                           <tr>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Type
+                              {t('historyPage.table.type')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Project
+                              {t('historyPage.table.project')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Amount
+                              {t('historyPage.table.amount')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Date
+                              {t('historyPage.table.date')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Status
+                              {t('historyPage.table.status')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-primary-700 uppercase tracking-wider">
-                              Actions
+                              {t('historyPage.table.actions')}
                             </th>
                           </tr>
                         </thead>
@@ -999,7 +1003,7 @@ export default function HistoryPage() {
                             className="text-xs flex items-center gap-2"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            View on Explorer
+                            {t('historyPage.details.viewOnExplorer')}
                           </AnimatedButton>
                         </div>
                         <p className="text-sm font-mono text-primary-800 break-all bg-primary-50 p-3 rounded-lg">
@@ -1019,10 +1023,10 @@ export default function HistoryPage() {
                   <div className="flex items-center justify-between mb-8">
                     <div>
                       <h2 className="text-2xl font-bold text-gradient mb-2">
-                        Export Transaction History
+                        {t('historyPage.export.title')}
                       </h2>
                       <p className="text-primary-600">
-                        Download your transaction data in your preferred format
+                        {t('historyPage.export.description')}
                       </p>
                     </div>
                     <AnimatedButton
@@ -1037,7 +1041,7 @@ export default function HistoryPage() {
                   <div className="space-y-6">
                     <div className="glass-modern rounded-xl p-6">
                       <label className="block text-sm font-semibold text-primary-700 mb-4">
-                        Export Format
+                        {t('historyPage.export.format')}
                       </label>
                       <div className="space-y-3">
                         <label className="flex items-center gap-3 p-3 glass-hero rounded-lg hover-glow transition-all duration-300 cursor-pointer">
@@ -1106,7 +1110,8 @@ export default function HistoryPage() {
                           className="flex-1 flex items-center justify-center gap-2"
                         >
                           <Download className="w-4 h-4" />
-                          Export {exportFormat.toUpperCase()}
+                          {t('historyPage.export.exportButton')}{' '}
+                          {exportFormat.toUpperCase()}
                         </AnimatedButton>
                       </div>
                     </div>

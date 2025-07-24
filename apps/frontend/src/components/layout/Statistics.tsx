@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { TrendingUp, Users, Building, Shield, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface StatisticProps {
   icon: React.ElementType;
@@ -146,6 +147,7 @@ const Statistic = ({
 };
 
 const Statistics = () => {
+  const { t } = useTranslation('common');
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -173,7 +175,7 @@ const Statistics = () => {
       icon: TrendingUp,
       value: 2500000000,
       suffix: '',
-      label: 'Total Tokenisasi (IDR)',
+      label: t('statistics.totalInvestment'),
       description:
         'Nilai gabungan dari semua proyek yang telah ditokenisasi di platform kami',
       color: 'from-financial-gold-500 to-financial-gold-600',
@@ -183,7 +185,7 @@ const Statistics = () => {
       icon: Users,
       value: 15420,
       suffix: '+',
-      label: 'Investor Aktif',
+      label: t('statistics.registeredUsers'),
       description:
         'Investor terverifikasi yang berpartisipasi dalam pendanaan PPP',
       color: 'from-primary-500 to-primary-600',
@@ -193,7 +195,7 @@ const Statistics = () => {
       icon: Building,
       value: 12,
       suffix: '',
-      label: 'Proyek Aktif',
+      label: t('statistics.activeProjects'),
       description:
         'Proyek infrastruktur yang saat ini tersedia untuk investasi',
       color: 'from-accent-500 to-accent-600',
@@ -203,7 +205,7 @@ const Statistics = () => {
       icon: Shield,
       value: 99.9,
       suffix: '%',
-      label: 'Platform Uptime',
+      label: t('statistics.successRate'),
       description:
         'Infrastruktur blockchain yang andal dengan uptime hampir sempurna',
       color: 'from-success-500 to-success-600',
@@ -222,10 +224,10 @@ const Statistics = () => {
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-financial-gold-50 rounded-full text-financial-gold-600 font-medium mb-4">
             <BarChart3 className="w-4 h-4" />
-            <span>Statistik Platform</span>
+            <span>{t('statistics.title')}</span>
           </div>
           <h2 className="text-responsive-2xl font-bold text-foreground mb-6 text-indonesian-heading">
-            Statistik Platform
+            {t('statistics.title')}
             <span className="block gradient-text-modern">Partisipro</span>
           </h2>
           <p className="text-responsive-lg max-w-3xl mx-auto text-muted-foreground text-indonesian">
