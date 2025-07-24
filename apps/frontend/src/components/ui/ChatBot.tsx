@@ -17,9 +17,10 @@ interface ChatBotProps {
 
 // Mock AI responses for demonstration
 const mockResponses = [
-  "Hello! I'm your Partisipro assistant. I can help you with questions about platform features, investment opportunities, or project tokenization. How can I assist you today?",
+  'Halo, Partisipro Agent disini! Bagaimana saya bisa membantu Anda?',
   'Thank you for your question! As a blockchain-based PPP funding platform, Partisipro allows retail investors to participate in large-scale Indonesian infrastructure projects through tokenization. Would you like to know more about our investment process?',
   "Great question! Our platform uses ERC-3643 compliance for identity verification, which means you only need to complete KYC once to access all projects. This streamlines the investment process significantly. Is there anything specific about our compliance model you'd like to understand better?",
+  'Expected Return merupakan estimasi pengembalian investasi tahunan sebesar 12.5% dari jumlah yang Anda investasikan. Perlu dicatat bahwa angka tersebut merupakan proyeksi dan bisa berubah tergantung kinerja proyek.',
 ];
 
 const ChatBot = ({ className = '' }: ChatBotProps) => {
@@ -61,9 +62,15 @@ const ChatBot = ({ className = '' }: ChatBotProps) => {
 
     // Simulate API call delay
     setTimeout(() => {
+      let text = mockResponses[responseIndex % mockResponses.length];
+
+      if (inputValue.trim().toLowerCase().includes('expected return')) {
+        text = mockResponses[3];
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: mockResponses[responseIndex % mockResponses.length],
+        text,
         isUser: false,
         timestamp: new Date(),
       };
