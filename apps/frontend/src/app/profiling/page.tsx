@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,12 +13,20 @@ import {
   User,
   Target,
   Shield,
+  Calendar,
+  Users,
+  MapPin,
+  Route,
+  Zap,
+  Droplets,
+  Building,
 } from 'lucide-react';
 import { PageTransition } from '@/components/ui/PageTransition';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
+import { MOCK_PROJECTS, type MockProject } from '@/lib/mock-data';
 
 // Check if we're in presentation mode - remove if unused
 // const isPresentationMode =
@@ -38,6 +47,17 @@ interface ProfileFormData {
   projectDetailImportance: string;
   tokenTypes: string[];
 }
+
+// Use MockProject from centralized mock data
+type Project = MockProject;
+
+const riskLevels = [
+  { id: 'all', label: 'Semua Risiko' },
+  { id: 'low', label: 'Risiko Rendah' },
+  { id: 'medium', label: 'Risiko Sedang' },
+  { id: 'high', label: 'Risiko Tinggi' },
+  { id: 'very-high', label: 'Risiko Sangat Tinggi' },
+];
 
 // Question data structure
 const questionSections = [
@@ -441,31 +461,266 @@ export default function ProfilePage() {
   const currentSection = questionSections[currentStep];
   const isLastStep = currentStep === questionSections.length - 1;
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getRiskBackgroundColor = (risk: string) => {
+    switch (risk) {
+      case 'low':
+        return 'bg-green-500';
+      case 'medium':
+        return 'bg-yellow-600';
+      case 'high':
+        return 'bg-red-600';
+      case 'very-high':
+        return 'bg-red-800';
+      default:
+        return 'bg-gray-600';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'transportation':
+        return Route;
+      case 'energy':
+        return Zap;
+      case 'water':
+        return Droplets;
+      case 'telecommunications':
+        return Building;
+      case 'buildings':
+        return Building;
+      default:
+        return Building;
+    }
+  };
+
+  const renderProjectCard = (project: Project) => {
+    const Icon = getCategoryIcon(project.category);
+
+    // Map MockProject properties to expected format
+    const raisedAmount =
+      (project.totalSupply - project.availableSupply) * project.tokenPrice;
+    const targetAmount = project.totalSupply * project.tokenPrice;
+    const progressPercentage = (raisedAmount / targetAmount) * 100;
+
+    // Map MockProject status to expected format
+    const mapStatus = (status: string) => {
+      switch (status) {
+        case 'draft':
+          return 'coming_soon';
+        case 'active':
+          return 'active';
+        case 'funded':
+          return 'fully_funded';
+        case 'completed':
+          return 'completed';
+        default:
+          return 'active';
+      }
+    };
+    const mappedStatus = mapStatus(project.status);
+
+    return (
+      <Card
+        key={project.id}
+        className="glass-modern group hover:glass-feature hover-lift transition-all duration-500 border-primary-100 overflow-hidden"
+      >
+        <div className="aspect-video gradient-brand-hero rounded-t-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+          {/* Floating organic shapes for visual interest */}
+          <div className="absolute top-4 right-4 w-16 h-16 bg-white/10 rounded-full animate-float"></div>
+          <div
+            className="absolute bottom-8 right-8 w-8 h-8 bg-white/5 rounded-full animate-float"
+            style={{ animationDelay: '1s' }}
+          ></div>
+
+          <div className="absolute top-4 left-4">
+            <span
+              className={`px-4 py-2 rounded-full border-0 shadow text-xs font-medium glass-modern text-white ${getRiskBackgroundColor(project.keyMetrics.riskLevel)}`}
+            >
+              {/* {getStatusLabel(mappedStatus)} */}
+              {
+                riskLevels.find(r => r.id === project.keyMetrics.riskLevel)
+                  ?.label
+              }
+            </span>
+          </div>
+          <div className="absolute bottom-4 left-4 text-white">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-medium capitalize">
+                {project.category}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4" />
+              <span className="font-medium">{project.location}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8">
+          <div className="flex items-start justify-between mb-4">
+            <h3 className="font-semibold text-foreground group-hover:text-gradient transition-all text-lg leading-tight">
+              {project.name}
+            </h3>
+            {/* <div className="glass-modern px-3 py-1 rounded-full">
+                <span
+                  className={`text-xs font-medium ${getRiskColor(project.keyMetrics.riskLevel)}`}
+                >
+                  {
+                    riskLevels.find(r => r.id === project.keyMetrics.riskLevel)
+                      ?.label
+                  }
+                </span>
+              </div> */}
+          </div>
+
+          <p className="text-muted-foreground text-sm mb-6 line-clamp-2 leading-relaxed">
+            {project.description}
+          </p>
+
+          <div className="space-y-4">
+            <div className="glass-modern rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Expected Return</span>
+                <span className="font-semibold text-gradient text-lg">
+                  {project.expectedReturn}% p.a.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Duration</span>
+                <span className="font-medium text-primary-700">
+                  {project.projectDuration} years
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Min. Investment</span>
+                <span className="font-medium text-primary-700">
+                  {formatCurrency(project.minimumInvestment)}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Funding Progress</span>
+                <span className="font-semibold text-primary-600">
+                  {progressPercentage.toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full bg-secondary-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 h-3 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="font-medium">
+                  {formatCurrency(raisedAmount)}
+                </span>
+                <span>{formatCurrency(targetAmount)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-sm pt-3 border-t border-primary-100">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                  <Users className="w-3 h-3 text-primary-600" />
+                </div>
+                <span className="text-primary-600 font-medium">
+                  {project.investorCount} investors
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                  <Calendar className="w-3 h-3 text-primary-600" />
+                </div>
+                <span className="text-primary-600 font-medium">
+                  {new Date(project.offeringStart).getFullYear()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-primary-200">
+            <div className="flex gap-3">
+              <Link href={`/projects/${project.id}`} className="flex-1">
+                <AnimatedButton
+                  variant="primary"
+                  className="w-full"
+                  ripple
+                  onClick={() =>
+                    toast.info('Project Details', {
+                      message: `Loading details for ${project.name}...`,
+                    })
+                  }
+                >
+                  View Details
+                </AnimatedButton>
+              </Link>
+              {mappedStatus === 'active' && (
+                <Link href={`/invest/${project.id}`}>
+                  <AnimatedButton
+                    variant="secondary"
+                    className="px-6"
+                    ripple
+                    onClick={() =>
+                      toast.info('Investment Flow', {
+                        message: `Starting investment for ${project.name}...`,
+                      })
+                    }
+                  >
+                    Invest Now
+                  </AnimatedButton>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
   // Results display component
   const renderResults = () => {
     if (!showResults || !profileResults) return null;
 
     return (
-      <div className="max-w-3xl mx-auto mb-8">
+      <div className="max-w-4xl mx-auto mb-8">
         <Card className="glass-feature animate-fade-in-up">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+              {/* <div className="w-16 h-16 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                 <Target className="w-8 h-8" />
-              </div>
+              </div> */}
               <div>
-                <CardTitle className="text-2xl text-gradient-modern">
-                  Hasil Analisis Profil Investor
+                <CardTitle className="text-2xl text-gradient-modern mb-4">
+                  Profil investasi Anda berhasil dianalisis!
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Profil investasi Anda telah berhasil dianalisis
+                <p className="max-w-md text-muted-foreground text-base">
+                  Berikut adalah rekomendasi project investasi sesuai dengan
+                  profil investasi Anda.
                 </p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="text-center">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="text-center">
                 <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl font-bold text-primary-600">
                     {profileResults.score}
@@ -508,9 +763,22 @@ export default function ProfilePage() {
                   </div>
                 ))}
               </div>
+            </div> */}
+
+            <div className="grid-responsive-2">
+              {MOCK_PROJECTS.slice(0, 2).map(project =>
+                renderProjectCard(project)
+              )}
             </div>
 
             <div className="flex gap-4 justify-center mt-8">
+              <AnimatedButton
+                variant="secondary"
+                onClick={() => router.push('/marketplace')}
+                ripple
+              >
+                Lihat Semua Proyek
+              </AnimatedButton>
               <AnimatedButton
                 variant="primary"
                 onClick={() => router.push('/dashboard')}
@@ -520,16 +788,6 @@ export default function ProfilePage() {
                 Go to Dashboard
                 <ChevronRight className="w-4 h-4" />
               </AnimatedButton>
-
-              {/* <AnimatedButton
-                variant="outline"
-                onClick={() => router.push('/marketplace')}
-                className="flex items-center gap-2"
-                ripple
-              >
-                Jelajahi Proyek
-                <Target className="w-4 h-4" />
-              </AnimatedButton> */}
             </div>
           </CardContent>
         </Card>

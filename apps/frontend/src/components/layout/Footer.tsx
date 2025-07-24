@@ -1,12 +1,5 @@
-import {
-  Layers,
-  Mail,
-  Phone,
-  MapPin,
-  Twitter,
-  Linkedin,
-  Github,
-} from 'lucide-react';
+import { Mail, Phone, MapPin, Twitter, Linkedin, Github } from 'lucide-react';
+import Image from 'next/image';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -53,7 +46,12 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
-                <Layers className="w-5 h-5 text-white" />
+                <Image
+                  src="/images/logo.png"
+                  alt="Logo"
+                  width={20}
+                  height={20}
+                />
               </div>
               <div>
                 <div className="text-xl font-bold text-white tracking-wider">

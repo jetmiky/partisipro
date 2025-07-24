@@ -4,11 +4,13 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   FileCheck,
   Coins,
+  Building,
   TrendingUp,
   RefreshCw,
   Shield,
   Users,
   ArrowRight,
+  MonitorCheck,
   CheckCircle,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -97,22 +99,28 @@ const HowItWorks = () => {
 
   const benefits = [
     {
-      icon: Shield,
-      title: 'Patuh Bank Indonesia',
+      icon: Building,
+      title: 'Solusi Investor Institusi',
       description:
-        'Sepenuhnya mematuhi regulasi keuangan Indonesia dan persyaratan bank sentral.',
+        'Dapat mencairkan kepemilikan proyek KPBU lebih awal, tanpa menunggu masa operasional selesai, tanpa gangguan terhadap struktur KPBU.',
     },
     {
       icon: Users,
-      title: 'Akses Demokratis',
+      title: 'Solusi Investor Retail',
       description:
-        'Memungkinkan investor ritel berpartisipasi dalam proyek infrastruktur skala besar.',
+        'Dapat berinvestasi dalam proyek KBPU secara terjangkau mulai dari Rp100.000,00 dengan transparansi penuh, kupon teratur, dan real-time 24/7.',
     },
     {
-      icon: TrendingUp,
-      title: 'Pengembalian Transparan',
+      icon: MonitorCheck,
+      title: 'Diferensiasi Teknologi',
       description:
-        'Distribusi keuntungan otomatis dengan pelacakan real-time dan pelaporan transparan.',
+        'Didukung smart contract dan AI Agents untuk konsultasi dan rekomendasi proyek berbasis profil risiko investasi.',
+    },
+    {
+      icon: Shield,
+      title: 'Keamanan dan Regulasi',
+      description:
+        'Dibangun di atas blockchain Arbitrum (cepat, aman) serta terdaftar dan diawasi BI & OJK.',
     },
   ];
 
@@ -129,13 +137,15 @@ const HowItWorks = () => {
             <h2 className="gradient-text-modern text-responsive-2xl font-bold mb-4 text-indonesian-heading">
               Mengapa Memilih Partisipro?
             </h2>
-            <p className="text-responsive-lg text-muted-foreground max-w-2xl mx-auto text-indonesian">
-              Platform kami menggabungkan yang terbaik dari pendanaan PPP
-              tradisional dengan teknologi blockchain modern
+            <p className="text-responsive-lg text-muted-foreground max-w-3xl mx-auto text-indonesian">
+              Partisipro adalah platform tokenisasi dan transaksi investasi
+              proyek Kepemilikan Pemerintah dan Badan Usaha (KPBU), yang
+              menghubungkan investor institusi pemilik proyek KPBU dengan
+              masyarakat investor ritel melalui teknologi blockchain.
             </p>
           </div>
 
-          <div className="grid-responsive-3">
+          <div className="grid-responsive-4">
             {benefits.map((benefit, index) => (
               <div
                 key={index}

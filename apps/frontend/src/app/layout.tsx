@@ -2,6 +2,7 @@ import { Poppins } from 'next/font/google';
 import '../styles/globals.css';
 import { ConditionalAuthWrapper } from '@/lib/conditional-auth-wrapper';
 import { PresentationModeIndicator } from '@/components/layout/PresentationModeIndicator';
+import ChatBot from '@/components/ui/ChatBot';
 
 export const metadata = {
   title: 'Partisipro - Platform Investasi Infrastruktur Blockchain Indonesia',
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className="antialiased overflow-x-hidden">
         <ConditionalAuthWrapper>{children}</ConditionalAuthWrapper>
         <PresentationModeIndicator />
+        <ChatBot />
       </body>
     </html>
   );

@@ -66,10 +66,11 @@ const provinces = [
 ];
 
 const riskLevels = [
-  { id: 'all', label: 'All Risk Levels' },
-  { id: 'low', label: 'Low Risk' },
-  { id: 'medium', label: 'Medium Risk' },
-  { id: 'high', label: 'High Risk' },
+  { id: 'all', label: 'Semua Risiko' },
+  { id: 'low', label: 'Risiko Rendah' },
+  { id: 'medium', label: 'Risiko Sedang' },
+  { id: 'high', label: 'Risiko Tinggi' },
+  { id: 'very-high', label: 'Risiko Sangat Tinggi' },
 ];
 
 export default function MarketplacePage() {
@@ -147,46 +148,63 @@ export default function MarketplacePage() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'coming_soon':
-        return 'bg-blue-100 text-blue-800';
-      case 'fully_funded':
-        return 'bg-purple-100 text-purple-800';
-      case 'completed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case 'active':
+  //       return 'bg-green-100 text-green-800';
+  //     case 'coming_soon':
+  //       return 'bg-blue-100 text-blue-800';
+  //     case 'fully_funded':
+  //       return 'bg-purple-100 text-purple-800';
+  //     case 'completed':
+  //       return 'bg-gray-100 text-gray-800';
+  //     default:
+  //       return 'bg-gray-100 text-gray-800';
+  //   }
+  // };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'Active';
-      case 'coming_soon':
-        return 'Coming Soon';
-      case 'fully_funded':
-        return 'Fully Funded';
-      case 'completed':
-        return 'Completed';
-      default:
-        return 'Unknown';
-    }
-  };
+  // const getStatusLabel = (status: string) => {
+  //   switch (status) {
+  //     case 'active':
+  //       return 'Active';
+  //     case 'coming_soon':
+  //       return 'Coming Soon';
+  //     case 'fully_funded':
+  //       return 'Fully Funded';
+  //     case 'completed':
+  //       return 'Completed';
+  //     default:
+  //       return 'Unknown';
+  //   }
+  // };
 
-  const getRiskColor = (risk: string) => {
+  // const getRiskColor = (risk: string) => {
+  //   switch (risk) {
+  //     case 'low':
+  //       return 'text-green-600';
+  //     case 'medium':
+  //       return 'text-yellow-600';
+  //     case 'high':
+  //       return 'text-red-600';
+  //     case 'very-high':
+  //       return 'text-red-900';
+  //     default:
+  //       return 'text-gray-600';
+  //   }
+  // };
+
+  const getRiskBackgroundColor = (risk: string) => {
     switch (risk) {
       case 'low':
-        return 'text-green-600';
+        return 'bg-green-500';
       case 'medium':
-        return 'text-yellow-600';
+        return 'bg-yellow-600';
       case 'high':
-        return 'text-red-600';
+        return 'bg-red-600';
+      case 'very-high':
+        return 'bg-red-800';
       default:
-        return 'text-gray-600';
+        return 'bg-gray-600';
     }
   };
 
@@ -291,9 +309,13 @@ export default function MarketplacePage() {
 
           <div className="absolute top-4 left-4">
             <span
-              className={`px-4 py-2 rounded-full text-xs font-medium glass-modern border border-white/20 text-white ${getStatusColor(mappedStatus)}`}
+              className={`px-4 py-2 rounded-full border-0 shadow text-xs font-medium glass-modern text-white ${getRiskBackgroundColor(project.keyMetrics.riskLevel)}`}
             >
-              {getStatusLabel(mappedStatus)}
+              {/* {getStatusLabel(mappedStatus)} */}
+              {
+                riskLevels.find(r => r.id === project.keyMetrics.riskLevel)
+                  ?.label
+              }
             </span>
           </div>
           <div className="absolute bottom-4 left-4 text-white">
@@ -317,13 +339,16 @@ export default function MarketplacePage() {
             <h3 className="font-semibold text-foreground group-hover:text-gradient transition-all text-lg leading-tight">
               {project.name}
             </h3>
-            <div className="glass-modern px-3 py-1 rounded-full">
+            {/* <div className="glass-modern px-3 py-1 rounded-full">
               <span
                 className={`text-xs font-medium ${getRiskColor(project.keyMetrics.riskLevel)}`}
               >
-                {project.keyMetrics.riskLevel} risk
+                {
+                  riskLevels.find(r => r.id === project.keyMetrics.riskLevel)
+                    ?.label
+                }
               </span>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center justify-between mb-4">

@@ -13,9 +13,9 @@ import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ScrollReveal } from '@/components/ui/ScrollAnimations';
 import { PageTransition } from '@/components/ui/PageTransition';
-import { toast } from '@/components/ui/AnimatedNotification';
+import { toast, ToastProvider } from '@/components/ui/AnimatedNotification';
 // import { useAuth } from '@/hooks/useAuth';
-import { projectsService } from '@/services/projects.service';
+// import { projectsService } from '@/services/projects.service';
 
 interface ProjectFormData {
   // Basic Information
@@ -82,19 +82,18 @@ export default function SPVCreatePage() {
     managementFeePercentage: 5,
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [listingFee, setListingFee] = useState<{
-    amount: number;
-    currency: 'IDR' | 'ETH';
-    feePercentage: number;
-    estimatedTotal: number;
-    paymentMethods: string[];
-  } | null>(null);
-  const [isLoadingFee, setIsLoadingFee] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<string>('');
-  const [paymentStatus, setPaymentStatus] = useState<
-    'pending' | 'processing' | 'completed' | 'failed'
-  >('pending');
+  // const [listingFee, setListingFee] = useState<{
+  //   amount: number;
+  //   currency: 'IDR' | 'ETH';
+  //   feePercentage: number;
+  //   estimatedTotal: number;
+  //   paymentMethods: string[];
+  // } | null>(null);
+  // const [isLoadingFee, setIsLoadingFee] = useState(false);
+  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
+  // const [paymentStatus, setPaymentStatus] = useState<
+  //   'pending' | 'processing' | 'completed' | 'failed'
+  // >('pending');
 
   // Check authentication and SPV role
   // useEffect(() => {
@@ -218,17 +217,17 @@ export default function SPVCreatePage() {
         }
         break;
 
-      case 5:
-        if (!selectedPaymentMethod) {
-          newErrors.selectedPaymentMethod = 'Please select a payment method';
-        }
-        if (!listingFee) {
-          newErrors.listingFee = 'Listing fee calculation is required';
-        }
-        if (paymentStatus !== 'completed') {
-          newErrors.paymentStatus = 'Listing fee payment must be completed';
-        }
-        break;
+      // case 5:
+      //   if (!selectedPaymentMethod) {
+      //     newErrors.selectedPaymentMethod = 'Please select a payment method';
+      //   }
+      //   if (!listingFee) {
+      //     newErrors.listingFee = 'Listing fee calculation is required';
+      //   }
+      //   if (paymentStatus !== 'completed') {
+      //     newErrors.paymentStatus = 'Listing fee payment must be completed';
+      //   }
+      //   break;
     }
 
     setErrors(newErrors);
@@ -241,9 +240,9 @@ export default function SPVCreatePage() {
       setCurrentStep(newStep);
 
       // Calculate listing fee when entering step 5
-      if (newStep === 5) {
-        calculateListingFee();
-      }
+      // if (newStep === 5) {
+      //   calculateListingFee();
+      // }
 
       if (typeof window !== 'undefined') {
         window.scroll({ top: 0 });
@@ -255,86 +254,86 @@ export default function SPVCreatePage() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const calculateListingFee = async () => {
-    if (!formData.totalValue || !formData.tokenSupply || !formData.tokenPrice) {
-      toast.error('Please complete all financial parameters first');
-      return;
-    }
+  // const calculateListingFee = async () => {
+  //   if (!formData.totalValue || !formData.tokenSupply || !formData.tokenPrice) {
+  //     toast.error('Please complete all financial parameters first');
+  //     return;
+  //   }
 
-    setIsLoadingFee(true);
-    try {
-      const feeData = await projectsService.getListingFee({
-        totalSupply: formData.tokenSupply,
-        tokenPrice: formData.tokenPrice,
-        currency: 'IDR',
-      });
+  //   setIsLoadingFee(true);
+  //   try {
+  //     const feeData = await projectsService.getListingFee({
+  //       totalSupply: formData.tokenSupply,
+  //       tokenPrice: formData.tokenPrice,
+  //       currency: 'IDR',
+  //     });
 
-      setListingFee(feeData);
-      if (feeData.paymentMethods.length > 0) {
-        setSelectedPaymentMethod(feeData.paymentMethods[0]);
-      }
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      toast.error(`Failed to calculate listing fee: ${errorMessage}`);
-    } finally {
-      setIsLoadingFee(false);
-    }
-  };
+  //     setListingFee(feeData);
+  //     if (feeData.paymentMethods.length > 0) {
+  //       setSelectedPaymentMethod(feeData.paymentMethods[0]);
+  //     }
+  //   } catch (error: unknown) {
+  //     const errorMessage =
+  //       error instanceof Error ? error.message : 'Unknown error';
+  //     toast.error(`Failed to calculate listing fee: ${errorMessage}`);
+  //   } finally {
+  //     setIsLoadingFee(false);
+  //   }
+  // };
 
-  const processListingFeePayment = async () => {
-    if (!listingFee || !selectedPaymentMethod) {
-      toast.error('Please select a payment method');
-      return;
-    }
+  // const processListingFeePayment = async () => {
+  //   if (!listingFee || !selectedPaymentMethod) {
+  //     toast.error('Please select a payment method');
+  //     return;
+  //   }
 
-    setPaymentStatus('processing');
-    try {
-      // Create project first to get projectId
-      const projectData = {
-        name: formData.projectName,
-        description: formData.description,
-        totalSupply: formData.tokenSupply,
-        tokenPrice: formData.tokenPrice,
-        currency: 'IDR' as const,
-        minimumInvestment: formData.minimumInvestment,
-        maximumInvestment: formData.totalValue,
-        offeringStartDate: formData.offeringStart,
-        offeringEndDate: formData.offeringEnd,
-        projectType: formData.projectType,
-        location: formData.location,
-        expectedReturn:
-          (formData.expectedAnnualRevenue / formData.totalValue) * 100,
-        riskLevel: 'medium' as const,
-      };
+  //   setPaymentStatus('processing');
+  //   try {
+  //     // Create project first to get projectId
+  //     const projectData = {
+  //       name: formData.projectName,
+  //       description: formData.description,
+  //       totalSupply: formData.tokenSupply,
+  //       tokenPrice: formData.tokenPrice,
+  //       currency: 'IDR' as const,
+  //       minimumInvestment: formData.minimumInvestment,
+  //       maximumInvestment: formData.totalValue,
+  //       offeringStartDate: formData.offeringStart,
+  //       offeringEndDate: formData.offeringEnd,
+  //       projectType: formData.projectType,
+  //       location: formData.location,
+  //       expectedReturn:
+  //         (formData.expectedAnnualRevenue / formData.totalValue) * 100,
+  //       riskLevel: 'medium' as const,
+  //     };
 
-      const createdProject = await projectsService.createProject(projectData);
+  //     const createdProject = await projectsService.createProject(projectData);
 
-      // Process payment
-      const paymentResult = await projectsService.payListingFee(
-        createdProject.id,
-        {
-          amount: listingFee.amount,
-          currency: listingFee.currency,
-          paymentMethod: selectedPaymentMethod,
-          paymentReference: `project-${createdProject.id}-${Date.now()}`,
-        }
-      );
+  //     // Process payment
+  //     const paymentResult = await projectsService.payListingFee(
+  //       createdProject.id,
+  //       {
+  //         amount: listingFee.amount,
+  //         currency: listingFee.currency,
+  //         paymentMethod: selectedPaymentMethod,
+  //         paymentReference: `project-${createdProject.id}-${Date.now()}`,
+  //       }
+  //     );
 
-      if (paymentResult.status === 'confirmed') {
-        setPaymentStatus('completed');
-        toast.success('Listing fee payment completed successfully!');
-      } else {
-        setPaymentStatus('failed');
-        toast.error('Payment failed. Please try again.');
-      }
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      setPaymentStatus('failed');
-      toast.error(`Payment failed: ${errorMessage}`);
-    }
-  };
+  //     if (paymentResult.status === 'confirmed') {
+  //       setPaymentStatus('completed');
+  //       toast.success('Listing fee payment completed successfully!');
+  //     } else {
+  //       setPaymentStatus('failed');
+  //       toast.error('Payment failed. Please try again.');
+  //     }
+  //   } catch (error: unknown) {
+  //     const errorMessage =
+  //       error instanceof Error ? error.message : 'Unknown error';
+  //     setPaymentStatus('failed');
+  //     toast.error(`Payment failed: ${errorMessage}`);
+  //   }
+  // };
 
   const handleFileUpload = (
     field: keyof ProjectFormData,
@@ -350,10 +349,10 @@ export default function SPVCreatePage() {
     if (!validateStep(currentStep)) return;
 
     // Check if payment has been completed
-    if (paymentStatus !== 'completed') {
-      toast.error('Please complete the listing fee payment first');
-      return;
-    }
+    // if (paymentStatus !== 'completed') {
+    //   toast.error('Please complete the listing fee payment first');
+    //   return;
+    // }
 
     setIsSubmitting(true);
 
@@ -365,10 +364,14 @@ export default function SPVCreatePage() {
       // Note: In a real implementation, we would get the project ID from the payment step
       // For now, we'll simulate completion
 
-      toast.success('Project finalized successfully!');
+      setTimeout(() => {
+        toast.success('Project finalized successfully!');
+      }, 300);
 
-      // Redirect to SPV dashboard
-      router.push('/spv/dashboard');
+      setTimeout(() => {
+        // Redirect to SPV dashboard
+        router.push('/spv/dashboard');
+      }, 2000);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -376,7 +379,7 @@ export default function SPVCreatePage() {
           : 'Project creation failed. Please try again.';
       toast.error(errorMessage);
     } finally {
-      setIsSubmitting(false);
+      // setIsSubmitting(false);
     }
   };
 
@@ -894,7 +897,7 @@ export default function SPVCreatePage() {
       </div>
 
       {/* Fee Calculation */}
-      <div className="glass-feature rounded-2xl p-8 hover-lift">
+      {/* <div className="glass-feature rounded-2xl p-8 hover-lift">
         <h3 className="text-xl font-bold text-gradient mb-6 flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl flex items-center justify-center">
             <span className="text-white text-sm">💳</span>
@@ -960,10 +963,10 @@ export default function SPVCreatePage() {
             </AnimatedButton>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Payment Method Selection */}
-      {listingFee && (
+      {/* {listingFee && (
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center">
@@ -1026,10 +1029,10 @@ export default function SPVCreatePage() {
             </p>
           )}
         </div>
-      )}
+      )} */}
 
       {/* Payment Status */}
-      {listingFee && selectedPaymentMethod && (
+      {/* {listingFee && selectedPaymentMethod && (
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-primary-800 flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-support-500 to-support-600 rounded-lg flex items-center justify-center">
@@ -1104,7 +1107,7 @@ export default function SPVCreatePage() {
             <p className="text-sm text-error-600">{errors.paymentStatus}</p>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 
@@ -1117,6 +1120,8 @@ export default function SPVCreatePage() {
         <div className="fluid-shape-3 bottom-32 right-1/4"></div>
         <div className="fluid-shape-1 bottom-10 left-16"></div>
       </div>
+
+      <ToastProvider />
 
       <PageTransition type="fade" duration={300}>
         <div className="max-w-4xl mx-auto px-4 relative z-10">
@@ -1221,7 +1226,8 @@ export default function SPVCreatePage() {
                 ) : (
                   <AnimatedButton
                     onClick={submitProject}
-                    disabled={isSubmitting || paymentStatus !== 'completed'}
+                    // disabled={isSubmitting || paymentStatus !== 'completed'}
+                    disabled={isSubmitting}
                     loading={isSubmitting}
                     ripple
                   >

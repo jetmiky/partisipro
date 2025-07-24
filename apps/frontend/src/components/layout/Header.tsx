@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Shield, Layers, Users } from 'lucide-react';
+import { Menu, X, Shield } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface HeaderProps {
   dark?: boolean;
@@ -39,7 +40,7 @@ const Header = ({ dark = false }: HeaderProps) => {
           {/* Logo */}
           <div className="flex items-center gap-3 animate-fade-in">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Layers className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <Image src="/images/logo.png" alt="Logo" width={20} height={20} />
             </div>
             <div className="flex flex-col">
               <span
@@ -126,7 +127,7 @@ const Header = ({ dark = false }: HeaderProps) => {
       </div>
 
       {/* Trust Indicators Bar */}
-      {!isMenuOpen && (
+      {/* {!isMenuOpen && (
         <div
           className={`border-t ${dark || isScrolled ? 'border-primary-200/50 bg-primary-50/50' : 'border-white/20 glass-subtle border-b-transparent'} backdrop-blur-sm`}
         >
@@ -141,7 +142,7 @@ const Header = ({ dark = false }: HeaderProps) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-primary-500" />
-                  <span>Tim Pecinta Adrenalin</span>
+                  <span>Tim Indonesia Emas</span>
                 </div>
               </div>
 
@@ -152,7 +153,7 @@ const Header = ({ dark = false }: HeaderProps) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </header>
   );
 };

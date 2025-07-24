@@ -17,6 +17,7 @@ export { default as StatsCard } from './StatsCard';
 export { default as DataTable } from './DataTable';
 export { default as EmptyState } from './EmptyState';
 export { default as Modal } from './Modal';
+export { default as ChatBot } from './ChatBot';
 
 // Advanced Analytics Components
 export { PortfolioChart } from './charts/PortfolioChart';

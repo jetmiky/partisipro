@@ -55,7 +55,7 @@ export interface MockProject {
   keyMetrics: {
     irr: number;
     paybackPeriod: number;
-    riskLevel: 'low' | 'medium' | 'high';
+    riskLevel: 'low' | 'medium' | 'high' | 'very-high';
     governmentSupport: boolean;
   };
   milestones: Array<{
@@ -224,7 +224,7 @@ export const MOCK_PROJECTS: MockProject[] = [
     keyMetrics: {
       irr: 12.5,
       paybackPeriod: 8.2,
-      riskLevel: 'low',
+      riskLevel: 'medium',
       governmentSupport: true,
     },
     milestones: [
@@ -326,7 +326,7 @@ export const MOCK_PROJECTS: MockProject[] = [
     keyMetrics: {
       irr: 11.8,
       paybackPeriod: 8.9,
-      riskLevel: 'medium',
+      riskLevel: 'low',
       governmentSupport: true,
     },
     milestones: [
@@ -405,7 +405,7 @@ export const MOCK_PROJECTS: MockProject[] = [
     keyMetrics: {
       irr: 13.2,
       paybackPeriod: 7.8,
-      riskLevel: 'medium',
+      riskLevel: 'high',
       governmentSupport: true,
     },
     milestones: [
@@ -483,7 +483,7 @@ export const MOCK_PROJECTS: MockProject[] = [
     keyMetrics: {
       irr: 14.5,
       paybackPeriod: 7.2,
-      riskLevel: 'medium',
+      riskLevel: 'very-high',
       governmentSupport: true,
     },
     milestones: [

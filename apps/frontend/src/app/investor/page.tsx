@@ -118,7 +118,7 @@ export default function SPVIndexPage() {
 
       <Header dark />
 
-      <main className="pt-24 relative z-10">
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
         <section className="gradient-brand-light py-16 md:py-24 relative">
           <div className="container">
@@ -131,6 +131,21 @@ export default function SPVIndexPage() {
                 imbal hasil kupon rutin. Mulai investasi dalam kepemilikan
                 proyek KPBU dari Rp100.000 saja.
               </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                <Link
+                  href="/auth/signup"
+                  className="btn-modern btn-modern-primary text-base py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
+                >
+                  Daftar sebagai Investor
+                  <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Link>
+              </div>
+
+              <div className="mb-8">
+                <video className="w-full" controls></video>
+              </div>
+
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2 glass-modern rounded-full px-4 py-2">
                   <Clock className="w-5 h-5 text-primary-500" />
@@ -154,9 +169,8 @@ export default function SPVIndexPage() {
         </section>
 
         {/* Video */}
-        <section className="py-16 md:py-24">
+        {/* <section className="py-16 md:py-24">
           <div className="container">
-            {/* Benefits */}
             <div className="p-6 sm:p-8 md:p-12 mb-16 sm:mb-20">
               <div className="text-center mb-8 sm:mb-12">
                 <h2 className="gradient-text-modern text-responsive-2xl font-bold mb-4 text-indonesian-heading">
@@ -169,7 +183,7 @@ export default function SPVIndexPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section
           id="how-it-works"

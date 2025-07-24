@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, Shield, Users, ChevronDown } from 'lucide-react';
+import {
+  ArrowRight,
+  Shield,
+  Users,
+  // ChevronDown
+} from 'lucide-react';
 import Link from 'next/link';
 
 const Hero = () => {
@@ -12,7 +17,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 gradient-brand-hero">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary-700/20 to-primary-800/30"></div>
@@ -35,7 +40,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className="container relative z-10  px-6 sm:px-8 lg:py-10 lg:px-12">
+      <div className="container relative z-10 px-6 sm:px-8 lg:py-40 lg:pb-20 lg:px-12">
         <div className="text-center text-white max-w-6xl mx-auto">
           {/* Main Headline */}
           <div
@@ -63,31 +68,17 @@ const Hero = () => {
             </p>
           </div>
 
-          {/* Trust Indicators */}
-          <div
-            className={`transition-all duration-1000 delay-500 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'}`}
-          >
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-12 text-sm sm:text-base">
-              <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-700">
-                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
-                <span className="whitespace-nowrap text-white font-medium">
-                  BI - OJK Hackathon 2025
-                </span>
-              </div>
-              <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-1000">
-                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
-                <span className="whitespace-nowrap text-white font-medium">
-                  Tim Pecinta Adrenalin
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* CTA Buttons */}
           <div
             className={`transition-all duration-1000 delay-700 ${isVisible ? 'animate-zoom-in' : 'opacity-0 scale-95'}`}
           >
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-14">
+              <Link
+                href="/spv"
+                className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
+              >
+                Tokenisasi Proyek
+              </Link>
               <Link
                 href="/investor"
                 className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
@@ -95,25 +86,65 @@ const Hero = () => {
                 Mulai Investasi
                 <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </Link>
-              <Link
-                href="/spv"
-                className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
-              >
-                Tokenisasi Proyek
-              </Link>
             </div>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Video */}
+        <div className="mb-10">
+          <video className="w-full" controls></video>
+        </div>
+
+        {/* Trust Indicators */}
         <div
+          className={`transition-all duration-1000 delay-500 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'}`}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-12 text-sm sm:text-base">
+            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-700">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
+              <span className="whitespace-nowrap text-white font-medium">
+                BI - OJK Hackathon 2025
+              </span>
+            </div>
+            <div className="flex items-center gap-3 glass-hero px-4 sm:px-6 py-3 rounded-full hover-lift animate-fade-in-up animate-delay-1000">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-success-400" />
+              <span className="whitespace-nowrap text-white font-medium">
+                Tim Indonesia Emas
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div
+          className={`transition-all duration-1000 delay-700 ${isVisible ? 'animate-zoom-in' : 'opacity-0 scale-95'}`}
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-14">
+            <Link
+              href="/spv"
+              className="btn-modern glass-hero text-white border-2 border-white/30 hover:border-white/50 text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift transition-all duration-300"
+            >
+              Tokenisasi Proyek
+            </Link>
+            <Link
+              href="/investor"
+              className="btn-modern btn-modern-primary text-base sm:text-lg py-4 px-6 sm:py-5 sm:px-8 min-w-[180px] sm:min-w-[200px] touch-target font-semibold hover-lift"
+            >
+              Mulai Investasi
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        {/* <div
           className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-1200 ${isVisible ? 'animate-bounce' : 'opacity-0'} mobile-hidden`}
         >
           <div className="flex flex-col items-center text-white/70">
             <span className="text-sm mb-2">Scroll untuk menjelajahi</span>
             <ChevronDown className="w-6 h-6 animate-bounce" />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Floating Elements */}
