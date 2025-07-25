@@ -133,13 +133,13 @@ identitas.
 _Backbone platform, yang mengelola proyek, fee, dan deployment._
 
 - **PlatformRegistry**:
-  [`0xc27bDcdeA460de9A76f759e785521a5cb834B7a1`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0xc27bDcdeA460de9A76f759e785521a5cb834B7a1%5D(https://sepolia.arbiscan.io/address/0xc27bDcdeA460de9A76f759e785521a5cb834B7a1)>) -
+  [`0xc27bDcdeA460de9A76f759e785521a5cb834B7a1`](https://sepolia.arbiscan.io/address/0xc27bDcdeA460de9A76f759e785521a5cb834B7a1) -
   Otorisasi & konfigurasi SPV
 - **PlatformTreasury**:
-  [`0x53ab91a863B79824c4243EB258Ce9F23a0fAB89A`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x53ab91a863B79824c4243EB258Ce9F23a0fAB89A%5D(https://sepolia.arbiscan.io/address/0x53ab91a863B79824c4243EB258Ce9F23a0fAB89A)>) -
+  [`0x53ab91a863B79824c4243EB258Ce9F23a0fAB89A`](https://sepolia.arbiscan.io/address/0x53ab91a863B79824c4243EB258Ce9F23a0fAB89A) -
   Pengumpulan _fee_ platform
 - **ProjectFactory**:
-  [`0xC3abeE18DCfE502b38d0657dAc04Af8a746913D1`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0xC3abeE18DCfE502b38d0657dAc04Af8a746913D1%5D(https://sepolia.arbiscan.io/address/0xC3abeE18DCfE502b38d0657dAc04Af8a746913D1)>) -
+  [`0xC3abeE18DCfE502b38d0657dAc04Af8a746913D1`](https://sepolia.arbiscan.io/address/0xC3abeE18DCfE502b38d0657dAc04Af8a746913D1) -
   _Deployment_ kontrak proyek
 
 #### ERC-3643 Compliance Infrastructure
@@ -148,13 +148,13 @@ _Memastikan hanya pengguna terverifikasi KYC yang dapat berpartisipasi, sehingga
 hanya perlu verifikasi satu kali untuk berinvestasi pada semua proyek._
 
 - **ClaimTopicsRegistry**:
-  [`0x2DbA5D6bdb79Aa318cB74300D62F54e7baB949f6`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x2DbA5D6bdb79Aa318cB74300D62F54e7baB949f6%5D(https://sepolia.arbiscan.io/address/0x2DbA5D6bdb79Aa318cB74300D62F54e7baB949f6)>) -
+  [`0x2DbA5D6bdb79Aa318cB74300D62F54e7baB949f6`](https://sepolia.arbiscan.io/address/0x2DbA5D6bdb79Aa318cB74300D62F54e7baB949f6) -
   _Standard claim types_
 - **TrustedIssuersRegistry**:
-  [`0x812aA860f141D48E6c294AFD7ad6437a17051235`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x812aA860f141D48E6c294AFD7ad6437a17051235%5D(https://sepolia.arbiscan.io/address/0x812aA860f141D48E6c294AFD7ad6437a17051235)>) -
+  [`0x812aA860f141D48E6c294AFD7ad6437a17051235`](https://sepolia.arbiscan.io/address/0x812aA860f141D48E6c294AFD7ad6437a17051235) -
   _Authorized KYC providers_
 - **IdentityRegistry**:
-  [`0x7f7ae1E07EedfEeeDd7A96ECA67dce85fe2A84eA`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x7f7ae1E07EedfEeeDd7A96ECA67dce85fe2A84eA%5D(https://sepolia.arbiscan.io/address/0x7f7ae1E07EedfEeeDd7A96ECA67dce85fe2A84eA)>) -
+  [`0x7f7ae1E07EedfEeeDd7A96ECA67dce85fe2A84eA`](https://sepolia.arbiscan.io/address/0x7f7ae1E07EedfEeeDd7A96ECA67dce85fe2A84eA) -
   _Central identity management_
 
 #### Project Contract Templates
@@ -163,16 +163,16 @@ _Reusable blueprints yang digunakan oleh Factory untuk meluncurkan proyek PPP
 baru di platform._
 
 - **ProjectToken**:
-  [`0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd%5D(https://sepolia.arbiscan.io/address/0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd)>) -
+  [`0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd`](https://sepolia.arbiscan.io/address/0x1f8Fb3846541571a5E3ed05f311d4695f02dc8Cd) -
   Token yang _compliant_ ERC-3643
 - **ProjectOffering**:
-  [`0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F%5D(https://sepolia.arbiscan.io/address/0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F)>) -
+  [`0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F`](https://sepolia.arbiscan.io/address/0x445b8Aa90eA5d2E80916Bc0f8ACc150d9b91634F) -
   _Identity-verified token sales_
 - **ProjectTreasury**:
-  [`0x6662D1f5103dB37Cb72dE44b016c240167c44c35`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x6662D1f5103dB37Cb72dE44b016c240167c44c35%5D(https://sepolia.arbiscan.io/address/0x6662D1f5103dB37Cb72dE44b016c240167c44c35)>) -
+  [`0x6662D1f5103dB37Cb72dE44b016c240167c44c35`](https://sepolia.arbiscan.io/address/0x6662D1f5103dB37Cb72dE44b016c240167c44c35) -
   Distribusi _profit_ spesifik proyek
 - **ProjectGovernance**:
-  [`0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23`](<https://www.google.com/search?q=%5Bhttps://sepolia.arbiscan.io/address/0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23%5D(https://sepolia.arbiscan.io/address/0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23)>) -
+  [`0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23`](https://sepolia.arbiscan.io/address/0x1abd0E1e64258450e8F74f43Bc1cC47bfE6Efa23) -
   _Token-weighted voting system_
 
 ### 4.2. ERC-3643 Identity-Centric Innovation
