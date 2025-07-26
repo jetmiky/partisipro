@@ -313,7 +313,8 @@ export default function InvestmentFlowPage() {
   ];
 
   useEffect(() => {
-    const projectId = params.id as string;
+    // const projectId = params.id as string;
+    const projectId = '1';
 
     // Check authentication
     if (!isAuthenticated) {
@@ -345,14 +346,14 @@ export default function InvestmentFlowPage() {
     loadProjectData();
   }, [params.id, isAuthenticated, router]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
+  }, []);
 
   const checkEligibility = useCallback(
     async (amount: number) => {

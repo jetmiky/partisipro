@@ -1993,6 +1993,7 @@
       "placeholder": "Cari proyek berdasarkan nama, lokasi, atau kategori..."
     },
     "filters": {
+      "title": "Filters",
       "showFilters": "Tampilkan Filter",
       "hideFilters": "Sembunyikan Filter",
       "categories": "Kategori",
@@ -2012,9 +2013,14 @@
       "veryHighRisk": "Risiko Sangat Tinggi"
     },
     "identity": {
+      "identityVerified": "Identity Verified",
+      "identityVerifiedDescription": "Your ERC-3643 identity is verified and you can invest in all available projects",
+      "kycApproved": "KYC Approved",
+      "claimsActive": "3 Claims Active",
+      "manageIdentity": "Manage Identity",
       "identityRequired": "Identity Required",
       "notEligible": "Tidak Memenuhi Syarat",
-      "eligibleToInvest": "Memenuhi Syarat Investasi",
+      "eligibleToInvest": "Eligible to Invest",
       "additionalVerificationRequired": "Memerlukan Verifikasi Tambahan"
     },
     "projectCard": {
@@ -2027,7 +2033,12 @@
       "target": "target",
       "investors": "investor",
       "viewDetails": "Lihat Detail",
-      "investNow": "Investasi Sekarang"
+      "investNow": "Investasi Sekarang",
+      "expectedReturn": "Expected Return",
+      "duration": "Duration",
+      "minInvestment": "Min. Investment",
+      "fundingProgress": "Funding Progress",
+      "years": "tahun"
     },
     "viewMode": {
       "grid": "Grid",
@@ -2040,6 +2051,12 @@
     "loading": {
       "title": "Memuat Proyek...",
       "description": "Sedang mengambil data proyek terbaru"
+    },
+    "results": {
+      "projectsFound": "4 Projects Found"
+    },
+    "sorting": {
+      "featured": "Sort by: Featured"
     }
   },
   "projectDetailPage": {

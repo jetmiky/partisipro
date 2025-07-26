@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: false,
   transpilePackages: ['@partisipro/shared', '@partisipro/ui'],
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'images.pexels.com'],
   },
   env: {
     NEXT_PUBLIC_ENVIRONMENT: process.env.NODE_ENV,

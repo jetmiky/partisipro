@@ -37,6 +37,7 @@ import { ScrollReveal, StaggeredList } from '@/components/ui/ScrollAnimations';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { AnimatedInput } from '@/components/ui/AnimatedInput';
 import { ToastProvider, toast } from '@/components/ui/AnimatedNotification';
+import Image from 'next/image';
 
 // Mock project data (same as marketplace but more detailed)
 const mockProjectData = {
@@ -303,7 +304,7 @@ export default function ProjectDetailPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden pb-10">
       {/* Toast Provider for notifications */}
       <ToastProvider />
 
@@ -383,20 +384,24 @@ export default function ProjectDetailPage() {
 
         {/* Hero Section */}
         <ScrollReveal animation="slide-up" delay={100}>
-          <div className="glass-hero relative z-10">
+          <div className="glass-hero relative z-10 pb-10">
             <div className="max-w-7xl mx-auto px-4 py-8">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Project Image */}
                 <div className="lg:col-span-2">
                   <div className="aspect-video glass-modern rounded-2xl relative overflow-hidden hover-lift transition-all duration-500">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <Image
+                      src="https://images.pexels.com/photos/30732752/pexels-photo-30732752.jpeg"
+                      alt="Project Preview"
+                      width={4240}
+                      height={2400}
+                    />
                     <div className="absolute top-6 left-6">
                       <span
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold glass-feature backdrop-blur-md border border-white/20 text-white shadow-lg`}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold glass-feature backdrop-blur-md border border-white/20 text-warning-600 shadow-lg`}
                       >
-                        {project.status === 'active'
-                          ? 'Active Investment'
-                          : project.status}
+                        Risiko Sedang
                       </span>
                     </div>
                     <div className="absolute bottom-6 left-6 text-white">
@@ -415,6 +420,32 @@ export default function ProjectDetailPage() {
                         <span className="font-medium">{project.location}</span>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <h1 className="text-4xl font-bold text-gradient mb-6">
+                      {project.title}
+                    </h1>
+                    <p className="text-lg leading-relaxed mb-3">
+                      {project.description}
+                    </p>
+
+                    {/* Highlights */}
+                    <StaggeredList
+                      className="flex flex-wrap gap-3"
+                      itemDelay={100}
+                    >
+                      {project.highlights.map(
+                        (highlight: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-6 py-3 glass-modern rounded-xl text-sm font-semibold text-primary-700 hover-lift transition-all duration-300 border border-primary-200"
+                          >
+                            {highlight}
+                          </span>
+                        )
+                      )}
+                    </StaggeredList>
                   </div>
                 </div>
 
@@ -611,32 +642,6 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
             </div>
-
-            {/* Project Title and Description */}
-            <ScrollReveal animation="slide-up" delay={200}>
-              <div className="mt-8">
-                <h1 className="text-4xl font-bold text-gradient mb-6">
-                  {project.title}
-                </h1>
-                <p className="text-primary-700 text-xl leading-relaxed mb-8">
-                  {project.description}
-                </p>
-
-                {/* Highlights */}
-                <StaggeredList className="flex flex-wrap gap-3" itemDelay={100}>
-                  {project.highlights.map(
-                    (highlight: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-6 py-3 glass-modern rounded-xl text-sm font-semibold text-primary-700 hover-lift transition-all duration-300 border border-primary-200"
-                      >
-                        {highlight}
-                      </span>
-                    )
-                  )}
-                </StaggeredList>
-              </div>
-            </ScrollReveal>
           </div>
         </ScrollReveal>
 
@@ -850,7 +855,7 @@ export default function ProjectDetailPage() {
                               <FileText className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <h3 className="font-medium text-primary-800">
+                              <h3 className="text-lg font-medium text-primary-800">
                                 {doc.name}
                               </h3>
                               <p className="text-sm text-primary-600">
@@ -898,14 +903,14 @@ export default function ProjectDetailPage() {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium text-primary-800">
+                            <h3 className="text-lg font-medium text-primary-800">
                               {update.title}
                             </h3>
-                            <span className="text-sm text-primary-600">
+                            <span className="text-sm text-muted-foreground">
                               {update.date}
                             </span>
                           </div>
-                          <p className="text-primary-700">
+                          <p className="text-base text-foreground">
                             {update.description}
                           </p>
                         </div>
